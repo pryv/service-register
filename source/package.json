@@ -1,0 +1,11 @@
+{
+  "name": "wActiv-register",
+  "description": "",
+  "version": "0.1.0",
+  "author": "SimpleData Sàtl",
+  "dependencies": {
+    "redis": "~0.7.1",
+    "express": "~2.5.8"
+  },
+  "devDependencies": {}
+}
