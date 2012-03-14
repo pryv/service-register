@@ -1,11 +1,45 @@
 // Dependencies
 
+var config = require('./utils/config');
 var express = require('express');
+var logger = require('winston');
+
+// underscore
+var  _ = require('underscore');
+_.str = require('underscore.string');
+_.mixin(_.str.exports());
 
 var app = express.createServer();
 
-app.get('/', function(req, res){
-    res.send('Hello World');
+app.configure(function(){
+  app.use(express.bodyParser());
+  app.use(express.static(__dirname + '/public'));
+  logger.setLevels(logger.config.syslog.levels);
+  // TODO: setup logger handling for uncaught exceptions
 });
 
-app.listen(3000);
+app.configure('development', function(){
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  logger.default.transports.console.level = 'debug';
+  logger.default.transports.console.colorize = true;
+});
+
+app.configure('production', function(){
+  app.use(express.errorHandler());
+});
+
+// routes
+require('./routes/check.js')(app);
+require('./routes/init.js')(app);
+
+// index
+app.get('/', function(req, res){
+  res.send('Hello World');
+});
+
+app.listen(config.get('http:port'));
+logger.info(_.sprintf('Express server listening on port %d in %s mode',
+                       app.address().port, app.settings.env));
+                       
+
+
