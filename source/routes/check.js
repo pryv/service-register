@@ -10,7 +10,7 @@ app.get('/:uid/check', function(req, res){
     res.json(messages.error('INVALID_USER_NAME'),400);
   } else db.uidExists(req.params.uid,function(error, exists) {
     if (error) { message.fatal(res); return; }
-    res.json({exists: (exists ? 'true' : 'false') });
+    res.json({exists: exists });
   });
 });
 
