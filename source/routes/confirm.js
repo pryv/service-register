@@ -13,8 +13,8 @@ function do_confirm(uid,challenge,req,res) {
   logger.info("Confirm: "+ uid + " challenge:"+challenge );
  
   db.getJSON(uid+":init", function(error, json_result) {
-    if (error) { message.internal(res) ; return ;} 
-    if (! json_result) { res.json(messages.error('NO_PENDING_CREATION'),404); return; }
+    if (error) return message.internal(res) ; 
+    if (! json_result) return res.json(messages.error('NO_PENDING_CREATION'),404); 
     
     console.log("JSON: "+ json_result);
   });
@@ -24,14 +24,14 @@ function do_confirm(uid,challenge,req,res) {
 // STEP 1, check if request is valid or user already confirmed
 function pre_confirm(uid,req,res) {
   var uid = ck.uid(uid);
-  if (! uid) { res.json(message.error('INVALID_USER_NAME'),400); return; }
+  if (! uid) return res.json(message.error('INVALID_USER_NAME'),400);
   var challenge = ck.challenge(req.body.challenge);
-  if (! challenge) { res.json(message.error('INVALID_CHALLENGE'),400); return; }
+  if (! challenge) return res.json(message.error('INVALID_CHALLENGE'),400); 
   
   db.getServer(uid, function(error, result) {
-    if (error) { message.internal(res) ; return ;} 
-    if (result) res.json({server: result},400); // already confirmed
-    else do_confirm(uid,challenge,req,res);
+    if (error) return message.internal(res) ; 
+    if (result) return res.json({server: result},400); // already confirmed
+    do_confirm(uid,challenge,req,res);
   });
 }
 

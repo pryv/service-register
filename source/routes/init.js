@@ -10,7 +10,7 @@ function do_init(uid,password,email,lang,req,res) {
   logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
   var challenge = "ABCDEF";
   db.initSet(uid,password,email,lang,challenge, function(error,result) {
-    if (error) {messages.internal(res); return; }
+    if (error) return messages.internal(res); 
     res.json({captchaChallenge: challenge});
   });
 }
@@ -32,11 +32,8 @@ app.post('/init', function(req, res){
   function test_done(title) {
    tests--;
     if (tests <= 0) {
-      if (errors.length > 0) {
-        res.json(messages.errors(errors),400);
-        return;
-      } else  // do the job
-          do_init(uid,password,email,lang,req,res);
+      if (errors.length > 0) return res.json(messages.errors(errors),400);
+      do_init(uid,password,email,lang,req,res);
     }
   }
   
