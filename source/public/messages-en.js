@@ -9,4 +9,8 @@ register_messages = {
     'detail' : 'Password must be between 6 and 50 characters'},
   'INVALID_EMAIL' : { 'title' : 'Invalid email adress', 
     'detail' : 'E-mail address format not recognized'},
+  'NO_PENDING_CREATION' : { 'title' : 'No pending creation', 
+    'detail' : 'User unkown or creation time elapsed.'},
+  'INVALID_CHALLENGE' : { 'title' : 'Invalid challenge', 
+    'detail' : 'Data format of the challenge is not recognized.'},
 };

@@ -31,9 +31,11 @@ app.configure('production', function(){
 // routes
 require('./routes/check.js')(app);
 require('./routes/init.js')(app);
+require('./routes/confirm.js')(app);
 
 // index
 app.get('/', function(req, res){
+  console.log(req.connection);
   res.send('Hello World');
 });
 

@@ -6,7 +6,7 @@ var  _ = require('underscore');
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
-
+// (alphanum between 5 an 21 chars) case-insensitive
 exports.uid = function(str) {
     if (! str) return null;
     str = _(str).trim();
@@ -14,6 +14,7 @@ exports.uid = function(str) {
     return null;
 };
 
+// any chars between 6 and 99 chars, with no trailing spaces.
 exports.password = function(str) {
     if (! str) return null;
     str = _(str).trim();
@@ -26,6 +27,13 @@ exports.email = function(str) {
   str = _(str).trim();
   if ( /^[^@]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$/.test(str)) return str;
   return null;
+};
+
+exports.challenge = function(str) {
+  if (! str) return null;
+    str = _(str).trim();
+    if ( /^([a-zA-Z0-9]{5,200})$/.test(str) ) return str;
+    return null;
 };
 
 exports.lang = function(str) {
