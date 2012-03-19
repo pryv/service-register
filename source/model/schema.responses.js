@@ -46,7 +46,8 @@ var error_multiple = exports.error_multiple = {
     },
     'errors' : {
         "type" : "object",
-        "properties" : {
+        "items" : {
+          "properties" : {
             'id': {
               type: 'string',
               required: true
@@ -59,6 +60,7 @@ var error_multiple = exports.error_multiple = {
               type: 'string',
               required: true
             }
+          }
         }
     }
   }
