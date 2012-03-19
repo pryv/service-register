@@ -43,6 +43,23 @@ var error_multiple = exports.error_multiple = {
     'detail': {
       type: 'string',
       required: true
+    },
+    'errors' : {
+        "type" : "object",
+        "properties" : {
+            'id': {
+              type: 'string',
+              required: true
+            },
+            'message': {
+              type: 'string',
+              required: true
+            },
+            'detail': {
+              type: 'string',
+              required: true
+            }
+        }
     }
   }
 };
