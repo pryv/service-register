@@ -9,7 +9,7 @@ var dataservers = require('../network/dataservers.js');
 // STEP 3
 
 // STEP 2
-function do_confirm(uid,challenge,req,res) {
+function do_confirm(uid,challenge,req,res,next) {
   logger.info("Confirm: "+ uid + " challenge:"+challenge );
  
   db.getJSON(uid+":init", function(error, json_result) {
@@ -22,7 +22,7 @@ function do_confirm(uid,challenge,req,res) {
 
 
 // STEP 1, check if request is valid or user already confirmed
-function pre_confirm(uid,req,res) {
+function pre_confirm(uid,req,res,next) {
   var uid = ck.uid(uid);
   if (! uid) return res.json(message.error('INVALID_USER_NAME'),400);
   var challenge = ck.challenge(req.body.challenge);
@@ -31,18 +31,18 @@ function pre_confirm(uid,req,res) {
   db.getServer(uid, function(error, result) {
     if (error) return message.internal(res) ; 
     if (result) return res.json({server: result},400); // already confirmed
-    do_confirm(uid,challenge,req,res);
+    do_confirm(uid,challenge,req,res,next);
   });
 }
 
 
 // register to express
 function init(app) {
-app.get('/:uid/confirm', function(req, res){
+app.get('/:uid/confirm', function(req, res,next){
     pre_init(req.params.uid,req,res);
 });
 
-app.post('/:uid/confirm', function(req, res){
+app.post('/:uid/confirm', function(req, res,next){
      pre_init(req.params.uid,req,res);
 });
 }

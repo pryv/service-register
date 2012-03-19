@@ -34,10 +34,13 @@ require('./routes/init.js')(app);
 require('./routes/confirm.js')(app);
 
 // index
-app.get('/', function(req, res){
+app.get('/', function(req, res, next){
   console.log(req.connection);
   res.send('Hello World');
 });
+
+// error management (evolution)
+require('./utils/app_errors.js')(app);
 
 app.listen(config.get('http:port'));
 logger.info(_.sprintf('Express server listening on port %d in %s mode',

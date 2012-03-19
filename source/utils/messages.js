@@ -28,11 +28,32 @@ function errors(errors_array) {
     return {errors: content};
 }
 
-function _say(code,addons) {
-    var content = mstrings['en'][code];
-    content.code = code;
+function _say(id,addons) {
+    var content = mstrings['en'][id];
+    content.id = id;
     return content ;
 }
+
+
+// sugar for errors
+exports.e = function e(httpCode, id, message) {
+    var data = mstrings['en'][id];
+    data.id = id;
+    if (message != null) data.message = message;
+    return new REGError(httpCode, data);
+}
+
+// REG ERRORS
+var REGError = exports.REGError = function(httpCode, data) {
+  this.httpCode = httpCode;
+  this.data = data;
+};
+
+REGError.prototype.__proto__ = Error.prototype;
+
+
+
+
 
 exports.errors = errors; 
 exports.error = error; 

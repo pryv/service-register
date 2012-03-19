@@ -20,7 +20,7 @@ function do_init(uid,password,email,lang,req,res) {
 function init(app) {
 
 // request pre processing
-app.post('/init', function(req, res){
+app.post('/init', function(req, res,next){
   var uid = ck.uid(req.body.userName);
   var password = ck.password(req.body.password);
   var email = ck.email(req.body.email);
@@ -33,7 +33,7 @@ app.post('/init', function(req, res){
    tests--;
     if (tests <= 0) {
       if (errors.length > 0) return res.json(messages.errors(errors),400);
-      do_init(uid,password,email,lang,req,res);
+      do_init(uid,password,email,lang,req,res,next);
     }
   }
   
