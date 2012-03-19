@@ -34,12 +34,11 @@ function _say(id,addons) {
     return content ;
 }
 
-
 // sugar for errors
-exports.e = function e(httpCode, id, message) {
+exports.e = function e(httpCode, id, detail) {
     var data = mstrings['en'][id];
     data.id = id;
-    if (message != null) data.message = message;
+    if (detail != null) data.detail = detail;
     return new REGError(httpCode, data);
 }
 

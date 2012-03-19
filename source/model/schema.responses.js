@@ -8,3 +8,22 @@ var check_exists = exports.check_exists = {
         }
     }
 }
+
+// errors
+var error = exports.error = {
+  type: 'object',
+  properties: {
+    'id': {
+      type: 'string',
+      required: true
+    },
+    'message': {
+      type: 'string',
+      required: true
+    },
+    'detail': {
+      type: 'string',
+      required: true
+    }
+  }
+};

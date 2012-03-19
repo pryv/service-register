@@ -1,46 +1,40 @@
 var app = require('../../app');
-var config = require('../../utils/config');
-var should = require('should');
+
 
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
-var http = require('http'); 
+
 
 // TODO Data validation
-describe('check', function(){
 
-  describe('GET /:uid/check', function(){
-   var tests = { todos: [ 
-        { uid: 'abcd', status: 400 , desc : 'too short '}, 
-        { uid: 'abcdefghijklmnopqrstuvwxyz', status: 400 , desc : 'too long '}, 
-        { uid: 'abc%20def', status: 400 , desc : 'invalid character '}, 
-        { uid: 'abc.def', status: 400 , desc : 'invalid character ' },  
-        { uid: 'abc_def', status: 400 , desc : 'invalid character ' }, 
-        { uid: 'wactiv', status: 200 , desc : 'correct ', JSONvalidation : schema.check_exists }, 
-        ]};
-   
-  function doit (test) {
-    var path = '/'+ test.uid +'/check';
-    it(' '+ path +'  >> '+ test.desc, function(done){
-      var req = http.request({ path: path, port: config.get('http:port'), method: 'GET' }, function(res){
-        res.should.have.status(test.status);
-        
-        
-        if (test.JSONvalidation != null) { 
-            dataValidation.jsonResponse(res,test.JSONvalidation,done);
-         } else {
-             done();
-         }
-         
-       }).on('error', function(e) {
-         throw new Error("Got error: " + e.message, e);
-      });
-      req.end();
-    });
-   }
-   
-   for (i = 0; i < tests.todos.length ; i++) doit (tests.todos[i]); 
-  });
+describe('GET /:uid/check', function(){
+var tests = [ 
+    { uid: 'abcd', status: 400 , desc : 'too short ' , 
+      JSchema : schema.error , JValues: {"id":'INVALID_USER_NAME'}}, 
+      
+    { uid: 'abcdefghijklmnopqrstuvwxyz', status: 400 , desc : 'too long ', 
+      JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}}, 
+      
+    { uid: 'abc%20def', status: 400 , desc : 'invalid character 1', 
+      JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}},
+      
+    { uid: 'abc.def', status: 400 , desc : 'invalid character 2', 
+      JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}},
+      
+    { uid: 'abc_def', status: 400 , desc : 'invalid character ', 
+      JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}}, 
+      
+    { uid: 'wactiv', status: 200 , desc : 'correct ', 
+      JSchema : schema.check_exists }, 
+    ] ;
+
+for (key in tests) { // cretate PATH and method
+  tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
+  tests[key].path = '/'+ tests[key].uid +'/check';
+  tests[key].method = 'GET';
   
+  dataValidation.path_status_schema(tests[key]);
+}
 });
+  
