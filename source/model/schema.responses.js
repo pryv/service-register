@@ -27,3 +27,22 @@ var error = exports.error = {
     }
   }
 };
+
+// errors
+var error_multiple = exports.error_multiple = {
+  type: 'object',
+  properties: {
+    'id': {
+      type: 'string',
+      required: true
+    },
+    'message': {
+      type: 'string',
+      required: true
+    },
+    'detail': {
+      type: 'string',
+      required: true
+    }
+  }
+};

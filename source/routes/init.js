@@ -32,7 +32,7 @@ app.post('/init', function(req, res,next){
   function test_done(title) {
    tests--;
     if (tests <= 0) {
-      if (errors.length > 0) return res.json(messages.errors(errors),400);
+      if (errors.length > 0) return next(messages.ex(400,'INVALID_DATA',errors));
       do_init(uid,password,email,lang,req,res,next);
     }
   }
@@ -42,7 +42,7 @@ app.post('/init', function(req, res,next){
   else {
     tests++;
     db.uidExists(uid, function(error, exists) {
-      if (error) errors.push('INTERNAL_ERROR');
+      if (error) return next(messages.ei());
       if (exists) errors.push('EXISTING_USER_NAME');
       test_done();
     });

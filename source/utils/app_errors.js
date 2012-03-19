@@ -9,7 +9,8 @@ app.error(function(error, req, res, next) {
       res.json(error.data, error.httpCode);
     } else {
       logger.debug("app_errors : "+ error);
-      next();
+      console.log( error.stack )
+      //next();
     }
   });
   

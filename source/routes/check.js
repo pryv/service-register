@@ -11,7 +11,7 @@ app.get('/:uid/check', function(req, res,next){
   if (! ck.uid(req.params.uid)) return next(messages.e(400,'INVALID_USER_NAME'));
   
   db.uidExists(req.params.uid,function(error, exists) {
-    if (error) return messages.internal(res);
+    if (error) return next(messages.ei());
     res.json({exists: exists });
   });
 });

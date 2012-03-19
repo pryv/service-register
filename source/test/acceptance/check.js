@@ -4,8 +4,6 @@ var app = require('../../app');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
-
-
 // TODO Data validation
 
 describe('GET /:uid/check', function(){
