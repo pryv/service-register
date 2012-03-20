@@ -8,6 +8,20 @@ exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
   jsonData(JSON.parse(httpResponse.body), validate(responseData, jsonSchema));
 };
 
+/** helper that test the content of a JSON structure **/
+testJsonValues = function(tests,data_json) {
+  for (key in tests) {
+    if (tests[key] instanceof Array) {
+        // check values as of an ordered array
+        for(i in tests[key]) {
+            testJsonValues(tests[key][i],data_json[key][i]);
+        }
+    } else {
+        tests[key].should.equal(data_json[key]);
+    }
+  }
+}
+
 /**
 * test is expected to have the properties
 * JSchema: jscon-schema for validation
@@ -22,9 +36,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done) {
     jsonData(data_json, test.JSchema);
     // test constents
     if (test.JValues != null) {
-        for (key in test.JValues) {
-            test.JValues[key].should.equal(data_json[key]);
-        }
+        testJsonValues(test.JValues,data_json);
     }
     callback_done();
   });
