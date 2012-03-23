@@ -8,7 +8,7 @@ var schema = require('../../model/schema.responses');
 
 describe('POST /init', function(){
 var tests = [ 
-    { uid: 'abcd', password: 'abcdefgh',status: 400 , desc : 'uid too short ' , 
+    { uid: 'abcd', password: 'abcdefgh', status: 400 , desc : 'uid too short ' , 
       JSchema : schema.error_multiple , JValues: {"id":'INVALID_DATA', "errors": [{"id": 'INVALID_USER_NAME' }]}},
       
     ] ;

@@ -47,8 +47,8 @@ app.post('/init', function(req, res,next){
       test_done();
     });
   }
-  if (! password) errors.push('INVALID_PASSWORD');
-  if (! email) errors.push('INVALID_EMAIL');
+  if (password == null) errors.push('INVALID_PASSWORD');
+  if (email == null) errors.push('INVALID_EMAIL');
   test_done();
 });
 

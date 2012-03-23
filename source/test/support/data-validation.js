@@ -10,6 +10,7 @@ exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
 
 /** helper that test the content of a JSON structure **/
 testJsonValues = function(tests,data_json) {
+  //console.log(tests); console.log(data_json); 
   for (key in tests) {
     if (tests[key] instanceof Array) {
         // check values as of an ordered array
