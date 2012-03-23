@@ -1,0 +1,69 @@
+// All credits to Fun DNS 
+
+How define hostname
+edit 'static_hosts.json',
+the syntaxe of this file respect json format
+        {
+                "hostname1" : {
+                        [property...]
+                },
+                "hostname2" : {
+                        [property...]
+                },
+                "hostname3" : {
+                        [property...]
+                },
+                [...]
+                "hostnameN" : {
+                        [property...]
+                }
+        }
+properties of a hostname
+        "name" : {
+                "ip" : "127.0.0.1",
+                "description" : "je suis le serveur web local",
+                "autority" : "dns.{name},dns2.{name}",
+                "mail" : {
+                        "ip" : "127.0.0.2",
+                        "name" : "mail.{name}",
+                        "priority" : 10
+                },
+                "nameserver" : [{
+                        "ip" : "127.0.0.1",
+                        "name" : "ns1.{name}"
+                }]
+        }
+The hostname can have a short regex like syntaxe.
+        *  : this expression respect ".*" in regex;
+        %w : this expression respect "[a-zA-Z0-9_]+" in regex;
+        %h : this expression respect "[a-fA-F0-9]+" in regex;
+        %d : this expression respect "[0-9]+" in regex;
+
+sample conf.json :
+        {
+                "server.web" : {
+                        "ip" : "192.168.1.3",
+                        "nameserver" : [{
+                                "name" : "dns3.local.web"
+                        },{
+                                "ip" : "192.168.1.2",
+                                "name" : "dns2.local.web"
+                        },{
+                                "ip" : "192.168.1.1",
+                                "name" : "dns.local.web"
+                        }]
+                },
+                "!*.lo" : {
+                        "ip" : "127.0.0.1",
+                        "autority" : "dns.{name},dns2.{name}",
+        
+                        "nameserver" : [{
+                                "ip" : "127.0.0.1",
+                                "name" : "dns.{name}"
+                        },{
+                                "ip" : "127.0.0.1",
+                                "name" : "dns2.{name}"
+                        }]
+        
+                }
+        }
