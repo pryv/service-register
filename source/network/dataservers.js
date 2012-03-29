@@ -45,23 +45,21 @@ function getClientIp(req) {
   return ipAddress;
 };
 
-
+// POST request to an admin server, callback(error,json_result)
 function post_to_admin(host,path,expected_status,json_data,callback) {
   
-  var http_options = { host : host.name , port: host.port,
-      path: "/register/create-user", method: "POST" };
+  var http_options = { host : host.name , port: host.port, path: path, method: "POST" };
   var post_data = querystring.stringify(json_data);
 
-  console.log(post_data);
+  //console.log(post_data);
 
   http_options.headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     'authorization': host.authorization,
     'Content-Length': post_data.length
   }
+  
   var req = http.request(http_options, function(res){
-   
-    
      var bodyarr = [];
      res.on('data', function (chunk) { bodyarr.push(chunk); });
      res.on('end', function() {
@@ -69,7 +67,6 @@ function post_to_admin(host,path,expected_status,json_data,callback) {
         return callback('post_to_admin bad result status'+ res. statusCode +' != expected_status \n Message: '+ bodyarr.join(''),null);
        }
         var res_json = JSON.parse(bodyarr.join(''));
-         
         return callback(null,res_json);
      });
     
