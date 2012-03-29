@@ -37,10 +37,10 @@ exports.getJSON = getJSON;
 
 // Specialized
 
-exports.initSet = function initSet(uid, password, email, lang, challenge, callback) {
+exports.initSet = function initSet(uid, password, email, language, challenge, callback) {
   var multi = redis.multi();
-  var value = {password: password, email: email, challenge: challenge, lang: lang};
-  var key = uid.toLowerCase() +":init";
+  var value = {uid: uid, password: password, email: email, challenge: challenge, language: language};
+  var key = "init:"+challenge;
   multi.set(key, JSON.stringify(value));
   multi.expire(key, config.get('persistence:init-ttl'));
   multi.exec(function(error, result) {

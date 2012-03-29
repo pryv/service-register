@@ -3,16 +3,22 @@ var ck = require('../utils/ck.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
-
+var mailer = require('../utils/mailer.js');
 
 // all check are passed, do the job
 function do_init(uid,password,email,lang,req,res) {
   logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
   var challenge = "ABCDEF";
+  
+  // set on db
   db.initSet(uid,password,email,lang,challenge, function(error,result) {
     if (error) return messages.internal(res); 
     res.json({captchaChallenge: challenge});
   });
+  
+  // send mail
+ 
+    mailer.sendConfirm(uid,uid+' <pml@simpledata.ch>',challenge,lang);
 }
 
 

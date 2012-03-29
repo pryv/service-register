@@ -23,5 +23,21 @@ nconf.defaults({
   },
   'persistence' : { 
       'init-ttl' : 60 // seconds should be 86400 for a day
+  },
+  'net': {
+     'servers_domain': 'edelwatch.net', // maybe tracktivist.net
+     'my_id': 'ns1',
+     'staticsurl': 'http://localhost:3000/',
+     'confirmurl': 'http://localhost:3000/%challenge%/confirm'
+  },
+  'mailer': {
+      'confirm-sender-email': 'trac@edelwatch.net',
+      'amazon_ses' : {
+          'accesskeyid': 'AKIAIHR6HVRME43VNCSA',
+          'secretkey': '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',
+          'serviceurl': 'https://email.us-east-1.amazonaws.com'
+      }
   }
 });
+
+// Set network aware parameters

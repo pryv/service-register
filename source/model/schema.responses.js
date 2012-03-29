@@ -9,6 +9,17 @@ var check_exists = exports.check_exists = {
     }
 }
 
+// route : init
+var init_done = exports.init_done = {
+    type: 'object',
+    properties: {
+        'captchaChallenge' : {
+            type: 'string',
+            require: true
+        }
+    }
+}
+
 // errors
 var error = exports.error = {
   type: 'object',
@@ -28,7 +39,7 @@ var error = exports.error = {
   }
 };
 
-// errors
+// errors multiple
 var error_multiple = exports.error_multiple = {
   type: 'object',
   properties: {

@@ -2,6 +2,8 @@ var validate = require('json-schema').validate;
 var config = require('../../utils/config');
 var should = require('should');
 var http = require('http'); 
+var querystring = require('querystring');
+
 
 exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
   httpResponse.should.be.json;
@@ -10,15 +12,17 @@ exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
 
 /** helper that test the content of a JSON structure **/
 testJsonValues = function(tests,data_json) {
-  //console.log(tests); console.log(data_json); 
+  //console.log("\n****"); console.log(tests); console.log(data_json); 
   for (key in tests) {
-    if (tests[key] instanceof Array) {
+    var testa = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??
+    var dataa = data_json[key];
+    if (testa instanceof Array) {
         // check values as of an ordered array
-        for(i in tests[key]) {
-            testJsonValues(tests[key][i],data_json[key][i]);
+        for(var i = 0; i < testa.length; i++) {
+            testJsonValues(testa[i],dataa[i]);
         }
     } else {
-        tests[key].should.equal(data_json[key]);
+        testa.should.equal(dataa);
     }
   }
 }
@@ -34,10 +38,15 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done) {
   res.on('data', function (chunk) { bodyarr.push(chunk); });
   res.on('end', function() {
     var data_json = JSON.parse(bodyarr.join(''));
+    //console.log("\n**data received**\n");console.log(bodyarr.join(''));
     jsonData(data_json, test.JSchema);
     // test constents
     if (test.JValues != null) {
         testJsonValues(test.JValues,data_json);
+    }
+    // if everything works.. then callback for result
+    if (test.nextStep != null) {
+        test.nextStep(test,data_json);
     }
     callback_done();
   });
@@ -60,7 +69,16 @@ exports.jsonData = jsonData = function(responseData, jsonSchema) {
 */
 exports.path_status_schema = path_status_schema = function path_status_schema (test) {
 it(test.it, function(done){
-  var req = http.request({ path: test.path, port: config.get('http:port'), method: test.method }, function(res){
+  var http_options = { path: test.path, port: config.get('http:port'), method: test.method };
+  var post_data = "";
+  if (test.method == 'POST') {
+      post_data = querystring.stringify(test.data);
+      http_options.headers = {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': post_data.length
+      }
+  }
+  var req = http.request(http_options, function(res){
     res.should.have.status(test.status);
     if (test.JSchema != null)
       jsonResponse(res,test,done);
@@ -68,6 +86,9 @@ it(test.it, function(done){
    }).on('error', function(e) {
      throw new Error("Got error: " + e.message, e);
   });
+  if (test.method == 'POST') {
+      req.write(post_data);
+  }
   req.end();
 });
 }
