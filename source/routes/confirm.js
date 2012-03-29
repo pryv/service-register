@@ -9,7 +9,7 @@ var dataservers = require('../network/dataservers.js');
 
 // STEP 4
 function save_to_db(host,json_infos,req,res,next) {
-    logger.info("SaveToDB: "+ json_infos.userName  );
+   // logger.info("SaveToDB: "+ json_infos.userName  );
     db.setServerAndInfos(json_infos.userName, host.name, json_infos, function(error,result) {
       if (error) {
         logger.error(error);
@@ -24,7 +24,7 @@ function find_server(challenge,json_infos,req,res,next) {
   //logger.info("Confirm: "+ json_result.userName + " challenge:"+challenge );
   //logger.info(JSON.stringify(json_result));
   dataservers.recommanded(req,function(error,host) {
-      logger.info("found server "+host.name +" for uid: "+ json_infos.userName + " challenge:"+challenge );
+      //logger.info("found server "+host.name +" for uid: "+ json_infos.userName + " challenge:"+challenge );
      
       dataservers.post_to_admin(host,"/register/create-user",201,json_infos,function(error,json_result) {
          if (error) {

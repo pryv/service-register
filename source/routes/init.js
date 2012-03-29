@@ -8,7 +8,7 @@ var crypto = require('crypto');
 
 // all check are passed, do the job
 function do_init(uid,password,email,lang,req,res) {
-  logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
+  //logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
   var challenge = "ABCDEF";
   
   // set on db
