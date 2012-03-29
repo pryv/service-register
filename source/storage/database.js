@@ -39,7 +39,7 @@ exports.getJSON = getJSON;
 
 exports.initSet = function initSet(uid, password, email, language, challenge, callback) {
   var multi = redis.multi();
-  var value = {uid: uid, password: password, email: email, challenge: challenge, language: language};
+  var value = {userName: uid, password: password, email: email, language: language};
   var key = "init:"+challenge;
   multi.set(key, JSON.stringify(value));
   multi.expire(key, config.get('persistence:init-ttl'));

@@ -6,48 +6,60 @@ var logger = require('winston');
 
 var dataservers = require('../network/dataservers.js');
 
-// STEP 3
 
-// STEP 2
-function do_confirm(challenge,req,res,next) {
-  logger.info("Confirm: "+ uid + " challenge:"+challenge );
- 
-  db.getServer(uid, function(error, result) {
-    if (error) return message.internal(res) ; 
-    if (result) return res.json({server: result},400); // already confirmed
-    do_confirm(uid,challenge,req,res,next);
+// STEP 4
+
+// STEP 3
+function find_server(challenge,json_result,req,res,next) {
+  logger.info("Confirm: "+ json_result.userName + " challenge:"+challenge );
+  logger.info(JSON.stringify(json_result));
+  dataservers.recommanded(req,function(error,host) {
+      logger.info("found server "+host.name +" for uid: "+ json_result.userName + " challenge:"+challenge );
+     
+      dataservers.post_to_admin(host,"/register/create-user",201,json_result,function(error,json_result) {
+         if (error) {
+             logger.error(error);
+             return next(messages.ei());
+         }
+         logger.debug(JSON.stringify(json_result));
+      });
+      // call server to register user 
   });
-  
-  
 }
 
 
-// STEP 1, check if request is valid the challenge token known
+// STEP 2
+function check_uid(challenge,json_result,req,res,next) {
+  //logger.info("check_uid: "+ json_result.userName + " challenge:"+challenge );
+  //logger.info(JSON.stringify(json_result));
+  db.getServer(json_result.userName, function(error, result) {
+    if (error) return next(messages.ei()) ; 
+    if (result) return res.json({server: result},400); // already confirmed
+    find_server(challenge,json_result,req,res,next);
+  });
+}
+
+
+// STEP 1, check if request is valid == the challenge is token known
 function pre_confirm(_challenge,req,res,next) {
   var challenge = ck.challenge(_challenge);
-  if (! challenge) return res.json(message.error('INVALID_CHALLENGE'),400); 
-  
+  if (! challenge) return next(messages.e(400,'INVALID_CHALLENGE')); 
   db.getJSON("init:"+challenge, function(error, json_result) {
-    if (error) return message.internal(res) ; 
-    if (! json_result) return res.json(messages.error('NO_PENDING_CREATION'),404); 
-    
-    // check json_result structure
-    
-    console.log("JSON: "+ json_result);
+    if (error) return next(messages.ei()) ; 
+    if (! json_result) return  next(messages.e(404,'NO_PENDING_CREATION')); 
+    check_uid(challenge,json_result,req,res,next);
   });
-  
- 
 }
 
 
 // register to express
 function init(app) {
 app.get('/:challenge/confirm', function(req, res,next){
-    pre_init(req.params.challenge,req,res);
+    pre_confirm(req.params.challenge,req,res,next);
 });
 
 app.post('/confirm_post', function(req, res,next){
-     pre_init(req.body.challenge,req,res);
+     pre_confirm(req.body.challenge,req,res,next);
 });
 }
 module.exports = init;

@@ -31,6 +31,7 @@ nconf.defaults({
      'confirmurl': 'http://localhost:3000/%challenge%/confirm'
   },
   'mailer': {
+      'deactivated' : true,
       'confirm-sender-email': 'trac@edelwatch.net',
       'amazon_ses' : {
           'accesskeyid': 'AKIAIHR6HVRME43VNCSA',

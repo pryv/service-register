@@ -18,22 +18,24 @@ var mailOptions_Confirm = {
     to: "pml@simpledata.ch", // list of receivers
     subject: "Confirm your e-mail address ✔", // Subject line
     text: "Hello %uid% \n confirm your adresse e-mail %url%: ✔", // plaintext body
-    html: "<b>Hello %uid% \n confirm your adresse e-mail <a href='%url%'>CLICK HERE</a>✔</b>" // html body
+    html: "Hello <b>%uid%</b> <br> confirm your adresse e-mail <a href='%url%'>CLICK HERE</a>✔</b>" // html body
 }
 
 exports.sendConfirm = function (uid,to,challenge,lang) {
-    var url = config.get('mailer:amazon_ses:accesskeyid').replace('%challenge%',challenge);
+    if ( config.get('mailer:deactivated')) return true; //
+    
+    var url = config.get('net:confirmurl').replace('%challenge%',challenge);
     // send mail with defined transport object
     var mailc = mailOptions_Confirm;
-    mailc.text = mailc.text.replace('%uid',uid);
-    mailc.html = mailc.html.replace('%uid',uid);
-    mailc.text = mailc.text.replace('%url',url);
-    mailc.html = mailc.html.replace('%url',url);
+    mailc.text = mailc.text.replace('%uid%',uid);
+    mailc.html = mailc.html.replace('%uid%',uid);
+    mailc.text = mailc.text.replace('%url%',url);
+    mailc.html = mailc.html.replace('%url%',url);
     SESTransport.sendMail(mailOptions_Confirm, function(error, response){
         if(error){
             logger.debug(error);
         }else{
-            logger.info("Message sent: " + response.message);
+            //logger.info("Message sent: " + response.message);
         }
         SESTransport.close(); // shut down the connection pool, no more messages
     });

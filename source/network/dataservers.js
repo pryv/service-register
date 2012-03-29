@@ -1,4 +1,6 @@
 var config = require('../utils/config');
+var querystring = require('querystring');
+var http = require('http');
 /** 
  * deal with the server logic 
  * - find the closest server for an IP
@@ -6,8 +8,8 @@ var config = require('../utils/config');
 **/
 var logger = require('winston');
 
-var servers = [{ 'name': 'test1', 'key': 'xyvz' }, 
-               { 'name': 'test2', 'key': 'toto' }];
+var servers = [{ "name": "test1", "port": 80, "authorization": "register-test-token" }, 
+               { "name": "test2", "port": 80, "authorization": "register-test-token" }];
 
 // update servers list with domain name
 for (var i = 0; i < servers.length; i++)
@@ -16,8 +18,8 @@ for (var i = 0; i < servers.length; i++)
 // return recommanded servers
 function recommanded(req,callback) {
     // for now it's random
-    var i = Math.floor( Math.random() * ( servers.length + 1 ) );
-    var result = servers[i].name;
+    var i = Math.floor( Math.random() * ( servers.length  ) );
+    var result = servers[i];
     callback(null,result);
 }
 
@@ -42,3 +44,50 @@ function getClientIp(req) {
   }
   return ipAddress;
 };
+
+
+function post_to_admin(host,path,expected_status,json_data,callback) {
+  
+  var http_options = { host : host.name , port: host.port,
+      path: "/register/create-user", method: "POST" };
+  var post_data = querystring.stringify(json_data);
+
+  console.log(post_data);
+
+  http_options.headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'authorization': host.authorization,
+    'Content-Length': post_data.length
+  }
+  var req = http.request(http_options, function(res){
+   
+    
+     var bodyarr = [];
+     res.on('data', function (chunk) { bodyarr.push(chunk); });
+     res.on('end', function() {
+       if (res. statusCode != expected_status) {
+        return callback('post_to_admin bad result status'+ res. statusCode +' != expected_status \n Message: '+ bodyarr.join(''),null);
+       }
+        var res_json = JSON.parse(bodyarr.join(''));
+         
+        return callback(null,res_json);
+     });
+    
+   }).on('error', function(e) {
+     return callback("post_to_admin error: " + e.message,null);
+  });
+  
+  req.on('socket', function (socket) {
+    socket.setTimeout(1000);  
+    socket.on('timeout', function() {
+        req.abort();
+        return callback('post_to_admin timeout',null);
+    });
+  });
+  
+  req.write(post_data);
+  req.end();
+}
+
+
+exports.post_to_admin = post_to_admin;
