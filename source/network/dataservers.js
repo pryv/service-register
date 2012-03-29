@@ -63,8 +63,8 @@ function post_to_admin(host,path,expected_status,json_data,callback) {
      var bodyarr = [];
      res.on('data', function (chunk) { bodyarr.push(chunk); });
      res.on('end', function() {
-       if (res. statusCode != expected_status) {
-        return callback('post_to_admin bad result status'+ res. statusCode +' != expected_status \n Message: '+ bodyarr.join(''),null);
+       if (res.statusCode != expected_status) {
+        return callback('post_to_admin bad result status'+ res.statusCode +' != expected_status \n Message: '+ bodyarr.join(''),null);
        }
         var res_json = JSON.parse(bodyarr.join(''));
         return callback(null,res_json);

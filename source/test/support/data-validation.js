@@ -78,9 +78,10 @@ it(test.it, function(done){
           'Content-Length': post_data.length
       }
   }
+  //console.log(JSON.stringify(test));
   var req = http.request(http_options, function(res){
     res.should.have.status(test.status);
-    if (test.JSchema != null)
+    if (test.JSchema != null) 
       jsonResponse(res,test,done);
     else done();
    }).on('error', function(e) {

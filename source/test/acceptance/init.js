@@ -10,6 +10,7 @@ var confirm_challenge = function(test, json_data) {
     describe('GET /confirm ->'+json_data.captchaChallenge, function(){
         test = { it : " uid: " + test.data.userName,
                  path : '/'+ json_data.captchaChallenge +'/confirm',
+                 status: 200,
                   method : 'GET'};
         dataValidation.path_status_schema(test)
     });
@@ -20,9 +21,9 @@ var confirm_challenge = function(test, json_data) {
 describe('POST /init', function(){
 
 var randomuser = 'xabcDefg'+ Math.floor( Math.random() * ( 100000  ) );
-
+var randommail = randomuser +'@simpledata.ch'; // should not be necessary
 var tests = [ 
-    { data: { userName: randomuser, password: 'abcdefg', email: 'pml@simpledata.ch'}, status: 200 , desc : 'valid',
+    { data: { userName: randomuser, password: 'abcdefg', email: randommail}, status: 200 , desc : 'valid',
      JSchema : schema.init_done , nextStep: confirm_challenge },
                                                                            
     {  data: { userName: 'abcd', password: 'abc', email: 'pml@simpledata.ch'}, status: 400 , desc : 'uid too short & bad password' , 

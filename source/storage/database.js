@@ -40,7 +40,7 @@ exports.getJSON = getJSON;
 exports.initSet = function initSet(uid, password, email, language, challenge, callback) {
   var multi = redis.multi();
   var value = {userName: uid, password: password, email: email, language: language};
-  var key = "init:"+challenge;
+  var key = challenge+":init";
   multi.set(key, JSON.stringify(value));
   multi.expire(key, config.get('persistence:init-ttl'));
   multi.exec(function(error, result) {
@@ -58,10 +58,13 @@ exports.getServer = function getServer(uid, callback) {
 }
 
 
-exports.setServer = function setServer(uid, server, callback) {
-  redis.set(key +":server",function(error, result) {
-    if (error) logger.error('Redis setServer: '+ uid +' '+ server +' e: '+ error, error);
-    callback(error, result); 
+exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callback) {
+  var multi = redis.multi();
+  multi.set(uid +":infos", JSON.stringify(infos));
+  multi.set(uid +":server", server);
+  multi.exec(function(error, result) {
+    if (error) logger.error('Redis setServerAndInfos: '+ uid +' e: '+ error, error);
+      callback(error, result); // callback anyway
   });
 }
 

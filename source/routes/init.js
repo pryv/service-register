@@ -4,6 +4,7 @@ var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
 var mailer = require('../utils/mailer.js');
+var crypto = require('crypto');
 
 // all check are passed, do the job
 function do_init(uid,password,email,lang,req,res) {
@@ -47,13 +48,15 @@ app.post('/init', function(req, res,next){
   if (! uid) errors.push('INVALID_USER_NAME');
   else {
     tests++;
-    db.uidExists(uid, function(error, exists) {
+    db.uidExists(uid +":infos", function(error, exists) {
       if (error) return next(messages.ei());
       if (exists) errors.push('EXISTING_USER_NAME');
       test_done();
     });
   }
   if (password == null) errors.push('INVALID_PASSWORD');
+  password = crypto.createHash('sha1').update(password +'edelweiss').digest("hex");
+  
   if (email == null) errors.push('INVALID_EMAIL');
   test_done();
 });

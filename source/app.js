@@ -28,6 +28,12 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+/**
+app.get('*', function(req, res, next){
+  console.log(req.url);
+  next();
+});**/
+
 // routes
 require('./routes/check.js')(app);
 require('./routes/init.js')(app);
@@ -38,6 +44,7 @@ app.get('/', function(req, res, next){
   console.log(req.connection);
   res.send('Hello World');
 });
+
 
 // error management (evolution)
 require('./utils/app_errors.js')(app);
