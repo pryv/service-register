@@ -12,7 +12,7 @@ var tests = [
       JSchema : schema.error, JValues: {"id":'UNKOWN_USER_NAME'}}, 
     ] ;
 
-for (key in tests) { // cretate PATH and method
+for (var key = 0; key < tests.length; key++) { // cretate PATH and method
   tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
   tests[key].path = '/'+ tests[key].uid +'/server';
   tests[key].method = 'GET';

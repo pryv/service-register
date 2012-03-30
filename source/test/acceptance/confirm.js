@@ -15,7 +15,7 @@ var tests = [
       JSchema : schema.error, JValues: {"id":'NO_PENDING_CREATION'}}
     ] ;
 
-for (key in tests) { // create PATH and method
+for (var key = 0; key < tests.length; key++) { // create PATH and method
   tests[key].it = tests[key].desc + ', challenge: ' + tests[key].uid;
   tests[key].path = '/'+ tests[key].challenge +'/confirm';
   tests[key].method = 'GET';

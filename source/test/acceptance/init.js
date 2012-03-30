@@ -68,7 +68,7 @@ var tests = [
       
     ] ;
     
-for (key in tests) { // cretate PATH and method
+for (var key = 0; key < tests.length; key++) { // cretate PATH and method
   tests[key].it = tests[key].desc + ', uid: ' + tests[key].data.userName;
   tests[key].path = '/init';
   tests[key].method = 'POST';

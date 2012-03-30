@@ -26,7 +26,7 @@ var send_response = function (req,res,rec) {
 
     /* ** */
     if(!rec){
-        logger.warn("Not found",req.q[0].name,"on this server, and proxy list is empty");
+        logger.info("Not found",req.q[0].name,"on this server, and proxy list is empty");
         // no proxy on this server (added by Perki)
         // maybe some code should be sent
         res.setHeader(req.header);
@@ -128,7 +128,8 @@ server.on("request", function(req, res) {
 
 
 process.on('uncaughtException', function (err) {
-  logger.error("Erreur",":", err.code || err.stack || err);
+  logger.error("Erreur:"+ err);
+  logger.error(err.stack);
   if(err.code){
   	switch(err.code){
   		case 'EADDRNOTAVAIL':

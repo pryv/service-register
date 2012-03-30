@@ -27,7 +27,7 @@ var tests = [
       JSchema : schema.check_exists }, 
     ] ;
 
-for (key in tests) { // cretate PATH and method
+for (var key = 0; key < tests.length; key++) { // cretate PATH and method
   tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
   tests[key].path = '/'+ tests[key].uid +'/check';
   tests[key].method = 'GET';
