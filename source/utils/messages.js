@@ -4,10 +4,18 @@
 
 var mstrings = new Array();
 require('../public/messages-en.js');
+var  _ = require('underscore');
 mstrings['en'] = register_messages;
 
-function say(code,addons) {
-  return {message: _say(code,addons)};
+function say(id,addons) {
+  var content = mstrings['en'][id];
+  content.id = id;
+  // merge addons
+  if (addons)
+    for(var i in addons) 
+      if (addons.hasOwnProperty(i)) content[i] = addons[i];
+  
+  return content ;
 }
 
 // create a JSON ready error for this code 
@@ -25,12 +33,6 @@ function internal(res) {
     return res.json(error('INTERNAL_ERROR'),500);
 }
 
-
-function _say(id,addons) {
-    var content = mstrings['en'][id];
-    content.id = id;
-    return content ;
-}
 
 // sugar for errors
 /** internal error **/

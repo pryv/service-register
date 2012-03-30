@@ -15,7 +15,7 @@ function save_to_db(host,json_infos,req,res,next) {
         logger.error(error);
         return next(messages.ei());
       }
-      res.json({server: result},200);
+      res.json({server: host.name},200);
     });
 }
 
@@ -51,7 +51,7 @@ function check_uid(challenge,json_result,req,res,next) {
   //logger.info(JSON.stringify(json_result));
   db.getServer(json_result.userName, function(error, result) {
     if (error) return next(messages.ei()) ; 
-    if (result) return res.json({server: result},400); // already confirmed
+    if (result) return res.json(messages.say('ALREADY_CONFIRMED',{server: result}),400); // already confirmed
     find_server(challenge,json_result,req,res,next);
   });
 }

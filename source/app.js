@@ -38,13 +38,13 @@ app.get('*', function(req, res, next){
 require('./routes/check.js')(app);
 require('./routes/init.js')(app);
 require('./routes/confirm.js')(app);
+require('./routes/server.js')(app);
 
 // index
 app.get('/', function(req, res, next){
   console.log(req.connection);
   res.send('Hello World');
 });
-
 
 // error management (evolution)
 require('./utils/app_errors.js')(app);

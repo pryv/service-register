@@ -4,22 +4,30 @@ var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
 var mailer = require('../utils/mailer.js');
+var randGenerator = require('../utils/random.js');
 var crypto = require('crypto');
+var config = require('../utils/config');
 
 // all check are passed, do the job
 function do_init(uid,password,email,lang,req,res) {
   //logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
-  var challenge = "ABCDEF";
+  var challenge = randGenerator.string(16);
   
   // set on db
   db.initSet(uid,password,email,lang,challenge, function(error,result) {
     if (error) return messages.internal(res); 
-    res.json({captchaChallenge: challenge});
+    
+    // add challenge string to chain tests
+    if (config.get('test:init:add_challenge'))
+        return res.json(messages.say('INIT_DONE',{captchaChallenge: challenge}));
+    
+    return res.json(messages.say('INIT_DONE'));
   });
   
-  // send mail
- 
-    mailer.sendConfirm(uid,uid+' <pml@simpledata.ch>',challenge,lang);
+  // send mail or not
+  if (config.get('test:init:deactivate_mailer')) return ;
+  
+  mailer.sendConfirm(uid,uid+' <pml@simpledata.ch>',challenge,lang);
 }
 
 
@@ -31,7 +39,7 @@ app.post('/init', function(req, res,next){
   var uid = ck.uid(req.body.userName);
   var password = ck.password(req.body.password);
   var email = ck.email(req.body.email);
-  var lang = ck.lang(req.body.langCode); // no check
+  var lang = ck.lang(req.body.languageCode); // no check
   
   var errors = new Array();
   var tests = 1;
