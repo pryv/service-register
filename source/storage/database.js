@@ -51,6 +51,7 @@ exports.initSet = function initSet(uid, password, email, language, challenge, ca
 
 
 exports.getServer = function getServer(uid, callback) {
+  uid = uid.toLowerCase();
   redis.get(uid +":server",function(error, result) {
     if (error) logger.error('Redis getServer: '+ uid +' e: '+ error, error);
     callback(error, result); 
@@ -59,6 +60,7 @@ exports.getServer = function getServer(uid, callback) {
 
 
 exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callback) {
+  uid = uid.toLowerCase();
   var multi = redis.multi();
   multi.set(uid +":infos", JSON.stringify(infos));
   multi.set(uid +":server", server);

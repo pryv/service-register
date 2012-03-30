@@ -1,20 +1,30 @@
 // dns server 
 var logger = require('winston');
 var dns = require('./dnsserver_lib/ndns_warper.js');
-
-var BIND_PORT = 9999;
+var config = require('./utils/config');
+var db = require('./storage/database.js');
 
 var serverForName = function(name,callback,req,res) {
   logger.info("What's the server of: "+ name);
+  // TODO Link regexp with ck.js
+  var matchArray = /^([a-z0-9]{5,21})\.edelwatch\.ch$/.exec(name.toLowerCase());
+  if (! matchArray) return callback(req,res,rec);
   
-  var fake = { alias: [ { name: 'blop.perki.com' } ],
-  dynamic: 'true',
-  description: 'hello Perki' };
-  var rec = dns.getRecords(fake,name);
+  var uid = matchArray[1];
+  var server = db.getServer(uid,function(error,result) {
+    if (error || ! result) return callback(req,res,rec);
+    
+    var dyn = { alias: [ { name: result } ],
+      dynamic: 'true',
+      description: 'hello '+ uid};
+      
+    var rec = dns.getRecords(dyn,name);
+    return callback(req,res,rec);
+  });
   
-  callback(req,res,rec);  
+   
 }
 
 var NAMES = require('./dnsserver_lib/static_hosts.js');
 
-dns.start(NAMES,BIND_PORT,serverForName);
+dns.start(NAMES,config.get('dns:port'),serverForName);

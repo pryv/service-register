@@ -8,7 +8,7 @@ var server = ndns.createServer('udp4');
 var logger = require('winston');
 console = logger;
 
-// LIGHTEN VERSION OF  https://github.com/badlee/fun-dns
+// LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
 
 
 exports.start = function(NAMES,BIND_PORT,dynamic_call) {
@@ -64,14 +64,32 @@ var send_response = function (req,res,rec) {
     res.send();
 }
 
+server.on("request", function(req, res) {
+    if (req.q.length > 0) {
+        var name = req.q[0].name;
+        if (name == ".") name = "";
+                
+        var rec;
+        
+        return dynamic_call(name,send_response,req,res);
+            
+        }
+        
+        // close 
+       send_response(req,res,rec);
+    }
+);
 
 // STEP 1
+/** REMOVED FOR A SIMPLER ONE
 server.on("request", function(req, res) {
     if (req.q.length > 0) {
         var name = req.q[0].name;
         if (name == ".")
                 name = "";
-        /* Test le nom */
+                
+        
+        // Test le nom 
         //find info dns here
         var rec;
         if(NAMES && NAMES[name]){
@@ -106,6 +124,7 @@ server.on("request", function(req, res) {
     // close 
     send_response(req,res,rec);
 });
+**/
 
 
 process.on('uncaughtException', function (err) {

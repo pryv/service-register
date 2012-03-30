@@ -39,6 +39,9 @@ nconf.defaults({
       'serviceurl': 'https://email.us-east-1.amazonaws.com'
     }
   },
+  'dns': {
+      'port': 9999
+  },
   'test': {
     'init': {
         'deactivate_mailer' : true,
