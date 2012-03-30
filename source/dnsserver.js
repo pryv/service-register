@@ -27,4 +27,4 @@ var serverForName = function(name,callback,req,res) {
 
 var NAMES = require('./dnsserver_lib/static_hosts.js');
 
-dns.start(NAMES,config.get('dns:port'),serverForName);
+dns.start(NAMES,config.get('dns:port'),config.get('dns:host'),serverForName);

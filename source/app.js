@@ -34,6 +34,10 @@ app.get('*', function(req, res, next){
   next();
 });**/
 
+// start dns
+require('./dnsserver');
+
+
 // routes
 require('./routes/check.js')(app);
 require('./routes/init.js')(app);
@@ -49,9 +53,10 @@ app.get('/', function(req, res, next){
 // error management (evolution)
 require('./utils/app_errors.js')(app);
 
-app.listen(config.get('http:port'));
-logger.info(_.sprintf('Express server listening on port %d in %s mode',
-                       app.address().port, app.settings.env));
+app.listen(config.get('http:port'), config.get('http:host'), function() {
+  var address = app.address();
+  logger.info(_.sprintf('Express server listening on %s:%d in %s mode',
+                        address.address, address.port, app.settings.env));  
+});
                        
-
 

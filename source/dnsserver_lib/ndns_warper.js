@@ -11,11 +11,11 @@ console = logger;
 // LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
 
 
-exports.start = function(NAMES,BIND_PORT,dynamic_call) {
+exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call) {
 
 // server launch
 UpdateConfFile = (new Date()).format("Ymd11");
-console.log("UpdateConfFile "+UpdateConfFile);
+//console.log("UpdateConfFile "+UpdateConfFile);
 
 
 // STEP 2
@@ -26,7 +26,7 @@ var send_response = function (req,res,rec) {
 
     /* ** */
     if(!rec){
-        console.warn("Not found",req.q[0].name,"on this server, and proxy list is empty");
+        logger.warn("Not found",req.q[0].name,"on this server, and proxy list is empty");
         // no proxy on this server (added by Perki)
         // maybe some code should be sent
         res.setHeader(req.header);
@@ -128,7 +128,7 @@ server.on("request", function(req, res) {
 
 
 process.on('uncaughtException', function (err) {
-  console.error("Erreur",":", err.code || err.stack || err);
+  logger.error("Erreur",":", err.code || err.stack || err);
   if(err.code){
   	switch(err.code){
   		case 'EADDRNOTAVAIL':
@@ -145,7 +145,8 @@ process.on('uncaughtException', function (err) {
   };
 });
 
-server.bind(BIND_PORT);
+server.bind(BIND_PORT,BIND_HOST);
+logger.info("DNS Started on "+BIND_HOST+":"+BIND_PORT);
 }
 
 

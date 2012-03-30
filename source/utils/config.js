@@ -19,7 +19,8 @@ nconf.argv()
 // Set default values
 nconf.defaults({
   'http': {
-    'port': 3000
+    'port': 3000,
+    'host': 'localhost'
   },
   'persistence' : { 
     'init-ttl' : 60 // seconds should be 86400 for a day
@@ -40,7 +41,8 @@ nconf.defaults({
     }
   },
   'dns': {
-      'port': 9999
+      'port': 9999,
+      'host': 'localhost'
   },
   'test': {
     'init': {
