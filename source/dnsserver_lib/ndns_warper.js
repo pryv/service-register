@@ -69,12 +69,12 @@ server.on("request", function(req, res) {
         var name = req.q[0].name;
         if (name == ".") name = "";
                 
-        var rec;
+        
         
         return dynamic_call(name,send_response,req,res);
             
         }
-        
+        var rec;
         // close 
        send_response(req,res,rec);
     }

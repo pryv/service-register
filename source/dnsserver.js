@@ -5,8 +5,9 @@ var config = require('./utils/config');
 var db = require('./storage/database.js');
 
 var serverForName = function(name,callback,req,res) { 
-  var rec = null;
+  var rec = dns.getRecords({},name);
   logger.info("What's the server of: "+ name);
+  //logger.info(req);
   // TODO Link regexp with ck.js
   var matchArray = /^([a-z0-9]{5,21})\.edelwat\.ch$/.exec(name.toLowerCase());
   if (! matchArray) return callback(req,res,rec);
@@ -20,7 +21,7 @@ var serverForName = function(name,callback,req,res) {
       description: 'hello '+ uid};
       
     rec = dns.getRecords(dyn,name);
-    return callback(req,res,rec);
+    return callback(req,res,rec); // ndns_warper.sendresponse
   });
   
    
