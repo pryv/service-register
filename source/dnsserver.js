@@ -8,7 +8,7 @@ var serverForName = function(name,callback,req,res) {
   var rec = null;
   logger.info("What's the server of: "+ name);
   // TODO Link regexp with ck.js
-  var matchArray = /^([a-z0-9]{5,21})\.edelwatch\.ch$/.exec(name.toLowerCase());
+  var matchArray = /^([a-z0-9]{5,21})\.edelwat\.ch$/.exec(name.toLowerCase());
   if (! matchArray) return callback(req,res,rec);
   
   var uid = matchArray[1];
