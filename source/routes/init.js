@@ -36,6 +36,10 @@ function init(app) {
 
 // request pre processing
 app.post('/init', function(req, res,next){
+  if (req.body == undefined) {
+      logger.error("/init : How could body be empty??");
+      return next(messages.ei());
+  }
   var uid = ck.uid(req.body.userName);
   var password = ck.password(req.body.password);
   var email = ck.email(req.body.email);

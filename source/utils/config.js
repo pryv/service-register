@@ -19,7 +19,9 @@ nconf.argv()
 // Set default values
 nconf.defaults({
   'http': {
-    'port': 3000,
+    'port_static': 3080,
+    'port_register': 3443,
+    'register_ssl': true,
     'host': 'localhost'
   },
   'persistence' : { 
