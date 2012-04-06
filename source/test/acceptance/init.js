@@ -5,7 +5,7 @@ var config = require('../../utils/config');
 
 // chained server test (step3) ... to see if we can find this user back
 var server_test = function(test,json_data) {
-     describe('GET /server (chained with init) ->'+json_data.captchaChallenge, function(){
+     describe('GET /server (chained with init) ', function(){
          //console.log("XXXXXXXXXXXXXXX"+ JSON.stringify(test.initialtest));   
           var ntest = { it : test.it +" (3rd)",
                  path : "/"+ test.initialtest.data.userName +"/server",
@@ -19,7 +19,7 @@ var server_test = function(test,json_data) {
 
 // chained confirm test (step2) ... with a valid captcha but already confirmed
 var re_confirm_challenge = function(test, json_data) {
-    describe('GET /confirm (2nd) ->'+json_data.captchaChallenge, function(){
+    describe('GET /confirm (2nd) ', function(){
       
         var ntest = { it : test.it +" (2nd)",
                  path : test.path,
@@ -54,11 +54,13 @@ describe('POST /init', function(){
 var randomuser = 'xabcDefg'+ Math.floor( Math.random() * ( 100000  ) );
 var randommail = randomuser +'@simpledata.ch'; // should not be necessary
 var tests = [ 
-    { data: { userName: randomuser, password: 'abcdefg', email: randommail}, status: 200 , desc : 'valid',
-     JSchema : schema.init_done , JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
+    { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 
+              status: 200 , desc : 'valid', JSchema : schema.init_done , 
+              JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
                                                                            
-    {  data: { userName: 'abcd', password: 'abc', email: 'pml@simpledata.ch'}, status: 400 , desc : 'uid too short & bad password' , 
-      JSchema : schema.error_multiple , JValues: {"id":'INVALID_DATA', 
+    { data: { userName: 'abcd', password: 'abc', email: 'pml@simpledata.ch'}, 
+              status: 400 , desc : 'uid too short & bad password' , 
+              JSchema : schema.error_multiple , JValues: {"id":'INVALID_DATA', 
                                           "errors": [ {"id": 'INVALID_USER_NAME' }, {"id": 'INVALID_PASSWORD' } ]}},
                                           
     {  data: { userName: 'abcd', password: 'abc', email: 'pml @simpledata.ch'}, status: 400 , desc : 'uid too short & bad password & bad email' , 

@@ -6,7 +6,7 @@ var config = require('../utils/config');
 
 // check redis connectivity
 redis.set('hello','world', function(error, result) {
-  if (error) console.log('Error: '+ error);
+  if (error) logger.error('Error connecting DB: '+ error);
     else {
       if (error) 
         logger.error('Failed to connect redis database: '+ error, error);

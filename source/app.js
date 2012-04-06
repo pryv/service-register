@@ -60,7 +60,7 @@ app.listen(config.get('http:port_register'), config.get('http:host'), function()
 });
           
 // static server 
-/**
+
 var app_static = express.createServer({key: privateKey, cert: certificate});
 
 app_static.configure(function(){
@@ -74,7 +74,7 @@ app_static.listen(config.get('http:port_static'), config.get('http:host'), funct
   var address = app_static.address();
   logger.info(_.sprintf('Static server listening on %s:%d in %s mode',
                         address.address, address.port, app_static.settings.env));  
-});**/
+});
 
 
 // start dns

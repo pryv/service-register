@@ -25,9 +25,12 @@ function do_init(uid,password,email,lang,req,res) {
   });
   
   // send mail or not
-  if (config.get('test:init:deactivate_mailer')) return ;
+  if (config.get('test:init:deactivate_mailer')) {
+      logger.debug('init: deactivated mailer');
+      return ;
+  }
   
-  mailer.sendConfirm(uid,uid+' <pml@simpledata.ch>',challenge,lang);
+  mailer.sendConfirm(uid,email,challenge,lang);
 }
 
 

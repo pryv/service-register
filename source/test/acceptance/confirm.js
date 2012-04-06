@@ -16,7 +16,7 @@ var tests = [
     ] ;
 
 for (var key = 0; key < tests.length; key++) { // create PATH and method
-  tests[key].it = tests[key].desc + ', challenge: ' + tests[key].uid;
+  tests[key].it = tests[key].desc + ', challenge: ' + tests[key].challenge;
   tests[key].path = '/'+ tests[key].challenge +'/confirm';
   tests[key].method = 'GET';
   

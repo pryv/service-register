@@ -21,14 +21,14 @@ nconf.defaults({
   'http': {
     'port_static': 3080,
     'port_register': 3443,
-    'register_ssl': true,
+    'register_ssl': false,
     'host': 'localhost'
   },
   'persistence' : { 
     'init-ttl' : 60 // seconds should be 86400 for a day
   },
   'net': {
-    'servers_domain': 'edelwatch.net', // maybe tracktivist.net
+    'servers_domain': 'rec.la', 
     'my_id': 'ns1',
     'staticsurl': 'http://localhost:3000/',
     'confirmurl': 'http://localhost:3000/%challenge%/confirm'
@@ -44,11 +44,12 @@ nconf.defaults({
   },
   'dns': {
       'port': 9999,
-      'host': 'localhost'
+      'host': '127.0.0.1',
+      'domain': 'rec.la'
   },
   'test': {
     'init': {
-        'deactivate_mailer' : true,
+        'deactivate_mailer' : false,
         'add_challenge' : true  // will add the challenge string to the response in order to chain tests
     }
   }

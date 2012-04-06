@@ -9,9 +9,6 @@ var SESTransport = nodemailer.createTransport("SES", {
         ServiceUrl: config.get('mailer:amazon_ses:serviceurl') // optional
     });
 
-logger.debug(config.get('mailer:confirm-sender-email'));
-logger.debug(config.get('mailer:amazon_ses:secretkey'));
-
 // setup e-mail data with unicode symbols
 var mailOptions_Confirm = {
     from: "TrAcktivist ✔ <"+ config.get('mailer:confirm-sender-email') +">", // sender address
@@ -22,8 +19,10 @@ var mailOptions_Confirm = {
 }
 
 exports.sendConfirm = function (uid,to,challenge,lang) {
-    if ( config.get('mailer:deactivated')) return true; //
-    
+    if ( config.get('mailer:deactivated')) {
+        logger.debug('mailer: deactivated mailer');
+        return true; //
+    }
     var url = config.get('net:confirmurl').replace('%challenge%',challenge);
     // send mail with defined transport object
     var mailc = mailOptions_Confirm;
@@ -35,9 +34,9 @@ exports.sendConfirm = function (uid,to,challenge,lang) {
         if(error){
             logger.debug(error);
         }else{
-            //logger.info("Message sent: " + response.message);
+            logger.info("Message sent: " + response.message);
         }
         SESTransport.close(); // shut down the connection pool, no more messages
     });
-
+    
 }
