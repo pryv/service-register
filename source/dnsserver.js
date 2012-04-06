@@ -5,43 +5,48 @@ var config = require('./utils/config');
 var db = require('./storage/database.js');
 
 // create matching Regex
+// TODO Link regexp with ck.js
 var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
 
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
-
-var serverForName = function(name,callback,req,res) { 
-  var rec = dns.getRecords({},name);
-  logger.info("What's the server of: "+ name);
-  //logger.info(req);
-  // TODO Link regexp with ck.js
-  var matchArray = matchingRegExp.exec(name.toLowerCase());
-  if (! matchArray) return callback(req,res,rec);
-  
-  var dyn = {"alias": [ { name: "www.wactiv.com" } ],
-        "nameserver": [{
+var baseData = {"nameserver": [{
                    "ip": config.get("dns:host"),
-		 "name": "ns1.rec.la"
+		 "name": config.get("dns:hostname")
 	              }] 
              };
+
+var rootData = {"alias": [ { name: "www.wactiv.com" } ], "nameserver": baseData.nameserver};
+
+var serverForName = function(name,callback,req,res) { 
+  var nullRecord = dns.getRecords({},name);
+  logger.info("What's the server of: "+ name);
+  
+  // root request
+  if (name.toLowerCase() == config.get("dns:domain"))
+      return callback(req,res,dns.getRecords(rootData,name));
+  
+  //logger.info(req);
+  var matchArray = matchingRegExp.exec(name.toLowerCase());
+  if (! matchArray) return callback(req,res,nullRecord);
   
   var uid = matchArray[1];
-  // 3 to 4 char length are reserved
+  // 0 to 4 char length are reserved
   if (uid.length < 5) {
-      if (uid == "www") { 
-          rec = dns.getRecords(dyn,name); };
+      if (uid == "www") 
+          return callback(req,res,dns.getRecords(rootData,name));
       
       // nothing found
-      return callback(req,res,rec);
+      return callback(req,res,nullRecord);
   }
   
  
   var server = db.getServer(uid,function(error,result) {
-    if (error || ! result) return callback(req,res,rec);
+    if (error || ! result) return callback(req,res,nullRecord);
     
-    dyn.alias[0].name = result ;
+    var dyn = {"alias": [ { name: result } ], "nameserver": baseData.nameserver};
     rec = dns.getRecords(dyn,name);
-    return callback(req,res,rec); // ndns_warper.sendresponse
+    return callback(req,res,nullRecord); // ndns_warper.sendresponse
   });
   
    

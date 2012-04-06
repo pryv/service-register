@@ -45,6 +45,7 @@ nconf.defaults({
   'dns': {
       'port': 9999,
       'host': '127.0.0.1',
+      'hostname': 'ns1.wactiv.com',
       'domain': 'rec.la'
   },
   'test': {
