@@ -12,7 +12,7 @@ var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {"nameserver": [{
                    "ip": config.get("dns:host"),
-		 "name": config.get("dns:hostname")
+		         "name": config.get("dns:hostname")
 	              }] 
              };
 
@@ -42,11 +42,12 @@ var serverForName = function(name,callback,req,res) {
   
  
   var server = db.getServer(uid,function(error,result) {
+    //console.log("*** FOUND :"+ result);
     if (error || ! result) return callback(req,res,nullRecord);
     
     var dyn = {"alias": [ { name: result } ], "nameserver": baseData.nameserver};
     rec = dns.getRecords(dyn,name);
-    return callback(req,res,nullRecord); // ndns_warper.sendresponse
+    return callback(req,res,rec); // ndns_warper.sendresponse
   });
   
    
