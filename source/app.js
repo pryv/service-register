@@ -19,7 +19,15 @@ if (config.get('http:register_ssl')) {
   app = express.createServer();
 }
 
-app.use(express.bodyParser());
+app.configure(function(){
+  app.use(express.bodyParser());
+  app.use(express.static(__dirname + '/public'));
+  logger.setLevels(logger.config.syslog.levels);
+  // TODO: setup logger handling for uncaught exceptions
+});
+
+
+//app.use(express.bodyParser());
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
