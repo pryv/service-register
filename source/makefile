@@ -11,7 +11,7 @@ load:
                 --reporter spec \
                 --require should \
                 --slow 20 \
-                --timeout 5000 \
+                --timeout 50000 \
             test/load/*.js 
 
 .PHONY: test

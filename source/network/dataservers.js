@@ -71,7 +71,7 @@ function post_to_admin(host,path,expected_status,json_data,callback) {
      });
     
    }).on('error', function(e) {
-     return callback("post_to_admin error: " + e.message,null);
+     return callback("post_to_admin "+ JSON.stringify(host) +"error: " + e.message,null);
   });
   
   req.on('socket', function (socket) {

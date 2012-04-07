@@ -37,7 +37,7 @@ var re_confirm_challenge = function(test, json_data) {
 var confirm_challenge = function(test, json_data) {
      if (! config.get('test:init:add_challenge')) return;
      
-    describe('GET /confirm ->'+json_data.captchaChallenge, function(){
+    describe('GET /confirm (from init)->'+json_data.captchaChallenge, function(){
         var ntest = { it : " uid: " + test.data.userName,
                  path : '/'+ json_data.captchaChallenge +'/confirm',
                  status: 200,

@@ -1,17 +1,24 @@
 <HTML>
     <HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
-    <TITLE>Register</TITLE>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="messages-en.js"></script>
+    <TITLE>Register [●LA]</TITLE>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" />
+    <script src="messages-en.js" />
+    <script src="register.js" />
+    <script src="register-config.js" />
+    <script>
+    var my_messages = {
+      'CHECKING_USERNAME' : 'Checking username avalability.',
+      'USERNAME_AVAILABLE' : 'is available ✔',
+      'USERNAME_NOT_AVAILABLE': 'is not available ✗'}; 
+    </script>
     </HEAD>
     <BODY>
-        <form name="register-form">
-            <label for="userName">Name</label><input name="userName" type="text" />
-            <label for="userName">Name</label><input name="userName" type="text" />
-        </form>
-        <div class="response_flag">Loading</div>
-        <div class="response_message"></div>
-        <div class="response_detail"></div>
-        <div class="response_link"></div>
+        <ul>
+            <li><label for="userName">Choose a user name</label><input class="userName" name="userName" id="userName" type="text" /><span id="userCheck"></span></li>
+            <li><label for="userName">E-mail</label><input name="email" type="text" /><span id="emailCheck"></span></li>
+            <li><label for="password">Password</label><input name="password" type="text" /></li>
+            <li><label for="2ndpassword">Verify Password</label><input name="2ndpassword" type="text" /><span id="passwordCheck"></span></li>
+            <li><span id="registerButton"></span></li>
+        </ul>
     </BODY>
 </HTML>

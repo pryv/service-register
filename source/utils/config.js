@@ -20,15 +20,16 @@ nconf.argv()
 nconf.defaults({
   'http': {
     'port_static': 3080,
+    'host_static': '127.0.0.1',
     'port_register': 3443,
-    'register_ssl': false,
-    'host': 'localhost'
+    'host': 'localhost',
+    'register_ssl': true, 
   },
   'persistence' : { 
     'init-ttl' : 60 // seconds should be 86400 for a day
   },
   'net': {
-    'servers_domain': 'rec.la', 
+    'servers_domain': 'wactiv.com', 
     'my_id': 'ns1',
     'staticsurl': 'http://localhost:3000/',
     'confirmurl': 'http://localhost:3000/%challenge%/confirm'
