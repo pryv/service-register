@@ -1,23 +1,26 @@
 <HTML>
     <HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
     <TITLE>Register [●LA]</TITLE>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" />
-    <script src="messages-en.js" />
-    <script src="register.js" />
-    <script src="register-config.js" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" ></script>
+    <script src="messages-en.js" ></script>
+    <script src="register.js" ></script>
+    <script src="register-config.js" ></script>
     <script>
     var my_messages = {
+      'OK'  : '✔',
+      'NOK' : '✗',
       'CHECKING_USERNAME' : 'Checking username avalability.',
-      'USERNAME_AVAILABLE' : 'is available ✔',
-      'USERNAME_NOT_AVAILABLE': 'is not available ✗'}; 
+      'USERNAME_AVAILABLE' : '✔ is available',
+      'USERNAME_NOT_AVAILABLE': 'is not available',
+      'PASSWORD_DO_NOT_MATCH': 'does not match'}; 
     </script>
     </HEAD>
     <BODY>
         <ul>
-            <li><label for="userName">Choose a user name</label><input class="userName" name="userName" id="userName" type="text" /><span id="userCheck"></span></li>
-            <li><label for="userName">E-mail</label><input name="email" type="text" /><span id="emailCheck"></span></li>
-            <li><label for="password">Password</label><input name="password" type="text" /></li>
-            <li><label for="2ndpassword">Verify Password</label><input name="2ndpassword" type="text" /><span id="passwordCheck"></span></li>
+            <li><label for="userName">Choose a user name</label><input name="userName" id="userName" type="text" /> <span id="userCheck"></span></li>
+            <li><label for="email">E-mail</label><input id="email" name="email" type="text" /> <span id="emailCheck"></span></li>
+            <li><label for="password">Password</label><input id="password" name="password" type="text" /> <span id="passwordCheck"></span></li>
+            <li><label for="2ndpassword">Verify Password</label><input id="2ndpassword" name="2ndpassword" type="text" /> <span id="2ndpasswordCheck"></span></li>
             <li><span id="registerButton"></span></li>
         </ul>
     </BODY>

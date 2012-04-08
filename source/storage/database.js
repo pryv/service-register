@@ -19,7 +19,7 @@ redis.set('hello','world', function(error, result) {
 
 function uidExists(uid,callback) {
   uid = uid.toLowerCase();
-  redis.exists(uid,function(error, result) {
+  redis.exists(uid+":server",function(error, result) {
     if (error) logger.error('Redis to uidExists: '+ uid +' e: '+ error, error);
     callback(error, result == 1); // callback anyway
   });
