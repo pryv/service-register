@@ -1,29 +1,48 @@
 function proceedRegistration() {
   var ok = register_checks.userName && register_checks.email && register_checks.password && register_checks.sndpassword;
-  if (ok) {
-   var data = {
-     userName: register_checks.userName,
-     password: register_checks.password,
-     email: register_checks.email,
-     languageCode: my_messages['LANGUAGE_CODE']};
+  if (! ok) {
+    alert(my_messages['COMPLETE_ALL_FIELDS']);
+    return;
+  }
+  
+  //register_checks.userName = "bob";
+  var data = {
+    userName: register_checks.userName,
+    password: register_checks.password,
+    email: register_checks.email,
+    languageCode: my_messages['LANGUAGE_CODE']};
+  
+  var url = register_config['REGISTER_URL']+"/init";
+  
+  
+  $.post(url, data, function(json, textStatus) {
+      alert("yes! "+JSON.stringify(json));
+   }, "json").error(function(xhr, textStatus, errorThrown) {
+      var res = {id: 'UNKOWN_ERROR', message: xhr.statusText, text: xhr.responseText};
+      try { 
+        res = JSON.parse(xhr.responseText);
+      } catch (e) {}
+      alert("error:"+JSON.stringify(res));
+   });
+  
+  // WHY IS THE FOLOOWING NOT WORKING? SME CROSS-DOMAIN concerns I don't get (perki)
+  /**
    $.ajax({
     type: "POST",
-    url: register_config['REGISTER_URL']+"/init",
+    url: url,
+    async: true,
+    crossDomain: true,
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     data: data,
     success: function(json) {
-       console.log(json);
-       alert(json);
+        console.log(json);
     },
     error: function (xhr, textStatus, errorThrown) {
-       console.error(xhr.responseText);
+        console.log(xhr.responseText);
     }
-});
-    
-  } else {
-    alert(my_messages['COMPLETE_ALL_FIELDS'])
-  }
+  });**/
+  
 }
 
 var register_checks = { userName: false, email: false, password: false, sndpassword: false };
