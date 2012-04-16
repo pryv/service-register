@@ -1,6 +1,6 @@
 <HTML>
     <HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
-    <TITLE>Register [●LA]</TITLE>
+    <TITLE>Register [REC●la]</TITLE>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" ></script>
     <script src="messages-en.js" ></script>
     <script src="register.js" ></script>
@@ -12,16 +12,22 @@
       'CHECKING_USERNAME' : 'Checking username avalability.',
       'USERNAME_AVAILABLE' : '✔ is available',
       'USERNAME_NOT_AVAILABLE': 'is not available',
-      'PASSWORD_DO_NOT_MATCH': 'does not match'}; 
+      'PASSWORD_DO_NOT_MATCH': 'does not match',
+      'COMPLETE_ALL_FIELDS': 'Before submiting form, please complete all fields.'}; 
     </script>
     </HEAD>
     <BODY>
+        <h1>Set-up your [●REC.la] time storage</h1> 
         <ul>
             <li><label for="userName">Choose a user name</label><input name="userName" id="userName" type="text" /> <span id="userCheck"></span></li>
             <li><label for="email">E-mail</label><input id="email" name="email" type="text" /> <span id="emailCheck"></span></li>
-            <li><label for="password">Password</label><input id="password" name="password" type="text" /> <span id="passwordCheck"></span></li>
-            <li><label for="2ndpassword">Verify Password</label><input id="2ndpassword" name="2ndpassword" type="text" /> <span id="2ndpasswordCheck"></span></li>
-            <li><span id="registerButton"></span></li>
+            <li><label for="password">Password</label><input id="password" name="password" type="password" /> <span id="passwordCheck"></span></li>
+            <li><label for="2ndpassword">Verify Password</label><input id="2ndpassword" name="2ndpassword" type="password" /> <span id="2ndpasswordCheck"></span></li>
+            <li>It's my responsability to read and understand the terms of use. >>> </li>
+            <li>
+              <span id="notReady"><em>please complete all fields to continue</em></span>
+              <span id="allCheks" style="display: none"><input type="submit" onClick="proceedRegistration(); return false;" value="Submit informations"></span>
+            </li>
         </ul>
     </BODY>
 </HTML>
