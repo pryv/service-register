@@ -1,13 +1,32 @@
 function proceedRegistration() {
-  var ok = checks.userName && checks.email && checks.password && checks.sndpassword;
+  var ok = register_checks.userName && register_checks.email && register_checks.password && register_checks.sndpassword;
   if (ok) {
-    console.log("procceed");
+   var data = {
+     userName: register_checks.userName,
+     password: register_checks.password,
+     email: register_checks.email,
+     languageCode: my_messages['LANGUAGE_CODE']};
+   $.ajax({
+    type: "POST",
+    url: register_config['REGISTER_URL']+"/init",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: data,
+    success: function(json) {
+       console.log(json);
+       alert(json);
+    },
+    error: function (xhr, textStatus, errorThrown) {
+       console.error(xhr.responseText);
+    }
+});
+    
   } else {
     alert(my_messages['COMPLETE_ALL_FIELDS'])
   }
 }
 
-var checks = { userName: false, email: false, password: false, sndpassword: false };
+var register_checks = { userName: false, email: false, password: false, sndpassword: false };
 
 
 $(function()
@@ -54,7 +73,7 @@ var notReady = $("#notReady");
 var allCheks = $("#allCheks");
 
 function checkAll() {
-  var ok = checks.userName && checks.email && checks.password && checks.sndpassword;
+  var ok = register_checks.userName && register_checks.email && register_checks.password && register_checks.sndpassword;
   if (! ok) {
     notReady.show();
     allCheks.hide();
@@ -75,12 +94,12 @@ function userNameChange(value) {
       userCheck.html(register_messages['INVALID_USER_NAME']['detail']);
       return;
     }
-    checks.userName = false;
+    register_checks.userName = false;
     
-    $.getJSON(register_config['REGISTER_URL']+"/"+value+"/check/",
+    $.getJSON(register_config['REGISTER_URL']+"/"+value+"/check",
       function(data){
         if (data != null && data.exists != undefined) {
-          checks.userName = ! data.exists;
+          register_checks.userName = data.exists ? false : value;
           userCheck.html((data.exists) ? my_messages['USERNAME_NOT_AVAILABLE'] 
                                        : my_messages['USERNAME_AVAILABLE']);
         } else {
@@ -98,11 +117,11 @@ var emailCheck = $("#emailCheck");
 var email_regexp = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
 function emailChange(value) {
-    checks.email = false;
+    register_checks.email = false;
     if (! email_regexp.test(value)) {
       emailCheck.html(register_messages['INVALID_EMAIL']['detail']);
     } else {
-      checks.email = true;
+      register_checks.email = value;
       emailCheck.html(my_messages['OK']);
     }
     checkAll();
@@ -121,9 +140,9 @@ var sndpassword_field = $("#2ndpassword");
 var sndpasswordCheck = $("#2ndpasswordCheck");
 
 function passwordChange(str) {
-    checks.password = false;
+    register_checks.password = false;
     if (str.length > 5 && str.length < 100) {
-      checks.password = true;
+      register_checks.password = str;
       passwordCheck.html(my_messages['OK']);
     } else {
       passwordCheck.html(register_messages['INVALID_PASSWORD']['detail']);
@@ -136,12 +155,12 @@ function passwordChange(str) {
 monitorChange(password_field,passwordChange,3000);
 
 function sndpasswordChange(str) {
-    checks.sndpassword = false;
+    register_checks.sndpassword = false;
     if (str.length < 5 || str.length > 100) {
       sndpasswordCheck.html();
     } else if (password_field.val() == str) {
       sndpasswordCheck.html(my_messages['OK']);
-      checks.sndpassword = true;
+      register_checks.sndpassword = str;
     } else {
       sndpasswordCheck.html(my_messages['PASSWORD_DO_NOT_MATCH']);
     }

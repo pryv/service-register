@@ -57,6 +57,10 @@ var tests = [
     { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 
               status: 200 , desc : 'valid', JSchema : schema.init_done , 
               JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
+    
+     { data: { userName: "json"+ randomuser, password: 'abcdefg', email: randommail}, 
+              status: 200 , desc : 'valid JSON POST', JSchema : schema.init_done , contenttype: "JSON",
+              JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
                                                                            
     { data: { userName: 'abcd', password: 'abc', email: 'pml@simpledata.ch'}, 
               status: 400 , desc : 'uid too short & bad password' , 

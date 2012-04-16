@@ -3,6 +3,8 @@ register_messages = {
     'detail' : 'Something went bad on our side, sorry for this inconvenience.'},
   'INVALID_DATA' : {'message' : 'Invalid Data', 
     'detail' : 'Some of the data transmited is invalid.'},
+  'INVALID_JSON_REQUEST' : {'message' : 'Invalid Data', 
+    'detail' : 'The data transmited is not in a valid JSON format.'},
   'INVALID_USER_NAME' : { 'message' : 'Invalid user name', 
     'detail' : 'User name must be made of 5 to 21 alphanumeric characters.'},
   'EXISTING_USER_NAME' : { 'message' : 'User name exists', 

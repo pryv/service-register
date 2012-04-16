@@ -19,12 +19,13 @@ function say(id,addons) {
 }
 
 // create a JSON ready error for this code 
-function error_data(id) {
+function error_data(id, extra) {
   var content = mstrings['en'][id];
   if (content == undefined) {
       throw(new Error("Missing message code :"+id));
   }
   content.id = id;
+  content.more = extra;
   return content;
 }
 
@@ -41,8 +42,8 @@ exports.ei = function ei() {
 }
 
 /** single error **/
-exports.e = function e(httpCode, id) {
-    return new REGError(httpCode, error_data(id));
+exports.e = function e(httpCode, id, extra) {
+    return new REGError(httpCode, error_data(id, extra));
 }
 
 /** error with sub errors **/

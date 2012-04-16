@@ -1,13 +1,31 @@
-// Dependencies
-var config = require('./utils/config');
+// frameworks
 var express = require('express');
 var logger = require('winston');
 var fs = require('fs');
 
-// underscore
-var  _ = require('underscore');
-_.str = require('underscore.string');
-_.mixin(_.str.exports());
+// Dependencies
+var config = require('./utils/config');
+var messages = require('./utils/messages');
+
+
+// workarround to detect if a String is not JSON
+express.bodyParser.parse['application/json'] = function(req, options, fn){
+  var buf = '';
+  req.setEncoding('utf8');
+  req.on('data', function(chunk){ buf += chunk });
+  req.on('end', function(){
+    try {
+      req.body = buf.length
+        ? JSON.parse(buf)
+        : {};
+      fn();
+    } catch (err){
+      //logger.debug('INVALID_JSON_REQUEST '+buf);
+      fn(messages.e(400,'INVALID_JSON_REQUEST',{received: buf}));
+    }
+  });
+};
+
 
 var app;
 // https server
@@ -19,16 +37,6 @@ if (config.get('http:register_ssl')) {
   app = express.createServer();
 }
 
-app.configure(function(){
-  app.use(express.bodyParser());
-  app.use(require('./middleware/cross-domain'));
-  //app.use(express.static(__dirname + '/public'));
-  logger.setLevels(logger.config.syslog.levels);
-  // TODO: setup logger handling for uncaught exceptions
-});
-
-
-//app.use(express.bodyParser());
 
 app.configure('development', function(){
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -38,6 +46,14 @@ app.configure('development', function(){
 
 app.configure('production', function(){
   app.use(express.errorHandler());
+});
+
+app.configure(function(){
+  app.use(express.bodyParser());
+  app.use(require('./middleware/cross-domain'));
+  //app.use(express.static(__dirname + '/public'));
+  logger.setLevels(logger.config.syslog.levels);
+  // TODO: setup logger handling for uncaught exceptions
 });
 
 /**
@@ -65,8 +81,8 @@ require('./utils/app_errors.js')(app);
 app.listen(config.get('http:port_register'), config.get('http:host'), function() {
   var address = app.address();
   var mode = config.get('http:register_ssl') ? 'https' : 'http';
-  logger.info(_.sprintf('Register server '+ mode +' listening on %s:%d in %s mode',
-                        address.address, address.port, app.settings.env));  
+  logger.info('Register server '+ mode +' listening on '+ address.address+':'+address.port+
+      ' in '+app_static.settings.env+' mode');  
 });
           
 // static server 
@@ -90,8 +106,8 @@ require('./routes_static/index')(app_static);
 
 app_static.listen(config.get('http:port_static'), config.get('http:host_static'), function() {
   var address = app_static.address();
-  logger.info(_.sprintf('Static server listening on %s:%d in %s mode',
-                        address.address, address.port, app_static.settings.env));  
+  logger.info('Static server listening on '+ address.address+':'+address.port+
+      ' in '+app_static.settings.env+' mode');  
 });
 
 

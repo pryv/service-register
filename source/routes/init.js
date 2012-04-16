@@ -50,7 +50,6 @@ app.post('/init', function(req, res,next){
   
   var errors = new Array();
   var tests = 1;
-  
   function test_done(title) {
    tests--;
     if (tests <= 0) {

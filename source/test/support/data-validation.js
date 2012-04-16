@@ -73,10 +73,25 @@ it(test.it, function(done){
   var http_options = { path: test.path, host: config.get('http:host') , port: config.get('http:port_register'), method: test.method };
   var post_data = "";
   if (test.method == 'POST') {
-      post_data = querystring.stringify(test.data);
-      http_options.headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': post_data.length
+       if (test.contenttype == 'JSON') {
+        post_data = JSON.stringify(test.data);
+        http_options.headers = {
+              'Content-Type': 'application/json',
+              'Content-Length': post_data.length
+        }
+      } else if (test.contenttype == 'JSONSTRING') {
+        post_data = test.data;
+        http_options.headers = {
+              'Content-Type': 'application/json',
+              'Content-Length': post_data.length
+        }
+      console.log(JSON.stringify(post_data));
+      } else {
+          post_data = querystring.stringify(test.data);
+          http_options.headers = {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Length': post_data.length
+          }
       }
   }
   //console.log(JSON.stringify(test));
