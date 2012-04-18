@@ -51,7 +51,7 @@ var confirm_challenge = function(test, json_data) {
 
 describe('POST /init', function(){
 
-var randomuser = 'xabcDefg'+ Math.floor( Math.random() * ( 100000  ) );
+var randomuser = 'plip'+ Math.floor( Math.random() * ( 100000  ) );
 var randommail = randomuser +'@simpledata.ch'; // should not be necessary
 var tests = [ 
     { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 

@@ -9,6 +9,10 @@ app.error(function(error, req, res, next) {
       //logger.debug("app_errors : "+ JSON.stringify(error.data));
       res.json(error.data, error.httpCode);
     } else {
+      if (! (error instanceof Error)) {
+        logger.debug("app_errors unkown object : "+ error);
+        return console.log( (new Error()).stack );
+      } 
       logger.debug("app_errors : "+ error);
       console.log( error.stack )
       //next();

@@ -113,4 +113,4 @@ app_static.listen(config.get('http:port_static'), config.get('http:host_static')
 
 
 // start dns
-require('./dnsserver');
+//require('./dnsserver');

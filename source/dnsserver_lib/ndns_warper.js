@@ -128,7 +128,10 @@ server.on("request", function(req, res) {
 
 
 process.on('uncaughtException', function (err) {
-  logger.error("Erreur:"+ err);
+  if (err == false || err == undefined) {
+      err = new Error();
+  }
+  logger.error("NDNS Erreur:"+ err);
   logger.error(err.stack);
   if(err.code){
   	switch(err.code){

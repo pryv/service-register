@@ -33,22 +33,35 @@ testJsonValues = function(tests,data_json) {
 * JSchema: jscon-schema for validation
 * JValues: expected key-value pair for content validation
 */
-exports.jsonResponse = jsonResponse = function(res, test, callback_done) {
+exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_status,http_options,post_data) {
+
   res.should.be.json;
   var bodyarr = [];
   res.on('data', function (chunk) { bodyarr.push(chunk); });
   res.on('end', function() {
-    var data_json = JSON.parse(bodyarr.join(''));
-    //console.log("\n**data received**\n");console.log(bodyarr.join(''));
-    jsonData(data_json, test.JSchema);
-    // test constents
-    if (test.JValues != null) {
+    function display_error() {
+        console.log('\nREQUEST: ' + http_options.method +" "+http_options.host+":"+http_options.port+http_options.path);
+        console.log('HEADERS: ' + JSON.stringify(http_options.headers));
+        console.log('BODY: ' + post_data);
+        console.log('\nRESPONSE\nSTATUS: ' + res.statusCode);
+        console.log('HEADERS: ' + JSON.stringify(res.headers));
+        console.log("BODY: ");console.log(bodyarr.join(''));
+        throw(error_status);
+    }
+    if (error_status)  {display_error(); throw(error_status); }
+    try {
+      var data_json = JSON.parse(bodyarr.join(''));
+      jsonData(data_json, test.JSchema);
+  
+      // test constants
+      if (test.JValues != null)
         testJsonValues(test.JValues,data_json);
-    }
-    // if everything works.. then callback for result
-    if (test.nextStep != null) {
+      
+      // if everything works.. then callback for result
+      if (test.nextStep != null) 
         test.nextStep(test,data_json);
-    }
+        
+    } catch (e) { display_error(); throw(e); }
     callback_done();
   });
 }
@@ -73,7 +86,7 @@ it(test.it, function(done){
   var http_options = { path: test.path, host: config.get('http:host') , port: config.get('http:port_register'), method: test.method };
   var post_data = "";
   if (test.method == 'POST') {
-       if (test.contenttype == 'JSON') {
+      if (test.contenttype == 'JSON') {
         post_data = JSON.stringify(test.data);
         http_options.headers = {
               'Content-Type': 'application/json',
@@ -85,8 +98,7 @@ it(test.it, function(done){
               'Content-Type': 'application/json',
               'Content-Length': post_data.length
         }
-      console.log(JSON.stringify(post_data));
-      } else {
+      } else { // JSON to STRING
           post_data = querystring.stringify(test.data);
           http_options.headers = {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -96,9 +108,17 @@ it(test.it, function(done){
   }
   //console.log(JSON.stringify(test));
   var req = http.request(http_options, function(res){
-    res.should.have.status(test.status);
+    var error_status = false;
+    var mydone = done;
+    try {
+       res.should.have.status(test.status);
+    } catch (e) {
+        error_status = e;
+    }
+   
+    
     if (test.JSchema != null) 
-      jsonResponse(res,test,done);
+      jsonResponse(res,test,done,error_status,http_options,post_data);
     else done();
    }).on('error', function(e) {
      throw new Error("Got error: " + e.message, e);

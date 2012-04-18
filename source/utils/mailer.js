@@ -46,7 +46,7 @@ exports.sendConfirm = function (uid,to,challenge,lang) {
         if(error){
             logger.debug(error);
         }else{
-            logger.info("Message sent: " + response.message);
+            //logger.info("Message sent: " + response.message);
         }
         SESTransport.close(); // shut down the connection pool, no more messages
     });

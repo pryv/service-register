@@ -2,22 +2,41 @@
 * provides tools to construct messages for clients.
 */
 
-var mstrings = new Array();
+
 require('../public/messages-en.js');
 var  _ = require('underscore');
-mstrings['en'] = register_messages;
+var mstrings = register_messages;
 
-function say(id,addons) {
-  var content = mstrings['en'][id];
-  content.id = id;
-  // merge addons
-  if (addons)
-    for(var i in addons) 
-      if (addons.hasOwnProperty(i)) content[i] = addons[i];
-  
-  return content ;
+// add ids to all messages
+for (key in mstrings) {
+  mstrings[key].id = key;
 }
 
+/**
+* add also the id into the message
+*/
+function clone_message(id) {
+  var t = mstrings[id];
+  if (t == undefined) {
+      throw(new Error("Missing message code :"+id));
+  }
+  return {id: t.id, message: t.message, detail: t.detail};
+}
+
+function say(id,addons) {
+  // merge addons
+  if (addons) {
+    var content = clone_message(id);
+    for(var i in addons) 
+      if (addons.hasOwnProperty(i)) content[i] = addons[i];
+    
+    return content ;
+  }
+  
+  return mstrings[id] ;
+}
+
+/**
 // create a JSON ready error for this code 
 function error_data(id, extra) {
   var content = mstrings['en'][id];
@@ -28,6 +47,8 @@ function error_data(id, extra) {
   content.more = extra;
   return content;
 }
+**/
+
 
 /** close the response with a 500 error **/
 function internal(res) {
@@ -38,22 +59,22 @@ function internal(res) {
 // sugar for errors
 /** internal error **/
 exports.ei = function ei() {
-    return new REGError(500, error_data('INTERNAL_ERROR'));
+    return new REGError(500, say('INTERNAL_ERROR'));
 }
 
 /** single error **/
-exports.e = function e(httpCode, id, extra) {
-    return new REGError(httpCode, error_data(id, extra));
+exports.e = function e(httpCode, id, addons) {
+    return new REGError(httpCode, say(id, addons));
 }
 
 /** error with sub errors **/
 exports.ex = function ex(httpCode, id, suberrors ) {
-    var data = error_data(id);
-    data.errors = new Array();
-    for (var i = 0; i < suberrors.length ; i++) {
-        data.errors[i] = error_data(suberrors[i]);
-    }
-    return new REGError(httpCode, data);
+  var data = clone_message(id);
+  data.errors = new Array();
+  for (var i = 0; i < suberrors.length ; i++) {
+    data.errors[i] = say(suberrors[i]);
+  }
+  return new REGError(httpCode, data);
 }
 
 // REG ERRORS

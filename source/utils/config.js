@@ -27,7 +27,7 @@ nconf.defaults({
     'host_static': '127.0.0.1',
     'port_register': 3443,
     'host': 'localhost',
-    'register_ssl': true, 
+    'register_ssl': false, 
   },
   'persistence' : { 
     'init-ttl' : 86400 // seconds should be 86400 for a day

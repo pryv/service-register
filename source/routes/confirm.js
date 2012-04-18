@@ -3,24 +3,26 @@ var ck = require('../utils/ck.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
+var config = require('../utils/config');
 
 var dataservers = require('../network/dataservers.js');
 
+var domain = "."+config.get('dns:domain');
 
 // STEP 4
-function save_to_db(host,json_infos,req,res,next) {
+function save_to_db(host,json_infos,req,myres,next) {
    // logger.info("SaveToDB: "+ json_infos.userName  );
     db.setServerAndInfos(json_infos.userName, host.name, json_infos, function(error,result) {
       if (error) {
         logger.error(error);
         return next(messages.ei());
       }
-      res.json({server: host.name},200);
+      myres({server: host.name, alias: json_infos.userName + domain},200);
     });
 }
 
 // STEP 3
-function find_server(challenge,json_infos,req,res,next) {
+function find_server(challenge,json_infos,req,myres,next) {
   //logger.info("Confirm: "+ json_result.userName + " challenge:"+challenge );
   //logger.info(JSON.stringify(json_result));
   dataservers.recommanded(req,function(error,host) {
@@ -33,7 +35,7 @@ function find_server(challenge,json_infos,req,res,next) {
          }
          if (json_result.id) {
              json_infos.id = json_result.id;
-             save_to_db(host,json_infos,req,res,next);
+             save_to_db(host,json_infos,req,myres,next);
          } else {
              logger.error("find_server, invalid data from admin server: "+JSON.stringify(json_result));
              return next(messages.ei());
@@ -46,37 +48,59 @@ function find_server(challenge,json_infos,req,res,next) {
 
 
 // STEP 2
-function check_uid(challenge,json_result,req,res,next) {
+function check_uid(challenge,json_result,req,myres,next) {
+  var userName = json_result.userName;
   //logger.info("check_uid: "+ json_result.userName + " challenge:"+challenge );
   //logger.info(JSON.stringify(json_result));
-  db.getServer(json_result.userName, function(error, result) {
+  db.getServer(userName, function(error, result) {
     if (error) return next(messages.ei()) ; 
-    if (result) return res.json(messages.say('ALREADY_CONFIRMED',{server: result}),400); // already confirmed
-    find_server(challenge,json_result,req,res,next);
+    var alias = userName + domain;
+    if (result) return next(messages.e(400,'ALREADY_CONFIRMED',{server: result, alias: alias})); // already confirmed
+    find_server(challenge,json_result,req,myres,next);
   });
 }
 
 
 // STEP 1, check if request is valid == the challenge is token known
-function pre_confirm(_challenge,req,res,next) {
+function pre_confirm(_challenge,req,myres,next) {
   var challenge = ck.challenge(_challenge);
   if (! challenge) return next(messages.e(400,'INVALID_CHALLENGE')); 
+  
   db.getJSON(challenge +":init", function(error, json_result) {
     if (error) return next(messages.ei()) ; 
     if (! json_result) return  next(messages.e(404,'NO_PENDING_CREATION')); 
-    check_uid(challenge,json_result,req,res,next);
+    check_uid(challenge,json_result,req,myres,next);
   });
 }
 
 
-// register to express
+
 function init(app) {
+// GET REQUESTS SEND REDIRECTS
 app.get('/:challenge/confirm', function(req, res,next){
-    pre_confirm(req.params.challenge,req,res,next);
+    function my_next(error) {
+      if (error instanceof messages.REGError) {
+       if (error.data && error.data.server) {
+           // redirect to the server
+       }
+        //res.json(error.data, error.httpCode);
+      } else {
+        //next(error);
+      }
+      next(error);
+    }
+    function jsonres(json) { // shortcut to get the result
+        res.json(json);
+    }
+    pre_confirm(req.params.challenge,req,jsonres,my_next);
 });
 
+// POST REQUEST SND JSON
 app.post('/confirm_post', function(req, res,next){
-     pre_confirm(req.body.challenge,req,res,next);
+    function jsonres(json) { // shortcut to get the result
+        res.json(json);
+    }
+    pre_confirm(req.body.challenge,req,jsonres,next);
 });
 }
 module.exports = init;
