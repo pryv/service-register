@@ -31,7 +31,7 @@ nconf.defaults({
     'register': {
       'port': 3443,
       'host': 'localhost',
-      'ssl': false
+      'ssl': true
     }
   },
   'persistence' : { 
@@ -64,9 +64,19 @@ nconf.defaults({
   }
 });
 
-// 
-exports.httpUrl = function(server) {
-  return server;
+/** 
+* construct an Url from a port/host/ssl config
+**/
+nconf.httpUrl = function(serverKey) {
+  server = nconf.get(serverKey);
+  if (server == undefined) throw(new Error('unkown key: '+serverKey));
+  var url = server.ssl ? 'https://' : 'http://';
+  if ((server.ssl && server.port == 443) || ((! server.ssl ) && server.port == 80)) {
+    url += server.host+'/';
+  } else {
+    url += server.host+':'+server.port+"/";
+  }
+  return url;
 }
 
 // Set network aware parameters

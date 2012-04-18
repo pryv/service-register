@@ -9,8 +9,7 @@ var dataservers = require('../network/dataservers.js');
 
 var domain = "."+config.get('dns:domain');
 
-var confirm_display_error_url = config.get('http:register:ssl') ? 'https://' : 'http://';
-  confirm_display_error_url += config.get('http:register:host')+':'+config.get('http:register:port')+"/confirm-error.html";
+var confirm_display_error_url = config.httpUrl('http:register')+"confirm-error.html";
 
 // STEP 4
 function save_to_db(host,json_infos,req,myres,next) {

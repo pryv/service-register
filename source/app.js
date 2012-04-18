@@ -79,12 +79,10 @@ app.get('/', function(req, res, next){
 require('./utils/app_errors.js')(app);
 
 app.listen(config.get('http:register:port'), config.get('http:register:host'), function() {
-  var address = app.address();
-  var url = config.get('http:register:ssl') ? 'https://' : 'http://';
-  url += config.get('http:register:host')+':'+config.get('http:register:port')+"/";
-  
-  logger.info('Register server '+ url+' in '+app.settings.env+' mode');  
+  var address = app.address();  
+  logger.info('Register server '+ config.httpUrl('http:register')+' in '+app.settings.env+' mode');  
 });
+
 
 // start static server 
 require('./app_static');

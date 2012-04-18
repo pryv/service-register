@@ -18,8 +18,7 @@ for (key in mailTemplates) {
     logger.debug("Loaded mail template: "+key);
 }
 
-var confirmurlbase = config.get('http:register:ssl') ? 'https://' : 'http://';
-confirmurlbase += config.get('http:register:host')+':'+config.get('http:register:port')+"/%challenge%/confirm";
+var confirmurlbase = config.httpUrl('http:register')+"%challenge%/confirm";
 
 exports.sendConfirm = function (uid,to,challenge,lang) {
     if ( config.get('mailer:deactivated')) {
