@@ -40,6 +40,10 @@ var server = exports.server = {
         'server' : {
             type: 'string',
             require: true
+        },
+        'alias' : {
+            type: 'string',
+            require: true
         }
     }
 }

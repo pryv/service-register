@@ -3,6 +3,8 @@ var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 var config = require('../../utils/config');
 
+var domain = "."+config.get('dns:domain');
+
 // chained server test (step3) ... to see if we can find this user back
 var server_test = function(test,json_data) {
      describe('GET /server (chained with init) ', function(){
@@ -11,6 +13,7 @@ var server_test = function(test,json_data) {
                  path : "/"+ test.initialtest.data.userName +"/server",
                  status: 200,
                  JSchema : schema.server ,
+                 JValues: {server: test.initialtest.secondTestResult.server, alias: test.initialtest.data.userName + domain},
                  method: 'GET', };
         dataValidation.path_status_schema(ntest);
     });
@@ -20,7 +23,7 @@ var server_test = function(test,json_data) {
 // chained confirm test (step2) ... with a valid captcha but already confirmed
 var re_confirm_challenge = function(test, json_data) {
     describe('GET /confirm (2nd) ', function(){
-      
+        test.initialtest.secondTestResult = json_data;
         var ntest = { it : test.it +" (2nd)",
                  path : test.path,
                  status: 400,

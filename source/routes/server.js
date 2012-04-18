@@ -3,8 +3,11 @@ var ck = require('../utils/ck.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var app_errors = require('../utils/app_errors.js');
+var config = require('../utils/config');
 
 function check(app) {
+
+var domain = "."+config.get('dns:domain');
 
 app.get('/:uid/server', function(req, res,next){
 
@@ -12,7 +15,7 @@ app.get('/:uid/server', function(req, res,next){
   
   db.getServer(req.params.uid, function(error, result) {
     if (error) return next(messages.ei()) ; 
-    if (result) return res.json({server: result},200); // good
+    if (result) return res.json({server: result, alias: req.params.uid+domain },200); // good
      return next(messages.e(404,'UNKOWN_USER_NAME'));
   });
 });

@@ -46,7 +46,6 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
         console.log('\nRESPONSE\nSTATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
         console.log("BODY: ");console.log(bodyarr.join(''));
-        throw(error_status);
     }
     if (error_status)  {display_error(); throw(error_status); }
     try {
