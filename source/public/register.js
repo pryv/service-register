@@ -12,7 +12,7 @@ function proceedRegistration() {
     email: register_checks.email,
     languageCode: my_messages['LANGUAGE_CODE']};
   
-  var url = register_config['REGISTER_URL']+"/init";
+  var url = register_config['REGISTER_URL']+"init";
   
   
   $.post(url, data, function(json, textStatus) {
@@ -115,7 +115,7 @@ function userNameChange(value) {
     }
     register_checks.userName = false;
     
-    $.getJSON(register_config['REGISTER_URL']+"/"+value+"/check",
+    $.getJSON(register_config['REGISTER_URL']+value+"/check",
       function(data){
         if (data != null && data.exists != undefined) {
           register_checks.userName = data.exists ? false : value;
