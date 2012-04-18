@@ -80,9 +80,10 @@ require('./utils/app_errors.js')(app);
 
 app.listen(config.get('http:port_register'), config.get('http:host'), function() {
   var address = app.address();
-  var mode = config.get('http:register_ssl') ? 'https' : 'http';
-  logger.info('Register server '+ mode +' listening on '+ address.address+':'+address.port+
-      ' in '+app_static.settings.env+' mode');  
+  var url = config.get('http:register_ssl') ? 'https://' : 'http://';
+  url += config.get('http:host')+':'+config.get('http:port_register')+"/";
+  
+  logger.info('Register server '+ url+' in '+app.settings.env+' mode');  
 });
           
 // static server 

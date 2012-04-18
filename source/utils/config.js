@@ -18,6 +18,10 @@ nconf.argv()
 
 // Set default values
 nconf.defaults({
+  'languages': {
+      'default' : 'en',
+      'supported' : [{'en': 'English'}, {'fr': 'Français'}]
+  },
   'http': {
     'port_static': 3080,
     'host_static': '127.0.0.1',
@@ -26,13 +30,11 @@ nconf.defaults({
     'register_ssl': true, 
   },
   'persistence' : { 
-    'init-ttl' : 60 // seconds should be 86400 for a day
+    'init-ttl' : 86400 // seconds should be 86400 for a day
   },
   'net': {
     'servers_domain': 'wactiv.com', 
-    'my_id': 'ns1',
-    'staticsurl': 'http://localhost:3000/',
-    'confirmurl': 'http://localhost:3000/%challenge%/confirm'
+    'my_id': 'ns1'
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
