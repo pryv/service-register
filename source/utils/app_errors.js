@@ -12,9 +12,9 @@ app.error(function(error, req, res, next) {
       if (! (error instanceof Error)) {
         logger.debug("app_errors unkown object : "+ error);
         return console.log( (new Error()).stack );
-      } 
+      }
       logger.debug("app_errors : "+ error);
-      console.log( error.stack )
+      console.log( error.stack );
       //next();
     }
   });

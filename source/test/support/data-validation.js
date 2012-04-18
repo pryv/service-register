@@ -11,7 +11,9 @@ exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
   jsonData(JSON.parse(httpResponse.body), validate(responseData, jsonSchema));
 };
 
-/** helper that test the content of a JSON structure **/
+/** 
+ * helper that test the content of a JSON structure 
+ **/
 function testJsonValues(tests,data_json) {
   //console.log("\n****"); console.log(tests); console.log(data_json); 
   for (key in tests) {
@@ -60,15 +62,15 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
       if (test.nextStep != null) 
         test.nextStep(test,data_json);
         
-    } catch (e) { display_error(); throw(e); }
+    } catch (e) { display_error(); throw(e); }
     callback_done();
   });
-}
+};
 
 exports.jsonData = jsonData = function(responseData, jsonSchema) {
   var validationResult = validate(responseData, jsonSchema);
   validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
-}
+};
 
 /**
 * do a a test. 
@@ -90,25 +92,25 @@ it(test.it, function(done){
         http_options.headers = {
               'Content-Type': 'application/json',
               'Content-Length': post_data.length
-        }
+        };
       } else if (test.contenttype == 'JSONSTRING') {
         post_data = test.data;
         http_options.headers = {
               'Content-Type': 'application/json',
               'Content-Length': post_data.length
-        }
+        };
       } else { // JSON to STRING
           post_data = querystring.stringify(test.data);
           http_options.headers = {
               'Content-Type': 'application/x-www-form-urlencoded',
               'Content-Length': post_data.length
-          }
+          };
       }
   }
   //console.log(JSON.stringify(test));
   var req = http.request(http_options, function(res){
     var error_status = false;
-    var mydone = done;
+    
     try {
        res.should.have.status(test.status);
     } catch (e) {
@@ -127,4 +129,4 @@ it(test.it, function(done){
   }
   req.end();
 });
-}
+};

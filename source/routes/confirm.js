@@ -1,4 +1,4 @@
-// init user creation 
+//init user creation 
 var ck = require('../utils/ck.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
@@ -11,45 +11,45 @@ var domain = "."+config.get('dns:domain');
 
 var confirm_display_error_url = config.httpUrl('http:register')+"confirm-error.html";
 
-// STEP 4
+//STEP 4
 function save_to_db(host,json_infos,req,myres,next) {
-   // logger.info("SaveToDB: "+ json_infos.userName  );
-    db.setServerAndInfos(json_infos.userName, host.name, json_infos, function(error,result) {
-      if (error) {
-        logger.error(error);
-        return next(messages.ei());
-      }
-      myres({server: host.name, alias: json_infos.userName + domain},200);
-    });
+  // logger.info("SaveToDB: "+ json_infos.userName  );
+  db.setServerAndInfos(json_infos.userName, host.name, json_infos, function(error,result) {
+    if (error) {
+      logger.error(error);
+      return next(messages.ei());
+    }
+    myres({server: host.name, alias: json_infos.userName + domain},200);
+  });
 }
 
-// STEP 3
+//STEP 3
 function find_server(challenge,json_infos,req,myres,next) {
   //logger.info("Confirm: "+ json_result.userName + " challenge:"+challenge );
   //logger.info(JSON.stringify(json_result));
   dataservers.recommanded(req,function(error,host) {
-      //logger.info("found server "+host.name +" for uid: "+ json_infos.userName + " challenge:"+challenge );
-     
-      dataservers.post_to_admin(host,"/register/create-user",201,json_infos,function(error,json_result) {
-         if (error) {
-             logger.error(error);
-             return next(messages.ei());
-         }
-         if (json_result.id) {
-             json_infos.id = json_result.id;
-             save_to_db(host,json_infos,req,myres,next);
-         } else {
-             logger.error("find_server, invalid data from admin server: "+JSON.stringify(json_result));
-             return next(messages.ei());
-         }
-         
-      });
-      // call server to register user 
+    //logger.info("found server "+host.name +" for uid: "+ json_infos.userName + " challenge:"+challenge );
+
+    dataservers.post_to_admin(host,"/register/create-user",201,json_infos,function(error,json_result) {
+      if (error) {
+        logger.error(error);
+        return next(messages.ei());
+      }
+      if (json_result.id) {
+        json_infos.id = json_result.id;
+        save_to_db(host,json_infos,req,myres,next);
+      } else {
+        logger.error("find_server, invalid data from admin server: "+JSON.stringify(json_result));
+        return next(messages.ei());
+      }
+
+    });
+    // call server to register user 
   });
 }
 
 
-// STEP 2
+//STEP 2
 function check_uid(challenge,json_result,req,myres,next) {
   var userName = json_result.userName;
   //logger.info("check_uid: "+ json_result.userName + " challenge:"+challenge );
@@ -63,14 +63,14 @@ function check_uid(challenge,json_result,req,myres,next) {
 }
 
 
-// STEP 1, check if request is valid == the challenge is token known
+//STEP 1, check if request is valid == the challenge is token known
 function pre_confirm(_challenge,req,myres,next) {
   var challenge = ck.challenge(_challenge);
-  if (! challenge) return next(messages.e(400,'INVALID_CHALLENGE')); 
-  
+  if (! challenge) return next(messages.e(400,'INVALID_CHALLENGE')); 
+
   db.getJSON(challenge +":init", function(error, json_result) {
     if (error) return next(messages.ei()) ; 
-    if (! json_result) return  next(messages.e(404,'NO_PENDING_CREATION')); 
+    if (! json_result) return next(messages.e(404,'NO_PENDING_CREATION')); 
     check_uid(challenge,json_result,req,myres,next);
   });
 }
@@ -78,32 +78,32 @@ function pre_confirm(_challenge,req,myres,next) {
 
 
 function init(app) {
-// GET REQUESTS SEND REDIRECTS
-app.get('/:challenge/confirm', function(req, res,next){
+//GET REQUESTS SEND REDIRECTS
+  app.get('/:challenge/confirm', function(req, res,next){
     function my_next(error) {
       if (error instanceof messages.REGError) {
-       if (error.data && error.data.server) {
-           //return res.redirect('https://'+json.alias+'/?msg=alreadyconfirmed');
-       }
-       //return res.redirect('https:///?msg=alreadyconfirmed');
+        if (error.data && error.data.server) {
+          //return res.redirect('https://'+json.alias+'/?msg=alreadyconfirmed');
+        }
+        //return res.redirect('https:///?msg=alreadyconfirmed');
       }
       next(error);
     }
-    
-    function jsonres(json) { // shortcut to get the result
-        //res.redirect('https://'+json.alias+'/?msg=confirmed');
-        res.json(json);
-    }
-    
-    pre_confirm(req.params.challenge,req,jsonres,my_next);
-});
 
-// POST REQUEST SND JSON
-app.post('/confirm_post', function(req, res,next){
     function jsonres(json) { // shortcut to get the result
-        res.json(json);
+      //res.redirect('https://'+json.alias+'/?msg=confirmed');
+      res.json(json);
+    }
+
+    pre_confirm(req.params.challenge,req,jsonres,my_next);
+  });
+
+//POST REQUEST SND JSON
+  app.post('/confirm_post', function(req, res,next){
+    function jsonres(json) { // shortcut to get the result
+      res.json(json);
     }
     pre_confirm(req.body.challenge,req,jsonres,next);
-});
+  });
 }
 module.exports = init;
