@@ -1,7 +1,7 @@
 var validate = require('json-schema').validate;
 var config = require('../../utils/config');
 var should = require('should');
-var mode = config.get('http:register_ssl') ? 'https' : 'http';
+var mode = config.get('http:register:ssl') ? 'https' : 'http';
 var http = require(mode); 
 var querystring = require('querystring');
 
@@ -82,7 +82,7 @@ exports.jsonData = jsonData = function(responseData, jsonSchema) {
 */
 exports.path_status_schema = path_status_schema = function path_status_schema (test) {
 it(test.it, function(done){
-  var http_options = { path: test.path, host: config.get('http:host') , port: config.get('http:port_register'), method: test.method };
+  var http_options = { path: test.path, host: config.get('http:register:host') , port: config.get('http:register:port'), method: test.method };
   var post_data = "";
   if (test.method == 'POST') {
       if (test.contenttype == 'JSON') {

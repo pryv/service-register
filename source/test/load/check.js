@@ -1,6 +1,6 @@
 var app = require('../../app');
 var config = require('../../utils/config');
-var mode = config.get('http:register_ssl') ? 'https' : 'http';
+var mode = config.get('http:register:ssl') ? 'https' : 'http';
 var http = require(mode); 
 
 // TODO Data validation
@@ -18,7 +18,7 @@ describe('LOAD ', function(){
       }
       
       
-      var http_options = { path: '/perki/check', port: config.get('http:port_register')};
+      var http_options = { path: '/perki/check', port: config.get('http:register:port')};
       
       for (var i = 0; i < requests; i++) {
           //console.log(JSON.stringify(test));

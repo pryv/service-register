@@ -29,7 +29,7 @@ express.bodyParser.parse['application/json'] = function(req, options, fn){
 
 var app;
 // https server
-if (config.get('http:register_ssl')) {
+if (config.get('http:register:ssl')) {
   var privateKey = fs.readFileSync('cert/privatekey.pem').toString();
   var certificate = fs.readFileSync('cert/certificate.pem').toString();
   app = express.createServer({key: privateKey, cert: certificate});
@@ -78,39 +78,16 @@ app.get('/', function(req, res, next){
 // error management (evolution)
 require('./utils/app_errors.js')(app);
 
-app.listen(config.get('http:port_register'), config.get('http:host'), function() {
+app.listen(config.get('http:register:port'), config.get('http:register:host'), function() {
   var address = app.address();
-  var url = config.get('http:register_ssl') ? 'https://' : 'http://';
-  url += config.get('http:host')+':'+config.get('http:port_register')+"/";
+  var url = config.get('http:register:ssl') ? 'https://' : 'http://';
+  url += config.get('http:register:host')+':'+config.get('http:register:port')+"/";
   
   logger.info('Register server '+ url+' in '+app.settings.env+' mode');  
 });
-          
-// static server 
 
-var app_static = express.createServer();
-
-app_static.configure(function(){
-  app_static.use(express.bodyParser());
-  app_static.use(express.static(__dirname + '/public'));
-  logger.setLevels(logger.config.syslog.levels);
-  // TODO: setup logger handling for uncaught exceptions
-});
-
-app_static.get('*', function(req, res, next){
-  console.log(req.url);
-  next();
-});
-
-require('./routes_static/register-config')(app_static);
-require('./routes_static/index')(app_static);
-
-app_static.listen(config.get('http:port_static'), config.get('http:host_static'), function() {
-  var address = app_static.address();
-  logger.info('Static server listening on '+ address.address+':'+address.port+
-      ' in '+app_static.settings.env+' mode');  
-});
-
+// start static server 
+require('./app_static');
 
 // start dns
-//require('./dnsserver');
+//require('./spp_dns');

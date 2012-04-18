@@ -23,11 +23,16 @@ nconf.defaults({
       'supported' : [{'en': 'English'}, {'fr': 'Français'}]
   },
   'http': {
-    'port_static': 3080,
-    'host_static': '127.0.0.1',
-    'port_register': 3443,
-    'host': 'localhost',
-    'register_ssl': false, 
+    'static': {
+      'port': 3080,
+      'host': '127.0.0.1',
+      'ssl': false
+    },
+    'register': {
+      'port': 3443,
+      'host': 'localhost',
+      'ssl': false
+    }
   },
   'persistence' : { 
     'init-ttl' : 86400 // seconds should be 86400 for a day
@@ -58,5 +63,10 @@ nconf.defaults({
     }
   }
 });
+
+// 
+exports.httpUrl = function(server) {
+  return server;
+}
 
 // Set network aware parameters

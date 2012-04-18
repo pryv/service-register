@@ -4,7 +4,7 @@ var config = require('../utils/config');
 module.exports = index;
 
 function index(app){ 
-  var static_url = "http://"+ config.get('http:host_static') +":"+ config.get('http:port_static');
+  var static_url = "http://"+ config.get('http:static_host') +":"+ config.get('http:static_port');
 
   app.get('/', function(req, res, next) { 
     res.redirect(static_url,301);

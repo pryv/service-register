@@ -9,6 +9,9 @@ var dataservers = require('../network/dataservers.js');
 
 var domain = "."+config.get('dns:domain');
 
+var confirm_display_error_url = config.get('http:register:ssl') ? 'https://' : 'http://';
+  confirm_display_error_url += config.get('http:register:host')+':'+config.get('http:register:port')+"/confirm-error.html";
+
 // STEP 4
 function save_to_db(host,json_infos,req,myres,next) {
    // logger.info("SaveToDB: "+ json_infos.userName  );
@@ -81,17 +84,18 @@ app.get('/:challenge/confirm', function(req, res,next){
     function my_next(error) {
       if (error instanceof messages.REGError) {
        if (error.data && error.data.server) {
-           // redirect to the server
+           //return res.redirect('https://'+json.alias+'/?msg=alreadyconfirmed');
        }
-        //res.json(error.data, error.httpCode);
-      } else {
-        //next(error);
+       //return res.redirect('https:///?msg=alreadyconfirmed');
       }
       next(error);
     }
+    
     function jsonres(json) { // shortcut to get the result
+        //res.redirect('https://'+json.alias+'/?msg=confirmed');
         res.json(json);
     }
+    
     pre_confirm(req.params.challenge,req,jsonres,my_next);
 });
 
