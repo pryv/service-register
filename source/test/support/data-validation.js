@@ -12,7 +12,7 @@ exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
 };
 
 /** helper that test the content of a JSON structure **/
-testJsonValues = function(tests,data_json) {
+function testJsonValues(tests,data_json) {
   //console.log("\n****"); console.log(tests); console.log(data_json); 
   for (key in tests) {
     var testa = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??

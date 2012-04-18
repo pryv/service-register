@@ -126,9 +126,9 @@ server.on("request", function(req, res) {
 });
 **/
 
-
+/**
 process.on('uncaughtException', function (err) {
-  if (err == false || err == undefined) {
+  if (err == false || err == undefined) {
       err = new Error();
   }
   logger.error("NDNS Erreur:"+ err);
@@ -148,6 +148,7 @@ process.on('uncaughtException', function (err) {
   	process.exit();
   };
 });
+**/
 
 server.bind(BIND_PORT,BIND_HOST);
 logger.info("DNS Started on "+BIND_HOST+":"+BIND_PORT);
