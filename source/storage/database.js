@@ -3,7 +3,7 @@ var logger = require('winston');
 var redis = require('redis').createClient();
 var config = require('../utils/config');
 
-var connectionChecked = require('../utils/readyness').waitFor('database');
+var connectionChecked = require('readyness').waitFor('database');
 //check redis connectivity
 redis.set('hello','world', function(error, result) {
   if (error) 

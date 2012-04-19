@@ -52,7 +52,7 @@ var confirm_challenge = function(test, json_data) {
   });
 }
 
-require('../support/waiter.js');
+require('readyness/wait/mocha');
 
 describe('POST /init', function(){
 

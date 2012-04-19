@@ -2,7 +2,7 @@ var app = require('../../app');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
-require('../support/waiter.js');
+require('readyness/wait/mocha');
 
 describe('POST /:uid/server', function(){
   var tests =  [ { uid: 'abcd', status: 400 , desc : 'too short ' , 

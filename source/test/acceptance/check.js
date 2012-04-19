@@ -4,7 +4,7 @@ var app = require('../../app');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
-require('../support/waiter.js');
+require('readyness/wait/mocha');
 
 describe('GET /:uid/check', function(){
   var tests = [ 

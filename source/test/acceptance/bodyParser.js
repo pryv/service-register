@@ -3,7 +3,7 @@ var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 var config = require('../../utils/config');
 
-require('../support/waiter.js');
+require('readyness/wait/mocha');
 
 describe('POST /init with invalid data', function(){
   var tests = [ 

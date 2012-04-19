@@ -5,7 +5,7 @@ var schema = require('../../model/schema.responses');
 // the following tests are not "init" dependents
 // other confirm tests are included in the "init" part in order to chain them
 
-require('../support/waiter.js');
+require('readyness/wait/mocha');
 
 describe('GET /challenge:/confirm', function(){
   var tests = [ 

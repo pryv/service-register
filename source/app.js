@@ -3,6 +3,9 @@ var express = require('express');
 var logger = require('winston');
 var fs = require('fs');
 
+var ready = require('readyness');
+ready.setLogger(logger.info);
+
 //Dependencies
 var config = require('./utils/config');
 var messages = require('./utils/messages');
@@ -73,7 +76,7 @@ app.get('/', function(req, res, next){
 require('./utils/app_errors.js')(app);
 
 
-var appListening = require('./utils/readyness').waitFor('app:listening');
+var appListening = ready.waitFor('app:listening');
 app.listen(config.get('http:register:port'), config.get('http:register:host'), function() {
   var address = app.address();  
   appListening('Register server '+ config.httpUrl('http:register')+' in '+app.settings.env+' mode');
