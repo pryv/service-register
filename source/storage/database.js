@@ -1,21 +1,22 @@
-// handle the database
+var ready = require('../utils/readyness');
+
+//handle the database
 var logger = require('winston');
 var redis = require('redis').createClient();
 var config = require('../utils/config');
 
-
-// check redis connectivity
+var connectionChecked = ready.waitFor('database');
+//check redis connectivity
 redis.set('hello','world', function(error, result) {
-  if (error) logger.error('Error connecting DB: '+ error);
-    else {
-      if (error) 
-        logger.error('Failed to connect redis database: '+ error, error);
-      else
-        logger.info('Connected to redis database: '+ result);
-     }
+  if (error) 
+    logger.error('Failed to connect redis database: '+ error, error);
+  else {
+    logger.info('Redis is ready');
+    connectionChecked();
+  }
 });
 
-// Generic
+//Generic
 
 function uidExists(uid,callback) {
   uid = uid.toLowerCase();
@@ -35,7 +36,7 @@ function getJSON(key, callback) {
 }
 exports.getJSON = getJSON;
 
-// Specialized
+//Specialized
 
 exports.initSet = function initSet(uid, password, email, language, challenge, callback) {
   var multi = redis.multi();
@@ -45,7 +46,7 @@ exports.initSet = function initSet(uid, password, email, language, challenge, ca
   multi.expire(key, config.get('persistence:init-ttl'));
   multi.exec(function(error, result) {
     if (error) logger.error('Redis initSet: '+ uid +' e: '+ error, error);
-      callback(error, result); // callback anyway
+    callback(error, result); // callback anyway
   });
 }
 
@@ -66,7 +67,7 @@ exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callb
   multi.set(uid +":server", server);
   multi.exec(function(error, result) {
     if (error) logger.error('Redis setServerAndInfos: '+ uid +' e: '+ error, error);
-      callback(error, result); // callback anyway
+    callback(error, result); // callback anyway
   });
 }
 
