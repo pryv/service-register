@@ -1,18 +1,15 @@
-var ready = require('../utils/readyness');
-
 //handle the database
 var logger = require('winston');
 var redis = require('redis').createClient();
 var config = require('../utils/config');
 
-var connectionChecked = ready.waitFor('database');
+var connectionChecked = require('../utils/readyness').waitFor('database');
 //check redis connectivity
 redis.set('hello','world', function(error, result) {
   if (error) 
     logger.error('Failed to connect redis database: '+ error, error);
   else {
-    logger.info('Redis is ready');
-    connectionChecked();
+    connectionChecked('Redis');
   }
 });
 

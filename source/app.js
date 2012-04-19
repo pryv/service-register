@@ -1,5 +1,3 @@
-var ready = require('./utils/readyness');
-
 //frameworks
 var express = require('express');
 var logger = require('winston');
@@ -74,12 +72,11 @@ app.get('/', function(req, res, next){
 // error management (evolution)
 require('./utils/app_errors.js')(app);
 
-var doneApp = ready.waitFor('app');
-var appListening = ready.waitFor('app:listening');
+
+var appListening = require('./utils/readyness').waitFor('app:listening');
 app.listen(config.get('http:register:port'), config.get('http:register:host'), function() {
   var address = app.address();  
-  logger.info('Register server '+ config.httpUrl('http:register')+' in '+app.settings.env+' mode');
-  appListening();
+  appListening('Register server '+ config.httpUrl('http:register')+' in '+app.settings.env+' mode');
 });
 
 
@@ -88,6 +85,3 @@ require('./app_static');
 
 // start dns
 require('./app_dns');
-
-
-doneApp();

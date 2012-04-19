@@ -34,8 +34,9 @@ app.get('*', function(req, res, next){
 require('./routes_static/register-config')(app);
 require('./routes_static/index')(app);
 
+readyListening = require('./utils/readyness').waitFor('app_static:listening');
 app.listen(config.get('http:static:port'), config.get('http:static:host'), function() {
   var address = app.address();
-  logger.info('Static server listening on '+ config.httpUrl('http:static')+
-      ' in '+app.settings.env+' mode');  
+  readyListening('Static server listening on '+ config.httpUrl('http:static')+
+      ' in '+app.settings.env+' mode');
 });

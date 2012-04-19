@@ -40,14 +40,16 @@ exports.waitFor = function (name) {
   waiting++;
   if (waiting == 1) wait_wait();
   //logger.info("waiting for: ["+name+"]");
-  return function () {
-    readyDoneOne(name);
+  return function (info_text) {
+    readyDoneOne(name, info_text);
   }
 }
 
-function readyDoneOne(name) {
+function readyDoneOne(name, info_text) {
   waiting--;
-  logger.info("["+name+"] is ready");
+  info_text = (info_text == undefined) ? "" : " > "+info_text;
+  
+  logger.info("ready: ["+name+"]"+info_text);
   if (waiting > 0) return;
   for (var i = 0; i < watchers.length; i++) { 
     watchers[i]();

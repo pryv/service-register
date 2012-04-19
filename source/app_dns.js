@@ -55,4 +55,5 @@ var serverForName = function(name,callback,req,res) {
 
 var NAMES = require('./dnsserver_lib/static_hosts.js');
 
-dns.start(NAMES,config.get('dns:port'),config.get('dns:host'),serverForName);
+readyListening = require('./utils/readyness').waitFor('app_static:listening');
+dns.start(NAMES,config.get('dns:port'),config.get('dns:host'),serverForName,readyListening);
