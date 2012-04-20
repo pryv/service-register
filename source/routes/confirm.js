@@ -83,7 +83,7 @@ function init(app) {
     function my_next(error) {
       if (error instanceof messages.REGError) {
         if (error.data && error.data.server) {
-           res.redirect(aaservers_mode+'://'+json.alias+'/?msg=CONFIRMED_ALREADY');
+           res.redirect(aaservers_mode+'://'+error.data.alias+'/?msg=CONFIRMED_ALREADY');
         } else {
            res.redirect(confirm_display_error_url+'?id='+error.data.id);
           return;
