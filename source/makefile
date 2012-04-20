@@ -30,6 +30,14 @@ test-server:
                 --slow 20 \
                 --timeout 5000 \
             test/acceptance/server.js 
+
+test-init:
+	@./node_modules/.bin/mocha --ignore-leaks \
+                --reporter spec \
+                --require should \
+                --slow 20 \
+                --timeout 5000 \
+            test/acceptance/init.js 
             
 load:
 	@./node_modules/.bin/mocha --ignore-leaks \

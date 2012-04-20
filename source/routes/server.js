@@ -9,14 +9,22 @@ function check(app) {
 
 var domain = "."+config.get('dns:domain');
 
+var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
+var server_display_error_url = config.httpUrl('http:static')+"error.html";
+
 app.get('/:uid/server', function(req, res,next){
 
-  if (! ck.uid(req.params.uid)) return next(messages.e(400,'INVALID_USER_NAME'));
+  if (! ck.uid(req.params.uid)) 
+    return  res.redirect(server_display_error_url+'?id=INVALID_USER_NAME');
+   
   
   db.getServer(req.params.uid, function(error, result) {
-    if (error) return next(messages.ei()) ; 
-    if (result) return res.redirect('https://'+result); // good
-     return next(messages.e(404,'UNKOWN_USER_NAME'));
+    if (error) return next(messsages.ie()); 
+    if (result) 
+      return res.redirect(aaservers_mode+'://'+result+'/?userName='+req.params.uid); // good
+     
+    
+    return res.redirect(server_display_error_url+'?id=UNKOWN_USER_NAME');
   });
 });
 

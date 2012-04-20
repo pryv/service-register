@@ -39,6 +39,7 @@ nconf.defaults({
   },
   'net': {
     'servers_domain': 'wactiv.com', 
+    'aaservers_ssl': false, // set if admin / activity servers have ssl
     'my_id': 'ns1'
   },
   'mailer': {
@@ -53,7 +54,7 @@ nconf.defaults({
   'dns': {
       'port': 9999,
       'host': '127.0.0.1',
-      'hostname': 'ns1.wactiv.com',
+      'hostname': 'ns1.wactiv.com', // see the 'net' key
       'domain': 'rec.la'
   },
   'test': {

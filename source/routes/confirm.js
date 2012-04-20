@@ -7,9 +7,9 @@ var config = require('../utils/config');
 
 var dataservers = require('../network/dataservers.js');
 
+var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var domain = "."+config.get('dns:domain');
-
-var confirm_display_error_url = config.httpUrl('http:register')+"confirm-error.html";
+var confirm_display_error_url = config.httpUrl('http:static')+"error.html";
 
 //STEP 4
 function save_to_db(host,json_infos,req,myres,next) {
@@ -83,18 +83,19 @@ function init(app) {
     function my_next(error) {
       if (error instanceof messages.REGError) {
         if (error.data && error.data.server) {
-          //return res.redirect('https://'+json.alias+'/?msg=alreadyconfirmed');
+           res.redirect(aaservers_mode+'://'+json.alias+'/?msg=CONFIRMED_ALREADY');
+        } else {
+           res.redirect(confirm_display_error_url+'?id='+error.data.id);
+          return;
         }
-        //return res.redirect('https:///?msg=alreadyconfirmed');
       }
       next(error);
     }
 
     function jsonres(json) { // shortcut to get the result
-      //res.redirect('https://'+json.alias+'/?msg=confirmed');
-      res.json(json);
+      res.redirect(aaservers_mode+'://'+json.alias+'/?msg=CONFIRMED');
     }
-
+   
     pre_confirm(req.params.challenge,req,jsonres,my_next);
   });
 

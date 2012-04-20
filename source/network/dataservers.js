@@ -1,6 +1,10 @@
 var config = require('../utils/config');
 var querystring = require('querystring');
-var http = require('http');
+
+//-- 
+var mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
+var http = require(mode); 
+
 /** 
  * deal with the server logic 
  * - find the closest server for an IP
@@ -12,8 +16,9 @@ var servers = [{ "name": "test1", "port": 80, "authorization": "register-test-to
                { "name": "test2", "port": 80, "authorization": "register-test-token" }];
 
 // update servers list with domain name
-for (var i = 0; i < servers.length; i++)
-    servers[i].name = servers[i].name+"."+config.get('net:servers_domain');
+for (var i = 0; i < servers.length; i++) {
+    servers[i].hostname = servers[i].name+"."+config.get('net:servers_domain');
+}
 
 // return recommanded servers
 function recommanded(req,callback) {
@@ -48,7 +53,7 @@ function getClientIp(req) {
 // POST request to an admin server, callback(error,json_result)
 function post_to_admin(host,path,expected_status,json_data,callback) {
   
-  var http_options = { host : host.name , port: host.port, path: path, method: "POST" };
+  var http_options = { host : host.hostname , port: host.port, path: path, method: "POST" };
   var post_data = querystring.stringify(json_data);
 
   //console.log(post_data);

@@ -1,9 +1,11 @@
 var validate = require('json-schema').validate;
 var config = require('../../utils/config');
 var should = require('should');
+var querystring = require('querystring');
+
+// -- 
 var mode = config.get('http:register:ssl') ? 'https' : 'http';
 var http = require(mode); 
-var querystring = require('querystring');
 
 
 exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
@@ -37,31 +39,45 @@ function testJsonValues(tests,data_json) {
 */
 exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_status,http_options,post_data) {
 
-  res.should.be.json;
   var bodyarr = [];
   res.on('data', function (chunk) { bodyarr.push(chunk); });
   res.on('end', function() {
     function display_error() {
-        console.log('\nREQUEST: ' + http_options.method +" "+http_options.host+":"+http_options.port+http_options.path);
-        console.log('HEADERS: ' + JSON.stringify(http_options.headers));
-        console.log('BODY: ' + post_data);
-        console.log('\nRESPONSE\nSTATUS: ' + res.statusCode);
-        console.log('HEADERS: ' + JSON.stringify(res.headers));
-        console.log("BODY: ");console.log(bodyarr.join(''));
+      console.log('\nREQUEST: ' + http_options.method +" "+http_options.host+":"+http_options.port+http_options.path);
+      console.log('HEADERS: ' + JSON.stringify(http_options.headers));
+      console.log('BODY: ' + post_data);
+      console.log('\nRESPONSE\nSTATUS: ' + res.statusCode);
+      console.log('HEADERS: ' + JSON.stringify(res.headers));
+      console.log("BODY: ");console.log(bodyarr.join(''));
     }
     if (error_status)  {display_error(); throw(error_status); }
+
+    var data = null;
+
     try {
-      var data_json = JSON.parse(bodyarr.join(''));
-      jsonData(data_json, test.JSchema);
-  
-      // test constants
-      if (test.JValues != null)
-        testJsonValues(test.JValues,data_json);
-      
+      if (test.restype == 'html') {// default JSON
+        res.should.be.html; 
+        data = bodyarr.join('');
+
+      } else {
+        res.should.be.json;
+        data = JSON.parse(bodyarr.join(''));
+        
+        // test schema
+        if (test.JSchema != null)
+          jsonData(data, test.JSchema);
+
+        // test constants
+        if (test.JValues != null)
+          testJsonValues(test.JValues,data);
+
+
+      }
+
       // if everything works.. then callback for result
       if (test.nextStep != null) 
-        test.nextStep(test,data_json);
-        
+        test.nextStep(test,data);
+
     } catch (e) { display_error(); throw(e); }
     callback_done();
   });
@@ -108,6 +124,7 @@ it(test.it, function(done){
       }
   }
   //console.log(JSON.stringify(test));
+  // console.log(JSON.stringify(http_options));
   var req = http.request(http_options, function(res){
     var error_status = false;
     
@@ -116,11 +133,9 @@ it(test.it, function(done){
     } catch (e) {
         error_status = e;
     }
-   
-    
-    if (test.JSchema != null) 
-      jsonResponse(res,test,done,error_status,http_options,post_data);
-    else done();
+
+    jsonResponse(res,test,done,error_status,http_options,post_data);
+
    }).on('error', function(e) {
      throw new Error("Got error: " + e.message, e);
   });

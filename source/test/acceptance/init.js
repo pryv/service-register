@@ -5,30 +5,32 @@ var config = require('../../utils/config');
 
 var domain = "."+config.get('dns:domain');
 
+
 //chained server test (step3) ... to see if we can find this user back
 var server_test = function(test,json_data) {
-  describe('GET /server (chained with init) ', function(){
+  describe('POST /server (chained with init) ', function(){
     //console.log("XXXXXXXXXXXXXXX"+ JSON.stringify(test.initialtest));   
     var ntest = { it : test.it +" (3rd)",
         path : "/"+ test.initialtest.data.userName +"/server",
         status: 200,
         JSchema : schema.server ,
         JValues: {server: test.initialtest.secondTestResult.server, alias: test.initialtest.data.userName + domain},
-        method: 'GET', };
+        method: 'POST', };
     dataValidation.path_status_schema(ntest);
   });
 
 }
 
-//chained confirm test (step2) ... with a valid captcha but already confirmed
+//chained confirm test (step2) ... with a valid challenge but already confirmed
 var re_confirm_challenge = function(test, json_data) {
-  describe('GET /confirm (2nd) ', function(){
+  describe('POST /confirm (2nd) ', function(){
     test.initialtest.secondTestResult = json_data;
     var ntest = { it : test.it +" (2nd)",
         path : test.path,
+        data : test.data,
         status: 400,
         JSchema : schema.confirm_already ,
-        method: 'GET',
+        method: 'POST',
         nextStep: server_test,
         initialtest: test.initialtest };
     dataValidation.path_status_schema(ntest);
@@ -40,12 +42,13 @@ var re_confirm_challenge = function(test, json_data) {
 var confirm_challenge = function(test, json_data) {
   if (! config.get('test:init:add_challenge')) return;
 
-  describe('GET /confirm (from init)->'+json_data.captchaChallenge, function(){
+  describe('POST /confirm (from init)->'+json_data.captchaChallenge, function(){
     var ntest = { it : " uid: " + test.data.userName,
-        path : '/'+ json_data.captchaChallenge +'/confirm',
+        path : '/confirm_post',
+        data : {challenge: json_data.captchaChallenge},
         status: 200,
         JSchema : schema.server ,
-        method: 'GET',
+        method: 'POST',
         nextStep: re_confirm_challenge,
         initialtest: test};
     dataValidation.path_status_schema(ntest);
@@ -77,7 +80,7 @@ describe('POST /init', function(){
          "errors": [ {"id": 'INVALID_USER_NAME' }, {"id": 'INVALID_PASSWORD' } , {"id": 'INVALID_EMAIL' }]}},
          ] ;
 
-  for (var key = 0; key < tests.length; key++) { // cretate PATH and method
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].data.userName;
     tests[key].path = '/init';
     tests[key].method = 'POST';

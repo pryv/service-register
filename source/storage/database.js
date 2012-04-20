@@ -2,10 +2,12 @@
 var logger = require('winston');
 var redis = require('redis').createClient();
 var config = require('../utils/config');
+var _s = require('underscore.string');
 
 var connectionChecked = require('readyness').waitFor('database');
 //check redis connectivity
-redis.set('hello','world', function(error, result) {
+// do not remove, "wactiv.server" is use by tests
+redis.set('wactiv:server','rec.la', function(error, result) {
   if (error) 
     logger.error('Failed to connect redis database: '+ error, error);
   else {
@@ -27,7 +29,7 @@ exports.uidExists = uidExists;
 function getJSON(key, callback) {
   redis.get(key,function(error, result) {
     if (error) logger.error('Redis getJSON: '+ key +' e: '+ error, error);
-    if (! result) callback(error, null);
+    if (! result) return callback(error, null);
     callback(error, JSON.parse(result)); 
   });
 }
