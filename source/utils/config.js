@@ -26,11 +26,13 @@ nconf.defaults({
     'static': {
       'port': 3080,
       'host': '127.0.0.1',
+      'name': 'localhost',
       'ssl': false
     },
     'register': {
       'port': 3443,
-      'host': 'localhost',
+      'host': '127.0.0.1',
+      'name': 'localhost',
       'ssl': true
     }
   },
@@ -76,9 +78,9 @@ nconf.httpUrl = function(serverKey) {
   if (server == undefined) throw(new Error('unkown key: '+serverKey));
   var url = server.ssl ? 'https://' : 'http://';
   if ((server.ssl && server.port == 443) || ((! server.ssl ) && server.port == 80)) {
-    url += server.host+'/';
+    url += server.name+'/';
   } else {
-    url += server.host+':'+server.port+"/";
+    url += server.name+':'+server.port+"/";
   }
   return url;
 }
