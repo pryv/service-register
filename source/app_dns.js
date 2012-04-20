@@ -22,6 +22,10 @@ var rootData = {
          mail: config.get("dns:mail")
 };
 
+var mxData = {
+     mail: config.get("dns:mail")
+};
+
 
 var serverForName = function(name,callback,req,res) { 
   var nullRecord = dns.getRecords({},name);
@@ -30,8 +34,12 @@ var serverForName = function(name,callback,req,res) {
   logger.info("DNS "+req.rinfo.address+" "+ name+ " "+JSON.stringify(req.q));
   
   // root request
-  if (name.toLowerCase() == config.get("dns:domain"))
+  if (name.toLowerCase() == config.get("dns:domain")) {
+      if (req.q[0].typeName == "MX") {
+        return callback(req,res,dns.getRecords(mxData,name));
+      }
       return callback(req,res,dns.getRecords(rootData,name));
+  }
   
   //logger.info(req);
   var matchArray = matchingRegExp.exec(name.toLowerCase());
