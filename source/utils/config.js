@@ -56,6 +56,7 @@ nconf.defaults({
       'host': '127.0.0.1',
       'hostname': 'ns1.wactiv.com', // see the 'net' key
       'domain': 'rec.la',
+      'default_ttl': 3600,
       'mail' : [{name: "spool.mail.gandi.net.", ttl: 10800, priority: 10 },
                 { name: "fb.mail.gandi.net.", ttl: 10800, priority: 50 }]
   },

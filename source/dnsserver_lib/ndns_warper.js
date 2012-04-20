@@ -9,10 +9,10 @@ var logger = require('winston');
 console = logger;
 
 //LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
-
+var config = require('../utils/config');
+var default_ttl = config.get("dns:default_ttl");
 
 exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
-
 //server launch
   UpdateConfFile = (new Date()).format("Ymd11");
 //console.log("UpdateConfFile "+UpdateConfFile);
@@ -177,18 +177,18 @@ var getRecords = function(data,name){
         ret.REP.push([name,77, "IN", "A", data[i][x]]);
       break;
     case 'description':
-      ret.REP.push([name, 86400, "IN", "TXT", data[i]]);
+      ret.REP.push([name, default_ttl, "IN", "TXT", data[i]]);
       break;
     case 'autority':
       data[i] = String(j).split(',').slice(0,2);
       data[i] = data[i].length ==1 ? data[i].concat(data[i]) : data[i]; 
-      ret.REP.push([name, 86400, "IN", "SOA"].concat(data[i]).concat([UpdateConfFile,1800, 900, 604800, 86400]));
+      ret.REP.push([name, default_ttl, "IN", "SOA"].concat(data[i]).concat([UpdateConfFile,1800, 900, 604800, 86400]));
       break;
     case 'mail':
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       var k = 0;
       for(j = 0;j< data[i].length;j++){
-        data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : 86400;
+        data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : default_ttl;
         data[i][j].name = data[i][j].name ? data[i][j].name.replace(/{name}/g,name) : "mail."+name;
         ret.REP.push([name, data[i][j].ttl, "IN", "MX", data[i][j].priority || (++k)*10, data[i][j].name]);
         if(data[i][j].ip){
@@ -202,7 +202,7 @@ var getRecords = function(data,name){
     case 'nameserver':
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
-        ret.NS.push([name, 86400, "IN", "NS" , data[i][j].name]);
+        ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
@@ -216,7 +216,7 @@ var getRecords = function(data,name){
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
-        ret.REP.push([name, 86400, "IN", "CNAME" , data[i][j].name]);
+        ret.REP.push([name, default_ttl, "IN", "CNAME" , data[i][j].name]);
 
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
