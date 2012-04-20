@@ -2,8 +2,8 @@ var config = require('../utils/config');
 var querystring = require('querystring');
 
 //-- 
-var mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
-var http = require(mode); 
+var http_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
+var http = require(http_mode); 
 
 /** 
  * deal with the server logic 
@@ -69,7 +69,9 @@ function post_to_admin(host,path,expected_status,json_data,callback) {
      res.on('data', function (chunk) { bodyarr.push(chunk); });
      res.on('end', function() {
        if (res.statusCode != expected_status) {
-        return callback('post_to_admin bad result status'+ res.statusCode +' != expected_status \n Request: '+post_data+' \n Message: '+ bodyarr.join(''),null);
+        return callback('\n **start**\n post_to_admin bad result status'+ res.statusCode +' != expected_status '
+            +'\n Options: '+http_options.method+" "+http_mode+'://'+http_options.host+':'+http_options.port+''+http_options.path
+            +'\n Request: '+post_data+' \n Message: '+ bodyarr.join(''),null)+'\n**end**\n';
        }
         var res_json = JSON.parse(bodyarr.join(''));
         return callback(null,res_json);

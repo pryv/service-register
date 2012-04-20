@@ -38,14 +38,32 @@ var re_confirm_challenge = function(test, json_data) {
 }
 
 
-//chained confirm test ... with a valid captcha
-var confirm_challenge = function(test, json_data) {
+//chained confirm test ... with a valid challenge
+var confirm_challenge_post = function(test, json_data) {
   if (! config.get('test:init:add_challenge')) return;
 
-  describe('POST /confirm (from init)->'+json_data.captchaChallenge, function(){
+  describe('POST /confirm_post (from init)->'+json_data.captchaChallenge, function(){
     var ntest = { it : " uid: " + test.data.userName,
         path : '/confirm_post',
         data : {challenge: json_data.captchaChallenge},
+        status: 200,
+        JSchema : schema.server ,
+        method: 'POST',
+        nextStep: re_confirm_challenge,
+        initialtest: test};
+    dataValidation.path_status_schema(ntest);
+  });
+}
+
+
+//chained confirm test ... with a valid challenge, p
+var confirm_challenge = function(test, json_data) {
+  if (! config.get('test:init:add_challenge')) return;
+
+  describe('POST /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
+    var ntest = { it : " uid: " + test.data.userName,
+        path : '/'+json_data.captchaChallenge+'/confirm',
+        data : {},
         status: 200,
         JSchema : schema.server ,
         method: 'POST',
@@ -66,9 +84,13 @@ describe('POST /init', function(){
        status: 200 , desc : 'valid', JSchema : schema.init_done , 
        JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
 
-     { data: { userName: "json"+ randomuser, password: 'abcdefg', email: randommail}, 
+     { data: { userName: "json"+ randomuser, password: 'abcdefg', email: "json"+ randommail}, 
        status: 200 , desc : 'valid JSON POST', JSchema : schema.init_done , contenttype: "JSON",
        JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
+       
+       { data: { userName: "post"+ randomuser, password: 'abcdefg', email: "post"+ randommail}, 
+         status: 200 , desc : 'valid JSON POST', JSchema : schema.init_done , contenttype: "JSON",
+         JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge_post },
 
      { data: { userName: 'abcd', password: 'abc', email: 'pml@simpledata.ch'}, 
        status: 400 , desc : 'uid too short & bad password' , 
