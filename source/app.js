@@ -53,7 +53,7 @@ app.configure('production', function(){
 app.configure(function(){
   app.use(express.bodyParser());
   app.use(require('./middleware/cross-domain'));
-  //app.use(express.static(__dirname + '/public'));
+  app.use(express.static(__dirname + '/public'));
   logger.setLevels(logger.config.syslog.levels);
   // TODO: setup logger handling for uncaught exceptions
 });
@@ -65,6 +65,9 @@ require('./routes/init.js')(app);
 require('./routes/confirm.js')(app);
 require('./routes/server.js')(app);
 require('./routes/index.js')(app);
+
+require('./routes_static/register-config')(app);
+require('./routes_static/index')(app);
 
 // index
 app.get('/', function(req, res, next){
