@@ -25,7 +25,9 @@ var rootData = {
 
 var serverForName = function(name,callback,req,res) { 
   var nullRecord = dns.getRecords({},name);
-  logger.info("What's the server of: "+ name);
+  
+ 
+  logger.info("DNS:\t"+req.rinfo.address+"\t"+ name);
   
   // root request
   if (name.toLowerCase() == config.get("dns:domain"))
