@@ -17,7 +17,7 @@ var baseData = {
 };
 
 var rootData = {
-        alias: [ { name: "www."+config.get("dns:domain") } ], 
+        alias: [ { name: config.get("dns:hostname") } ], 
    nameserver: baseData.nameserver,
          mail: config.get("dns:mail")
 };
