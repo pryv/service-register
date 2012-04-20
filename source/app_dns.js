@@ -10,13 +10,18 @@ var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.")
 
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
-var baseData = {"nameserver": [{
-                   "ip": config.get("dns:host"),
-		         "name": config.get("dns:hostname")
-	              }] 
-             };
+var baseData = {
+    "nameserver": [{"ip": config.get("dns:host"),
+          "name": config.get("dns:hostname")
+    }] 
+};
 
-var rootData = {"alias": [ { name: "www.wactiv.com" } ], "nameserver": baseData.nameserver};
+var rootData = {
+        alias: [ { name: "www."+config.get("dns:domain") } ], 
+   nameserver: baseData.nameserver,
+         mail: config.get("dns:mail")
+};
+
 
 var serverForName = function(name,callback,req,res) { 
   var nullRecord = dns.getRecords({},name);

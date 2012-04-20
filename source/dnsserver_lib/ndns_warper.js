@@ -188,8 +188,9 @@ var getRecords = function(data,name){
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       var k = 0;
       for(j = 0;j< data[i].length;j++){
-        data[i].name = data[i][j].name? data[i].name.replace(/{name}/g,name) : "mail."+name;
-        ret.REP.push([name, 86400, "IN", "MX", data[i][j].priority || (++k)*10, data[i][j].name]);
+        data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : 86400;
+        data[i][j].name = data[i][j].name ? data[i][j].name.replace(/{name}/g,name) : "mail."+name;
+        ret.REP.push([name, data[i][j].ttl, "IN", "MX", data[i][j].priority || (++k)*10, data[i][j].name]);
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
