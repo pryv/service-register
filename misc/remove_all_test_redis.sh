@@ -1,0 +1,1 @@
+redis-cli KEYS "testPFX*:server" | xargs redis-cli DEL

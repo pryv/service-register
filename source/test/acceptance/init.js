@@ -77,8 +77,8 @@ require('readyness/wait/mocha');
 
 describe('POST /init', function(){
 
-  var randomuser = 'plip'+ Math.floor( Math.random() * ( 100000  ) );
-  var randommail = randomuser +'@simpledata.ch'; // should not be necessary
+  var randomuser = 'testPFX'+ Math.floor( Math.random() * ( 100000  ) );
+  var randommail = randomuser +'@wactiv.chx'; // should not be necessary
   var tests = [ 
      { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 
        status: 200 , desc : 'valid', JSchema : schema.init_done , 
