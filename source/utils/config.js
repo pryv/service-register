@@ -39,10 +39,9 @@ nconf.defaults({
   'persistence' : { 
     'init-ttl' : 86400 // seconds should be 86400 for a day
   },
-  'net': {
-    'servers_domain': 'wactiv.com', 
+  'net': { // manly used in /network/dataservers
+    'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
     'aaservers_ssl': false, // set if admin / activity servers have ssl
-    'my_id': 'ns1'
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
