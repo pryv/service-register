@@ -11,13 +11,13 @@ var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.")
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {
-    "nameserver": [{"ip": config.get("dns:host"),
-          "name": config.get("dns:hostname")
+    "nameserver": [{"ip": config.get("dns:ip"),
+          "name": config.get("dns:name")
     }] 
 };
 
 var rootData = {
-        alias: [ { name: config.get("dns:hostname") } ], 
+        alias: [ { name: config.get("dns:name") } ], 
    nameserver: baseData.nameserver,
          mail: config.get("dns:mail")
 };
@@ -71,4 +71,4 @@ var serverForName = function(name,callback,req,res) {
 var NAMES = require('./dnsserver_lib/static_hosts.js');
 
 readyListening = require('readyness').waitFor('app_static:listening');
-dns.start(NAMES,config.get('dns:port'),config.get('dns:host'),serverForName,readyListening);
+dns.start(NAMES,config.get('dns:port'),config.get('dns:ip'),serverForName,readyListening);

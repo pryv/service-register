@@ -80,7 +80,7 @@ require('./utils/app_errors.js')(app);
 
 
 var appListening = ready.waitFor('app:listening');
-app.listen(config.get('http:register:port'), config.get('http:register:host'), function() {
+app.listen(config.get('http:register:port'), config.get('http:register:ip'), function() {
   var address = app.address();  
   appListening('Register server '+ config.httpUrl('http:register')+' in '+app.settings.env+' mode');
 });

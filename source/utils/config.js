@@ -25,13 +25,13 @@ nconf.defaults({
   'http': {
     'static': {
       'port': 3080,
-      'host': '127.0.0.1',
+      'ip': '127.0.0.1', // for listening on a specific IP
       'name': 'localhost',
       'ssl': false
     },
     'register': {
       'port': 3443,
-      'host': '127.0.0.1',
+      'ip': '127.0.0.1', // for listening on a specific IP
       'name': 'localhost',
       'ssl': true
     }
@@ -54,8 +54,8 @@ nconf.defaults({
   },
   'dns': {
       'port': 9999,
-      'host': '127.0.0.1',
-      'hostname': 'ns1.wactiv.com', // see the 'net' key
+      'ip': '127.0.0.1', // for listening on a specific IP
+      'name': 'ns1.wactiv.com', // see the 'net' key
       'domain': 'rec.la',
       'default_ttl': 3600,
       'mail' : [{name: "spool.mail.gandi.net.", ttl: 10800, priority: 10 },

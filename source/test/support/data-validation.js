@@ -100,7 +100,7 @@ exports.jsonData = jsonData = function(responseData, jsonSchema) {
 */
 exports.path_status_schema = path_status_schema = function path_status_schema (test) {
 it(test.it, function(done){
-  var http_options = { path: test.path, host: config.get('http:register:host') , port: config.get('http:register:port'), method: test.method };
+  var http_options = { path: test.path, host: config.get('http:register:name') , port: config.get('http:register:port'), method: test.method };
   var post_data = "";
   if (test.method == 'POST') {
       if (test.contenttype == 'JSON') {
