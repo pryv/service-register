@@ -56,6 +56,10 @@ var confirm_already = exports.confirm_already = {
             type: 'string',
             require: true
         },
+        'alias' : {
+          type: 'string',
+          require: true
+        },
         'id': {
           type: 'string',
           required: true

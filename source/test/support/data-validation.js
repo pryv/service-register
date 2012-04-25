@@ -32,6 +32,16 @@ function testJsonValues(tests,data_json) {
   }
 }
 
+/** 
+ * helper that test the content of headers
+ **/
+function testHeadersValues(tests,headers) { 
+  for (key in tests) {
+    if (tests.hasOwnProperty(key))
+      tests[key].should.equal(headers[key]);
+  }
+}
+
 /**
 * test is expected to have the properties
 * JSchema: jscon-schema for validation
@@ -55,6 +65,11 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
     var data = null;
 
     try {
+      // test headers?
+      if (test.headers)
+        testHeadersValues(test.headers,res.headers);
+      
+      
       if (test.restype == 'html') {// default JSON
         res.should.be.html; 
         data = bodyarr.join('');

@@ -4,7 +4,7 @@ var schema = require('../../model/schema.responses');
 var config = require('../../utils/config');
 
 var domain = "."+config.get('dns:domain');
-
+var aa_servers_http_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 
 //chained server test (step3) ... to see if we can find this user back
 var server_test = function(test,json_data) {
@@ -42,10 +42,10 @@ var re_confirm_challenge = function(test, json_data) {
 var confirm_challenge_post = function(test, json_data) {
   if (! config.get('test:init:add_challenge')) return;
 
-  describe('POST /confirm_post (from init)->'+json_data.captchaChallenge, function(){
+  describe('POST /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
     var ntest = { it : " uid: " + test.data.userName,
-        path : '/confirm_post',
-        data : {challenge: json_data.captchaChallenge},
+        path : '/'+json_data.captchaChallenge+'/confirm',
+        data : {},
         status: 200,
         JSchema : schema.server ,
         method: 'POST',
@@ -60,14 +60,15 @@ var confirm_challenge_post = function(test, json_data) {
 var confirm_challenge = function(test, json_data) {
   if (! config.get('test:init:add_challenge')) return;
 
-  describe('POST /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
+  describe('GET /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
+    var server_alias =  test.data.userName + domain;
     var ntest = { it : " uid: " + test.data.userName,
         path : '/'+json_data.captchaChallenge+'/confirm',
         data : {},
-        status: 200,
-        JSchema : schema.server ,
-        method: 'POST',
-        nextStep: re_confirm_challenge,
+        status: 302,
+        headers : { location: aa_servers_http_mode+"://"+ server_alias +"/?msg=CONFIRMED" },
+        method: 'GET',
+        restype: 'html',
         initialtest: test};
     dataValidation.path_status_schema(ntest);
   });
@@ -81,11 +82,7 @@ describe('POST /init', function(){
   var randommail = randomuser +'@wactiv.chx'; // should not be necessary
   var tests = [ 
      { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 
-       status: 200 , desc : 'valid', JSchema : schema.init_done , 
-       JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
-
-     { data: { userName: "json"+ randomuser, password: 'abcdefg', email: "json"+ randommail}, 
-       status: 200 , desc : 'valid JSON POST', JSchema : schema.init_done , contenttype: "JSON",
+       status: 200 , desc : 'valid JSON GET', JSchema : schema.init_done , 
        JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
        
        { data: { userName: "post"+ randomuser, password: 'abcdefg', email: "post"+ randommail}, 
