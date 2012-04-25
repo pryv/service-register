@@ -9,19 +9,19 @@ var crypto = require('crypto');
 var config = require('../utils/config');
 
 // all check are passed, do the job
-function do_init(uid,password,email,lang,req,res) {
+function do_init(uid,password,email,lang,req,jsonres) {
   //logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
   var challenge = randGenerator.string(16);
   
   // set on db
   db.initSet(uid,password,email,lang,challenge, function(error,result) {
-    if (error) return messages.internal(res); 
+    if (error) return next(messages.ei());
     
     // add challenge string to chain tests
     if (config.get('test:init:add_challenge'))
-        return res.json(messages.say('INIT_DONE',{captchaChallenge: challenge}));
+        return jsonres(messages.say('INIT_DONE',{captchaChallenge: challenge}));
     
-    return res.json(messages.say('INIT_DONE'));
+    return jsonres(messages.say('INIT_DONE'));
   });
   
   // send mail or not
@@ -33,16 +33,7 @@ function do_init(uid,password,email,lang,req,res) {
   mailer.sendConfirm(uid,email,challenge,lang);
 }
 
-
-
-function init(app) {
-
-// request pre processing
-app.post('/init', function(req, res,next){
-  if (req.body == undefined) {
-      logger.error("/init : How could body be empty??");
-      return next(messages.ei());
-  }
+function check_init(req, jsonres,next) {
   var uid = ck.uid(req.body.userName);
   var password = ck.password(req.body.password);
   var email = ck.email(req.body.email);
@@ -54,7 +45,7 @@ app.post('/init', function(req, res,next){
    tests--;
     if (tests <= 0) {
       if (errors.length > 0) return next(messages.ex(400,'INVALID_DATA',errors));
-      do_init(uid,password,email,lang,req,res,next);
+      do_init(uid,password,email,lang,req,jsonres,next);
     }
   }
   
@@ -84,7 +75,24 @@ app.post('/init', function(req, res,next){
   }
   
   test_done();
+}
+
+
+function init(app) {
+
+// request pre processing
+app.post('/init', function(req, res,next){
+  if (req.body == undefined) {
+      logger.error("/init : How could body be empty??");
+      return next(messages.ei());
+  }
+  function jsonres(json) { // shortcut to get the result
+    res.json(json);
+  }
+  check_init(req,jsonres,next);
 });
+
+
 
 
 }

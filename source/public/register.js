@@ -2,7 +2,7 @@ function proceedRegistration() {
   var ok = register_checks.userName && register_checks.email && register_checks.password && register_checks.sndpassword;
   if (! ok) {
     alert(my_messages['COMPLETE_ALL_FIELDS']);
-    return;
+    return false;
   }
   
   //register_checks.userName = "bob";
@@ -42,7 +42,7 @@ function proceedRegistration() {
         console.log(xhr.responseText);
     }
   });**/
-  
+  return false;
 }
 
 var register_checks = { userName: false, email: false, password: false, sndpassword: false };
@@ -84,14 +84,16 @@ function monitorChange(field,callback,fireChangeAfter) {
   });
   console.log("Monitoring change of: "+field.selector);
   monitorKeyUp(field,fireChangeAfter);
+  // call change once if form is pre-filed
+  field.change();
 }
 
 // ------------ continue button
 
 var notReady = $("#notReady");
-var allCheks = $("#allCheks");
+var allCheks = $("#allValid");
 
-function checkAll() {
+function checkIfAllValid() {
   var ok = register_checks.userName && register_checks.email && register_checks.password && register_checks.sndpassword;
   if (! ok) {
     notReady.show();
@@ -109,23 +111,23 @@ var userCheck = $("#userCheck");
 var userName_regexp = /^([a-zA-Z0-9]{5,21})$/;
 
 function userNameChange(value) {
-    if (! userName_regexp.test(value)) {
-      userCheck.html(register_messages['INVALID_USER_NAME']['detail']);
-      return;
-    }
-    register_checks.userName = false;
-    
+  register_checks.userName = false;
+  if (! userName_regexp.test(value)) {
+    userCheck.html(register_messages['INVALID_USER_NAME']['detail']);
+  } else {
     $.getJSON(register_config['REGISTER_URL']+value+"/check",
-      function(data){
-        if (data != null && data.exists != undefined) {
-          register_checks.userName = data.exists ? false : value;
-          userCheck.html((data.exists) ? my_messages['USERNAME_NOT_AVAILABLE'] 
-                                       : my_messages['USERNAME_AVAILABLE']);
-        } else {
-          userCheck.html(register_messages['INTERNAL_ERROR']['detail']);
-        }
-        checkAll();
-     });
+        function(data){
+      if (data != null && data.exists != undefined) {
+        register_checks.userName = data.exists ? false : value;
+        userCheck.html((data.exists) ? my_messages['USERNAME_NOT_AVAILABLE'] 
+        : my_messages['USERNAME_AVAILABLE']);
+      } else {
+        userCheck.html(register_messages['INTERNAL_ERROR']['detail']);
+      }
+
+    });
+  }
+  checkIfAllValid();
 }
 
 monitorChange(userName_field,userNameChange,1000);
@@ -136,14 +138,22 @@ var emailCheck = $("#emailCheck");
 var email_regexp = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
 function emailChange(value) {
-    register_checks.email = false;
-    if (! email_regexp.test(value)) {
-      emailCheck.html(register_messages['INVALID_EMAIL']['detail']);
-    } else {
-      register_checks.email = value;
-      emailCheck.html(my_messages['OK']);
-    }
-    checkAll();
+  register_checks.email = false;
+  if (! email_regexp.test(value)) {
+    emailCheck.html(register_messages['INVALID_EMAIL']['detail']);
+  } else {
+    $.getJSON(register_config['REGISTER_URL']+value+"/check_email",
+        function(data){
+      if (data != null && data.exists != undefined) {
+        register_checks.email = data.exists ? false : value;
+        emailCheck.html((data.exists) ? my_messages['EMAIL_NOT_AVAILABLE'] 
+        : my_messages['OK']);
+      } else {
+        emailCheck.html(register_messages['INTERNAL_ERROR']['detail']);
+      }
+    });
+  }
+  checkIfAllValid();
 }
 monitorChange(email_field,emailChange,3000);
 
@@ -169,7 +179,7 @@ function passwordChange(str) {
     if (sndpassword_field.val().length > 5) {
         sndpasswordChange(sndpassword_field.val());
     }
-    checkAll();
+    checkIfAllValid();
 }
 monitorChange(password_field,passwordChange,3000);
 
@@ -183,10 +193,13 @@ function sndpasswordChange(str) {
     } else {
       sndpasswordCheck.html(my_messages['PASSWORD_DO_NOT_MATCH']);
     }
-    checkAll();
+    checkIfAllValid();
 }
 monitorChange(sndpassword_field,sndpasswordChange,1000);
 
+
+
+checkIfAllValid();
 
 });
 });

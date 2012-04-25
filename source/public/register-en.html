@@ -13,10 +13,10 @@
     var my_messages = {
       'LANGUAGE_CODE' : 'en', // used by "register.js" to determine user language
       'OK'  : '✔',
-      'NOK' : '✗',
       'CHECKING_USERNAME' : 'Checking username avalability.',
       'USERNAME_AVAILABLE' : '✔ is available',
       'USERNAME_NOT_AVAILABLE': 'is not available',
+      'EMAIL_NOT_AVAILABLE': 'is already associated with a [REC.la] account.',
       'PASSWORD_DO_NOT_MATCH': 'does not match',
       'COMPLETE_ALL_FIELDS': 'Before submiting form, please complete all fields.'}; 
     </script>
@@ -24,6 +24,7 @@
 <body>
 	<h1>Set-up your [REC●LA] time storage</h1>
 	<div id="registerForm">
+	  <form action="/init" method="POST">
 		<ul>
 			<li><label for="userName">Choose a user name</label> 
 			    <input name="userName" id="userName" type="text" /> 
@@ -43,12 +44,13 @@
 			</li>
 			<li>It's my responsability to read and understand the terms of use. >>></li>
 			<li><span id="notReady"><em>please complete all fields to continue</em></span> 
-					<span id="allCheks" style="display: none">
-					  <input type="submit" onClick="proceedRegistration(); return false;"
+					<span id="allValid" >
+					  <input type="submit" onClick="proceedRegistration();"
 					         value="Submit informations" />
 					</span>
 		  </li>
 		</ul>
+		</form>
 	</div>
 </body>
 </html>

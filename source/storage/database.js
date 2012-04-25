@@ -40,7 +40,14 @@ function getJSON(key, callback) {
   redis.get(key,function(error, result) {
     if (error) logger.error('Redis getJSON: '+ key +' e: '+ error, error);
     if (! result) return callback(error, null);
-    callback(error, JSON.parse(result)); 
+    try {
+      var res_json = JSON.parse(result);
+      return callback(error, res_json);
+    } catch (e) {
+      return callback(new Error("string is not JSON"), result); 
+    }
+    return callback(error, result); // should not be there
+
   });
 }
 exports.getJSON = getJSON;
@@ -64,19 +71,52 @@ exports.getServer = function getServer(uid, callback) {
   uid = uid.toLowerCase();
   redis.get(uid +":server",function(error, result) {
     if (error) logger.error('Redis getServer: '+ uid +' e: '+ error, error);
-    callback(error, result); 
+     callback(error, result); 
   });
 }
-
 
 exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callback) {
   uid = uid.toLowerCase();
   var multi = redis.multi();
   multi.set(uid +":infos", JSON.stringify(infos));
   multi.set(uid +":server", server);
+  multi.set(infos.email +":email", uid);
   multi.exec(function(error, result) {
     if (error) logger.error('Redis setServerAndInfos: '+ uid +' e: '+ error, error);
     callback(error, result); // callback anyway
   });
 }
 
+/**
+ * 
+ * @param uid
+ * @param email
+ * @param callback function(error) error is null if successfull;
+ */
+exports.changeEmail = function changeEmail(uid, email, callback) {
+  // check that email does not exists
+  email = email.toLowerCase();
+  emailExists(email,function(error1,email_exists) {
+    if (error1) return callback(error1);
+    if (email_exists) 
+      return callback(new Error("Cannot set e-mail: "+email+" it's already used"));
+    
+    uid = uid.toLowerCase();
+    // get infos string
+    getJSON(uid+":infos", function(error2,infos) {
+      if (error2) return callback(error2);
+
+      infos.email = email;
+
+      var multi = redis.multi();
+      multi.set(uid +":infos", JSON.stringify(infos));
+      multi.set(infos.email +":email", uid);
+      multi.exec(function(error3, result) {
+        if (error3) logger.error('Redis changeEmail: '+ uid +'email: '+email+' e: '+ error3, error3);
+        callback(error3); 
+      });
+    });
+  });
+}
+
+exports.changeEmail("perki", "toto@toto.com", function(error) {});
