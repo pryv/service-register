@@ -58,11 +58,13 @@ app.post('/init', function(req, res,next){
     }
   }
   
+  
+  
   // test input
   if (! uid) errors.push('INVALID_USER_NAME');
   else {
     tests++;
-    db.uidExists(uid +":infos", function(error, exists) {
+    db.uidExists(uid, function(error, exists) {
       if (error) return next(messages.ei());
       if (exists) errors.push('EXISTING_USER_NAME');
       test_done();
@@ -72,6 +74,15 @@ app.post('/init', function(req, res,next){
   password = crypto.createHash('sha1').update(password +'edelweiss').digest("hex");
   
   if (email == null) errors.push('INVALID_EMAIL');
+  else {
+    tests++;
+    db.emailExists(email, function(error, exists) {
+      if (error) return next(messages.ei());
+      if (exists) errors.push('EXISTING_EMAIL');
+      test_done();
+    });
+  }
+  
   test_done();
 });
 

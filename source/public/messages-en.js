@@ -11,8 +11,12 @@ register_messages = {
     'detail' : 'User name must be unique.'},
   'INVALID_PASSWORD' : { 'message' : 'Invalid password', 
     'detail' : 'Password must be between 6 and 50 characters'},
+  
   'INVALID_EMAIL' : { 'message' : 'Invalid email adress', 
     'detail' : 'E-mail address format not recognized'},
+  'EXISTING_EMAIL' : { 'message' : 'This e-mail is known', 
+      'detail' : 'This e-mail is already assigned to a user.'},
+    
   'INIT_DONE' : { 'message' : 'Registration started', 
     'detail' : 'An e-mail has been sent, please check your mailbox to confirm your registration  '},
     
@@ -23,6 +27,6 @@ register_messages = {
   'INVALID_CHALLENGE' : { 'message' : 'Invalid challenge', 
     'detail' : 'Data format of the challenge is not recognized.'},
     
-    'UNKOWN_USER_NAME' : { 'message' : 'Unkown user name', 
+  'UNKOWN_USER_NAME' : { 'message' : 'Unkown user name', 
     'detail' : ''},
 };

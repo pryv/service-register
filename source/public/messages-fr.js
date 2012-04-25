@@ -9,8 +9,12 @@ register_messages = {
     'detail' : 'Les identifiants d\'utilisateur doivent être uniques.'},
   'INVALID_PASSWORD' : { 'message' : 'Mot de passe non valide', 
     'detail' : 'Les mots de passes sont composés de 6 à 99 caractères.'},
+  
   'INVALID_EMAIL' : { 'message' : 'Adresse e-mail non valide', 
     'detail' : 'le format de l\'adresse e-mail n\'est pas reconnu.'},
+  'EXISTING_EMAIL' : { 'message' : 'Cette e-mail est connue', 
+      'detail' : 'Cette adresse e-mail est liée a un utilisateur.'},
+      
   'INIT_DONE' : { 'message' : 'Enregistrement en cours', 
     'detail' : 'Un e-mail vous a été envoyé. Veuillez consulter votre boite au lettre pour confirmer votre enregistrement.'},
 

@@ -61,6 +61,7 @@ app.configure(function(){
 
 // routes
 require('./routes/check.js')(app);
+require('./routes/check_email.js')(app);
 require('./routes/init.js')(app);
 require('./routes/confirm.js')(app);
 require('./routes/server.js')(app);

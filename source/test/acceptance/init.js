@@ -81,6 +81,18 @@ describe('POST /init', function(){
   var randomuser = 'testPFX'+ Math.floor( Math.random() * ( 100000  ) );
   var randommail = randomuser +'@wactiv.chx'; // should not be necessary
   var tests = [ 
+    { data: { userName: "wactiv", password: 'abcdefg', email: randommail}, 
+    status: 400 , desc : 'Existing user', 
+    JSchema :  schema.error_multiple , 
+    JValues: {"id":'INVALID_DATA', 
+      "errors": [ {"id": 'EXISTING_USER_NAME' } ]   }},
+    
+    { data: { userName: randomuser, password: 'abcdefg', email: "wactiv@rec.la"}, 
+        status: 400 , desc : 'Existing e-mail', 
+        JSchema :  schema.error_multiple , 
+        JValues: {"id":'INVALID_DATA', 
+          "errors": [ {"id": 'EXISTING_EMAIL' } ]   }},
+               
      { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 
        status: 200 , desc : 'valid JSON GET', JSchema : schema.init_done , 
        JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
@@ -98,8 +110,8 @@ describe('POST /init', function(){
        JSchema : schema.error_multiple , JValues: {"id":'INVALID_DATA', 
          "errors": [ {"id": 'INVALID_USER_NAME' }, {"id": 'INVALID_PASSWORD' } , {"id": 'INVALID_EMAIL' }]}},
          ] ;
-
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
+ // tests.length
+  for (var key = 0; key < 2; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].data.userName;
     tests[key].path = '/init';
     tests[key].method = 'POST';

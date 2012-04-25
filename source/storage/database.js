@@ -11,11 +11,21 @@ redis.set('wactiv:server','rec.la', function(error, result) {
   if (error) 
     logger.error('Failed to connect redis database: '+ error, error);
   else {
-    connectionChecked('Redis');
+    redis.set('wactiv@rec.la:email','wactiv', function(error, result) {
+      connectionChecked('Redis');
+    });
   }
 });
 
 //Generic
+function emailExists(email,callback) {
+  email = email.toLowerCase();
+  redis.exists(email+":email",function(error, result) {
+    if (error) logger.error('Redis emailExists: '+ email +' e: '+ error, error);
+    callback(error, result == 1); // callback anyway
+  });
+}
+exports.emailExists = emailExists;
 
 function uidExists(uid,callback) {
   uid = uid.toLowerCase();

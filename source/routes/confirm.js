@@ -99,7 +99,7 @@ function init(app) {
     pre_confirm(req.params.challenge,req,jsonres,my_next);
   });
 
-  //POST REQUEST SND JSON (hidden in documentation)
+  //POST REQUEST SND JSON 
   app.post('/:challenge/confirm', function(req, res,next){
     function jsonres(json) { // shortcut to get the result
       res.json(json);
@@ -107,7 +107,7 @@ function init(app) {
     pre_confirm(req.params.challenge,req,jsonres,next);
   });
   
-  //POST REQUEST SND JSON
+  //POST REQUEST SND JSON (hidden in documentation)
   app.post('/confirm_post', function(req, res,next){
     function jsonres(json) { // shortcut to get the result
       res.json(json);
