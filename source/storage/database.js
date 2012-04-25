@@ -96,16 +96,22 @@ exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callb
 exports.changeEmail = function changeEmail(uid, email, callback) {
   // check that email does not exists
   email = email.toLowerCase();
-  emailExists(email,function(error1,email_exists) {
+  uid = uid.toLowerCase();
+  redis.get(email +":email",function(error1,email_uid) {
     if (error1) return callback(error1);
-    if (email_exists) 
+    if (email_uid == uid) {
+      logger.debug("trying to update an e-mail to the same value "+uid+" "+email);
+      return callback(null);
+    }
+    
+    if (email_uid != null)
       return callback(new Error("Cannot set e-mail: "+email+" it's already used"));
     
-    uid = uid.toLowerCase();
+    
     // get infos string
     getJSON(uid+":infos", function(error2,infos) {
       if (error2) return callback(error2);
-
+      if (! infos) infos = {};
       infos.email = email;
 
       var multi = redis.multi();
@@ -118,5 +124,3 @@ exports.changeEmail = function changeEmail(uid, email, callback) {
     });
   });
 }
-
-exports.changeEmail("perki", "toto@toto.com", function(error) {});

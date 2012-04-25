@@ -46,6 +46,14 @@ test-check_email:
                 --slow 20 \
                 --timeout 5000 \
             test/acceptance/check_email.js 
+
+test-changeEmail:
+	@./node_modules/.bin/mocha --ignore-leaks \
+                --reporter spec \
+                --require should \
+                --slow 20 \
+                --timeout 5000 \
+            test/acceptance/admin_changeEmail.js 
             
 load:
 	@./node_modules/.bin/mocha --ignore-leaks \

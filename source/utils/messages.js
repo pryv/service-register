@@ -2,7 +2,7 @@
 * provides tools to construct messages for clients.
 */
 
-
+var logger = require('winston');
 require('../public/messages-en.js');
 var  _ = require('underscore');
 var mstrings = register_messages;
@@ -58,7 +58,10 @@ function internal(res) {
 
 // sugar for errors
 /** internal error **/
-exports.ei = function ei() {
+exports.ei = function ei(error) {
+    if (error == null ) error = new Error();
+    if (! (error instanceof Error)) error = new Error(error);
+    logger.error("internal error : \n"+  error.stack );
     return new REGError(500, say('INTERNAL_ERROR'));
 }
 

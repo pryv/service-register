@@ -1,3 +1,14 @@
+// success : changeEmail
+var success = exports.success = {
+    type: 'object',
+    properties: {
+        'success' : {
+            type: 'boolean',
+            require: true
+        },
+    }
+}
+
 // route : check
 var check_exists = exports.check_exists = {
     type: 'object',

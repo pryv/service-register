@@ -67,6 +67,8 @@ require('./routes/confirm.js')(app);
 require('./routes/server.js')(app);
 require('./routes/index.js')(app);
 
+require('./routes/admin_changeEmail')(app);
+
 require('./routes_static/register-config')(app);
 require('./routes_static/index')(app);
 

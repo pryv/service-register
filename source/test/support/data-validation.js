@@ -8,9 +8,12 @@ var mode = config.get('http:register:ssl') ? 'https' : 'http';
 var http = require(mode); 
 
 
-exports.checkJSONValidityResp = function(httpResponse, jsonSchema) {
-  httpResponse.should.be.json;
-  jsonData(JSON.parse(httpResponse.body), validate(responseData, jsonSchema));
+function validateJSONSchema(responseData, jsonSchema) {
+  var validationResult = validate(responseData, jsonSchema);
+  //console.log(jsonSchema);
+  //console.log(responseData);
+  //console.log(validationResult);
+  validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
 };
 
 /** 
@@ -80,7 +83,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
         
         // test schema
         if (test.JSchema != null)
-          jsonData(data, test.JSchema);
+          validateJSONSchema(data, test.JSchema);
 
         // test constants
         if (test.JValues != null)
@@ -98,10 +101,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
   });
 };
 
-exports.jsonData = jsonData = function(responseData, jsonSchema) {
-  var validationResult = validate(responseData, jsonSchema);
-  validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
-};
+
 
 /**
 * do a a test. 

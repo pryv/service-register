@@ -1,5 +1,6 @@
 var config = require('../utils/config');
 var querystring = require('querystring');
+var logger = require('winston');
 
 //-- 
 var http_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
@@ -12,8 +13,8 @@ var http = require(http_mode);
 **/
 var logger = require('winston');
 
-var servers = [{ "base_name": "test1", "port": 80, "authorization": "register-test-token" }, 
-               { "base_name": "test2", "port": 80, "authorization": "register-test-token" }];
+var servers = [{ "base_name": "test1", "port": 80, "authorization": "register-test-token" , ip: "91.121.34.251"}, 
+               { "base_name": "test2", "port": 80, "authorization": "register-test-token" , ip: "46.105.35.181" }];
 
 // update servers list with domain name
 for (var i = 0; i < servers.length; i++) {
