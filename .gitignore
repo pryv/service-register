@@ -5,3 +5,4 @@
 *source/node_modules
 db/appendonly.aof
 db/redis_dump.rdb
+register.iml
