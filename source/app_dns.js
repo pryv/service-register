@@ -11,6 +11,7 @@ var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.")
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {
+      "autority": config.get("dns:name"),
     "nameserver": [{"ip": config.get("dns:ip"),
           "name": config.get("dns:name")
     }] 
