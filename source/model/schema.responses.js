@@ -2,7 +2,7 @@
 var success = exports.success = {
     type: 'object',
     properties: {
-        'success' : {
+        success : {
             type: 'boolean',
             require: true
         },
@@ -13,7 +13,7 @@ var success = exports.success = {
 var check_exists = exports.check_exists = {
     type: 'object',
     properties: {
-        'exists' : {
+        exists : {
             type: 'boolean',
             require: true
         }

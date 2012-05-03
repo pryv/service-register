@@ -9,7 +9,7 @@ describe('POST /:uid/email/admin', function(){
   var tests = [ 
     { uid: 'wac', data : {email: 'wactiv@rec.la'}, 
       status: 400 , desc : 'OK' ,
-      JSchema : schema.errors , JValues: {"id":'INVALID_USER_NAME'}},
+      JSchema : schema.error , JValues: {"id":'INVALID_USER_NAME'}},
       
     { uid: 'wactiv', data : {email: 'toto@rec.la'}, 
         status: 200 , desc : 'OK' ,
