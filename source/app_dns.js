@@ -11,22 +11,27 @@ var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.")
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {
-      "autority": config.get("dns:name"),
-    "nameserver": [{"ip": config.get("dns:ip"),
-         // "name": config.get("dns:name")
+      autority: config.get("dns:name")+",admin.rec.la",
+    nameserver: [{ip: config.get("dns:ip"), name: config.get("dns:name")
     }] 
 };
 
-var rootData = {
-    autority: config.get("dns:name"),
-  nameserver: baseData.nameserver,
-       alias: [ { name: config.get("dns:name") } ],
-        mail: config.get("dns:mail")
+var mxData = {
+     mail: config.get("dns:mail"),
 };
 
-var mxData = {
-     mail: config.get("dns:mail")
+var nsData = {
+     nameserver: baseData.nameserver,
 };
+
+var rootData = {
+    autority: baseData.autority,
+  nameserver: baseData.nameserver,
+       alias: [ { name: config.get("dns:name") } ],
+        mail: mxData.mail,
+};
+
+
 
 
 var serverForName = function(name,callback,req,res) { 
@@ -37,12 +42,20 @@ var serverForName = function(name,callback,req,res) {
   if (name == "isc.org") return;
   logger.info("DNS "+req.rinfo.address+" "+ name+ " "+JSON.stringify(req.q));
   
+  
   // root request
   if (name.toLowerCase() == config.get("dns:domain")) {
-      if (req.q[0].typeName == "MX") {
-        return callback(req,res,dns.getRecords(mxData,name));
-      }
-      return callback(req,res,dns.getRecords(rootData,name));
+      switch (req.q[0].typeName) {
+	  case 'MX':
+		return callback(req,res,dns.getRecords(mxData,name));
+	  break;
+	  case 'NS':
+		return callback(req,res,dns.getRecords(nsData,name));
+	  break;
+	  default:
+	    return callback(req,res,dns.getRecords(rootData,name));
+	  break;
+	  }
   }
   
   //logger.info(req);
@@ -64,8 +77,17 @@ var serverForName = function(name,callback,req,res) {
   db.getServer(uid,function(error,result) {
     //console.log("*** FOUND :"+ result);
     if (error || ! result) return callback(req,res,nullRecord);
+    var dyn = {"alias": [ { name: result } ] };
+    // add Authority or Nameservers
+    switch (req.q[0].typeName) {
+	  case 'NS':
+		dyn.nameserver = baseData.nameserver;
+	  break;
+	  case 'SOA':
+		dyn.autority = baseData.autority;
+	  break;
+	}
     
-    var dyn = {"alias": [ { name: result } ], "nameserver": baseData.nameserver};
     rec = dns.getRecords(dyn,name);
     return callback(req,res,rec); // ndns_warper.sendresponse
   });

@@ -182,7 +182,7 @@ var getRecords = function(data,name){
     case 'description':
       ret.REP.push([name, default_ttl, "IN", "TXT", data[i]]);
       break;
-    case 'autority':
+    case 'autority': 
       data[i] = String(j).split(',').slice(0,2);
       data[i] = data[i].length ==1 ? data[i].concat(data[i]) : data[i]; 
       ret.REP.push([name, default_ttl, "IN", "SOA"].concat(data[i]).concat([UpdateConfFile,1800, 900, 604800, 86400]));
@@ -205,7 +205,8 @@ var getRecords = function(data,name){
     case 'nameserver':
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
-        ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
+        //ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
+        ret.REP.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
