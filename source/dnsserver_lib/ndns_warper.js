@@ -68,14 +68,17 @@ exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
     if (req.q.length > 0) {
       var name = req.q[0].name;
       if (name == ".") name = "";
-
-
-
-      return dynamic_call(name,send_response,req,res);
-
+      
+      middle_send_response = function (req,res,rec) {
+        console.log(rec);
+        send_response(req,res,rec);
+      }
+      
+      
+      return dynamic_call(name,middle_send_response,req,res);
     }
     var rec;
-    // close 
+    // close with nothing
     send_response(req,res,rec);
   }
   );

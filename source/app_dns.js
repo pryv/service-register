@@ -13,15 +13,15 @@ var matchingRegExp = new RegExp("^"+_temp+"$");
 var baseData = {
       "autority": config.get("dns:name"),
     "nameserver": [{"ip": config.get("dns:ip"),
-          "name": config.get("dns:name")
+         // "name": config.get("dns:name")
     }] 
 };
 
 var rootData = {
-        alias: [ { name: config.get("dns:name") } ], 
-     autority: config.get("dns:name"),
-   nameserver: baseData.nameserver,
-         mail: config.get("dns:mail")
+    autority: config.get("dns:name"),
+  nameserver: baseData.nameserver,
+       alias: [ { name: config.get("dns:name") } ],
+        mail: config.get("dns:mail")
 };
 
 var mxData = {
@@ -31,6 +31,8 @@ var mxData = {
 
 var serverForName = function(name,callback,req,res) { 
   var nullRecord = dns.getRecords({},name);
+  
+  console.log(nullRecord);
   
   if (name == "isc.org") return;
   logger.info("DNS "+req.rinfo.address+" "+ name+ " "+JSON.stringify(req.q));
@@ -48,6 +50,7 @@ var serverForName = function(name,callback,req,res) {
   if (! matchArray) return callback(req,res,nullRecord);
   
   var uid = matchArray[1];
+  
   // 0 to 4 char length are reserved
   if (uid.length < 5) {
       if (uid == "www") 
@@ -58,7 +61,7 @@ var serverForName = function(name,callback,req,res) {
   }
   
  
-  var server = db.getServer(uid,function(error,result) {
+  db.getServer(uid,function(error,result) {
     //console.log("*** FOUND :"+ result);
     if (error || ! result) return callback(req,res,nullRecord);
     
