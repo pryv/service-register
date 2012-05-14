@@ -39,8 +39,6 @@ var rootData = {
 var serverForName = function(name,callback,req,res) { 
   var nullRecord = dns.getRecords({},name);
   
-  console.log(nullRecord);
-  
   if (name == "isc.org") return;
   logger.info("DNS "+req.rinfo.address+" "+ name+ " "+JSON.stringify(req.q));
   

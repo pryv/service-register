@@ -11,6 +11,7 @@ if(debugLevel & 0x4) {
     debug = function () { };
 }
 
+
 var dgram = require('dgram');
 var events = require('events');
 //var Buffer = require('buffer').Buffer;
@@ -2119,7 +2120,7 @@ function messageListener(msg, rinfo) {
     var self = this;
 
     debug("new message");
-
+	console.log("NDNS: "+msg+" \n");
     this._Parser.reinitialize(msg, 0, msg.length);
     this._Parser.socket = this;
     this._Parser.rinfo = rinfo;
