@@ -8,6 +8,9 @@ var db = require('./storage/database.js');
 // http://www.dnssniffer.com/include/report-includes.php?domain=rec.la&advanced=
 // http://www.db.ripe.net/cgi-bin/delcheck/delcheck2.cgi
 
+// packets
+// http://marcoceresa.com/net-dns/classes/Net/DNS/Header.html
+
 // create matching Regex
 // TODO Link regexp with ck.js
 var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
