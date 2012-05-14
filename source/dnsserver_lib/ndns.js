@@ -1,4 +1,4 @@
-// they are several version of nuns.js arround the web :(
+// they are several version of ndns.js arround the web :(
 // Extracted this one form FUN_DNS 
 
 var sys = require('util');

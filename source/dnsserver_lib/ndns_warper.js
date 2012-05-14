@@ -70,7 +70,7 @@ exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
       if (name == ".") name = "";
       
       middle_send_response = function (req,res,rec) {
-        console.log(rec);
+        //console.log(rec);
         send_response(req,res,rec);
       }
       
@@ -198,7 +198,7 @@ var getRecords = function(data,name){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
           for(var x=0; x< data[i][j].ip.length;x++)
-            ret.ADD.push([data[i][j].name, 77, "IN", "A", data[i][j].ip[x]]);
+            ret.ADD.push([data[i][j].name, default_ttl, "IN", "A", data[i][j].ip[x]]);
         }
       }
       break;
@@ -206,12 +206,13 @@ var getRecords = function(data,name){
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
         //ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
+        // removed from authority section
         ret.REP.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
           for(var x=0; x< data[i][j].ip.length;x++)
-            ret.ADD.push([data[i][j].name, 77, "IN", "A", data[i][j].ip[x]]);
+            ret.ADD.push([data[i][j].name, default_ttl, "IN", "A", data[i][j].ip[x]]);
         };
       }
       break;
@@ -226,7 +227,7 @@ var getRecords = function(data,name){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
           for(var x=0; x< data[i][j].ip.length;x++)
-            ret.REP.push([data[i][j].name, 77, "IN", "A", data[i][j].ip[x]]);
+            ret.REP.push([data[i][j].name, default_ttl, "IN", "A", data[i][j].ip[x]]);
         };
       }
       break;

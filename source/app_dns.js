@@ -4,6 +4,9 @@ var dns = require('./dnsserver_lib/ndns_warper.js');
 var config = require('./utils/config');
 var db = require('./storage/database.js');
 
+// test with http://www.dnsvalidation.com/
+// http://www.dnssniffer.com/include/report-includes.php?domain=rec.la&advanced=
+
 // create matching Regex
 // TODO Link regexp with ck.js
 var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
@@ -11,9 +14,8 @@ var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.")
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {
-      autority: config.get("dns:name")+",admin.rec.la",
-    nameserver: [{ip: config.get("dns:ip"), name: config.get("dns:name")
-    }] 
+      autority: config.get("dns:name")+",admin."+config.get("dns:domain"),
+    nameserver: config.get("dns:nameserver") 
 };
 
 var mxData = {
@@ -50,6 +52,7 @@ var serverForName = function(name,callback,req,res) {
 		return callback(req,res,dns.getRecords(mxData,name));
 	  break;
 	  case 'NS':
+	  	console.log("***NS***");
 		return callback(req,res,dns.getRecords(nsData,name));
 	  break;
 	  default:

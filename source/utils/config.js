@@ -55,9 +55,11 @@ nconf.defaults({
   'dns': {
       'port': 9999,
       'ip': '127.0.0.1', // for listening on a specific IP
-      'name': 'ns1.wactiv.com', // see the 'net' key
+      'name': 'ns1.wactiv.com', // see the 'net' key (my name for a dns)
       'domain': 'rec.la',
       'default_ttl': 3600,
+   'nameserver': [{name: 'ns1.wactiv.com', ip: '91.121.41.240'},
+   				  {name: 'ns2.wactiv.com', ip: '91.121.41.94'}],
    'mail' : [{name: "spool.mail.gandi.net", ip: "217.70.184.6", ttl: 10800, priority: 10 },
                 { name: "fb.mail.gandi.net", ip: "217.70.184.162", ttl: 10800, priority: 50 }]
   },
