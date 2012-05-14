@@ -6,6 +6,7 @@ var db = require('./storage/database.js');
 
 // test with http://www.dnsvalidation.com/
 // http://www.dnssniffer.com/include/report-includes.php?domain=rec.la&advanced=
+// http://www.db.ripe.net/cgi-bin/delcheck/delcheck2.cgi
 
 // create matching Regex
 // TODO Link regexp with ck.js
@@ -26,10 +27,15 @@ var nsData = {
      nameserver: baseData.nameserver,
 };
 
+var soaData = {
+     autority: baseData.autority,
+};
+
 var rootData = {
     autority: baseData.autority,
   nameserver: baseData.nameserver,
        alias: [ { name: config.get("dns:name") } ],
+        //ip: config.get("http:static:ip"),
         mail: mxData.mail,
 };
 
@@ -50,8 +56,11 @@ var serverForName = function(name,callback,req,res) {
 		return callback(req,res,dns.getRecords(mxData,name));
 	  break;
 	  case 'NS':
-	  	console.log("***NS***");
 		return callback(req,res,dns.getRecords(nsData,name));
+	  break;
+	  case 'SOA':
+	  case 'DNSKEY':
+		return callback(req,res,dns.getRecords(soaData,name));
 	  break;
 	  default:
 	    return callback(req,res,dns.getRecords(rootData,name));

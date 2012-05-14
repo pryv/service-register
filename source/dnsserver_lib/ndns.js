@@ -2116,11 +2116,36 @@ exports.createServer = function() {
     return new Server(type, requestListener);
 };
 
+function bin2hex (s) {
+    // Converts the binary representation of data to hex  
+    // 
+    // version: 1109.2015
+    // discuss at: http://phpjs.org/functions/bin2hex
+    // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +   bugfixed by: Onno Marsman
+    // +   bugfixed by: Linuxworld
+    // *     example 1: bin2hex('Kev');
+    // *     returns 1: '4b6576'
+    // *     example 2: bin2hex(String.fromCharCode(0x00));
+    // *     returns 2: '00'
+    var i, f = 0,
+        a = [];
+ 
+    s += '';
+    f = s.length;
+ 
+    for (i = 0; i < f; i++) {
+        a[i] = s.charCodeAt(i).toString(16).replace(/^([\da-f])$/, "0$1");
+    }
+ 
+    return a.join('');
+}
+
 function messageListener(msg, rinfo) {
     var self = this;
 
     debug("new message");
-	console.log("NDNS: "+msg+" \n");
+	console.log("NDNS: "+msg+":"+bin2hex(msg)+" \n");
     this._Parser.reinitialize(msg, 0, msg.length);
     this._Parser.socket = this;
     this._Parser.rinfo = rinfo;

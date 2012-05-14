@@ -1,4 +1,4 @@
-var ndns = require('./ndns.js');
+var ndns = require('./ndns2.js');
 
 require('./_extend.js');
 
@@ -14,7 +14,7 @@ var default_ttl = config.get("dns:default_ttl");
 
 exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
 //server launch
-  UpdateConfFile = (new Date()).format("Ymd11");
+  UpdateConfFile = (new Date()).format("Ymd33");
 //console.log("UpdateConfFile "+UpdateConfFile);
 
 
@@ -38,6 +38,7 @@ exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
     res.header.qr = 1;
     res.header.ra = 1;
     res.header.rd = 0;
+    res.header.aa = 1;
 
     /* Nombre de reponse */
     res.header.ancount = rec.REP.length;
@@ -177,7 +178,7 @@ var getRecords = function(data,name){
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       data[i].rotate(1);
       for(var x=0; x< data[i].length;x++)
-        ret.REP.push([name,77, "IN", "A", data[i][x]]);
+        ret.REP.push([name,default_ttl, "IN", "A", data[i][x]]);
       break;
     case 'description':
       ret.REP.push([name, default_ttl, "IN", "TXT", data[i]]);
@@ -205,7 +206,7 @@ var getRecords = function(data,name){
     case 'nameserver':
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
-        //ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
+        ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
         // removed from authority section
         ret.REP.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
         if(data[i][j].ip){
