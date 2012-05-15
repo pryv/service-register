@@ -1,5 +1,5 @@
 // frameworks
-var express = require('express');
+var express = require('./patched_modules/express')
 var logger = require('winston');
 var fs = require('fs');
 

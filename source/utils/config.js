@@ -30,10 +30,11 @@ nconf.defaults({
       'ssl': false
     },
     'register': {
-      'port': 3443,
+      'port': 3443, 
       'ip': '127.0.0.1', // for listening on a specific IP
       'name': 'localhost',
-      'ssl': true
+      'ssl': true, // turn ssl on
+      'no_ssl_on_port': 4080, // IF SSL IS ON also listen to this port for no ssl
     }
   },
   'persistence' : { 

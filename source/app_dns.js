@@ -34,6 +34,10 @@ var soaData = {
      autority: baseData.autority,
 };
 
+var swwData = { // static web files repository
+    alias: [ { name: config.get("dns:name") } ],
+};
+
 var rootData = {
     autority: baseData.autority,
   nameserver: baseData.nameserver,
@@ -81,6 +85,8 @@ var serverForName = function(name,callback,req,res) {
   if (uid.length < 5) {
       if (uid == "www") 
           return callback(req,res,dns.getRecords(rootData,name));
+      if (uid == "sww") 
+        return callback(req,res,dns.getRecords(rootData,name));
       
       // nothing found
       return callback(req,res,nullRecord);
