@@ -15,6 +15,9 @@ var db = require('./storage/database.js');
 // TODO Link regexp with ck.js
 var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
 
+// TODO do some caching w/redis: create records only once
+// TODO 
+
 var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {
@@ -34,9 +37,7 @@ var soaData = {
      autority: baseData.autority,
 };
 
-var swwData = { // static web files repository
-    alias: [ { name: config.get("dns:name") } ],
-};
+
 
 var rootData = {
     autority: baseData.autority,
@@ -46,15 +47,24 @@ var rootData = {
         mail: mxData.mail,
 };
 
-
-
+//static entries
+var staticData = { // static web files repository
+    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU'} 
+};
+// this may be directly linked with redis
+function getShorts(name) {
+  
+}
 
 var serverForName = function(name,callback,req,res) { 
   var nullRecord = dns.getRecords({},name);
   
-  if (name == "isc.org") return;
+  if (name == "isc.org") return; // remote DOS attack 
   logger.info("DNS "+req.rinfo.address+" "+ name+ " "+JSON.stringify(req.q));
   
+  if (name in staticData) {
+    return callback(req,res,dns.getRecords(staticData[name],name));
+  }
   
   // root request
   if (name.toLowerCase() == config.get("dns:domain")) {
@@ -85,8 +95,6 @@ var serverForName = function(name,callback,req,res) {
   if (uid.length < 5) {
       if (uid == "www") 
           return callback(req,res,dns.getRecords(rootData,name));
-      if (uid == "sww") 
-        return callback(req,res,dns.getRecords(rootData,name));
       
       // nothing found
       return callback(req,res,nullRecord);

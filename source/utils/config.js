@@ -34,7 +34,7 @@ nconf.defaults({
       'ip': '127.0.0.1', // for listening on a specific IP
       'name': 'localhost',
       'ssl': true, // turn ssl on
-      'no_ssl_on_port': 4080, // IF SSL IS ON also listen to this port for no ssl
+      'no_ssl_on_port': 4080, // IF SSL IS ON also listen to this port 0 if not
     }
   },
   'persistence' : { 
@@ -46,7 +46,7 @@ nconf.defaults({
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
-    'confirm-sender-email': 'trac@edelwatch.net',
+    'confirm-sender-email': 'active@rec.la',
     'amazon_ses' : {
       'accesskeyid': 'AKIAIHR6HVRME43VNCSA',
       'secretkey': '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',

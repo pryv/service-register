@@ -62,7 +62,7 @@ if (config.get('http:register:ssl')) {
   setup_app(express.createServer({key: privateKey, cert: certificate}),
       config.get('http:register:ip'),config.get('http:register:port'));
   
-  if (config.get('http:register:no_ssl_on_port')) 
+  if (config.get('http:register:no_ssl_on_port') > 0) 
     setup_app(express.createServer(), config.get('http:register:ip'),config.get('http:register:no_ssl_on_port'));
   
 } else { // no ssl at all
