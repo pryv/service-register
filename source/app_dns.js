@@ -47,75 +47,82 @@ var rootData = {
         mail: mxData.mail,
 };
 
+
+
 //static entries
-var staticData = { // static web files repository
-    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU'} 
-};
-// this may be directly linked with redis
-function getShorts(name) {
-  
+var staticDataFull = {
+    'isc.org': false,
+    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='}, 
 }
 
-var serverForName = function(name,callback,req,res) { 
-  var nullRecord = dns.getRecords({},name);
-  
-  if (name == "isc.org") return; // remote DOS attack 
-  logger.info("DNS "+req.rinfo.address+" "+ name+ " "+JSON.stringify(req.q));
-  
-  if (name in staticData) {
-    return callback(req,res,dns.getRecords(staticData[name],name));
+var staticDataInDomain = { // static web files repository
+    'www': {alias: [ { name: config.get("net:www") } ]}
+};
+
+
+var serverForName = function(reqName,callback,req,res) { 
+  var nullRecord = dns.getRecords({},reqName);
+
+  //simpler request matching in lower case
+  keyName = reqName.toLowerCase()
+
+  //reserved, static records
+  if (keyName in staticDataFull) {
+    return callback(req,res,dns.getRecords(staticDataFull[keyName],reqName));
   }
   
+
   // root request
-  if (name.toLowerCase() == config.get("dns:domain")) {
-      switch (req.q[0].typeName) {
-	  case 'MX':
-		return callback(req,res,dns.getRecords(mxData,name));
-	  break;
-	  case 'NS':
-		return callback(req,res,dns.getRecords(nsData,name));
-	  break;
-	  case 'SOA':
-	  case 'DNSKEY':
-		return callback(req,res,dns.getRecords(soaData,name));
-	  break;
-	  default:
-	    return callback(req,res,dns.getRecords(rootData,name));
-	  break;
-	  }
+  if (keyName == config.get("dns:domain")) {
+    switch (req.q[0].typeName) {
+    case 'MX':
+      return callback(req,res,dns.getRecords(mxData,reqName));
+      break;
+    case 'NS':
+      return callback(req,res,dns.getRecords(nsData,reqName));
+      break;
+    case 'SOA':
+    case 'DNSKEY':
+      return callback(req,res,dns.getRecords(soaData,reqName));
+      break;
+    default:
+      return callback(req,res,dns.getRecords(rootData,reqName));
+    break;
+    }
   }
-  
-  //logger.info(req);
-  var matchArray = matchingRegExp.exec(name.toLowerCase());
+
+  // look for matches within domain .rec.la
+  var matchArray = matchingRegExp.exec(keyName);
   if (! matchArray) return callback(req,res,nullRecord);
-  
   var uid = matchArray[1];
+  
+  // reserved, static records within domain
+  if (uid in staticDataInDomain) {
+    return callback(req,res,dns.getRecords(staticDataInDomain[uid],reqName));
+  }
   
   // 0 to 4 char length are reserved
   if (uid.length < 5) {
-      if (uid == "www") 
-          return callback(req,res,dns.getRecords(rootData,name));
-      
-      // nothing found
-      return callback(req,res,nullRecord);
+    // nothing found
+    return callback(req,res,nullRecord);
   }
-  
- 
+
+
   db.getServer(uid,function(error,result) {
     //console.log("*** FOUND :"+ result);
     if (error || ! result) return callback(req,res,nullRecord);
     var dyn = {"alias": [ { name: result } ] };
     // add Authority or Nameservers
     switch (req.q[0].typeName) {
-	  case 'NS':
-		dyn.nameserver = baseData.nameserver;
-	  break;
-	  case 'SOA':
-		dyn.autority = baseData.autority;
-	  break;
-	}
-    
-    rec = dns.getRecords(dyn,name);
+    case 'NS':
+      dyn.nameserver = baseData.nameserver;
+      break;
+    case 'SOA':
+      dyn.autority = baseData.autority;
+      break;
+    }
+
+    rec = dns.getRecords(dyn,reqName);
     return callback(req,res,rec); // ndns_warper.sendresponse
   });
   

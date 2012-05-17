@@ -43,6 +43,7 @@ nconf.defaults({
   'net': { // manly used in /network/dataservers
     'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
     'aaservers_ssl': false, // set if admin / activity servers have ssl
+    'www': 'd3b18s8tu2051j.cloudfront.net' // where is the static data located
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
