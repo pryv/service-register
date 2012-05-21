@@ -49,14 +49,13 @@ var rootData = {
 
 
 
-//static entries
+//static entries; matches a fully qualified names
 var staticDataFull = {
     'isc.org': false,
-    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='}, 
 }
-
-var staticDataInDomain = { // static web files repository
-    'www': {alias: [ { name: config.get("net:www") } ]}
+//static entries; matches "in domains" names
+var staticDataInDomain = { 
+    'www': {alias: [ { name: config.get("static:name") } ]} // static web files repository
 };
 
 

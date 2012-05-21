@@ -1,7 +1,7 @@
 // Dependencies
 
 var nconf = require('nconf');
-
+var logger = require('winston');
 // Exports
 
 module.exports = nconf;
@@ -22,17 +22,17 @@ nconf.defaults({
       'default' : 'en',
       'supported' : [{'en': 'English'}, {'fr': 'Français'}]
   },
-  'http': {
+  'http': {  // this should match the config of sww
     'static': {
-      'port': 3080,
-      'ip': '127.0.0.1', // for listening on a specific IP
-      'name': 'localhost',
-      'ssl': false
+      'port': 443,
+      'name': 'localhost', //'d3b18s8tu2051j.cloudfront.net', // used by dns and index.js
+      'ssl': true,
+      'no_ssl_on_port': 80, // IF SSL IS ON also listen to this port 0 if not
     },
     'register': {
       'port': 3443, 
       'ip': '127.0.0.1', // for listening on a specific IP
-      'name': 'localhost',
+      'name': 'local.rec.la',
       'ssl': true, // turn ssl on
       'no_ssl_on_port': 4080, // IF SSL IS ON also listen to this port 0 if not
     }
@@ -43,7 +43,6 @@ nconf.defaults({
   'net': { // manly used in /network/dataservers
     'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
     'aaservers_ssl': false, // set if admin / activity servers have ssl
-    'www': 'd3b18s8tu2051j.cloudfront.net' // where is the static data located
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
@@ -76,14 +75,28 @@ nconf.defaults({
 /** 
 * construct an Url from a port/host/ssl config
 **/
-nconf.httpUrl = function(serverKey) {
-  server = nconf.get(serverKey);
+nconf.httpUrl = function(serverKey, secure) {
+  if (secure == undefined) secure = true;
+  var server = nconf.get(serverKey);
   if (server == undefined) throw(new Error('unkown key: '+serverKey));
-  var url = server.ssl ? 'https://' : 'http://';
-  if ((server.ssl && server.port == 443) || ((! server.ssl ) && server.port == 80)) {
+  
+  var ssl = server.ssl;
+  var port = server.port + 0;
+  
+  if (! secure) {
+    if (server.no_ssl_on_port > 0) {
+      ssl = false;
+      port = server.no_ssl_on_port + 0;
+    } else {
+      logger.error('config.httpUrl Cannot build unsecure url for: '+serverKey);
+    }
+  }
+  
+  var url = ssl ? 'https://' : 'http://';
+  if ((ssl && port == 443) || ((! ssl ) && port == 80)) {
     url += server.name+'/';
   } else {
-    url += server.name+':'+server.port+"/";
+    url += server.name+':'+port+"/";
   }
   return url;
 }

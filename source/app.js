@@ -31,15 +31,18 @@ function setup_app(app,ip,port) {
     // TODO: setup logger handling for uncaught exceptions
   });
 
-
-  //routes
+  // www
+  require('./routes_static/index')(app);
+  
+  // public API routes
   require('./routes/check.js')(app);
   require('./routes/check_email.js')(app);
   require('./routes/init.js')(app);
   require('./routes/confirm.js')(app);
   require('./routes/server.js')(app);
   require('./routes/index.js')(app);
-
+  
+  // private API  routes
   require('./routes/admin_changeEmail')(app);
 
 
@@ -55,11 +58,12 @@ function setup_app(app,ip,port) {
 }
 
 //https server
-logger.info('Register main server :'+config.httpUrl('http:static'))
+logger.info('Register main server :'+config.httpUrl('http:register'))
 if (config.get('http:register:ssl')) {
   var privateKey = fs.readFileSync('cert/privatekey.pem').toString();
-  var certificate = fs.readFileSync('cert/certificate.pem').toString();
-  setup_app(express.createServer({key: privateKey, cert: certificate}),
+  var certificate = fs.readFileSync('cert/cert-rec.la.crt').toString();
+  var ca = fs.readFileSync('cert/GandiStandardSSLCA.pem').toString();
+  setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
       config.get('http:register:ip'),config.get('http:register:port'));
   
   if (config.get('http:register:no_ssl_on_port') > 0) 
@@ -71,7 +75,7 @@ if (config.get('http:register:ssl')) {
 
 
 // start static server 
-require('./app_static');
+// require('./app_static');
 
 // start dns
 require('./app_dns');
