@@ -25,7 +25,7 @@ nconf.defaults({
   'http': {  // this should match the config of sww
     'static': {
       'port': 443,
-      'name': 'localhost', //'d3b18s8tu2051j.cloudfront.net', // used by dns and index.js
+      'name': 'd3b18s8tu2051j.cloudfront.net', // used by dns and index.js
       'ssl': true,
       'no_ssl_on_port': 80, // IF SSL IS ON also listen to this port 0 if not
     },

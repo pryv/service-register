@@ -4,11 +4,6 @@ var config = require('../utils/config');
 module.exports = index;
 
 function index(app){ 
-  var static_url = "http://"+ config.get('http:static_host') +":"+ config.get('http:static_port');
-
-  //app.get('/', function(req, res, next) { 
-  //  res.redirect(static_url,301);
-  //});
   
   app.options('*', function(req, res, next) {
     console.log("OPTIONS "+ req.url);

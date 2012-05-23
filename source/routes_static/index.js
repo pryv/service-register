@@ -1,5 +1,6 @@
 /**
  * Load index.html 
+ * Bootstrap an http://rec.la session
  */
 
 var config = require('../utils/config');

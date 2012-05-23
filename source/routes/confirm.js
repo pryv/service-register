@@ -9,14 +9,14 @@ var dataservers = require('../network/dataservers.js');
 
 var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var domain = "."+config.get('dns:domain');
-var confirm_display_error_url = config.httpUrl('http:static')+"error.html";
+var confirm_display_error_url = config.httpUrl('http:static')+"register/error.html";
 
 //STEP 4
 function save_to_db(host,json_infos,req,myres,next) {
   // logger.info("SaveToDB: "+ json_infos.userName  );
   db.setServerAndInfos(json_infos.userName, host.name, json_infos, function(error,result) {
     if (error) {
-      logger.error(error);
+      logger.error("Confirm: save_to_db:"+error);
       return next(messages.ei());
     }
     myres({server: host.name, alias: json_infos.userName + domain},200);
@@ -32,7 +32,7 @@ function find_server(challenge,json_infos,req,myres,next) {
 
     dataservers.post_to_admin(host,"/register/create-user",201,json_infos,function(error,json_result) {
       if (error) {
-        logger.error(error);
+        logger.error("Confirm: find_server:"+error);
         return next(messages.ei());
       }
       if (json_result.id) {
