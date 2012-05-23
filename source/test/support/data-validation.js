@@ -1,5 +1,5 @@
+var config = require('../config-test');
 var validate = require('json-schema').validate;
-var config = require('../../utils/config');
 var should = require('should');
 var querystring = require('querystring');
 

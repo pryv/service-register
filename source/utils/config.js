@@ -30,11 +30,11 @@ nconf.defaults({
       'no_ssl_on_port': 80, // IF SSL IS ON also listen to this port 0 if not
     },
     'register': {
-      'port': 3443, 
+      'port': 443, 
       'ip': '127.0.0.1', // for listening on a specific IP
-      'name': 'local.rec.la',
+      'name': 'rec.la',
       'ssl': true, // turn ssl on
-      'no_ssl_on_port': 4080, // IF SSL IS ON also listen to this port 0 if not
+      'no_ssl_on_port': 80, // IF SSL IS ON also listen to this port 0 if not
     }
   },
   'persistence' : { 
@@ -54,15 +54,15 @@ nconf.defaults({
     }
   },
   'dns': {
-      'port': 9999,
-      'ip': '127.0.0.1', // for listening on a specific IP
-      'name': 'ns1.wactiv.com', // see the 'net' key (my name for a dns)
+      'port': 53,
+      'ip': '127.0.0.1', // listen on a specific IP
+      'name': 'ns1.wactiv.com', // (my name for a dns)
       'domain': 'rec.la',
       'default_ttl': 3600,
    'nameserver': [{name: 'ns1.wactiv.com', ip: '91.121.41.240'},
    				  {name: 'ns2.wactiv.com', ip: '91.121.41.94'}],
    'mail' : [{name: "spool.mail.gandi.net", ip: "217.70.184.6", ttl: 10800, priority: 10 },
-                { name: "fb.mail.gandi.net", ip: "217.70.184.162", ttl: 10800, priority: 50 }]
+             { name: "fb.mail.gandi.net", ip: "217.70.184.162", ttl: 10800, priority: 50 }]
   },
   'test': {
     'init': {

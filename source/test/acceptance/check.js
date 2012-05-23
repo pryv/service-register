@@ -1,5 +1,6 @@
-var app = require('../../app');
+var config = require('../config-test');
 
+var app = require('../../app');
 
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');

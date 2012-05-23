@@ -1,10 +1,11 @@
+var config = require('../config-test');
+
 var app = require('../../app');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
 require('readyness/wait/mocha');
 
-var config = require('../../utils/config');
 var domain = config.get('dns:domain');
 
 

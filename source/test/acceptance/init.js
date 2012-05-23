@@ -1,7 +1,8 @@
+var config = require('../config-test');
+
 var app = require('../../app');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
-var config = require('../../utils/config');
 
 var domain = "."+config.get('dns:domain');
 var aa_servers_http_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
