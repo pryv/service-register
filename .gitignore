@@ -3,6 +3,7 @@
 *.project
 *.settings
 *source/node_modules
+*source/config.json
 db/appendonly.aof
 db/redis_dump.rdb
 register.iml
