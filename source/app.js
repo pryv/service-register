@@ -26,7 +26,7 @@ function setup_app(app,ip,port) {
   app.configure(function(){
     app.use(express.bodyParser());
     app.use(require('./middleware/cross-domain'));
-    app.use(express.static(__dirname + '/public'));
+    //app.use(require('./middleware/debug'));
     logger.setLevels(logger.config.syslog.levels);
     // TODO: setup logger handling for uncaught exceptions
   });

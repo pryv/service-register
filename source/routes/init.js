@@ -87,6 +87,7 @@ app.post('/init', function(req, res,next){
       return next(messages.ei());
   }
   function jsonres(json) { // shortcut to get the result
+    //logger.debug("init res: "+JSON.stringify(json));
     res.json(json);
   }
   check_init(req,jsonres,next);
