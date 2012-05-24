@@ -2452,8 +2452,8 @@ exports.createServer = function() {
 function messageListener(msg, rinfo) {
 	var self = this;
 
-	debug("NDNS: new message"+msg+":"+bin2hex(msg)+" \n");
-	hexdump(msg);
+	//debug("NDNS: new message"+msg+":"+bin2hex(msg)+" \n");
+	//hexdump(msg);
 	
 	this._Parser.reinitialize(msg, 0, msg.length);
 	this._Parser.socket = this;

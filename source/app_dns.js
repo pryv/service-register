@@ -4,6 +4,9 @@ var dns = require('./dnsserver_lib/ndns_warper.js');
 var config = require('./utils/config');
 var db = require('./storage/database.js');
 
+logger['default'].transports.console.level = 'debug';
+logger['default'].transports.console.colorize = true;
+
 // test with http://www.dnsvalidation.com/
 // http://www.dnssniffer.com/include/report-includes.php?domain=rec.la&advanced=
 // http://www.db.ripe.net/cgi-bin/delcheck/delcheck2.cgi
@@ -55,16 +58,15 @@ var staticDataFull = {
 }
 //static entries; matches "in domains" names
 var staticDataInDomain = { 
-    'www': {alias: [ { name: config.get("static:name") } ]} // static web files repository
+    'www': {alias: [ { name: config.get("http:static:name") } ]} // static web files repository
 };
 
 
 var serverForName = function(reqName,callback,req,res) { 
   var nullRecord = dns.getRecords({},reqName);
-
   //simpler request matching in lower case
   keyName = reqName.toLowerCase()
-
+  
   //reserved, static records
   if (keyName in staticDataFull) {
     return callback(req,res,dns.getRecords(staticDataFull[keyName],reqName));

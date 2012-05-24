@@ -26,7 +26,7 @@ exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
 
     /* ** */
     if(!rec){
-      logger.info("Not found",req.q[0].name,"on this server, and proxy list is empty");
+      logger.info("Not found"+req.q[0].name+"on this server, and proxy list is empty");
       // no proxy on this server (added by Perki)
       // maybe some code should be sent
       res.setHeader(req.header);
@@ -66,6 +66,7 @@ exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
   }
 
   server.on("request", function(req, res) {
+    
     if (req.q.length > 0) {
       var name = req.q[0].name;
       if (name == ".") name = "";
@@ -205,7 +206,7 @@ var getRecords = function(data,name){
       break;
     case 'nameserver':
       for(j = 0;j< data[i].length;j++){
-        data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
+        data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k)+"."+name;
         ret.NS.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
         // removed from authority section
         ret.REP.push([name, default_ttl, "IN", "NS" , data[i][j].name]);
@@ -221,7 +222,7 @@ var getRecords = function(data,name){
     case 'alias':
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       for(j = 0;j< data[i].length;j++){
-        data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k++)+"."+name;
+        data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : "ns"+(++k)+"."+name;
         ret.REP.push([name, default_ttl, "IN", "CNAME" , data[i][j].name]);
 
         if(data[i][j].ip){
