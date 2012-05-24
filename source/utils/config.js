@@ -77,29 +77,27 @@ nconf.defaults({
 **/
 nconf.httpUrl = function(serverKey, secure) {
   if (secure == undefined) secure = true;
-  var server = nconf.get(serverKey);
-  if (server == undefined) throw(new Error('unkown key: '+serverKey));
-  
-  var ssl = server.ssl;
-  var port = server.port + 0;
+   
+  var ssl = nconf.get(serverKey+":ssl");
+  var port = nconf.get(serverKey+":port") + 0;
   
   if (! secure) {
-    if (server.no_ssl_on_port > 0) {
+    if (nconf.get(serverKey+":no_ssl_on_port") > 0) {
       ssl = false;
-      port = server.no_ssl_on_port + 0;
+      port = nconf.get(serverKey+":no_ssl_on_port") + 0;
     } else {
-      logger.error('config.httpUrl Cannot build unsecure url for: '+serverKey);
+      	console.log(JSON.stringify(server));
+	throw(new Error('config.httpUrl Cannot build unsecure url for: '+serverKey));
     }
   }
-  
+  var name = nconf.get(serverKey+":name");  
   var url = ssl ? 'https://' : 'http://';
   if ((ssl && port == 443) || ((! ssl ) && port == 80)) {
-    url += server.name+'/';
+    url += name+'/';
   } else {
-    url += server.name+':'+port+"/";
+    url += name+':'+port+"/";
   }
   return url;
 }
-
 
 // Set network aware parameters
