@@ -24,6 +24,7 @@ function setup_app(app,ip,port) {
   });
 
   app.configure(function(){
+    app.use(express.favicon(__dirname + '/public/favicon.ico'));
     app.use(express.bodyParser());
     app.use(require('./middleware/cross-domain'));
     //app.use(require('./middleware/debug'));
