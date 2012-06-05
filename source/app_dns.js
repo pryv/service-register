@@ -2,6 +2,7 @@
 var logger = require('winston');
 var dns = require('./dnsserver_lib/ndns_warper.js');
 var config = require('./utils/config');
+var ck = require('./utils/ck');
 var db = require('./storage/database.js');
 
 logger['default'].transports.console.level = 'debug';
@@ -14,14 +15,8 @@ logger['default'].transports.console.colorize = true;
 // packets
 // http://marcoceresa.com/net-dns/classes/Net/DNS/Header.html
 
-// create matching Regex
-// TODO Link regexp with ck.js
-var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
-
 // TODO do some caching w/redis: create records only once
-// TODO 
 
-var matchingRegExp = new RegExp("^"+_temp+"$");
 
 var baseData = {
       autority: config.get("dns:name")+",admin."+config.get("dns:domain"),
@@ -55,6 +50,7 @@ var rootData = {
 //static entries; matches a fully qualified names
 var staticDataFull = {
     'isc.org': false,
+    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='} // EMAIL CHECK FOR AMAZON SES
 }
 //static entries; matches "in domains" names
 var staticDataInDomain = { 
@@ -93,9 +89,7 @@ var serverForName = function(reqName,callback,req,res) {
   }
 
   // look for matches within domain .rec.la
-  var matchArray = matchingRegExp.exec(keyName);
-  if (! matchArray) return callback(req,res,nullRecord);
-  var uid = matchArray[1];
+  var uid = ck.extractRessourceFromHostname(keyName);
   
   // reserved, static records within domain
   if (uid in staticDataInDomain) {

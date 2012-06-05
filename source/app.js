@@ -20,6 +20,7 @@ function setup_app(app,ip,port) {
   });
 
   app.configure('production', function(){
+    winston['default'].transports.console.level = 'info';
     app.use(express.errorHandler());
   });
 
@@ -33,7 +34,7 @@ function setup_app(app,ip,port) {
   });
 
   // www
-  require('./routes_static/index')(app);
+  require('./routes_to_static/index')(app);
   
   // public API routes
   require('./routes/check.js')(app);
@@ -61,9 +62,9 @@ function setup_app(app,ip,port) {
 //https server
 logger.info('Register main server :'+config.httpUrl('http:register'))
 if (config.get('http:register:ssl')) {
-  var privateKey = fs.readFileSync('cert/privatekey.pem').toString();
-  var certificate = fs.readFileSync('cert/cert-rec.la.crt').toString();
-  var ca = fs.readFileSync('cert/GandiStandardSSLCA.pem').toString();
+  var privateKey = fs.readFileSync(__dirname+'/cert/privatekey.pem').toString();
+  var certificate = fs.readFileSync(__dirname+'/cert/cert-rec.la.crt').toString();
+  var ca = fs.readFileSync(__dirname+'/cert/GandiStandardSSLCA.pem').toString();
   setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
       config.get('http:register:ip'),config.get('http:register:port'));
   

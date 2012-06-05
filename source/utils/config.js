@@ -42,7 +42,7 @@ nconf.defaults({
   },
   'net': { // manly used in /network/dataservers
     'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
-    'aaservers_ssl': false, // set if admin / activity servers have ssl
+    'aaservers_ssl': true, // set if admin / activity servers have ssl
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
@@ -72,22 +72,26 @@ nconf.defaults({
   }
 });
 
+
 /** 
-* construct an Url from a port/host/ssl config
-**/
+ * construct an Url from a port/host/ssl config
+ * beacause of stupid nconf who is unable to reconstruct 
+ * object tree after overriding we have to grab each keys one by one
+ **/
 nconf.httpUrl = function(serverKey, secure) {
   if (secure == undefined) secure = true;
-   
+
   var ssl = nconf.get(serverKey+":ssl");
   var port = nconf.get(serverKey+":port") + 0;
-  
+
+
   if (! secure) {
     if (nconf.get(serverKey+":no_ssl_on_port") > 0) {
       ssl = false;
       port = nconf.get(serverKey+":no_ssl_on_port") + 0;
     } else {
-      	console.log(JSON.stringify(server));
-	throw(new Error('config.httpUrl Cannot build unsecure url for: '+serverKey));
+      console.log(JSON.stringify(server));
+      throw(new Error('config.httpUrl Cannot build unsecure url for: '+serverKey));
     }
   }
   var name = nconf.get(serverKey+":name");  
