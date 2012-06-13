@@ -12,7 +12,7 @@ _.mixin(_.str.exports());
  */
 exports.extractRessourceFromHostname = function(hostname) {
   var matchArray = extractRessourceFromHostnameRegExp.exec(hostname);
-  if (! matchArray) return callback(req,res,nullRecord);
+  if (! matchArray) return null;
   return matchArray[1];
 }
 var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");

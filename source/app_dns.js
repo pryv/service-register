@@ -50,7 +50,7 @@ var rootData = {
 //static entries; matches a fully qualified names
 var staticDataFull = {
     'isc.org': false,
-    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='} // EMAIL CHECK FOR AMAZON SES
+    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='} // DO NOT REMOVE EMAIL CHECK FOR AMAZON SES
 }
 //static entries; matches "in domains" names
 var staticDataInDomain = { 
