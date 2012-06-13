@@ -32,7 +32,7 @@ function find_server(challenge,json_infos,req,myres,next) {
 
     dataservers.post_to_admin(host,"/register/create-user",201,json_infos,function(error,json_result) {
       if (error) {
-        logger.error("Confirm: find_server:"+error);
+        logger.error("Confirm: find_server: "+error+"\n info:"+JSON.stringify(json_infos));
         return next(messages.ei());
       }
       if (json_result.id) {
