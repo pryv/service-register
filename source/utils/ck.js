@@ -11,7 +11,9 @@ _.mixin(_.str.exports());
  * extract ressource from hostname
  */
 exports.extractRessourceFromHostname = function(hostname) {
+  console.log(hostname);
   var matchArray = extractRessourceFromHostnameRegExp.exec(hostname);
+  console.log(_temp+" "+matchArray[1]);
   if (! matchArray) return null;
   return matchArray[1];
 }
