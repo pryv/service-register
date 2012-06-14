@@ -19,12 +19,12 @@ logger['default'].transports.console.colorize = true;
 
 
 var baseData = {
-      autority: config.get("dns:name")+",admin."+config.get("dns:domain"),
-    nameserver: config.get("dns:nameserver") 
+      autority: config.get('dns:name')+',admin.'+config.get('dns:domain'),
+    nameserver: config.get('dns:nameserver') 
 };
 
 var mxData = {
-     mail: config.get("dns:mail"),
+     mail: config.get('dns:mail'),
 };
 
 var nsData = {
@@ -40,8 +40,8 @@ var soaData = {
 var rootData = {
     autority: baseData.autority,
   nameserver: baseData.nameserver,
-       alias: [ { name: config.get("dns:name") } ],
-        //ip: config.get("http:static:ip"),
+       alias: [ { name: config.get('dns:name') } ],
+        //ip: config.get('http:static:ip'),
         mail: mxData.mail,
 };
 
@@ -52,9 +52,9 @@ var staticDataFull = {
     'isc.org': false,
     '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='} // DO NOT REMOVE EMAIL CHECK FOR AMAZON SES
 }
-//static entries; matches "in domains" names
+//static entries; matches 'in domains' names
 var staticDataInDomain = { 
-    'www': {alias: [ { name: config.get("http:static:name") } ]} // static web files repository
+    'www': {alias: [ { name: config.get('http:static:name') } ]} // static web files repository
 };
 
 
@@ -68,10 +68,10 @@ var serverForName = function(reqName,callback,req,res) {
     return callback(req,res,dns.getRecords(staticDataFull[keyName],reqName));
   }
   
-  logger.log("DNS: "+keyName);
+  logger.log('DNS: '+keyName);
 
   // root request
-  if (keyName == config.get("dns:domain")) {
+  if (keyName == config.get('dns:domain')) {
     switch (req.q[0].typeName) {
     case 'MX':
       return callback(req,res,dns.getRecords(mxData,reqName));
@@ -93,7 +93,7 @@ var serverForName = function(reqName,callback,req,res) {
   var uid = ck.extractRessourceFromHostname(keyName);
   
   if (! uid) {
-  	logger.log("DNS: (Not in domain) "+keyName);
+  	logger.log('DNS: (Not in domain) '+keyName);
   	return callback(req,res,nullRecord);
   }
   
@@ -110,9 +110,9 @@ var serverForName = function(reqName,callback,req,res) {
 
 
   db.getServer(uid,function(error,result) {
-    //console.log("*** FOUND :"+ result);
+    //console.log('*** FOUND :'+ result);
     if (error || ! result) return callback(req,res,nullRecord);
-    var dyn = {"alias": [ { name: result } ] };
+    var dyn = {'alias': [ { name: result } ] };
     // add Authority or Nameservers
     switch (req.q[0].typeName) {
     case 'NS':

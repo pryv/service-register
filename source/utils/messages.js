@@ -18,7 +18,7 @@ for (key in mstrings) {
 function clone_message(id) {
   var t = mstrings[id];
   if (t == undefined) {
-      throw(new Error("Missing message code :"+id));
+      throw(new Error('Missing message code :'+id));
   }
   return {id: t.id, message: t.message, detail: t.detail};
 }
@@ -41,7 +41,7 @@ function say(id,addons) {
 function error_data(id, extra) {
   var content = mstrings['en'][id];
   if (content == undefined) {
-      throw(new Error("Missing message code :"+id));
+      throw(new Error('Missing message code :'+id));
   }
   content.id = id;
   content.more = extra;
@@ -61,13 +61,13 @@ function internal(res) {
 exports.ei = function ei(error) {
     if (error == null ) error = new Error();
     if (! (error instanceof Error)) error = new Error(error);
-    logger.error("internal error : \n"+  error.stack );
+    logger.error('internal error : \n'+  error.stack );
     return new REGError(500, say('INTERNAL_ERROR'));
 }
 
 /** single error **/
-exports.e = function e(httpCode, id, addons) {
-    return new REGError(httpCode, say(id, addons));
+exports.e = function e(httpCode, id, addons) {  
+   return new REGError(httpCode, say(id, addons));
 }
 
 /** error with sub errors **/
