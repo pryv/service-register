@@ -29,10 +29,10 @@ function find_server(challenge,json_infos,req,myres,next) {
   //logger.info(JSON.stringify(json_result));
   dataservers.recommanded(req,function(error,host) {
     //logger.info("found server "+host.name +" for uid: "+ json_infos.userName + " challenge:"+challenge );
-
+    
     dataservers.post_to_admin(host,"/register/create-user",201,json_infos,function(error,json_result) {
       if (error) {
-        logger.error("Confirm: find_server: "+error+"\n info:"+JSON.stringify(json_infos));
+        logger.error("Confirm: find_server: "+error+"\n host"+JSON.stringify(host)+"\n info:"+JSON.stringify(json_infos));
         return next(messages.ei());
       }
       if (json_result.id) {
@@ -84,11 +84,12 @@ function init(app) {
       if (error instanceof messages.REGError) {
         if (error.data && error.data.server) {
            res.redirect(aaservers_mode+'://'+error.data.alias+'/?msg=CONFIRMED_ALREADY');
-        } else {
-           res.redirect(confirm_display_error_url+'?id='+error.data.id);
           return;
-        }
+        } 
+         return res.redirect(confirm_display_error_url+'?id='+error.data.id);
+  
       }
+      logger.error("CONFIRM my_next: "+error.stack);
       next(error);
     }
 

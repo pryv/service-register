@@ -11,12 +11,20 @@ function app_errors(app) {
     } else {
       if (! (error instanceof Error)) {
         logger.error("app_errors unkown object : "+ error);
-        return console.log( (new Error()).stack );
+        return logger.error( (new Error()).stack );
       }
       logger.error("app_errors : "+ error);
       logger.error( error.stack );
       //next();
     }
+  });
+  
+  process.on('uncaughtException', function (err) {
+    if (err == false || err == undefined) {
+        err = new Error();
+    }
+    logger.error("uncaughtException : "+ err);
+    logger.error( err.stack );
   });
 
 }

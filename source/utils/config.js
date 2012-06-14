@@ -43,6 +43,9 @@ nconf.defaults({
   'net': { // manly used in /network/dataservers
     'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
     'aaservers_ssl': true, // set if admin / activity servers have ssl
+    'aaservers': 
+      [{ "base_name": "test1", "port": 443, "authorization": "register-test-token" , ip: "91.121.34.251"}, 
+       { "base_name": "test2", "port": 443, "authorization": "register-test-token" , ip: "46.105.35.181" }]
   },
   'mailer': {
     'deactivated' : false, // globally deactivate mailing
@@ -90,7 +93,6 @@ nconf.httpUrl = function(serverKey, secure) {
       ssl = false;
       port = nconf.get(serverKey+":no_ssl_on_port") + 0;
     } else {
-      console.log(JSON.stringify(server));
       throw(new Error('config.httpUrl Cannot build unsecure url for: '+serverKey));
     }
   }
@@ -101,6 +103,7 @@ nconf.httpUrl = function(serverKey, secure) {
   } else {
     url += name+':'+port+"/";
   }
+  //console.log(serverKey+" "+url);
   return url;
 }
 
