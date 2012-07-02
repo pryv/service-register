@@ -70,10 +70,10 @@ exports.start = function(NAMES,BIND_PORT,BIND_HOST,dynamic_call,done) {
     if (req.q.length > 0) {
       var name = req.q[0].name;
       if (name == undefined) {
-        console.debug("How comes DNS request was null ??"+JSON.stringify(req));
+        console.debug("How comes DNS request was null ??");
         name = "";
       }
-      console.log(JSON.stringify(req));
+      
       if (name == ".") name = "";
       
       middle_send_response = function (req,res,rec) {
