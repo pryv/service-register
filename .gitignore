@@ -6,4 +6,4 @@ Icon*
 *source/config.json
 db/appendonly.aof
 db/redis_dump.rdb
-register.iml
+registration-server.iml

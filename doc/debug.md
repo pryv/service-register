@@ -1,1 +1,0 @@
-https://github.com/joyent/node/wiki/Using-Eclipse-as-Node-Applications-Debugger
