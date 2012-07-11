@@ -1,70 +1,34 @@
-MOCHA = ./node_modules/.bin/mocha 
-MOCHA_OPTS = -ignore-leaks 
+MOCHA=./node_modules/.bin/mocha
+TEST_FILES=test/acceptance/*.js
 
-test: 
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/*.js
-	 
+test:
+	@$(MOCHA) --timeout 300 --reporter min $(TEST_FILES)
+
+test-detailed:
+	@$(MOCHA) --timeout 300 --reporter spec $(TEST_FILES)
+
+test-debug:
+	@$(MOCHA) --timeout 3600000 --reporter spec --debug-brk $(TEST_FILES)
 
 test-bodyParser:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/bodyParser.js 
-            
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/bodyParser.js
+
 test-confirm:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/confirm.js 
-            
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/confirm.js
 
 test-server:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/server.js 
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/server.js
 
 test-init:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/init.js 
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/init.js
 
 test-check_email:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/check_email.js 
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check_email.js
 
 test-changeEmail:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 5000 \
-            test/acceptance/admin_changeEmail.js 
-            
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin_changeEmail.js
+
 load:
-	@./node_modules/.bin/mocha --ignore-leaks \
-                --reporter spec \
-                --require should \
-                --slow 20 \
-                --timeout 50000 \
-            test/load/*.js 
+	@$(MOCHA) --timeout 50000 --reporter spec test/load/*.js
 
 .PHONY: test
