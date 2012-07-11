@@ -56,11 +56,18 @@ function setup_app(app,ip,port) {
   app.listen(port, ip, function() {
     var address = app.address();  
     appListening(' in '+app.settings.env+' mode');
-  });
+  }).on('error',function (e) {  
+    if (e.code == "EACCES") {
+      logger.error("Cannot "+e.syscall+" on: "+ip+":"+port); 
+      throw(e);
+   }});
+    
 }
 
 //https server
-logger.info('Register main server :'+config.httpUrl('http:register'))
+logger.info('Register main server :'+config.httpUrl('http:register'));
+logger.info('Static main server :'+config.httpUrl('http:static',true));
+
 if (config.get('http:register:ssl')) {
   var privateKey = fs.readFileSync(__dirname+'/cert/privatekey.pem').toString();
   var certificate = fs.readFileSync(__dirname+'/cert/cert-rec.la.crt').toString();
@@ -74,6 +81,7 @@ if (config.get('http:register:ssl')) {
 } else { // no ssl at all
   setup_app(express.createServer(), config.get('http:register:ip'),config.get('http:register:port'));
 }
+
 
 
 // start static server 
