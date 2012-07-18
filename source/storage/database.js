@@ -8,7 +8,7 @@ var connectionChecked = require('readyness').waitFor('database');
 //check redis connectivity
 // do not remove, "wactiv.server" is use by tests
 redis.set('wactiv:server','rec.la', function(error, result) {
-  if (error) 
+  if (error)
     logger.error('Failed to connect redis database: '+ error, error);
   else {
     redis.set('wactiv@rec.la:email','wactiv', function(error, result) {
@@ -44,7 +44,7 @@ function getJSON(key, callback) {
       var res_json = JSON.parse(result);
       return callback(error, res_json);
     } catch (e) {
-      return callback(new Error("string is not JSON"), result); 
+      return callback(new Error("string is not JSON"), result);
     }
     return callback(error, result); // should not be there
 
@@ -54,9 +54,9 @@ exports.getJSON = getJSON;
 
 //Specialized
 
-exports.initSet = function initSet(uid, password, email, language, challenge, callback) {
+exports.initSet = function initSet(uid, passwordHash, email, language, challenge, callback) {
   var multi = redis.multi();
-  var value = {userName: uid, password: password, email: email, language: language};
+  var value = {userName: uid, passwordHash: passwordHash, email: email, language: language};
   var key = challenge+":init";
   multi.set(key, JSON.stringify(value));
   multi.expire(key, config.get('persistence:init-ttl'));
@@ -71,7 +71,7 @@ exports.getServer = function getServer(uid, callback) {
   uid = uid.toLowerCase();
   redis.get(uid +":server",function(error, result) {
     if (error) logger.error('Redis getServer: '+ uid +' e: '+ error, error);
-     callback(error, result); 
+     callback(error, result);
   });
 }
 
@@ -88,7 +88,7 @@ exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callb
 }
 
 /**
- * 
+ *
  * @param uid
  * @param email
  * @param callback function(error) error is null if successfull;
@@ -103,11 +103,11 @@ exports.changeEmail = function changeEmail(uid, email, callback) {
       logger.debug("trying to update an e-mail to the same value "+uid+" "+email);
       return callback(null);
     }
-    
+
     if (email_uid != null)
       return callback(new Error("Cannot set e-mail: "+email+" it's already used"));
-    
-    
+
+
     // get infos string
     getJSON(uid+":infos", function(error2,infos) {
       if (error2) return callback(error2);
@@ -119,7 +119,7 @@ exports.changeEmail = function changeEmail(uid, email, callback) {
       multi.set(infos.email +":email", uid);
       multi.exec(function(error3, result) {
         if (error3) logger.error('Redis changeEmail: '+ uid +'email: '+email+' e: '+ error3, error3);
-        callback(error3); 
+        callback(error3);
       });
     });
   });
