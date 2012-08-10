@@ -22,7 +22,6 @@ module.exports = function(app) {
     }
     checkInit(req,jsonres,next);
   });
-<<<<<<< HEAD
 
   function checkInit(req, jsonres,next) {
     var uid = ck.uid(req.body.userName);
@@ -42,67 +41,6 @@ module.exports = function(app) {
         doInit(uid,password,email,lang,req,jsonres,next);
       }
     }
-=======
-  
-  // send mail or not
-  if (config.get('test:init:deactivate_mailer')) {
-      logger.debug('init: deactivated mailer');
-      return ;
-  }
-  
-  mailer.sendConfirm(uid,email,challenge,lang);
-}
-
-function check_init(req, jsonres,next) {
-  var uid = ck.uid(req.body.userName);
-  var password = ck.password(req.body.password);
-  var email = ck.email(req.body.email);
-  var lang = ck.lang(req.body.languageCode); // no check
-  
-  var errors = new Array();
-  var tests = 2;
-  function test_done(title) {
-   tests--;
-    if (tests <= 0) {
-      if (errors.length > 0) return next(messages.ex(400,'INVALID_DATA',errors));
-      do_init(uid,password,email,lang,req,jsonres,next);
-    }
-  }
-  
-  
-  
-  // test input
-  if (! uid) errors.push('INVALID_USER_NAME');
-  else {
-    tests++;
-    db.uidExists(uid, function(error, exists) {
-      if (error) return next(messages.ei());
-      if (exists) errors.push('EXISTING_USER_NAME');
-      test_done();
-    });
-  }
-  if (password == null) errors.push('INVALID_PASSWORD');
-  
-  encryption.hash(password, function(error, passwordHash) {
-    if (error) return next(messages.ei());
-    password = passwordHash;
-    test_done();
-  });
-  
-  
-  if (email == null) errors.push('INVALID_EMAIL');
-  else {
-    tests++;
-    db.emailExists(email, function(error, exists) {
-      if (error) return next(messages.ei());
-      if (exists) errors.push('EXISTING_EMAIL');
-      test_done();
-    });
-  }
-  
-  test_done();
-}
->>>>>>> in course of installing bcrypt
 
     // test input
     if (! uid) {
@@ -122,7 +60,7 @@ function check_init(req, jsonres,next) {
       tests++;
       db.emailExists(email, function(error, exists) {
         if (error) { return next(messages.ei()); }
-        if (exists) { errors.push('EXISTING_EMAIL'); }
+        if (exists) { errors.push('EXISTING_EMAIL'); }
         test_done();
       });
     }
@@ -140,7 +78,7 @@ function check_init(req, jsonres,next) {
 
       // set on db
       db.initSet(uid,passwordHash,email,lang,challenge, function(error,result) {
-        if (error) { return next(messages.ei()); }
+        if (error) { return next(messages.ei()); }
 
         // add challenge string to chain tests
         if (config.get('test:init:add_challenge')) {
