@@ -40,8 +40,7 @@ var soaData = {
 var rootData = {
     autority: baseData.autority,
   nameserver: baseData.nameserver,
-       alias: [ { name: config.get('dns:name') } ],
-        //ip: config.get('http:static:ip'),
+        ip: config.get('dns:domain_A'),
         mail: mxData.mail,
 };
 
