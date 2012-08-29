@@ -59,8 +59,9 @@ nconf.defaults({
   'dns': {
       'port': 53,
       'ip': '127.0.0.1', // listen on a specific IP
-      'name': 'ns1.wactiv.com', // (my name for a dns)
+      'name': 'ns1.wactiv.com', // (my name for a dns) must be in nameserver list
       'domain': 'rec.la',
+      'domain_A': '91.121.41.240', // should point to www
       'default_ttl': 3600,
    'nameserver': [{name: 'ns1.wactiv.com', ip: '91.121.41.240'},
    				  {name: 'ns2.wactiv.com', ip: '91.121.41.94'}],
