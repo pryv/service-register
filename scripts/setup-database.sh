@@ -9,6 +9,7 @@ if [ -z "$targetFolder" ]
 then
   echo "
 Expected argument: <target folder path>
+from the script directory \"../../\" is good :)
 "
   exit 1
 elif [ ! -d $targetFolder ]
@@ -26,23 +27,28 @@ if [ ! -d $targetFolder/$redisName ]
 then
   echo "Not found, installing...
 "
-  curl -o "$targetFolder/$redisName" http://redis.googlecode.com/files/$redisName.tar.gz
-  tar xzf $targetFolder/$redisName.tar.gz
-  $targetFolder/$redisName/make
-  rm $targetFolder/$redisName.tar.gz
+  cd $targetFolder
+ 
+  curl -o "$redisName.tar.gz" http://redis.googlecode.com/files/$redisName.tar.gz
+  tar -xzf $redisName.tar.gz
+  cd $redisName
+  make
+  cd ..
+  rm $redisName.tar.gz
 else
+  cd $targetFolder
   echo "OK"
 fi
 
 redisData=redis-data
 echo "
 Checking for DB data folder ($targetFolder/$redisData)..."
-if [ ! -d $targetFolder/$redisData ]
+if [ ! -d $redisData ]
 then
   echo "Not found, installing...
 "
-  mkdir -p $targetFolder/$redisData
-  chown `id -u` $targetFolder/$redisData
+  mkdir -p $redisData
+  chown `id -u` $redisData
 else
   echo "OK"
 fi
