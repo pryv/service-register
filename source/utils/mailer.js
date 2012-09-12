@@ -25,7 +25,6 @@ exports.sendConfirm = function (uid,to,challenge,lang) {
         logger.debug('mailer: deactivated mailer');
         return true; //
     }
-    
    // find mail template
    var templateCode = 'confirm:'+lang;
    if (! templateCode in mailTemplates) {

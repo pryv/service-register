@@ -60,7 +60,6 @@ var confirm_challenge_post = function(test, json_data) {
 //chained confirm test ... with a valid challenge, p
 var confirm_challenge = function(test, json_data) { 
   if (! config.get('test:init:add_challenge')) return;
-  console.log("XXXXXXXXXXXXXXX");   
   describe('GET /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
     var server_alias =  test.data.userName + domain;
     var ntest = { it : " uid: " + test.data.userName,
@@ -88,7 +87,7 @@ describe('POST /init', function(){
     JValues: {"id":'INVALID_DATA', 
       "errors": [ {"id": 'EXISTING_USER_NAME' } ]   }},
     
-    { data: { userName: randomuser, password: 'abcdefg', email: "wactiv@rec.la"}, 
+    { data: { userName: randomuser, password: 'abcdefg', email: "wactiv@pryv.io"}, 
         status: 400 , desc : 'Existing e-mail', 
         JSchema :  schema.error_multiple , 
         JValues: {"id":'INVALID_DATA', 

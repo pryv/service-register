@@ -8,11 +8,11 @@ require('readyness/wait/mocha');
 
 describe('POST /:uid/email/admin', function(){
   var tests = [ 
-    { uid: 'wac', data : {email: 'wactiv@rec.la'}, 
+    { uid: 'wac', data : {email: 'wactiv@pryv.io'}, 
       status: 400 , desc : 'OK' ,
       JSchema : schema.error , JValues: {"id":'INVALID_USER_NAME'}},
       
-    { uid: 'wactiv', data : {email: 'toto@rec.la'}, 
+    { uid: 'wactiv', data : {email: 'toto@pryv.io'}, 
         status: 200 , desc : 'OK' ,
         JSchema : schema.success , JValues: { success : true}},
     ] ;
