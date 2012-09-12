@@ -5,7 +5,7 @@ var messages = require('../utils/messages.js');
 var logger = require('winston');
 var mailer = require('../utils/mailer.js');
 var randGenerator = require('../utils/random.js');
-var encyrption = require('../utils/encryption.js');
+var encryption = require('../utils/encryption.js');
 var config = require('../utils/config');
 
 module.exports = function(app) {

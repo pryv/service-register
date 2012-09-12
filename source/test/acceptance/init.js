@@ -58,9 +58,9 @@ var confirm_challenge_post = function(test, json_data) {
 
 
 //chained confirm test ... with a valid challenge, p
-var confirm_challenge = function(test, json_data) {
+var confirm_challenge = function(test, json_data) { 
   if (! config.get('test:init:add_challenge')) return;
-
+  console.log("XXXXXXXXXXXXXXX");   
   describe('GET /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
     var server_alias =  test.data.userName + domain;
     var ntest = { it : " uid: " + test.data.userName,
@@ -112,7 +112,7 @@ describe('POST /init', function(){
          "errors": [ {"id": 'INVALID_USER_NAME' }, {"id": 'INVALID_PASSWORD' } , {"id": 'INVALID_EMAIL' }]}},
          ] ;
  // tests.length
-  for (var key = 0; key < 2; key++) { // create PATH and method
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].data.userName;
     tests[key].path = '/init';
     tests[key].method = 'POST';
