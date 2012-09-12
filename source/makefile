@@ -2,7 +2,7 @@ MOCHA=./node_modules/.bin/mocha
 TEST_FILES=test/acceptance/*.js
 
 test:
-	@$(MOCHA) --timeout 300 --reporter min $(TEST_FILES)
+	@$(MOCHA) --timeout 300 --reporter spec $(TEST_FILES)
 
 test-detailed:
 	@$(MOCHA) --timeout 300 --reporter spec $(TEST_FILES)
