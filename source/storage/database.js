@@ -7,11 +7,11 @@ var _s = require('underscore.string');
 var connectionChecked = require('readyness').waitFor('database');
 //check redis connectivity
 // do not remove, "wactiv.server" is use by tests
-redis.set('wactiv:server','rec.la', function(error, result) {
+redis.set('wactiv:server','pryv.io', function(error, result) {
   if (error)
     logger.error('Failed to connect redis database: '+ error, error);
   else {
-    redis.set('wactiv@rec.la:email','wactiv', function(error, result) {
+    redis.set('wactiv@pryv.io:email','wactiv', function(error, result) {
       connectionChecked('Redis');
     });
   }

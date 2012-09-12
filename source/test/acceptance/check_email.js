@@ -16,7 +16,7 @@ describe('GET /:email/check_email', function(){
       JSchema: schema.check_exists, 
       JValues: { exists: false}},
       
-      { email: 'wactiv@rec.la', status: 200 , desc : 'does exists',
+      { email: 'wactiv@pryv.io', status: 200 , desc : 'does exists',
         JSchema: schema.check_exists, 
         JValues: { exists: true}},
     ] ;
