@@ -2,6 +2,7 @@
   "name": "rec.la-registration-server",
   "description": "",
   "version": "0.1.0",
+  "private": true,
   "author": "SimpleData Sàrl",
   "dependencies": {
     "express": "2.5.x",
