@@ -1,5 +1,7 @@
 #!/bin/sh
 
+nodeVersion=v0.8.2
+
 # This script sets up the REC.la registration server app
 # Meant to be called from 'setup-environment-<target>.sh' scripts
 
@@ -17,24 +19,7 @@ fi
 scriptsFolder=$(cd $(dirname "$0"); pwd)
 cd $scriptsFolder/..
 
-echo "
-Checking for NVM..."
-if [ ! -d ~/.nvm ]
-then
-  echo "Not found, installing...
-"
-  git clone git://github.com/creationix/nvm.git ~/.nvm
-else
-  echo "OK"
-fi
 
-echo "
-Syncing NVM...
-"
-. ~/.nvm/nvm.sh # this line should be added to your .bash_profile as well
-nvm sync
-
-nodeVersion=v0.8.2
 echo "
 Installing Node $nodeVersion if necessary...
 "
