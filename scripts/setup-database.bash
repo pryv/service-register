@@ -1,7 +1,14 @@
-#!/bin/sh
+#!/bin/bash
+. ~/.profile
 
 # This script sets up Redis (engine and data) for the REC.la registration server
 # Meant to be called from 'setup-environment-<target>.sh' scripts
+
+# working dir fix
+scriptsFolder=$(cd $(dirname "$0"); pwd)
+cd $scriptsFolder/
+. ./env-config.sh
+
 
 targetFolder=$1
 
@@ -20,7 +27,6 @@ Invalid target folder path: '$targetFolder' does not exist.
   exit 1
 fi
 
-redisName=redis-2.4.8
 echo "
 Checking for Redis ($targetFolder/$redisName)..."
 if [ ! -d $targetFolder/$redisName ]

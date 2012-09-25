@@ -1,8 +1,8 @@
 {
   "remote": {
     "default": {
-      "hub": "s1.simpledata.ch:7000",
-      "secret": "B0ugr3-d,Ect0pl4%m3-a-R0ul3tT3%+"
+      "hub": "head.pryv.net:7021",
+      "secret": "blipblop"
     }
   }
 }
