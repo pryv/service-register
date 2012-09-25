@@ -1,6 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+. ~/.profile
 
-nodeVersion=v0.8.2
+# working dir fix
+scriptsFolder=$(cd $(dirname "$0"); pwd)
+cd $scriptsFolder/
+. ./env-config.sh
 
 # This script sets up the REC.la registration server app
 # Meant to be called from 'setup-environment-<target>.sh' scripts
@@ -15,8 +19,6 @@ Expected argument: <Node environment: development or production>
   exit 1
 fi
 
-# working dir fix
-scriptsFolder=$(cd $(dirname "$0"); pwd)
 cd $scriptsFolder/..
 
 
