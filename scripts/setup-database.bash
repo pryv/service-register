@@ -9,6 +9,7 @@ scriptsFolder=$(cd $(dirname "$0"); pwd)
 cd $scriptsFolder/
 . ./env-config.sh
 
+mkdir $dbFolder
 
 targetFolder=$1
 
