@@ -8,32 +8,32 @@ var fs = require('fs');
 
 module.exports = nconf;
 
-// Load configuration settings
-var args = require( 'argv' ).option({
-  name: 'config',
-  short: 'f',
-  type: 'path',
-  description: 'Custom location config file',
-  example: "'script --config=path' or 'script -f path'"
-}).run();
 
-var configFile = 'config.json';
-if (typeof(args.options.config) !== 'undefined') {
-  configFile = args.options.config;
-}
-if (fs.existsSync(args.options.config)) {
-  logger.info("using custom config file: "+args.options.config);
-} else {
-  logger.error("Cannot find custom config file: "+args.options.config);
-}
+
+
 
 // Setup nconf to use (in-order): 
 //   1. Command-line arguments
 //   2. Environment variables
-//   3. A file located at 'path/to/config.json'
+
 nconf.argv()
-     .env()
-     .file({ file: configFile }); 
+     .env(); 
+
+//3. A file located at .. 
+var configFile = 'config.json';
+if (typeof(nconf.get("configFile")) !== 'undefined') {
+  configFile = nconf.get("configFile");
+}
+
+configFile = fs.realpathSync(configFile);
+
+if (fs.existsSync(configFile)) {
+  logger.info("using custom config file: "+configFile);
+} else {
+  logger.error("Cannot find custom config file: "+configFile);
+} 
+
+nconf.file({ file: configFile});
 
 // Set default values
 nconf.defaults({
