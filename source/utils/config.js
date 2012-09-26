@@ -2,11 +2,30 @@
 
 var nconf = require('nconf');
 var logger = require('winston');
+var fs = require('fs');
+
 // Exports
 
 module.exports = nconf;
 
 // Load configuration settings
+var args = require( 'argv' ).option({
+  name: 'config',
+  short: 'f',
+  type: 'path',
+  description: 'Custom location config file',
+  example: "'script --config=path' or 'script -f path'"
+}).run();
+
+var configFile = 'config.json';
+if (typeof(args.options.config) !== 'undefined') {
+  configFile = args.options.config;
+}
+if (fs.existsSync(args.options.config)) {
+  logger.info("using custom config file: "+args.options.config);
+} else {
+  logger.error("Cannot find custom config file: "+args.options.config);
+}
 
 // Setup nconf to use (in-order): 
 //   1. Command-line arguments
@@ -14,7 +33,7 @@ module.exports = nconf;
 //   3. A file located at 'path/to/config.json'
 nconf.argv()
      .env()
-     .file({ file: 'config.json' }); //TODO: set proper config file path
+     .file({ file: configFile }); 
 
 // Set default values
 nconf.defaults({
