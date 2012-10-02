@@ -8,10 +8,6 @@ var fs = require('fs');
 
 module.exports = nconf;
 
-
-
-
-
 // Setup nconf to use (in-order): 
 //   1. Command-line arguments
 //   2. Environment variables
@@ -21,8 +17,8 @@ nconf.argv()
 
 //3. A file located at .. 
 var configFile = 'config.json';
-if (typeof(nconf.get("configFile")) !== 'undefined') {
-  configFile = nconf.get("configFile");
+if (typeof(nconf.get("config")) !== 'undefined') {
+  configFile = nconf.get("config");
 }
 
 configFile = fs.realpathSync(configFile);
@@ -50,7 +46,7 @@ nconf.defaults({
     },
     'register': {
       'port': 443, 
-      'ip': '127.0.0.1', // for listening on a specific IP
+      //'ip': '127.0.0.1'
       'name': 'rec.la',
       'ssl': true, // turn ssl on
       'no_ssl_on_port': 80, // IF SSL IS ON also listen to this port 0 if not
@@ -77,7 +73,7 @@ nconf.defaults({
   },
   'dns': {
       'port': 53,
-      'ip': '127.0.0.1', // listen on a specific IP
+      //'ip': '127.0.0.1', // listen on a specific IP
       'name': 'ns1.wactiv.com', // (my name for a dns) must be in nameserver list
       'domain': 'rec.la',
       'domain_A': '91.121.41.240', // should point to www
@@ -126,5 +122,12 @@ nconf.httpUrl = function(serverKey, secure) {
   //console.log(serverKey+" "+url);
   return url;
 }
+
+nconf.save(function (err) {
+  fs.readFile('/tmp/config.json', function (err, data) {
+    console.log(data)
+  });
+});
+
 
 // Set network aware parameters
