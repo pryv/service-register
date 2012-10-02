@@ -21,4 +21,4 @@ else
 fi
 
 fleet spawn --drone=$droneId --repo=registration-server -- \
-$dbFolder/$redisName/src/redis-server $confFile
+$dbFolder/$redisName/src/redis-server $confFile &
