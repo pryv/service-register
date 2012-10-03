@@ -4,18 +4,35 @@ var redis = require('redis').createClient();
 var config = require('../utils/config');
 var _s = require('underscore.string');
 
+
+
+
+
 var connectionChecked = require('readyness').waitFor('database');
-//check redis connectivity
-// do not remove, "wactiv.server" is use by tests
-redis.set('wactiv:server','rec.la', function(error, result) {
-  if (error)
-    logger.error('Failed to connect redis database: '+ error, error);
-  else {
-    redis.set('wactiv@pryv.io:email','wactiv', function(error, result) {
-      connectionChecked('Redis');
-    });
-  }
-});
+function checkConnection() {
+  //check redis connectivity
+  // do not remove, "wactiv.server" is use by tests
+  redis.set('wactiv:server','rec.la', function(error, result) {
+    if (error)
+      logger.error('Failed to connect redis database: '+ error, error);
+    else {
+      redis.set('wactiv@pryv.io:email','wactiv', function(error, result) {
+        connectionChecked('Redis');
+      });
+    }
+  });
+}
+
+// PASSWORD CHECKING
+if (config.get("redis:password")) {
+  redis.auth(config.get("redis:password"), function() {
+    logger.info('Redis client authentified');
+    checkConnection();
+  });
+} else {
+  checkConnection();
+}
+
 
 //Generic
 function emailExists(email,callback) {

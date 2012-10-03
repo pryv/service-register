@@ -2,6 +2,6 @@
 
 # working dir fix
 scriptsFolder=$(cd $(dirname "$0"); pwd)
-cd $scriptsFolder/..
+cd $scriptsFolder/../..
 
 ../redis-2.4.8/src/redis-server ./db/dev.conf
