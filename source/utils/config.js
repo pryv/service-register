@@ -84,7 +84,7 @@ nconf.defaults({
              { "name": "fb.mail.gandi.net", "ip": "217.70.184.162", "ttl": 10800, "priority": 50 }]
   },
   "redis": {
-    "password": "My recorded Life",
+    "password": "MyRecordedLife",
   },
   "test": {
     "init": {
