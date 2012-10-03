@@ -16,7 +16,7 @@ if [ -r $confFile ]
 then
    echo "Spawning database on $droneId with $confFile"
 else
-   echo "Expected argument: <fleet drone id> <database conf file (master)>" 
+   echo "Expected argument: <fleet drone id> <database conf file (master|slave)>" 
    exit 1
 fi
 
