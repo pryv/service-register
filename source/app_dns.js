@@ -53,7 +53,8 @@ var staticDataFull = {
 }
 //static entries; matches 'in domains' names
 var staticDataInDomain = { 
-    'www': {alias: [ { name: config.get('http:static:name') } ]} // static web files repository
+    'www': {alias: [ { name: config.get('http:static:name') } ]}, // static web files repository
+    'reg': {alias: [ { name: config.get('http:register:name') } ]} // register real name
 };
 
 

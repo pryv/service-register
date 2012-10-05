@@ -47,8 +47,9 @@ nconf.defaults({
     "register": {
       "port": 443, 
       //"ip": "127.0.0.1"
-      "name": "rec.la",
+      "name": "reg.pryv.io",
       "ssl": true, // turn ssl on
+      "certs": "pryv.io",
       "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
     }
   },

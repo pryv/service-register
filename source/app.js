@@ -69,8 +69,8 @@ logger.info('Register main server :'+config.httpUrl('http:register'));
 logger.info('Static main server :'+config.httpUrl('http:static',true));
 
 if (config.get('http:register:ssl')) {
-  var privateKey = fs.readFileSync(__dirname+'/cert/privatekey.pem').toString();
-  var certificate = fs.readFileSync(__dirname+'/cert/cert-rec.la.crt').toString();
+  var privateKey = fs.readFileSync(__dirname+'/cert/privatekey-'+config.get('http:register:certs')+'.pem').toString();
+  var certificate = fs.readFileSync(__dirname+'/cert/cert-'+config.get('http:register:certs')+'.crt').toString();
   var ca = fs.readFileSync(__dirname+'/cert/GandiStandardSSLCA.pem').toString();
   setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
       config.get('http:register:ip'),config.get('http:register:port'));
