@@ -15,7 +15,7 @@ exports.extractRessourceFromHostname = function(hostname) {
   if (! matchArray) return null;
   return matchArray[1];
 }
-var _temp = "([a-z0-9]{3,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
+var _temp = "([a-z0-9]{1,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
 var extractRessourceFromHostnameRegExp = new RegExp("^"+_temp+"$");
 
 // (alphanum between 5 an 21 chars) case-insensitive
