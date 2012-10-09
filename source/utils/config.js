@@ -42,7 +42,7 @@ nconf.defaults({
     "static": {
       "port": 443,
       "name": "w.pryv.com", // used by dns and index.js
-      "ssl_name": "sw.pryv.net", // used by dns
+      "ssl_name": "sw.pryv.io", // used by dns
       "ssl": true,
       "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
     },
