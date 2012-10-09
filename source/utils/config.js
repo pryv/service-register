@@ -21,9 +21,10 @@ if (typeof(nconf.get("config")) !== 'undefined') {
   configFile = nconf.get("config");
 }
 
-configFile = fs.realpathSync(configFile);
+
 
 if (fs.existsSync(configFile)) {
+  configFile = fs.realpathSync(configFile);
   logger.info("using custom config file: "+configFile);
 } else {
   logger.error("Cannot find custom config file: "+configFile);
@@ -39,33 +40,34 @@ nconf.defaults({
   },
   "http": {  // this should match the config of sww
     "static": {
-      "port": 80,
+      "port": 443,
       "name": "w.pryv.com", // used by dns and index.js
-      "ssl": false,
-      "no_ssl_on_port": 0, // IF SSL IS ON also listen to this port 0 if not
+      "ssl_name": "sw.pryv.net", // used by dns
+      "ssl": true,
+      "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
     },
     "register": {
-      "port": 443, 
+      "port": 2443, 
       "ip": "0.0.0.0",
       "name": "reg.pryv.net", // used by the dns to point join.pryv.io
       "ssl": true, // turn ssl on
       "certs": "pryv.io",
-      "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
+      "no_ssl_on_port": 2080, // IF SSL IS ON also listen to this port 0 if not
     }
   },
   "persistence" : { 
     "init-ttl" : 86400 // seconds should be 86400 for a day
   },
   "net": { // manly used in /network/dataservers
-    "AAservers_domain": "wactiv.com", // domaine for all admin / activity servers
+    "AAservers_domain": "pryv.net", // domains for all admin / activity servers
     "aaservers_ssl": true, // set if admin / activity servers have ssl
     "aaservers": 
-      [{ "base_name": "test1", "port": 443, "authorization": "register-test-token" , ip: "91.121.34.251"}, 
-       { "base_name": "test2", "port": 443, "authorization": "register-test-token" , ip: "46.105.35.181" }]
+      [{ "base_name": "reg-gandi-fr-01", "port": 443, "authorization": "register-test-token" }, 
+       { "base_name": "reg-gandi-fr-02", "port": 443, "authorization": "register-test-token" }]
   },
   "mailer": {
     "deactivated" : false, // globally deactivate mailing
-    "confirm-sender-email": "active@rec.la",
+    "confirm-sender-email": "active@pryv.com",
     "amazon_ses" : {
       "accesskeyid": "AKIAIHR6HVRME43VNCSA",
       "secretkey": "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",
@@ -73,16 +75,36 @@ nconf.defaults({
     }
   },
   "dns": {
-      "port": 53,
-      //"ip": "127.0.0.1", // listen on a specific IP
-      "name": "ns1.wactiv.com", // (my name for a dns) must be in nameserver list
-      "domain": "rec.la",
-      "domain_A": "91.121.41.240", // should point to www
-      "default_ttl": 3600,
-   "nameserver": [{"name": "ns1.wactiv.com", "ip": "91.121.41.240"},
-   				  {"name": "ns2.wactiv.com", "ip": "91.121.41.94"}],
-   "mail" : [{"name": "spool.mail.gandi.net", "ip": "217.70.184.6", "ttl": 10800, "priority": 10 },
-             { "name": "fb.mail.gandi.net", "ip": "217.70.184.162", "ttl": 10800, "priority": 50 }]
+    "port": 2053,
+    "ip": "0.0.0.0",
+    "name": "local.pryv.net",
+    "domain": "pryv.io",
+    "domain_A": "217.70.184.38",
+    "default_ttl": 3600,
+    "nameserver": [
+      {
+        "name": "dns-gandi-fr-01.pryv.net",
+        "ip": "92.243.26.12"
+      },
+      {
+        "name": "dns-gandi-fr-02.pryv.net",
+        "ip": "95.142.162.163"
+      }
+    ],
+    "mail": [
+      {
+        "name": "spool.mail.gandi.net",
+        "ip": "217.70.184.6",
+        "ttl": 10800,
+        "priority": 10
+      },
+      {
+        "name": "fb.mail.gandi.net",
+        "ip": "217.70.184.162",
+        "ttl": 10800,
+        "priority": 50
+      }
+    ]
   },
   "redis": {
     "password": "MyRecordedLife",
@@ -117,6 +139,9 @@ nconf.httpUrl = function(serverKey, secure) {
     }
   }
   var name = nconf.get(serverKey+":name");  
+  if (secure && nconf.get(serverKey+":ssl_name")) {
+    name = nconf.get(serverKey+":ssl_name");
+  }
   var url = ssl ? 'https://' : 'http://';
   if ((ssl && port == 443) || ((! ssl ) && port == 80)) {
     url += name+'/';
@@ -127,11 +152,6 @@ nconf.httpUrl = function(serverKey, secure) {
   return url;
 }
 
-nconf.save(function (err) {
-  fs.readFile('/tmp/config.json', function (err, data) {
-    console.log(data)
-  });
-});
 
 
 // Set network aware parameters
