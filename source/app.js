@@ -20,7 +20,7 @@ function setup_app(app,ip,port) {
   });
 
   app.configure('production', function(){
-    winston['default'].transports.console.level = 'info';
+    logger['default'].transports.console.level = 'info';
     app.use(express.errorHandler());
   });
 

@@ -8,6 +8,8 @@ var db = require('./storage/database.js');
 logger['default'].transports.console.level = 'debug';
 logger['default'].transports.console.colorize = true;
 
+//logger.setLevels(logger.config.syslog.levels);
+
 // test with http://www.dnsvalidation.com/
 // http://www.dnssniffer.com/include/report-includes.php?domain=pryv.io&advanced=
 // http://www.db.ripe.net/cgi-bin/delcheck/delcheck2.cgi
