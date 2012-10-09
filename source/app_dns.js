@@ -62,6 +62,7 @@ var staticDataInDomain = {
 };
 
 
+
 var serverForName = function(reqName,callback,req,res) { 
   var nullRecord = dns.getRecords({},reqName);
   //simpler request matching in lower case
@@ -72,7 +73,7 @@ var serverForName = function(reqName,callback,req,res) {
     return callback(req,res,dns.getRecords(staticDataFull[keyName],reqName));
   }
   
-  logger.log('DNS: '+keyName);
+  logger.info('DNS: '+keyName);
 
   // root request
   if (keyName == config.get('dns:domain')) {
@@ -97,7 +98,7 @@ var serverForName = function(reqName,callback,req,res) {
   var uid = ck.extractRessourceFromHostname(keyName);
   
   if (! uid) {
-  	logger.log('DNS: (Not in domain) '+keyName);
+  	logger.info('DNS: (Not in domain) '+keyName);
   	return callback(req,res,nullRecord);
   }
   
