@@ -50,15 +50,13 @@ var rootData = {
 
 //static entries; matches a fully qualified names
 var staticDataFull = {
-    'isc.org': false,
-    '_amazonses.rec.la': {description: 't6vNgpvah1g2WJbjhZn4qJ6zjkYiAmp5Cbj7QXQYTcU='} // DO NOT REMOVE EMAIL CHECK FOR AMAZON SES
+    'isc.org': false
 }
 //static entries; matches 'in domains' names
 var staticDataInDomain = { 
-    'www': {alias: [ { name: config.get('http:static:name') } ]}, // static web files repository
-    'sw': {alias: [ { name: config.get('http:static:ssl_name') } ]}, // secured web files repository
-    'join': {alias: [ { name: config.get('http:register:name') } ]}, // register real name
-    'reg': {alias: [ { name: config.get('http:register:name') } ]}
+    'www': {alias: [ { name: "w.pryv.com" } ]}, // static web files repository
+    'sw': {alias: [ { name: "sw.pryv.net" } ]}, // secured web files repository
+    'reg': {alias: [ { name: "reg.pryv.net" } ]} // register real name
 };
 
 
@@ -94,7 +92,7 @@ var serverForName = function(reqName,callback,req,res) {
     }
   }
 
-  // look for matches within domain .rec.la
+  // look for matches within domain .pryv.io
   var uid = ck.extractRessourceFromHostname(keyName);
   
   if (! uid) {

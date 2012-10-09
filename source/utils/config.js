@@ -49,7 +49,7 @@ nconf.defaults({
     "register": {
       "port": 2443, 
       "ip": "0.0.0.0",
-      "name": "reg.pryv.net", // used by the dns to point join.pryv.io
+      "name": "reg.pryv.io", // used by the dns to point join.pryv.io
       "ssl": true, // turn ssl on
       "certs": "pryv.io",
       "no_ssl_on_port": 2080, // IF SSL IS ON also listen to this port 0 if not
