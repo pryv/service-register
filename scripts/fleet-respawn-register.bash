@@ -14,5 +14,7 @@ configFile=$3
 
 fleet deploy --drone=$droneId
 ./fleet-setup.bash $droneId
-fleet stop $tokill
+fleet stop $tokill --drone=$droneId
 ./fleet-spawn-register.bash $droneId $configFile
+
+fleet ps
