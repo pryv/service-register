@@ -39,15 +39,15 @@ nconf.defaults({
   },
   "http": {  // this should match the config of sww
     "static": {
-      "port": 443,
-      "name": "www.wactiv.com", // used by dns and index.js
-      "ssl": true,
-      "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
+      "port": 80,
+      "name": "w.pryv.com", // used by dns and index.js
+      "ssl": false,
+      "no_ssl_on_port": 0, // IF SSL IS ON also listen to this port 0 if not
     },
     "register": {
       "port": 443, 
-      //"ip": "127.0.0.1"
-      "name": "reg.pryv.io",
+      "ip": "0.0.0.0",
+      "name": "reg.pryv.net", // used by the dns to point join.pryv.io
       "ssl": true, // turn ssl on
       "certs": "pryv.io",
       "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
