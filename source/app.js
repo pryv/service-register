@@ -65,24 +65,17 @@ function setup_app(app,ip,port) {
 }
 
 //https server
-logger.info('Register main server :'+config.httpUrl('http:register'));
-logger.info('Static main server :'+config.httpUrl('http:static',true));
+logger.info('Register  server :'+config.get('http:register:url'));
+logger.info('Static  server :'+config.get('http:static:url'));
 
-if (config.get('http:register:ssl')) {
-  var privateKey = fs.readFileSync(__dirname+'/cert/privatekey-'+config.get('http:register:certs')+'.pem').toString();
-  var certificate = fs.readFileSync(__dirname+'/cert/cert-'+config.get('http:register:certs')+'.crt').toString();
-  var ca = fs.readFileSync(__dirname+'/cert/GandiStandardSSLCA.pem').toString();
-  setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
-      config.get('http:register:ip'),config.get('http:register:port'));
+
+var privateKey = fs.readFileSync(__dirname+'/cert/privatekey-'+config.get('server:certs')+'.pem').toString();
+var certificate = fs.readFileSync(__dirname+'/cert/cert-'+config.get('server:certs')+'.crt').toString();
+var ca = fs.readFileSync(__dirname+'/cert/GandiStandardSSLCA.pem').toString();
+setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
+    config.get('server:ip'),config.get('server:port'));
   
-  if (config.get('http:register:no_ssl_on_port') > 0) 
-    setup_app(express.createServer(), config.get('http:register:ip'),config.get('http:register:no_ssl_on_port'));
-  
-} else { // no ssl at all
-  setup_app(express.createServer(), config.get('http:register:ip'),config.get('http:register:port'));
-}
-
-
+ 
 
 // start static server 
 // require('./app_static');

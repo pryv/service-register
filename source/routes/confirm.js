@@ -9,7 +9,7 @@ var dataservers = require('../network/dataservers.js');
 
 var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var domain = "."+config.get('dns:domain');
-var confirm_display_error_url = config.httpUrl('http:static')+"register/error.html";
+var confirm_display_error_url = config.get('http:static:url')+config.get('http:static:error_page');
 
 //STEP 4
 function save_to_db(host,json_infos,req,myres,next) {
