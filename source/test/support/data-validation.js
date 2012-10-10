@@ -115,7 +115,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
 */
 exports.path_status_schema = path_status_schema = function path_status_schema (test) {
 it(test.it, function(done){
-  var http_options = { path: test.path, host: config.get('http:register:name') , port: config.get('http:register:port'), method: test.method };
+  var http_options = { path: test.path, host: config.get('server:hostname') , port: config.get('server:port'), method: test.method };
   var post_data = "";
   if (test.method == 'POST') {
       if (test.contenttype == 'JSON') {

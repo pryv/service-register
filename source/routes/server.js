@@ -10,7 +10,7 @@ function check(app) {
 var domain = "."+config.get('dns:domain');
 
 var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
-var server_display_error_url = config.httpUrl('http:static')+"error.html";
+var server_display_error_url = config.get('http:static:url')+config.get('http:static:error_page');
 
 app.get('/:uid/server', function(req, res,next){
 

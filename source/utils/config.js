@@ -21,8 +21,6 @@ if (typeof(nconf.get("config")) !== 'undefined') {
   configFile = nconf.get("config");
 }
 
-
-
 if (fs.existsSync(configFile)) {
   configFile = fs.realpathSync(configFile);
   logger.info("using custom config file: "+configFile);
@@ -40,30 +38,29 @@ nconf.defaults({
   },
   "http": {  // this should match the config of sww
     "static": {
-      "port": 443,
-      "name": "w.pryv.com", // used by dns and index.js
-      "ssl_name": "sw.pryv.io", // used by dns
-      "ssl": true,
-      "no_ssl_on_port": 80, // IF SSL IS ON also listen to this port 0 if not
+      "url": "https://sw.pryv.io/register/", // match server name
+      "error_page": "error.html"
     },
     "register": {
-      "port": 2443, 
-      "ip": "0.0.0.0",
-      "name": "reg.pryv.io", // used by the dns to point join.pryv.io
-      "ssl": true, // turn ssl on
-      "certs": "pryv.io",
-      "no_ssl_on_port": 2080, // IF SSL IS ON also listen to this port 0 if not
+      "url": "https://reg.pryv.io/",
+      "ssl": true, // could be changed by a _startwidth(https: tests)
     }
+  },
+  "server": {
+    "name": "reg.pryv.io", // adapt http:static:url of needed
+    "port": 2443, 
+    "ip": "0.0.0.0",
+    "certs": "pryv.io"
   },
   "persistence" : { 
     "init-ttl" : 86400 // seconds should be 86400 for a day
   },
-  "net": { // manly used in /network/dataservers
-    "AAservers_domain": "pryv.net", // domains for all admin / activity servers
-    "aaservers_ssl": true, // set if admin / activity servers have ssl
-    "aaservers": 
-      [{ "base_name": "reg-gandi-fr-01", "port": 443, "authorization": "register-test-token" }, 
-       { "base_name": "reg-gandi-fr-02", "port": 443, "authorization": "register-test-token" }]
+  'net': { // manly used in /network/dataservers
+    'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
+    'aaservers_ssl': true, // set if admin / activity servers have ssl
+    'aaservers': 
+      [{ "base_name": "test1", "port": 443, "authorization": "register-test-token" , ip: "91.121.34.251"}, 
+       { "base_name": "test2", "port": 443, "authorization": "register-test-token" , ip: "46.105.35.181" }]
   },
   "mailer": {
     "deactivated" : false, // globally deactivate mailing
@@ -116,41 +113,6 @@ nconf.defaults({
     }
   }
 });
-
-
-/** 
- * construct an Url from a port/host/ssl config
- * beacause of stupid nconf who is unable to reconstruct 
- * object tree after overriding we have to grab each keys one by one
- **/
-nconf.httpUrl = function(serverKey, secure) {
-  if (secure == undefined) secure = true;
-
-  var ssl = nconf.get(serverKey+":ssl");
-  var port = nconf.get(serverKey+":port") + 0;
-
-
-  if (! secure) {
-    if (nconf.get(serverKey+":no_ssl_on_port") > 0) {
-      ssl = false;
-      port = nconf.get(serverKey+":no_ssl_on_port") + 0;
-    } else {
-      throw(new Error('config.httpUrl Cannot build unsecure url for: '+serverKey));
-    }
-  }
-  var name = nconf.get(serverKey+":name");  
-  if (secure && nconf.get(serverKey+":ssl_name")) {
-    name = nconf.get(serverKey+":ssl_name");
-  }
-  var url = ssl ? 'https://' : 'http://';
-  if ((ssl && port == 443) || ((! ssl ) && port == 80)) {
-    url += name+'/';
-  } else {
-    url += name+':'+port+"/";
-  }
-  //console.log(serverKey+" "+url);
-  return url;
-}
 
 
 
