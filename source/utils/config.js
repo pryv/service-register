@@ -3,6 +3,7 @@
 var nconf = require('nconf');
 var logger = require('winston');
 var fs = require('fs');
+var path = require('path');
 
 // Exports
 
@@ -50,17 +51,17 @@ nconf.defaults({
     "name": "reg.pryv.io", // adapt http:static:url of needed
     "port": 2443, 
     "ip": "0.0.0.0",
-    "certs": "pryv.io"
+    "certsPathAndKey": "/home/activity/secrets/pryv.io", // will add "-privatekey".. and others
   },
   "persistence" : { 
     "init-ttl" : 86400 // seconds should be 86400 for a day
   },
   'net': { // manly used in /network/dataservers
-    'AAservers_domain': 'wactiv.com', // domaine for all admin / activity servers
+    'AAservers_domain': 'pryv.net', // domaine for all admin / activity servers
     'aaservers_ssl': true, // set if admin / activity servers have ssl
     'aaservers': 
-      [{ "base_name": "test1", "port": 443, "authorization": "register-test-token" , ip: "91.121.34.251"}, 
-       { "base_name": "test2", "port": 443, "authorization": "register-test-token" , ip: "46.105.35.181" }]
+      [{ "base_name": "reg-gandi-fr-01", "port": 443, "authorization": "register-test-token" , ip: "92.243.22.228"}, 
+       { "base_name": "act-gandi-us-01", "port": 443, "authorization": "register-test-token" , ip: "173.246.102.111" }]
   },
   "mailer": {
     "deactivated" : false, // globally deactivate mailing
