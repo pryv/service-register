@@ -51,7 +51,7 @@ nconf.defaults({
     "name": "reg.pryv.io", // adapt http:static:url of needed
     "port": 2443, 
     "ip": "0.0.0.0",
-    "certsPathAndKey": "/home/activity/secrets/pryv.io", // will add "-privatekey".. and others
+    "certsPathAndKey": "/home/register/secrets/pryv.io", // will add "-privatekey".. and others
   },
   "persistence" : { 
     "init-ttl" : 86400 // seconds should be 86400 for a day
