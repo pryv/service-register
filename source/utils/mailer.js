@@ -35,7 +35,7 @@ exports.sendConfirm = function (uid,to,challenge,lang) {
     
     var url = confirmurlbase.replace('%challenge%',challenge);
     // send mail with defined transport object
-    var mailc = {from: template.from, to: to};
+    var mailc = {from: template.from, to: to, subject: template.subject};
     mailc.text = template.text.replace('%uid%',uid);
     mailc.html = template.html.replace('%uid%',uid);
     mailc.text = mailc.text.replace('%url%',url);

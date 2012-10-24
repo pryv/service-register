@@ -60,8 +60,8 @@ nconf.defaults({
     'AAservers_domain': 'pryv.net', // domaine for all admin / activity servers
     'aaservers_ssl': true, // set if admin / activity servers have ssl
     'aaservers': 
-      [{ "base_name": "reg-gandi-fr-01", "port": 443, "authorization": "register-test-token" , ip: "92.243.22.228"}, 
-       { "base_name": "act-gandi-us-01", "port": 443, "authorization": "register-test-token" , ip: "173.246.102.111" }]
+      [{ "base_name": "act-gandi-fr-01", "port": 443, "authorization": "register-test-token"}, 
+       { "base_name": "act-gandi-us-01", "port": 443, "authorization": "register-test-token"}]
   },
   "mailer": {
     "deactivated" : false, // globally deactivate mailing

@@ -93,7 +93,7 @@ module.exports = function(app) {
         logger.debug('init: deactivated mailer');
         return ;
       }
-      logger.info("send mail: "+ uid + " pass:"+password + " mail: "+ email);
+      logger.info("send mail: "+ uid + " mail: "+ email);
       mailer.sendConfirm(uid,email,challenge,lang);
 
     });
