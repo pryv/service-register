@@ -39,7 +39,7 @@ nconf.defaults({
   },
   "http": {  // this should match the config of sww
     "static": {
-      "url": "https://sw.pryv.io/register/", // match server name
+      "url": "https://sw.pryv.io/register/index.js", 
       "error_page": "error.html"
     },
     "register": {
