@@ -81,4 +81,4 @@ setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
 // require('./app_static');
 
 // start dns
-require('./app_dns');
+require('./app-dns');

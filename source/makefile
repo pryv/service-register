@@ -4,11 +4,15 @@ TEST_FILES=test/acceptance/*.js
 test:
 	@$(MOCHA) --timeout 1000 --reporter spec $(TEST_FILES)
 
+
 test-detailed:
 	@$(MOCHA) --timeout 300 --reporter spec $(TEST_FILES)
 
 test-debug:
 	@$(MOCHA) --timeout 3600000 --reporter spec --debug-brk $(TEST_FILES)
+
+test-dns:
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/dns.js
 
 test-bodyParser:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/bodyParser.js

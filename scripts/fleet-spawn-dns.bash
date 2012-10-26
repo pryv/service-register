@@ -16,4 +16,4 @@ droneId=$1
 
 
 fleet spawn --drone=$droneId --repo=registration-server -- \
-"node source/app_dns.js --config $2"
+"node source/app-dns.js --config $2"

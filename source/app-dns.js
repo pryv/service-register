@@ -1,6 +1,6 @@
 // dns server 
 var logger = require('winston');
-var dns = require('./dnsserver_lib/ndns_warper.js');
+var dns = require('./dnsserver-lib/ndns-warper.js');
 var config = require('./utils/config');
 var ck = require('./utils/ck');
 var db = require('./storage/database.js');
@@ -8,7 +8,7 @@ var db = require('./storage/database.js');
 logger['default'].transports.console.level = 'debug';
 logger['default'].transports.console.colorize = true;
 
-//logger.setLevels(logger.config.syslog.levels);
+logger.setLevels(logger.config.syslog.levels);
 
 // test with http://www.dnsvalidation.com/
 // http://www.dnssniffer.com/include/report-includes.php?domain=pryv.io&advanced=
@@ -54,9 +54,9 @@ var staticDataFull = {
 }
 //static entries; matches 'in domains' names
 var staticDataInDomain = { 
-    'www': {alias: [ { name: "w.pryv.com" } ]}, // static web files repository
-    'sw': {alias: [ { name: "sw.pryv.net" } ]}, // secured web files repository
-    'reg': {alias: [ { name: "reg.pryv.net" } ]} // register real name
+    'www': {alias: [ { name: 'w.pryv.com' } ]}, // static web files repository
+    'sw': {alias: [ { name: 'sw.pryv.net' } ]}, // secured web files repository
+    'reg': {alias: [ { name: 'reg.pryv.net' } ]} // register real name
 };
 
 
@@ -127,13 +127,14 @@ var serverForName = function(reqName,callback,req,res) {
     }
 
     rec = dns.getRecords(dyn,reqName);
-    return callback(req,res,rec); // ndns_warper.sendresponse
+    return callback(req,res,rec); // ndns-warper.sendresponse
   });
   
    
 }
 
-var NAMES = require('./dnsserver_lib/static_hosts.js');
+var ready = require('readyness');
+ready.setLogger(logger.info);
 
-readyListening = require('readyness').waitFor('app_static:listening');
-dns.start(NAMES,config.get('dns:port'),config.get('dns:ip'),serverForName,readyListening);
+readyListening = ready.waitFor('app_static:listening');
+dns.start(config.get('dns:port'),config.get('dns:ip'),serverForName,readyListening);
