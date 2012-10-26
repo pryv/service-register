@@ -1,4 +1,4 @@
-// init user creation
+//init user creation
 var ck = require('../utils/ck.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
@@ -13,11 +13,11 @@ module.exports = function(app) {
   // request pre processing
   app.post('/init', function(req, res,next){
     if (req.body == undefined) {
-        logger.error("/init : How could body be empty??");
-        return next(messages.ei());
+      logger.error('/init : How could body be empty??');
+      return next(messages.ei());
     }
     function jsonres(json) { // shortcut to get the result
-      //logger.debug("init res: "+JSON.stringify(json));
+      //logger.debug('init res: '+JSON.stringify(json));
       res.json(json);
     }
     checkInit(req,jsonres,next);
@@ -70,7 +70,7 @@ module.exports = function(app) {
 
   // all check are passed, do the job
   function doInit(uid,password,email,lang,req,jsonres) {
-    //logger.info("Init: "+ uid + " pass:"+password + " mail: "+ email);
+    //logger.info('Init: '+ uid + ' pass:'+password + ' mail: '+ email);
     var challenge = randGenerator.string(16);
 
     encryption.hash(password, function(error, passwordHash) {
@@ -93,7 +93,7 @@ module.exports = function(app) {
         logger.debug('init: deactivated mailer');
         return ;
       }
-      logger.info("send mail: "+ uid + " mail: "+ email);
+      logger.info('send mail: '+ uid + ' mail: '+ email);
       mailer.sendConfirm(uid,email,challenge,lang);
 
     });

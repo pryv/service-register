@@ -1,5 +1,5 @@
 //frameworks
-var express = require('./patched_modules/express')
+var express = require('./patched-modules/express')
 var logger = require('winston');
 var fs = require('fs');
 
@@ -12,7 +12,7 @@ var config = require('./utils/config');
 var messages = require('./utils/messages');
 
 
-function setup_app(app,ip,port) {
+function setupApp(app,ip,port) {
   app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
     logger['default'].transports.console.level = 'debug';
@@ -34,22 +34,22 @@ function setup_app(app,ip,port) {
   });
 
   // www
-  require('./routes_to_static/index')(app);
+  require('./routes-to-static/index')(app);
   
   // public API routes
   require('./routes/check.js')(app);
-  require('./routes/check_email.js')(app);
+  require('./routes/check-email.js')(app);
   require('./routes/init.js')(app);
   require('./routes/confirm.js')(app);
   require('./routes/server.js')(app);
   require('./routes/index.js')(app);
   
   // private API  routes
-  require('./routes/admin_changeEmail')(app);
+  require('./routes/admin-changeEmail')(app);
 
 
   //error management (evolution)
-  require('./utils/app_errors.js')(app);
+  require('./utils/app-errors.js')(app);
 
 
   var appListening = ready.waitFor('app:listening:'+ip+':'+port);
@@ -57,8 +57,8 @@ function setup_app(app,ip,port) {
     var address = app.address();  
     appListening(' in '+app.settings.env+' mode');
   }).on('error',function (e) {  
-    if (e.code == "EACCES") {
-      logger.error("Cannot "+e.syscall+" on: "+ip+":"+port); 
+    if (e.code == 'EACCES') {
+      logger.error('Cannot '+e.syscall+' on: '+ip+':'+port); 
       throw(e);
    }});
     
@@ -72,7 +72,7 @@ logger.info('Static  server :'+config.get('http:static:url'));
 var privateKey = fs.readFileSync(config.get('server:certsPathAndKey')+'-privatekey.pem').toString();
 var certificate = fs.readFileSync(config.get('server:certsPathAndKey')+'-cert.crt').toString();
 var ca = fs.readFileSync(config.get('server:certsPathAndKey')+'-certifAuthority.pem').toString();
-setup_app(express.createServer({key: privateKey, cert: certificate, ca: ca}),
+setupApp(express.createServer({key: privateKey, cert: certificate, ca: ca}),
     config.get('server:ip'),config.get('server:port'));
   
  

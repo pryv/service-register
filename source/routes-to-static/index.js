@@ -28,6 +28,6 @@ var index_html_ssl = replaceAll(raw_html,
 
 module.exports = function(app){ 
   app.get('/', function(req, res, next){
-        res.send(index_html_ssl);
+    res.send(index_html_ssl);
   });
 }

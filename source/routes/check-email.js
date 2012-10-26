@@ -2,7 +2,7 @@
 var ck = require('../utils/ck.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
-var app_errors = require('../utils/app_errors.js');
+var appErrors = require('../utils/app-errors.js');
 
 function check(app) {
 

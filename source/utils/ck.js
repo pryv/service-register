@@ -15,14 +15,14 @@ exports.extractRessourceFromHostname = function(hostname) {
   if (! matchArray) return null;
   return matchArray[1];
 }
-var _temp = "([a-z0-9]{1,21})\\."+ config.get("dns:domain").replace(/\./g,"\\.");
-var extractRessourceFromHostnameRegExp = new RegExp("^"+_temp+"$");
+var _temp = '([a-z0-9]{1,21})\\.'+ config.get('dns:domain').replace(/\./g,'\\.');
+var extractRessourceFromHostnameRegExp = new RegExp('^'+_temp+'$');
 
 // (alphanum between 5 an 21 chars) case-insensitive
 exports.uid = function(str) {
     if (! str) return null;
     str = _(str).trim();
-    //console.log("CHK USERNAME *"+str+"* ");
+    //console.log('CHK USERNAME *'+str+'* ');
     if ( /^([a-zA-Z0-9]{5,21})$/.test(str) ) return str;
     return null;
 };
