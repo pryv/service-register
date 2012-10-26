@@ -32,7 +32,7 @@ exports.recommanded = recommanded;
 
 //from http://catapulty.tumblr.com/post/8303749793/heroku-and-node-js-how-to-get-the-client-ip-address
 function getClientIp(req) {
-  var ipAddress;
+  var ipAddress = null;
   // Amazon EC2 / Heroku workaround to get real client IP
   var forwardedIpsStr = req.header('x-forwarded-for'); 
   if (forwardedIpsStr) {

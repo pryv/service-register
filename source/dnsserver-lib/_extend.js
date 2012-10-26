@@ -182,9 +182,9 @@ try{
           if (letter==" ") {
             return letter;
           }
-          else {
+         
             return letter[rainbowcolors[i++ % rainbowcolors.length]];
-          }
+          
         });
         return exploded.join("");
       },

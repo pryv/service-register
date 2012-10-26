@@ -47,7 +47,7 @@ exports.start = function(BIND_PORT,BIND_HOST,dynamic_call,done) {
     /* Nombre de reponse aditionnel */
     res.header.arcount = rec.ADD.length;
     /* ajout des reponses */
-    var j = 1;
+
     for(var i=0;i<rec.REP.length;i++){
       res.addRR.apply(res,rec.REP[i]);
     }
@@ -131,7 +131,8 @@ var getRecords = function(data,name){
       ADD : []
   };
   var i=0;
-  var j,k=0;
+  var j=0;
+  var k=0;
   for(i in data){
     j = String(data[i]).replace(/{name}/g,name);
 
