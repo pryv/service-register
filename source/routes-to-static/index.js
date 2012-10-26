@@ -17,10 +17,10 @@ function replaceAll(text,key_values) {
   return text;
 }
 
-var raw_html = fs.readFileSync(__dirname + '/index.html', 'utf8').toString();
+var rawHtml = fs.readFileSync(__dirname + '/index.html', 'utf8').toString();
 
 
-var index_html_ssl = replaceAll(raw_html,
+var indexHtmlSSL = replaceAll(rawHtml,
     {protocol: "https", 
   http_static: config.get('http:static:url'),
   http_register: config.get('http:register:url')});
@@ -28,6 +28,6 @@ var index_html_ssl = replaceAll(raw_html,
 
 module.exports = function(app){ 
   app.get('/', function(req, res, next){
-    res.send(index_html_ssl);
+    res.send(indexHtmlSSL);
   });
 }

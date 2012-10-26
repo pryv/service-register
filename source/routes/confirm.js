@@ -1,5 +1,5 @@
 //init user creation 
-var ck = require('../utils/ck.js');
+var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
@@ -9,7 +9,7 @@ var dataservers = require('../network/dataservers.js');
 
 var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var domain = '.'+config.get('dns:domain');
-var confirm_display_error_url = config.get('http:static:url')+config.get('http:static:error_page');
+var confirmDisplayErrorUrl = config.get('http:static:url')+config.get('http:static:error_page');
 
 
 function init(app) {
@@ -21,7 +21,7 @@ function init(app) {
           res.redirect(aaservers_mode+'://'+error.data.alias+'/?msg=CONFIRMED_ALREADY');
           return;
         } 
-        return res.redirect(confirm_display_error_url+'?id='+error.data.id);
+        return res.redirect(confirmDisplayErrorUrl+'?id='+error.data.id);
 
       }
       logger.error('CONFIRM my_next: '+error.stack);
@@ -56,7 +56,7 @@ function init(app) {
 
 //STEP 1, check if request is valid == the challenge is token known
 function preConfirm(_challenge,req,myres,next) {
-  var challenge = ck.challenge(_challenge);
+  var challenge = checkAndConstraints.challenge(_challenge);
   if (! challenge) return next(messages.e(400,'INVALID_CHALLENGE')); 
 
   db.getJSON(challenge +':init', function(error, json_result) {

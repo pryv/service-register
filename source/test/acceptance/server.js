@@ -27,7 +27,7 @@ describe('POST /:uid/server', function(){
     tests[key].method = 'POST';
     tests[key].data = {};
 
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   };
 })
 
@@ -45,6 +45,6 @@ describe('GET /:uid/server', function(){
     tests[key].method = 'GET';
     tests[key].restype = 'html';
     
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   };
 })

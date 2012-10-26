@@ -2,7 +2,7 @@
 var logger = require('winston');
 var dns = require('./dnsserver-lib/ndns-warper.js');
 var config = require('./utils/config');
-var ck = require('./utils/ck');
+var checkAndConstraints = require('./utils/check-and-constraints.js');
 var db = require('./storage/database.js');
 
 logger['default'].transports.console.level = 'debug';
@@ -93,7 +93,7 @@ var serverForName = function(reqName,callback,req,res) {
   }
 
   // look for matches within domain .pryv.io
-  var uid = ck.extractRessourceFromHostname(keyName);
+  var uid = checkAndConstraints.extractRessourceFromHostname(keyName);
   
   if (! uid) {
   	logger.info('DNS: (Not in domain) '+keyName);

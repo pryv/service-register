@@ -1,5 +1,5 @@
 //init user creation
-var ck = require('../utils/ck.js');
+var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
@@ -24,10 +24,10 @@ module.exports = function(app) {
   });
 
   function checkInit(req, jsonres,next) {
-    var uid = ck.uid(req.body.userName);
-    var password = ck.password(req.body.password);
-    var email = ck.email(req.body.email);
-    var lang = ck.lang(req.body.languageCode); // no check
+    var uid = checkAndConstraints.uid(req.body.userName);
+    var password = checkAndConstraints.password(req.body.password);
+    var email = checkAndConstraints.email(req.body.email);
+    var lang = checkAndConstraints.lang(req.body.languageCode); // no check
 
     var errors = [];
     var tests = 1;

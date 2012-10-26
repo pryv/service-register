@@ -1,24 +1,24 @@
 /**
-* provides tools to construct messages for clients.
-*/
+ * provides tools to construct messages for clients.
+ */
 
 var logger = require('winston');
 require('../public/messages-en.js');
 var  _ = require('underscore');
 var mstrings = register_messages;
 
-// add ids to all messages
+//add ids to all messages
 for (key in mstrings) {
   mstrings[key].id = key;
 }
 
 /**
-* add also the id into the message
-*/
-function clone_message(id) {
+ * add also the id into the message
+ */
+function cloneMessage(id) {
   var t = mstrings[id];
   if (t == undefined) {
-      throw(new Error('Missing message code :'+id));
+    throw(new Error('Missing message code :'+id));
   }
   return {id: t.id, message: t.message, detail: t.detail};
 }
@@ -26,13 +26,13 @@ function clone_message(id) {
 function say(id,addons) {
   // merge addons
   if (addons) {
-    var content = clone_message(id);
+    var content = cloneMessage(id);
     for(var i in addons) 
       if (addons.hasOwnProperty(i)) content[i] = addons[i];
-    
+
     return content ;
   }
-  
+
   return mstrings[id] ;
 }
 
@@ -47,32 +47,32 @@ function error_data(id, extra) {
   content.more = extra;
   return content;
 }
-**/
+ **/
 
 
 /** close the response with a 500 error **/
 function internal(res) {
-    return res.json(error('INTERNAL_ERROR'),500);
+  return res.json(error('INTERNAL_ERROR'),500);
 }
 
 
-// sugar for errors
+//sugar for errors
 /** internal error **/
 exports.ei = function ei(error) {
-    if (error == null ) error = new Error();
-    if (! (error instanceof Error)) error = new Error(error);
-    logger.error('internal error : \n'+  error.stack );
-    return new REGError(500, say('INTERNAL_ERROR'));
+  if (error == null ) error = new Error();
+  if (! (error instanceof Error)) error = new Error(error);
+  logger.error('internal error : \n'+  error.stack );
+  return new REGError(500, say('INTERNAL_ERROR'));
 }
 
 /** single error **/
 exports.e = function e(httpCode, id, addons) {  
-   return new REGError(httpCode, say(id, addons));
+  return new REGError(httpCode, say(id, addons));
 }
 
 /** error with sub errors **/
 exports.ex = function ex(httpCode, id, suberrors ) {
-  var data = clone_message(id);
+  var data = cloneMessage(id);
   data.errors = new Array();
   for (var i = 0; i < suberrors.length ; i++) {
     data.errors[i] = say(suberrors[i]);
@@ -80,7 +80,7 @@ exports.ex = function ex(httpCode, id, suberrors ) {
   return new REGError(httpCode, data);
 }
 
-// REG ERRORS
+//REG ERRORS
 var REGError = exports.REGError = function(httpCode, data) {
   this.httpCode = httpCode;
   this.data = data;

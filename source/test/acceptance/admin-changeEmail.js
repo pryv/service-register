@@ -22,7 +22,7 @@ describe('POST /:uid/email/admin', function(){
     tests[key].path = '/'+ tests[key].uid +'/email/admin';
     tests[key].method = 'POST';
  
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   }
 });
 

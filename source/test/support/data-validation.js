@@ -113,7 +113,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
  * JSchema: jscon-schema for validation
  * JValues: expected key-value pair for content validation
  */
-exports.path_status_schema = path_status_schema = function path_status_schema (test) {
+exports.pathStatusSchema = pathStatusSchema = function pathStatusSchema (test) {
   it(test.it, function(done){
     var http_options = { path: test.path, host: config.get('server:hostname') , port: config.get('server:port'), method: test.method };
     var post_data = '';

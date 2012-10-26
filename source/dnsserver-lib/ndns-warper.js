@@ -10,7 +10,7 @@ console = logger;
 
 //LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
 var config = require('../utils/config');
-var default_ttl = config.get('dns:default_ttl');
+var defaultTTL = config.get('dns:defaultTTL');
 
 exports.start = function(BIND_PORT,BIND_HOST,dynamic_call,done) {
   //server launch
@@ -141,42 +141,42 @@ var getRecords = function(data,name){
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       data[i].rotate(1);
       for(var x=0; x< data[i].length;x++)
-        ret.REP.push([name,default_ttl, 'IN', 'A', data[i][x]]);
+        ret.REP.push([name,defaultTTL, 'IN', 'A', data[i][x]]);
       break;
     case 'description':
-      ret.REP.push([name, default_ttl, 'IN', 'TXT', data[i]]);
+      ret.REP.push([name, defaultTTL, 'IN', 'TXT', data[i]]);
       break;
     case 'autority': 
       data[i] = String(j).split(',').slice(0,2);
       data[i] = data[i].length ==1 ? data[i].concat(data[i]) : data[i]; 
-      ret.REP.push([name, default_ttl, 'IN', 'SOA'].concat(data[i]).concat([UpdateConfFile,1800, 900, 604800, 86400]));
+      ret.REP.push([name, defaultTTL, 'IN', 'SOA'].concat(data[i]).concat([UpdateConfFile,1800, 900, 604800, 86400]));
       break;
     case 'mail':
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       var k = 0;
       for(j = 0;j< data[i].length;j++){
-        data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : default_ttl;
+        data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : defaultTTL;
         data[i][j].name = data[i][j].name ? data[i][j].name.replace(/{name}/g,name) : 'mail.'+name;
         ret.REP.push([name, data[i][j].ttl, 'IN', 'MX', data[i][j].priority || (++k)*10, data[i][j].name]);
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
           for(var x=0; x< data[i][j].ip.length;x++)
-            ret.ADD.push([data[i][j].name, default_ttl, 'IN', 'A', data[i][j].ip[x]]);
+            ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[x]]);
         }
       }
       break;
     case 'nameserver':
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-        ret.NS.push([name, default_ttl, 'IN', 'NS' , data[i][j].name]);
+        ret.NS.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
         // removed from authority section
-        ret.REP.push([name, default_ttl, 'IN', 'NS' , data[i][j].name]);
+        ret.REP.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
           for(var x=0; x< data[i][j].ip.length;x++)
-            ret.ADD.push([data[i][j].name, default_ttl, 'IN', 'A', data[i][j].ip[x]]);
+            ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[x]]);
         };
       }
       break;
@@ -185,13 +185,13 @@ var getRecords = function(data,name){
       data[i] = data[i] instanceof Array ? data[i] : [data[i]];
       for(j = 0;j< data[i].length;j++){
         data[i][j].name = data[i][j].name? data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-        ret.REP.push([name, default_ttl, 'IN', 'CNAME' , data[i][j].name]);
+        ret.REP.push([name, defaultTTL, 'IN', 'CNAME' , data[i][j].name]);
 
         if(data[i][j].ip){
           data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
           data[i][j].ip.rotate(1);
           for(var x=0; x< data[i][j].ip.length;x++)
-            ret.REP.push([data[i][j].name, default_ttl, 'IN', 'A', data[i][j].ip[x]]);
+            ret.REP.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[x]]);
         };
       }
       break;

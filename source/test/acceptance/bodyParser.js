@@ -17,7 +17,7 @@ describe('POST /init with invalid data', function(){
     tests[key].it = tests[key].desc ;
     tests[key].path = '/init';
     tests[key].method = 'POST';
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   }
 });
 

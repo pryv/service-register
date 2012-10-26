@@ -21,7 +21,7 @@ describe('GET /challenge:/confirm', function(){
   tests[key].method = 'GET';
   tests[key].restype = 'html';
   
-  dataValidation.path_status_schema(tests[key]);
+  dataValidation.pathStatusSchema(tests[key]);
   }
 });
   
@@ -42,7 +42,7 @@ describe('POST /confirm_post', function(){
     tests[key].method = 'POST';
     tests[key].data = {challenge: tests[key].challenge};
   
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   }
 });
 
@@ -61,6 +61,6 @@ describe('POST  /challenge:/confirm', function(){
     tests[key].method = 'POST';
     tests[key].data = {};
   
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   }
 });

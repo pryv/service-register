@@ -25,7 +25,7 @@ describe('GET /:uid/check', function(){
       JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}},
       
     { uid: 'wactiv', status: 200 , desc : 'correct ', 
-      JSchema : schema.check_exists },
+      JSchema : schema.checkExists },
     ] ;
   
   for (var key = 0; key < tests.length; key++) { // create PATH and method
@@ -33,6 +33,6 @@ describe('GET /:uid/check', function(){
     tests[key].path = '/'+ tests[key].uid +'/check';
     tests[key].method = 'GET';
     
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   }
 });

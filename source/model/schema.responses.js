@@ -10,7 +10,7 @@ var success = exports.success = {
 }
 
 //route : check
-var check_exists = exports.check_exists = {
+var checkExists = exports.checkExists = {
     type: 'object',
     properties: {
       exists : {
@@ -21,7 +21,7 @@ var check_exists = exports.check_exists = {
 }
 
 //route : init
-var init_done = exports.init_done = {
+var initDone = exports.initDone = {
     type: 'object',
     properties: {
       id: {
@@ -60,7 +60,7 @@ var server = exports.server = {
 }
 
 //confirm : server (already confirmed)
-var confirm_already = exports.confirm_already = {
+var alreadyConfirmed = exports.alreadyConfirmed = {
     type: 'object',
     properties: {
       server : {
@@ -107,7 +107,7 @@ var error = exports.error = {
 };
 
 //errors multiple
-var error_multiple = exports.error_multiple = {
+var multipleErrors = exports.multipleErrors = {
     type: 'object',
     properties: {
       id: {

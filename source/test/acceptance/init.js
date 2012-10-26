@@ -17,7 +17,7 @@ var server_test = function(test,json_data) {
         JSchema : schema.server ,
         JValues: {server: test.initialtest.secondTestResult.server, alias: test.initialtest.data.userName + domain},
         method: 'POST', };
-    dataValidation.path_status_schema(ntest);
+    dataValidation.pathStatusSchema(ntest);
   });
 
 }
@@ -30,11 +30,11 @@ var re_confirm_challenge = function(test, json_data) {
         path : test.path,
         data : test.data,
         status: 400,
-        JSchema : schema.confirm_already ,
+        JSchema : schema.alreadyConfirmed ,
         method: 'POST',
         nextStep: server_test,
         initialtest: test.initialtest };
-    dataValidation.path_status_schema(ntest);
+    dataValidation.pathStatusSchema(ntest);
   });
 }
 
@@ -52,7 +52,7 @@ var confirm_challenge_post = function(test, json_data) {
         method: 'POST',
         nextStep: re_confirm_challenge,
         initialtest: test};
-    dataValidation.path_status_schema(ntest);
+    dataValidation.pathStatusSchema(ntest);
   });
 }
 
@@ -70,7 +70,7 @@ var confirm_challenge = function(test, json_data) {
         method: 'GET',
         restype: 'html',
         initialtest: test};
-    dataValidation.path_status_schema(ntest);
+    dataValidation.pathStatusSchema(ntest);
   });
 }
 
@@ -83,31 +83,31 @@ describe('POST /init', function(){
   var tests = [ 
     { data: { userName: "wactiv", password: 'abcdefg', email: randommail}, 
     status: 400 , desc : 'Existing user', 
-    JSchema :  schema.error_multiple , 
+    JSchema :  schema.multipleErrors , 
     JValues: {"id":'INVALID_DATA', 
       "errors": [ {"id": 'EXISTING_USER_NAME' } ]   }},
     
     { data: { userName: randomuser, password: 'abcdefg', email: "wactiv@pryv.io"}, 
         status: 400 , desc : 'Existing e-mail', 
-        JSchema :  schema.error_multiple , 
+        JSchema :  schema.multipleErrors , 
         JValues: {"id":'INVALID_DATA', 
           "errors": [ {"id": 'EXISTING_EMAIL' } ]   }},
                
      { data: { userName: randomuser, password: 'abcdefg', email: randommail}, 
-       status: 200 , desc : 'valid JSON GET', JSchema : schema.init_done , 
+       status: 200 , desc : 'valid JSON GET', JSchema : schema.initDone , 
        JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge },
        
        { data: { userName: "post"+ randomuser, password: 'abcdefg', email: "post"+ randommail}, 
-         status: 200 , desc : 'valid JSON POST', JSchema : schema.init_done , contenttype: "JSON",
+         status: 200 , desc : 'valid JSON POST', JSchema : schema.initDone , contenttype: "JSON",
          JValues: {"id":'INIT_DONE'} , nextStep: confirm_challenge_post },
 
      { data: { userName: 'abcd', password: 'abc', email: 'pml@simpledata.ch'}, 
        status: 400 , desc : 'uid too short & bad password' , 
-       JSchema : schema.error_multiple , JValues: {"id":'INVALID_DATA', 
+       JSchema : schema.multipleErrors , JValues: {"id":'INVALID_DATA', 
          "errors": [ {"id": 'INVALID_USER_NAME' }, {"id": 'INVALID_PASSWORD' } ]}},
 
      {  data: { userName: 'abcd', password: 'abc', email: 'pml @simpledata.ch'}, status: 400 , desc : 'uid too short & bad password & bad email' , 
-       JSchema : schema.error_multiple , JValues: {"id":'INVALID_DATA', 
+       JSchema : schema.multipleErrors , JValues: {"id":'INVALID_DATA', 
          "errors": [ {"id": 'INVALID_USER_NAME' }, {"id": 'INVALID_PASSWORD' } , {"id": 'INVALID_EMAIL' }]}},
          ] ;
  // tests.length
@@ -116,7 +116,7 @@ describe('POST /init', function(){
     tests[key].path = '/init';
     tests[key].method = 'POST';
     if (! tests[key].data)  tests[key].data = {};
-    dataValidation.path_status_schema(tests[key]);
+    dataValidation.pathStatusSchema(tests[key]);
   }
 });
 

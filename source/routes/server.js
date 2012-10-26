@@ -1,5 +1,5 @@
 //check if a UID exists
-var ck = require('../utils/ck.js');
+var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var appErrors = require('../utils/app-errors.js');
@@ -14,7 +14,7 @@ function check(app) {
 
   app.get('/:uid/server', function(req, res,next){
 
-    if (! ck.uid(req.params.uid)) 
+    if (! checkAndConstraints.uid(req.params.uid)) 
       return  res.redirect(server_display_error_url+'?id=INVALID_USER_NAME');
 
 
@@ -31,7 +31,7 @@ function check(app) {
 
   app.post('/:uid/server', function(req, res,next){
 
-    if (! ck.uid(req.params.uid)) return next(messages.e(400,'INVALID_USER_NAME'));
+    if (! checkAndConstraints.uid(req.params.uid)) return next(messages.e(400,'INVALID_USER_NAME'));
 
     db.getServer(req.params.uid, function(error, result) {
       if (error) return next(messages.ei()) ; 
