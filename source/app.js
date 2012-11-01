@@ -27,8 +27,9 @@ function setupApp(app,ip,port) {
   app.configure(function(){
     app.use(express.favicon(__dirname + '/public/favicon.ico'));
     app.use(express.bodyParser());
+    app.use(express.cookieParser());
     app.use(require('./middleware/cross-domain'));
-    //app.use(require('./middleware/debug'));
+    app.use(require('./middleware/debug'));
     logger.setLevels(logger.config.syslog.levels);
     // TODO: setup logger handling for uncaught exceptions
   });
@@ -69,10 +70,10 @@ logger.info('Register  server :'+config.get('http:register:url'));
 logger.info('Static  server :'+config.get('http:static:url'));
 
 
-var privateKey = fs.readFileSync(config.get('server:certsPathAndKey')+'-privatekey.pem').toString();
-var certificate = fs.readFileSync(config.get('server:certsPathAndKey')+'-cert.crt').toString();
-var ca = fs.readFileSync(config.get('server:certsPathAndKey')+'-certifAuthority.pem').toString();
-setupApp(express.createServer({key: privateKey, cert: certificate, ca: ca}),
+var key = fs.readFileSync(config.get('server:certsPathAndKey')+'-key.pem').toString();
+var cert = fs.readFileSync(config.get('server:certsPathAndKey')+'-cert.crt').toString();
+var ca = fs.readFileSync(config.get('server:certsPathAndKey')+'-ca.pem').toString();
+setupApp(express.createServer({key: key, cert: cert, ca: ca}),
     config.get('server:ip'),config.get('server:port'));
   
  
