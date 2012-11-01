@@ -44,6 +44,7 @@ function setupApp(app,ip,port) {
   require('./routes/confirm.js')(app);
   require('./routes/server.js')(app);
   require('./routes/index.js')(app);
+  require('./routes/access.js')(app);
   
   // private API  routes
   require('./routes/admin-changeEmail')(app);

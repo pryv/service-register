@@ -140,3 +140,23 @@ exports.changeEmail = function changeEmail(uid, email, callback) {
     });
   });
 }
+
+//------------------ access management ------------//
+
+
+exports.setAccessState = function setAccessState(key, value, callback) {
+  var multi = redis.multi();
+  var dbkey = key+':access';
+  multi.set(dbkey, JSON.stringify(value));
+  multi.expire(dbkey, config.get('persistence:access-ttl'));
+  multi.exec(function(error, result) {
+    if (error) logger.error('Redis setAccess: '+ key +' '+value+' e: '+ error, error);
+    callback(error, result); // callback anyway
+  });
+}
+
+exports.getAccessState = function getAccessState(key, callback) {
+  getJSON(key+':access', callback);
+}
+
+

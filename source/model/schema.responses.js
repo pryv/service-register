@@ -143,3 +143,29 @@ var multipleErrors = exports.multipleErrors = {
       }
     }
 };
+
+
+
+var accessPOST = exports.accessPOST = {
+    type: 'object',
+    properties: {
+      url : {
+        type: 'string', // url?
+        require: true
+      },
+      polling : {
+        type: 'string', // url?
+        require: true
+      }
+    }
+}
+
+var accessGET = exports.accessGET = {
+    type: 'object',
+    properties: {
+      status : {
+        type: 'string', 
+        require: true
+      }
+    }
+}

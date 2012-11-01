@@ -1,4 +1,4 @@
-# rec∙la registration API server
+# Pryv registration API server
 
 
 Node.js / Express server to manage user registration requests.
@@ -7,8 +7,9 @@ TODO: update this README after code and file structure review.
 
 ## Setting up the development environment on a Mac
 
-Read, then execute `./scripts/setup-environment-dev.sh`.
+Read, then execute `./scripts/setup-environment-dev.sh`
 
+Start the database `./start/dev/start-database-dev.sh`
 
 ## Deploying with fleet: cheat sheet
 

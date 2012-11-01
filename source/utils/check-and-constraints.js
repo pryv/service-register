@@ -55,3 +55,23 @@ exports.lang = function(str) {
   if (! str) return 'en';
   return 'en';
 };
+
+
+exports.appID = function(str) {
+  if (! str) return null;
+  str = _(str).trim();
+  if (str.length > 5 && str.length < 100) return str;
+  return null;
+};
+
+exports.accesskey = function(str) {
+  if (! str) return null;
+  str = _(str).trim();
+  if ( /^([a-zA-Z0-9]{10,200})$/.test(str) ) return str;
+  return null;
+};
+
+exports.access = function(json) {
+  // TODO CHECK
+  return json;
+};

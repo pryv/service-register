@@ -27,4 +27,10 @@ register_messages = {
     
   'UNKOWN_USER_NAME' : { 'message' : 'Utilisateur inconnu', 
     'detail' : ''},
+    
+    
+    'INVALID_KEY' : { 'message' : 'Invalid access request key', 
+        'detail' : ''},
+        'INVALID_APP_ID' : { 'message' : 'Invalid app ID', 
+          'detail' : ''}
 };

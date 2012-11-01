@@ -54,7 +54,8 @@ nconf.defaults({
     'certsPathAndKey': '/home/register/secrets/pryv.io', // will add '-privatekey'.. and others
   },
   'persistence' : { 
-    'init-ttl' : 86400 // seconds should be 86400 for a day
+    'init-ttl' : 86400, // seconds should be 86400 for a day
+    'access-ttl' : 3600  // access-request 
   },
   'net': { // manly used in /network/dataservers
     'AAservers_domain': 'pryv.net', // domaine for all admin / activity servers
