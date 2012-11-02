@@ -6,6 +6,9 @@ exports.inspect = function inspect (obj) {
 
 exports.hexdump = function hexdump (buf, length, start, count)
 {
+
+  var Buffer = require('buffer').Buffer;
+  
   if (!Buffer.isBuffer (buf))
     throw new Error ('argument must be buffer');
   start = (arguments.length > 2) ? arguments[2] : 0;

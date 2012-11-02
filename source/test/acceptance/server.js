@@ -23,7 +23,7 @@ describe('POST /:uid/server', function(){
   
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
-    tests[key].path = '/'+ tests[key].uid +'/server';
+    tests[key].url = '/'+ tests[key].uid +'/server';
     tests[key].method = 'POST';
     tests[key].data = {};
 
@@ -41,7 +41,7 @@ describe('GET /:uid/server', function(){
 
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
-    tests[key].path = '/'+ tests[key].uid +'/server';
+    tests[key].url = '/'+ tests[key].uid +'/server';
     tests[key].method = 'GET';
     tests[key].restype = 'html';
     

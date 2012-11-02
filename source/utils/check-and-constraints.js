@@ -19,7 +19,7 @@ var _temp = '([a-z0-9]{1,21})\\.'+ config.get('dns:domain').replace(/\./g,'\\.')
 var extractRessourceFromHostnameRegExp = new RegExp('^'+_temp+'$');
 
 // (alphanum between 5 an 21 chars) case-insensitive
-exports.uid = function(str) {
+exports.uid = function uid(str) {
     if (! str) return null;
     str = _(str).trim();
     //console.log('CHK USERNAME *'+str+'* ');
@@ -28,14 +28,14 @@ exports.uid = function(str) {
 };
 
 // any chars between 6 and 99 chars, with no trailing spaces.
-exports.password = function(str) {
+exports.password = function password(str) {
     if (! str) return null;
     str = _(str).trim();
     if (str.length > 5 && str.length < 100) return str;
     return null;
 };
 
-exports.email = function(str) {
+exports.email = function email(str) {
   if (! str) return null;
   str = _(str).trim();
   // not perfect 
@@ -44,34 +44,34 @@ exports.email = function(str) {
   return null;
 };
 
-exports.challenge = function(str) {
+exports.challenge = function challenge(str) {
   if (! str) return null;
     str = _(str).trim();
     if ( /^([a-zA-Z0-9]{5,200})$/.test(str) ) return str;
     return null;
 };
 
-exports.lang = function(str) {
+exports.lang = function lang(str) {
   if (! str) return 'en';
   return 'en';
 };
 
 
-exports.appID = function(str) {
+exports.appID = function appID(str) {
   if (! str) return null;
   str = _(str).trim();
   if (str.length > 5 && str.length < 100) return str;
   return null;
 };
 
-exports.accesskey = function(str) {
+exports.accesskey = function accessKey(str) {
   if (! str) return null;
   str = _(str).trim();
   if ( /^([a-zA-Z0-9]{10,200})$/.test(str) ) return str;
   return null;
 };
 
-exports.access = function(json) {
+exports.access = function access(json) {
   // TODO CHECK
   return json;
 };

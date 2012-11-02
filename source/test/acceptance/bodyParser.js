@@ -15,7 +15,7 @@ describe('POST /init with invalid data', function(){
 
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc ;
-    tests[key].path = '/init';
+    tests[key].url = '/init';
     tests[key].method = 'POST';
     dataValidation.pathStatusSchema(tests[key]);
   }

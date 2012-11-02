@@ -12,7 +12,7 @@ function access(app) {
    * request an access
    */
   app.post('/access', function(req, res,next){
-
+    //--- parameters --//
     var appID = checkAndConstraints.appID(req.body.appID);
     if (! appID) {
       return next(messages.e(400,'INVALID_APP_ID'));
@@ -22,6 +22,9 @@ function access(app) {
     if (! access) {
       return next(messages.e(400,'INVALID_DATA'));
     }
+    
+    var lang = checkAndConstraints.lang(req.body.access);
+    //--- END parameters --//
     
     /**
      * appname: "a name for the app",
@@ -46,8 +49,8 @@ function access(app) {
       if (error) { return next(messages.ei()) ; }
 
       return res.json(
-          { url: "https://local.rec.la:8443/register/signin.html#"+key, 
-            polling: "https://reglocal.rec.la:2443/access/"+key+"/status" },201); 
+          { url: config.get('http:access')+'/index.html?lang='+lang+'&key='+key, 
+            polling: 'https://reglocal.rec.la:2443/access/'+key+'/status' },201); 
     }); 
 
   });

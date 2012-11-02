@@ -3,9 +3,26 @@ var validate = require('json-schema').validate;
 var should = require('should');
 var querystring = require('querystring');
 var dump = require('../../utils/dump.js');
-
-//-- 
-
+var _s = require('underscore.string');
+/**
+ * 
+ * test structure
+ * { it: string,  // the title of the test
+ *   url: string, // fully qualified url or path (starts with /)
+ *                // if path config.get('http:register:url') will be used
+ *   method: POST | GET | OPTIONS | PUT | DELETE,
+ *   data: mixed, //The data to send,
+ *   contenttype: JSON | JSONSTRING | STRING, // (for POST METHOD ONLY) 
+ *                // JSON -> JSON.stringify(will be applied) -- send JSON
+ *                // JSONSTRING -> nothing applied -- send JSON
+ *                // STRING -> querystring.stringify(test.data) -- send x-www-form-urlencoded
+ *  status: 100 | 200 | ...,  // expected status code,
+ *  restype: json (default) | html,  //  result data type
+ *  JSchema: json-schema // (optional) schema to validate (doesn not seems to work)
+ *  JValues: json object // (optional)  with values, should match result 
+ *  nextStep: function(test,data) // (optional)  for chained tests, will be called at the end of this one with data received 
+ * 
+ */
 
 
 /**
@@ -20,14 +37,27 @@ var dump = require('../../utils/dump.js');
  */
 exports.pathStatusSchema = pathStatusSchema = function pathStatusSchema (test) {
   it(test.it, function(done){
-
+    var _protocol = false;
+    
     //-- Prepare the http request --//
-    var http_options = { path: test.path , method: test.method};
-    http_options.host = (test.host) ? test.host : config.get('server:hostname');
-    http_options.port = (test.port) ? test.port : config.get('server:port');
-
-    var mode = (test.protocol) ? test.protocol : config.get('http:register:ssl') ? 'https' : 'http';
-    var http = require(mode); 
+    if (_s.startsWith(test.url,'/')) {
+     test.url = config.get('http:register:url')+test.url;
+    } 
+    if (_s.startsWith(test.url,'http')) {
+      _protocol = _s.startsWith(test.url,'https') ? 'https': 'http';
+    } else {
+      throw new Error('Cannot determine protocol: '+test.url);
+    }
+    
+    var urlO = require('url').parse(test.url);
+    
+    var http_options = { 
+        host: urlO.hostname,
+        port: urlO.port,
+        path: urlO.path , 
+        method: test.method};
+ 
+    var http = require(_protocol); 
     
     
     var post_data = '';
@@ -143,7 +173,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
 function validateJSONSchema(responseData, jsonSchema) {
   var validationResult = validate(responseData, jsonSchema);
   
-  dump.inspect({jsonSchema : jsonSchema, responseData: responseData, validationResult: validationResult});
+  //dump.inspect({jsonSchema : jsonSchema, responseData: responseData, validationResult: validationResult});
   
   validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
 };

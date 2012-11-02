@@ -40,17 +40,17 @@ nconf.defaults({
   'http': {  // this should match the config of sww
     'static': {
       'url': 'https://sw.pryv.io/register/index.js', 
+      'access': 'https://local.rec.la:8443/register/signin/',
       'error_page': 'error.html'
     },
-    'register': {
-      'url': 'https://reg.pryv.io/',
-      'ssl': true, // could be changed by a _startwidth(https: tests)
+    'register': { // this is the (public) front url 
+      'url': 'https://reg.pryv.io',  // no trailling "/" !!
     }
   },
-  'server': {
-    'name': 'reg.pryv.io', // adapt http:static:url of needed
+  'server': { // see http:register for public url 
     'port': 2443, 
     'ip': '0.0.0.0',
+    'ssl': true,
     'certsPathAndKey': '/home/register/secrets/pryv.io', // will add '-privatekey'.. and others
   },
   'persistence' : { 

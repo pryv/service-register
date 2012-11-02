@@ -12,7 +12,7 @@ var server_test = function(test,json_data) {
   describe('POST /server (chained with init) ', function(){
     //console.log("XXXXXXXXXXXXXXX"+ JSON.stringify(test.initialtest));   
     var ntest = { it : test.it +" (3rd)",
-        path : "/"+ test.initialtest.data.userName +"/server",
+        url : "/"+ test.initialtest.data.userName +"/server",
         status: 200,
         JSchema : schema.server ,
         JValues: {server: test.initialtest.secondTestResult.server, alias: test.initialtest.data.userName + domain},
@@ -27,7 +27,7 @@ var re_confirm_challenge = function(test, json_data) {
   describe('POST /confirm (2nd) ', function(){
     test.initialtest.secondTestResult = json_data;
     var ntest = { it : test.it +" (2nd)",
-        path : test.path,
+        url : test.url,
         data : test.data,
         status: 400,
         JSchema : schema.alreadyConfirmed ,
@@ -45,7 +45,7 @@ var confirm_challenge_post = function(test, json_data) {
 
   describe('POST /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
     var ntest = { it : " uid: " + test.data.userName,
-        path : '/'+json_data.captchaChallenge+'/confirm',
+        url : '/'+json_data.captchaChallenge+'/confirm',
         data : {},
         status: 200,
         JSchema : schema.server ,
@@ -63,7 +63,7 @@ var confirm_challenge = function(test, json_data) {
   describe('GET /:challenge/confirm (from init)->'+json_data.captchaChallenge, function(){
     var server_alias =  test.data.userName + domain;
     var ntest = { it : " uid: " + test.data.userName,
-        path : '/'+json_data.captchaChallenge+'/confirm',
+        url : '/'+json_data.captchaChallenge+'/confirm',
         data : {},
         status: 302,
         headers : { location: aa_servers_http_mode+"://"+ server_alias +"/?msg=CONFIRMED" },
@@ -113,7 +113,7 @@ describe('POST /init', function(){
  // tests.length
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].data.userName;
-    tests[key].path = '/init';
+    tests[key].url = '/init';
     tests[key].method = 'POST';
     if (! tests[key].data)  tests[key].data = {};
     dataValidation.pathStatusSchema(tests[key]);

@@ -19,7 +19,7 @@ describe('POST /:uid/email/admin', function(){
   
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid+', email: ' + tests[key].data.email;
-    tests[key].path = '/'+ tests[key].uid +'/email/admin';
+    tests[key].url = '/'+ tests[key].uid +'/email/admin';
     tests[key].method = 'POST';
  
     dataValidation.pathStatusSchema(tests[key]);

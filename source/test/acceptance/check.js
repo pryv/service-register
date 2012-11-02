@@ -30,7 +30,7 @@ describe('GET /:uid/check', function(){
   
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
-    tests[key].path = '/'+ tests[key].uid +'/check';
+    tests[key].url = '/'+ tests[key].uid +'/check';
     tests[key].method = 'GET';
     
     dataValidation.pathStatusSchema(tests[key]);

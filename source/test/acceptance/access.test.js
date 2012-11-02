@@ -14,7 +14,7 @@ describe('POST /access', function(){
   
   tests[0] = {
     it: 'valid',
-    path: '/access',
+    url: '/access',
     method: 'POST',
     data: { appID: 'reg-test', access: { some: 'json', data: 'to request access'}},
     contenttype: 'JSON',
@@ -24,7 +24,7 @@ describe('POST /access', function(){
   
   tests[1] = {
       it: 'invalid App Id',
-      path: '/access',
+      url: '/access',
       method: 'POST',
       data: { appID: 'a', access: { some: 'json', data: 'to request access'}},
       contenttype: 'JSON',
@@ -40,11 +40,9 @@ describe('POST /access', function(){
 function chainedPoll(test, json_data) {
 
   describe('GET /access/--key--/status: ', function(){
-    var url = require('url').parse(json_data.polling);
     var ntest = { 
         it : json_data.polling,
-        host: url.hostname,
-        path: url.path,
+        url: json_data.polling,
         data : {},
         status: 449,
         JSchema : schema.accessGET ,

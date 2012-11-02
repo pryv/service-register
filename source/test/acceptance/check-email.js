@@ -23,7 +23,7 @@ describe('GET /:email/check_email', function(){
   
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', email: ' + tests[key].email;
-    tests[key].path = '/'+ tests[key].email +'/check_email';
+    tests[key].url = '/'+ tests[key].email +'/check_email';
     tests[key].method = 'GET';
     
     dataValidation.pathStatusSchema(tests[key]);
