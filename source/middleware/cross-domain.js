@@ -3,9 +3,9 @@
  */
 module.exports = function(req, res, next) {
   
-  //console.log('REQ: '+req.method+" "+req.url);
+
   
-  if(req.headers.origin) {
+  if( req.headers.origin) {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
   } else {
     res.header('Access-Control-Allow-Origin', '*');
@@ -26,6 +26,14 @@ module.exports = function(req, res, next) {
 
 
   res.header('Access-Control-Allow-Credentials', 'true');
+  
+  
   // other CORS-related headers are returned on OPTIONS requests
-  next();
+  
+  if (req.method == "OPTIONS") {
+    console.log("Cross Domain OPTIONS REQUEST: "+req.url);
+    res.send("");
+  } else {
+    next();
+  }
 }
