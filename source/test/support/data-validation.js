@@ -161,6 +161,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
       }
 
       // if everything works.. then callback for result
+      
       if (test.nextStep != null) 
         test.nextStep(test,data);
 
@@ -173,7 +174,7 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
 function validateJSONSchema(responseData, jsonSchema) {
   var validationResult = validate(responseData, jsonSchema);
   
-  //dump.inspect({jsonSchema : jsonSchema, responseData: responseData, validationResult: validationResult});
+  // dump.inspect({jsonSchema : jsonSchema, responseData: responseData, validationResult: validationResult});
   
   validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
 };

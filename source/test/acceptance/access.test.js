@@ -29,7 +29,7 @@ describe('POST /access', function(){
       data: { appID: 'a', access: { some: 'json', data: 'to request access'}},
       contenttype: 'JSON',
       status: 400, // created
-      JSchema: schema.accessPOST }
+      JSchema: schema.error }
     
   for (var key = 0; key < tests.length; key++) {
     dataValidation.pathStatusSchema(tests[key]);
@@ -41,8 +41,8 @@ function chainedPoll(test, json_data) {
 
   describe('GET /access/--key--/status: ', function(){
     var ntest = { 
-        it : json_data.polling,
-        url: json_data.polling,
+        it : json_data.poll,
+        url: json_data.poll,
         data : {},
         status: 449,
         JSchema : schema.accessGET ,

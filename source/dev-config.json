@@ -4,7 +4,7 @@
   },
   "http": {
     "static": {
-      "url": "https://local.rec.la:8443/register/index.js",
+      "url": "https://local.rec.la:8443/register/index.html",
       "access": "https://local.rec.la:8443/register/signin"
     },
     "register": { 

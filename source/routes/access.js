@@ -23,7 +23,11 @@ function access(app) {
       return next(messages.e(400,'INVALID_DATA'));
     }
     
-    var lang = checkAndConstraints.lang(req.body.access);
+    var lang = checkAndConstraints.lang(req.body.languageCode);
+    
+    // TODO 
+    var returnURL = req.body.returnURL;
+    
     //--- END parameters --//
     
     /**
@@ -49,8 +53,8 @@ function access(app) {
       if (error) { return next(messages.ei()) ; }
 
       return res.json(
-          { url: config.get('http:access')+'/index.html?lang='+lang+'&key='+key, 
-            polling: 'https://reglocal.rec.la:2443/access/'+key+'/status' },201); 
+          { url: config.get('http:access')+'?lang='+lang+'&key='+key, 
+            poll: config.get('http:register:url')+'/access/'+key+'/status' },201); 
     }); 
 
   });

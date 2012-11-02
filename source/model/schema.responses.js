@@ -4,7 +4,7 @@ var success = exports.success = {
     properties: {
       success : {
         type: 'boolean',
-        require: true
+        required: true
       },
     }
 }
@@ -15,7 +15,7 @@ var checkExists = exports.checkExists = {
     properties: {
       exists : {
         type: 'boolean',
-        require: true
+        required: true
       }
     }
 }
@@ -38,7 +38,7 @@ var initDone = exports.initDone = {
       },
       captchaChallenge : {
         type: 'string',
-        require: true
+        required: true
       }
     }
 }
@@ -50,11 +50,11 @@ var server = exports.server = {
     properties: {
       server : {
         type: 'string',
-        require: true
+        required: true
       },
       alias : {
         type: 'string',
-        require: true
+        required: true
       }
     }
 }
@@ -65,11 +65,11 @@ var alreadyConfirmed = exports.alreadyConfirmed = {
     properties: {
       server : {
         type: 'string',
-        require: true
+        required: true
       },
       alias : {
         type: 'string',
-        require: true
+        required: true
       },
       id: {
         type: 'string',
@@ -151,11 +151,11 @@ var accessPOST = exports.accessPOST = {
     properties: {
       url : {
         type: 'string', // url?
-        require: true
+        required: true
       },
-      polling : {
+      poll : {
         type: 'string', // url?
-        require: true
+        required: true
       }
     }
 }
@@ -165,7 +165,7 @@ var accessGET = exports.accessGET = {
     properties: {
       status : {
         type: 'string', 
-        require: true
+        required: true
       }
     }
 }
