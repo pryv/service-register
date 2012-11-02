@@ -2,6 +2,7 @@ var config = require('../config-test');
 var validate = require('json-schema').validate;
 var should = require('should');
 var querystring = require('querystring');
+var dump = require('../../utils/dump.js');
 
 //-- 
 
@@ -141,9 +142,9 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
 
 function validateJSONSchema(responseData, jsonSchema) {
   var validationResult = validate(responseData, jsonSchema);
-  //console.log(jsonSchema);
-  //console.log(responseData);
-  //console.log(validationResult);
+  
+  dump.inspect({jsonSchema : jsonSchema, responseData: responseData, validationResult: validationResult});
+  
   validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
 };
 
