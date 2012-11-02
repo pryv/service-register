@@ -39,12 +39,12 @@ nconf.defaults({
   },
   'http': {  // this should match the config of sww
     'static': {
-      'url': 'https://sw.pryv.io/register/index.js', 
-      'access': 'https://local.rec.la:8443/register/signin/',
-      'error_page': 'error.html'
+      'url': 'https://sw.pryv.io/register/index.js',
+      'error_page': '/error.html', // within static:url
+      'access': 'https://sw.pryv.io/register/signin/index.html' // no trailing slashes
     },
     'register': { // this is the (public) front url 
-      'url': 'https://reg.pryv.io',  // no trailling "/" !!
+      'url': 'https://reg.pryv.io:443',  // no trailling "/" !!
     }
   },
   'server': { // see http:register for public url 
