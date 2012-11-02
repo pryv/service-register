@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# This script sets up the REC.la registration server development environment on a 64-bit OSX system
+# This script sets up the Pryv registration server development environment on a 64-bit OSX system
 # Original inspiration: activity-server script (thank you Simon)
 
 # working dir fix
