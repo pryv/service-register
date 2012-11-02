@@ -1,0 +1,23 @@
+{
+  "dns": {
+    "name": "local.pryv.net"
+  },
+  "http": {
+    "static": {
+      "url": "https://local.rec.la:8443/register/index.js",
+      "access": "https://local.rec.la:8443/register/signin"
+    },
+    "register": { 
+      "url": "https://reglocal.rec.la:2443"
+    }
+  },
+  "server": {
+    "certsPathAndKey": "cert/rec.la"
+  },
+  "net": {
+    "AAservers_domain": "wactiv.com", 
+    "aaservers_ssl": "true", 
+    "aaservers": [{ "base_name": "test1", "port": 443, "authorization": "register-test-token" }, 
+       { "base_name": "test2", "port": 443, "authorization": "register-test-token" }]
+  }
+}
