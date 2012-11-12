@@ -44,7 +44,7 @@ nconf.defaults({
     'static': {
       'url': 'https://sw.pryv.io/register/index.js',
       'error_page': '/error.html', // within static:url
-      'access': 'https://sw.pryv.io/register/signin/index.html' // no trailing slashes
+      'access': 'https://sw.pryv.io/register/access/access.html' // ADD A trailing slashes for directories
     },
     'register': { // this is the (public) front url 
       'url': 'https://reg.pryv.io:443',  // no trailling "/" !!

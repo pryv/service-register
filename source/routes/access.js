@@ -5,6 +5,7 @@ var messages = require('../utils/messages.js');
 var appErrors = require('../utils/app-errors.js');
 var config = require('../utils/config');
 var randGenerator = require('../utils/random');
+var dataservers = require('../network/dataservers.js')
 
 function access(app) {
 
@@ -18,17 +19,36 @@ function access(app) {
       return next(messages.e(400,'INVALID_APP_ID'));
     }
 
+    var devId = checkAndConstraints.uid(req.body.devID);
+    if (! devId) {
+      return next(messages.e(400,'INVALID_USER_NAME'));
+    }
+    
+    var appAuthorization = checkAndConstraints.appAuthorization(req.body.appAuthorization);
+    if (! appAuthorization) {
+      return next(messages.e(400,'INVALID_DATA'));
+    }
+    
     var access = checkAndConstraints.access(req.body.access);
     if (! access) {
       return next(messages.e(400,'INVALID_DATA'));
     }
     
+    
     var lang = checkAndConstraints.lang(req.body.languageCode);
     
-    // TODO 
+    //-- TODO Check URL validity
     var returnURL = req.body.returnURL;
     
     //--- END parameters --//
+    
+    //--- CHECK IF APP IS AUTHORIZED ---//
+    
+    
+    //-- TODO 
+    
+    
+    //--- END CHECK APP AUTH ---//
     
     /**
      * appname: "a name for the app",
@@ -47,14 +67,19 @@ function access(app) {
     }
 
     var key = randGenerator.string(16);
-    var accessState = { status: 'VALIDATING', appID: appID, access: access };
+    var accessState = { status: 'NEED_SIGNIN', 
+                          code: 201,
+                           key: key,
+                         appID: appID, 
+                        access: access, 
+                           url: config.get('http:static:access')+'?lang='+lang+'&key='+key, 
+                          poll: config.get('http:register:url')+'/access/'+key+'/status',
+                     returnURL: returnURL,
+                  poll_rate_ms: 1000};
 
     db.setAccessState(key, accessState, function(error, result) {
       if (error) { return next(messages.ei()) ; }
-
-      return res.json(
-          { url: config.get('http:access')+'?lang='+lang+'&key='+key, 
-            poll: config.get('http:register:url')+'/access/'+key+'/status' },201); 
+      return res.json(accessState,accessState.code); 
     }); 
 
   });
@@ -63,32 +88,52 @@ function access(app) {
    * polling responder
    */
   app.get('/access/:key/status', function(req, res,next) {
-    
-    if (checkAndConstraints.accesskey(req.params.key) == null) {
-        return next(messages.e(400,'INVALID_KEY'));
+    checkKeyAndGetValue(req,res,next,function(value) { 
+      return res.json(value,value.code);
+    });
+  });
+  
+  /**
+   * relay a email login
+   * TODO: validate the safety (privacy) of this call that exposes a link between an email and a user.
+   * This can be avoided by relaying the call to uid.pryv.io/admin/login
+   */
+  app.get('/access/:key/idformail/:email', function(req, res,next) {
+    if (! checkAndConstraints.email(req.params.email)) {
+      return next(messages.e(400,'INVALID_EMAIL'));
     }
     
-    db.getAccessState(req.params.key, function(error, result) {
-      if (error) { return next(messages.ei()) ; }
-      if (! result) {
-        return next(messages.e(400,'INVALID_KEY'));
-      }
-      if (result.status == 'VALIDATING') {
-        return res.json(
-            { status: 'VALIDATING', 
-              retry_in_ms: 1000 },449); 
-      } else if (result.status == 'VALIDATION_REFUSED') {
-        return res.json( { status: 'VALIDATION_REFUSED', reason: 'Not Specified' },403); 
-        // here we could remove the key from redis (will be done automagically in 1 hour)
-      } else if (result.status == 'VALID') {
-        return res.json( { status: 'VALID', username: result.username, token: result.token }, 100); 
-     // here we could remove the key from redis (will be done automagically in 1 hour)
-      }
-      return next(messages.ei()) ;
-    }); 
-    
+    checkKeyAndGetValue(req,res,next,function(value) { 
+      db.getUIDFromMail(req.params.email, function(error, uid) {
+        if (error) return next(messsages.ie()); 
+        if (! uid) {
+            return next(messages.e(404,'UNKOWN_EMAIL'));
+        }
+        return res.json({uid: uid});
+      });
+    });
   });
 
+}
+
+/**
+ * Check the key in the request and call ifOk() if a value is found
+ * @param ifOk callback(value)
+ */
+function checkKeyAndGetValue(req,res,next,ifOk) {
+  if (checkAndConstraints.accesskey(req.params.key) == null) {
+    return next(messages.e(400,'INVALID_KEY'));
+  }
+
+  db.getAccessState(req.params.key, function(error, result) {
+    if (error) { return next(messages.ei()) ; }
+    if (! result) {
+      return next(messages.e(400,'INVALID_KEY'));
+    }
+
+    ifOk(result);
+
+  }); 
 }
 
 module.exports = access;

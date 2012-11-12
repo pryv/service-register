@@ -5,7 +5,7 @@
   "http": {
     "static": {
       "url": "https://local.rec.la:8443/register/index.html",
-      "access": "https://local.rec.la:8443/register/signin"
+      "access": "https://local.rec.la:8443/register/access/access.html"
     },
     "register": { 
       "url": "https://reglocal.rec.la:2443"

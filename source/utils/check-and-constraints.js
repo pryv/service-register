@@ -64,6 +64,13 @@ exports.appID = function appID(str) {
   return null;
 };
 
+exports.appAuthorization = function appAuthorization(str) {
+  if (! str) return null;
+  str = _(str).trim();
+  if ( /^([a-zA-Z0-9]{10,200})$/.test(str) ) return str;
+  return null;
+};
+
 exports.accesskey = function accessKey(str) {
   if (! str) return null;
   str = _(str).trim();

@@ -91,6 +91,14 @@ exports.getServer = function getServer(uid, callback) {
   });
 }
 
+exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
+  mail = mail.toLowerCase();
+  redis.get(mail +':email',function(error, uid) {
+    if (error) logger.error('Redis getServerFromMail: '+ mail +' e: '+ error, error);
+    return callback(null,uid);
+  });
+}
+
 exports.setServerAndInfos = function setServerAndInfos(uid, server, infos ,callback) {
   uid = uid.toLowerCase();
   var multi = redis.multi();

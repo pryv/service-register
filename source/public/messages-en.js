@@ -29,6 +29,8 @@ register_messages = {
     
   'UNKOWN_USER_NAME' : { 'message' : 'Unkown user name', 
     'detail' : ''},
+  'UNKOWN_EMAIL' : { 'message' : 'Unkown e-mail', 
+      'detail' : ''},
     
   'INVALID_KEY' : { 'message' : 'Invalid access request key', 
       'detail' : ''},
