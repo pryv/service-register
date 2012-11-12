@@ -64,6 +64,14 @@ exports.appID = function appID(str) {
   return null;
 };
 
+
+exports.activitySessionID = function activitySessionID(str) {
+  if (! str) return null;
+  str = _(str).trim();
+  if (str.length > 5 && str.length < 100) return str;
+  return null;
+};
+
 exports.appAuthorization = function appAuthorization(str) {
   if (! str) return null;
   str = _(str).trim();

@@ -1,6 +1,7 @@
 var util = require('util');
 
 exports.inspect = function inspect (obj) {
+  
   util.print ("\n"+util.inspect(obj,true,10,true)+'\n');
 }
 

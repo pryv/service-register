@@ -7,6 +7,9 @@ var config = require('../utils/config');
 var randGenerator = require('../utils/random');
 var dataservers = require('../network/dataservers.js')
 
+var domain = '.'+config.get('dns:domain');
+var activityServerPort = config.get('net:aaservers_ssl') ? 443 : 80;
+
 function access(app) {
 
   /**
@@ -111,6 +114,40 @@ function access(app) {
         }
         return res.json({uid: uid});
       });
+    });
+  });
+  
+  
+  /**
+   * get Session ID
+   */
+  app.get('/access/:key/get-app-token/:uid/:sessionID', function(req, res,next) {
+    if (! checkAndConstraints.uid(req.params.uid)) {
+      return next(messages.e(400,'INVALID_USER_NAME'));
+    }
+    
+    if (! checkAndConstraints.activitySessionID(req.params.sessionID)) {
+      return next(messages.e(400,'INVALID_DATA'));
+    }
+    
+    checkKeyAndGetValue(req,res,next,function(value) { 
+    
+      var host = {
+          name: req.params.uid+domain,
+          port: activityServerPort,
+          authorization: req.params.sessionID};
+
+      var jsonData = {
+          id: value.appID
+      };
+      
+      dataservers.postToAdmin(host,'/admin/get-app-token',200,jsonData,function(error,json_result) {
+        require('../utils/dump.js').inspect(host,value,error,json_result);
+      }
+          
+      );
+      
+      return res.json({status: 'VALIDATED'});
     });
   });
 
