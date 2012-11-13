@@ -7,7 +7,7 @@ var config = require('../utils/config');
 var randGenerator = require('../utils/random');
 var dataservers = require('../network/dataservers.js')
 
-var domain = '.'+config.get('dns:domain');
+var domain = config.get('dns:domain');
 var activityServerPort = config.get('net:aaservers_ssl') ? 443 : 80;
 
 function access(app) {
@@ -75,7 +75,9 @@ function access(app) {
                            key: key,
                          appID: appID, 
                         access: access, 
-                           url: config.get('http:static:access')+'?lang='+lang+'&key='+key, 
+                           url: config.get('http:static:access')+'?lang='+lang+
+                               '&key='+key+'&domain='+domain+
+                               '&registerURL='+encodeURIComponent(config.get('http:register:url')), 
                           poll: config.get('http:register:url')+'/access/'+key+'/status',
                      returnURL: returnURL,
                   poll_rate_ms: 1000};
@@ -121,21 +123,21 @@ function access(app) {
   /**
    * get Session ID
    */
-  app.get('/access/:key/get-app-token/:uid/:sessionID', function(req, res,next) {
+  app.post('/access/:key/get-app-token/:uid', function(req, res,next) {
     if (! checkAndConstraints.uid(req.params.uid)) {
       return next(messages.e(400,'INVALID_USER_NAME'));
     }
     
-    if (! checkAndConstraints.activitySessionID(req.params.sessionID)) {
+    if (! checkAndConstraints.activitySessionID(req.body.sessionID)) {
       return next(messages.e(400,'INVALID_DATA'));
     }
     
     checkKeyAndGetValue(req,res,next,function(value) { 
     
       var host = {
-          name: req.params.uid+domain,
+          name: req.params.uid+'.'+domain,
           port: activityServerPort,
-          authorization: req.params.sessionID};
+          authorization: req.body.sessionID};
 
       var jsonData = {
           id: value.appID
