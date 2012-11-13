@@ -1,6 +1,7 @@
 {
   "dns": {
-    "name": "local.pryv.net"
+    "name": "local.pryv.net",
+    "domain": "rec.la"
   },
   "http": {
     "static": {
