@@ -1,7 +1,13 @@
 var util = require('util');
 
 exports.inspect = function inspect (obj) {
-  
+  var line = "";
+  try {
+    throw new Error();
+  } catch (e) {
+    line = e.stack.split(" at ")[2].trim();
+  }
+  util.print ("\n * dump at: "+line);
   util.print ("\n"+util.inspect(obj,true,10,true)+'\n');
 }
 
