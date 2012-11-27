@@ -21,7 +21,7 @@ function check(app) {
     db.getServer(req.params.uid, function(error, result) {
       if (error) return next(messsages.ie()); 
       if (result) 
-        return res.redirect(aaservers_mode+'://'+result+'/?userName='+req.params.uid); // good
+        return res.redirect(aaservers_mode+'://'+result+'/?username='+req.params.uid); // good
 
 
       return res.redirect(server_display_error_url+'?id=UNKOWN_USER_NAME');

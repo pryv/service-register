@@ -7,8 +7,8 @@ var should = require('should');
 require('readyness/wait/mocha');
 
 describe('DNS', function(){
-  it('A pryv.io', function(done){
-    dig('CNAME','sw.pryv.io',function(result) {
+  it('A '+config.get('dns:domain'), function(done){
+    dig('CNAME','sw.'+config.get('dns:domain'),function(result) {
       result.should.equal('sw.pryv.net.\n');
       done();
     });

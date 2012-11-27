@@ -41,7 +41,7 @@ function setupApp(app,ip,port) {
   require('./routes/check.js')(app);
   require('./routes/check-email.js')(app);
   require('./routes/init.js')(app);
-  require('./routes/confirm.js')(app);
+  if (config.get('confirmEmail:method') != 'post') require('./routes/confirm.js')(app);
   require('./routes/server.js')(app);
   require('./routes/access.js')(app);
   

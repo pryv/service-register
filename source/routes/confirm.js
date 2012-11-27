@@ -1,3 +1,7 @@
+/**
+ * Not needed if confirmed e-mail == post
+ */
+
 //init user creation 
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
@@ -11,6 +15,7 @@ var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var domain = '.'+config.get('dns:domain');
 var confirmDisplayErrorUrl = config.get('http:static:url')+config.get('http:static:error_page');
 
+var users = require('../utils/users-management.js');
 
 function init(app) {
 //GET REQUESTS SEND REDIRECTS
@@ -55,14 +60,14 @@ function init(app) {
 
 
 //STEP 1, check if request is valid == the challenge is token known
-function preConfirm(_challenge,req,myres,next) {
+function preConfirm(_challenge,req,res,next) {
   var challenge = checkAndConstraints.challenge(_challenge);
   if (! challenge) return next(messages.e(400,'INVALID_CHALLENGE')); 
 
   db.getJSON(challenge +':init', function(error, json_result) {
     if (error) return next(messages.ei()) ; 
     if (! json_result) return next(messages.e(404,'NO_PENDING_CREATION')); 
-    checkUid(challenge,json_result,req,myres,next);
+    checkUid(challenge,json_result,req,res,next);
   });
 }
 
@@ -70,59 +75,29 @@ function preConfirm(_challenge,req,myres,next) {
 
 
 //STEP 2
-function checkUid(challenge,json_result,req,myres,next) {
-  var userName = json_result.userName;
-//logger.info('check_uid: '+ json_result.userName + ' challenge:'+challenge );
+function checkUid(challenge,json_result,req,res,next) {
+  var username = json_result.username;
+//logger.info('check_uid: '+ json_result.username + ' challenge:'+challenge );
 //logger.info(JSON.stringify(json_result));
-  db.getServer(userName, function(error, result) {
+  db.getServer(username, function(error, result) {
     if (error) return next(messages.ei()) ; 
-    var alias = userName + domain;
+    var alias = username + domain;
     if (result) return next(messages.e(400,'ALREADY_CONFIRMED',{server: result, alias: alias})); // already confirmed
-    findServer(challenge,json_result,req,myres,next);
+    findServer(challenge,json_result,req,res,next);
   });
 }
 
 
 //STEP 3
-function findServer(challenge,json_infos,req,myres,next) {
-//logger.info('Confirm: '+ json_result.userName + ' challenge:'+challenge );
+function findServer(challenge,json_infos,req,res,next) {
+//logger.info('Confirm: '+ json_result.username + ' challenge:'+challenge );
 //logger.info(JSON.stringify(json_result));
   dataservers.recommanded(req,function(error,host) {
-    //logger.info('found server '+host.name +' for uid: '+ json_infos.userName + ' challenge:'+challenge );
-
-    dataservers.postToAdmin(host,'/register/create-user',201,json_infos,function(error,json_result) {
-      if (error) {
-        logger.error('Confirm: findServer: '+error+'\n host'+
-            JSON.stringify(host)+'\n info:'+JSON.stringify(json_infos));
-        return next(messages.ei());
-      }
-      if (json_result.id) {
-        json_infos.id = json_result.id;
-        saveToDB(host,json_infos,req,myres,next);
-      } else {
-        logger.error('findServer, invalid data from admin server: '+JSON.stringify(json_result));
-        return next(messages.ei());
-      }
-
-    });
+    //logger.info('found server '+host.name +' for uid: '+ json_infos.username + ' challenge:'+challenge );
+    users.create(host,json_infos,req,res,next);
     // call server to register user 
   });
 }
-
-
-//STEP 4
-function saveToDB(host,json_infos,req,myres,next) {
-//logger.info('SaveToDB: '+ json_infos.userName  );
-  db.setServerAndInfos(json_infos.userName, host.name, json_infos, function(error,result) {
-    if (error) {
-      logger.error('Confirm: saveToDB:'+error);
-      return next(messages.ei());
-    }
-    myres({server: host.name, alias: json_infos.userName + domain},200);
-  });
-}
-
-
 
 
 module.exports = init;

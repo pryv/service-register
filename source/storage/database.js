@@ -15,7 +15,7 @@ var connectionChecked = require('readyness').waitFor('database');
 function checkConnection() {
   //check redis connectivity
   // do not remove, 'wactiv.server' is use by tests
-  redis.set('wactiv:server','pryv.io', function(error, result) {
+  redis.set('wactiv:server',config.get('dns:domain'), function(error, result) {
     redis.set('wactiv@pryv.io:email','wactiv', function(error, result) {
       connectionChecked('Redis');
     });
@@ -54,16 +54,15 @@ exports.uidExists = uidExists;
 
 function getJSON(key, callback) {
   redis.get(key,function(error, result) {
+    var res_json = null;
     if (error) logger.error('Redis getJSON: '+ key +' e: '+ error, error);
-    if (! result) return callback(error, null);
+    if (! result) return callback(error, res_json);
     try {
       var res_json = JSON.parse(result);
-      return callback(error, res_json);
     } catch (e) {
-      return callback(new Error('string is not JSON'), result);
+      error = new Error(e+' db.getJSON:('+key+') string ('+result+')is not JSON');
     }
-    return callback(error, result); // should not be there
-
+    return callback(error, res_json); 
   });
 }
 exports.getJSON = getJSON;
@@ -72,7 +71,7 @@ exports.getJSON = getJSON;
 
 exports.initSet = function initSet(uid, passwordHash, email, language, challenge, callback) {
   var multi = redis.multi();
-  var value = {userName: uid, passwordHash: passwordHash, email: email, language: language};
+  var value = {username: uid, passwordHash: passwordHash, email: email, language: language};
   var key = challenge+':init';
   multi.set(key, JSON.stringify(value));
   multi.expire(key, config.get('persistence:init-ttl'));

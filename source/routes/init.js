@@ -7,6 +7,8 @@ var mailer = require('../utils/mailer.js');
 var randGenerator = require('../utils/random.js');
 var encryption = require('../utils/encryption.js');
 var config = require('../utils/config');
+var users = require('../utils/users-management.js');
+
 
 module.exports = function(app) {
 
@@ -24,7 +26,7 @@ module.exports = function(app) {
   });
 
   function checkInit(req, jsonres,next) {
-    var uid = checkAndConstraints.uid(req.body.userName);
+    var uid = checkAndConstraints.uid(req.body.username);
     var password = checkAndConstraints.password(req.body.password);
     var email = checkAndConstraints.email(req.body.email);
     var lang = checkAndConstraints.lang(req.body.languageCode); // no check
@@ -38,7 +40,17 @@ module.exports = function(app) {
         if (errors.length > 0) {
           return next(messages.ex(400,'INVALID_DATA',errors));
         }
-        doInit(uid,password,email,lang,req,jsonres,next);
+
+        encryption.hash(password, function(error, passwordHash) {
+          if (error) { return next(error); }
+
+          if (config.get('confirmEmail:method') == 'post') {
+
+          } else {
+            doInit(uid,passwordHash,email,lang,req,jsonres,next);
+          }
+
+        });
       }
     }
 
@@ -69,34 +81,32 @@ module.exports = function(app) {
   }
 
   // all check are passed, do the job
-  function doInit(uid,password,email,lang,req,jsonres) {
-    //logger.info('Init: '+ uid + ' pass:'+password + ' mail: '+ email);
+  function doInit(uid,passwordHash,email,lang,req,jsonres) {
+    //logger.info('Init: '+ uid + ' pass:'+passwordHash + ' mail: '+ email);
     var challenge = randGenerator.string(16);
 
-    encryption.hash(password, function(error, passwordHash) {
-      if (error) { return next(error); }
+    // set on db
+    db.initSet(uid,passwordHash,email,lang,challenge, function(error,result) {
+      if (error) { return next(messages.ei()); }
 
-      // set on db
-      db.initSet(uid,passwordHash,email,lang,challenge, function(error,result) {
-        if (error) { return next(messages.ei()); }
-
-        // add challenge string to chain tests
-        if (config.get('test:init:add_challenge')) {
-          return jsonres(messages.say('INIT_DONE',{captchaChallenge: challenge}));
-        }
-
-        return jsonres(messages.say('INIT_DONE'));
-      });
-
-      // send mail or not
-      if (config.get('test:init:deactivate_mailer')) {
-        logger.debug('init: deactivated mailer');
-        return ;
+      // add challenge string to chain tests
+      if (config.get('test:init:add_challenge')) {
+        return jsonres(messages.say('INIT_DONE',{captchaChallenge: challenge}));
       }
-      logger.info('send mail: '+ uid + ' mail: '+ email);
-      mailer.sendConfirm(uid,email,challenge,lang);
 
+      return jsonres(messages.say('INIT_DONE'));
     });
+
+    // send mail or not
+    if (config.get('test:init:deactivate_mailer')) {
+      logger.debug('init: deactivated mailer');
+      return ;
+    }
+    logger.info('send mail: '+ uid + ' mail: '+ email);
+
+    var url = config.get('http:register:url')+'/'+challenge+'/confirm';
+
+    mailer.sendConfirm(uid,email,url,lang);
   }
 
 };

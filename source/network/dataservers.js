@@ -54,12 +54,12 @@ function getClientIp(req) {
 function postToAdmin(host,path,expectedStatus,jsonData,callback) {
 
   var httpOptions = { host : host.name , port: host.port, path: path, method: "POST" };
-  var postData = querystring.stringify(jsonData);
+  var postData = JSON.stringify(jsonData);
 
   //console.log(postData);
 
   httpOptions.headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
       'authorization': host.authorization,
       'Content-Length': postData.length
   }

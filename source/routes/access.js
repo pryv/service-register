@@ -26,33 +26,33 @@ function access(app) {
     if (! devId) {
       return next(messages.e(400,'INVALID_USER_NAME'));
     }
-    
+
     var appAuthorization = checkAndConstraints.appAuthorization(req.body.appAuthorization);
     if (! appAuthorization) {
       return next(messages.e(400,'INVALID_DATA'));
     }
-    
+
     var access = checkAndConstraints.access(req.body.access);
     if (! access) {
       return next(messages.e(400,'INVALID_DATA'));
     }
-    
-    
+
+
     var lang = checkAndConstraints.lang(req.body.languageCode);
-    
+
     //-- TODO Check URL validity
     var returnURL = req.body.returnURL;
-    
+
     //--- END parameters --//
-    
+
     //--- CHECK IF APP IS AUTHORIZED ---//
-    
-    
+
+
     //-- TODO 
-    
-    
+
+
     //--- END CHECK APP AUTH ---//
-    
+
     /**
      * appname: "a name for the app",
      * access: "the required access",
@@ -71,16 +71,16 @@ function access(app) {
 
     var key = randGenerator.string(16);
     var accessState = { status: 'NEED_SIGNIN', 
-                          code: 201,
-                           key: key,
-                         appID: appID, 
-                        access: access, 
-                           url: config.get('http:static:access')+'?lang='+lang+
-                               '&key='+key+'&domain='+domain+
-                               '&registerURL='+encodeURIComponent(config.get('http:register:url')), 
-                          poll: config.get('http:register:url')+'/access/'+key+'/status',
-                     returnURL: returnURL,
-                  poll_rate_ms: 1000};
+        code: 201,
+        key: key,
+        appID: appID, 
+        access: access, 
+        url: config.get('http:static:access')+'?lang='+lang+
+            '&key='+key+'&domain='+domain+
+            '&registerURL='+encodeURIComponent(config.get('http:register:url')), 
+            poll: config.get('http:register:url')+'/access/'+key+'/status',
+            returnURL: returnURL,
+            poll_rate_ms: 1000};
 
     db.setAccessState(key, accessState, function(error, result) {
       if (error) { return next(messages.ei()) ; }
@@ -88,16 +88,16 @@ function access(app) {
     }); 
 
   });
-  
+
   /**
    * polling responder
    */
   app.get('/access/:key/status', function(req, res,next) {
-    checkKeyAndGetValue(req,res,next,function(value) { 
+    checkKeyAndGetValue(req,res,next,function(key,value) { 
       return res.json(value,value.code);
     });
   });
-  
+
   /**
    * relay a email login
    * TODO: validate the safety (privacy) of this call that exposes a link between an email and a user.
@@ -107,19 +107,19 @@ function access(app) {
     if (! checkAndConstraints.email(req.params.email)) {
       return next(messages.e(400,'INVALID_EMAIL'));
     }
-    
-    checkKeyAndGetValue(req,res,next,function(value) { 
+
+    checkKeyAndGetValue(req,res,next,function(key,value) { 
       db.getUIDFromMail(req.params.email, function(error, uid) {
         if (error) return next(messsages.ie()); 
         if (! uid) {
-            return next(messages.e(404,'UNKOWN_EMAIL'));
+          return next(messages.e(404,'UNKOWN_EMAIL'));
         }
         return res.json({uid: uid});
       });
     });
   });
-  
-  
+
+
   /**
    * get Session ID
    */
@@ -127,29 +127,53 @@ function access(app) {
     if (! checkAndConstraints.uid(req.params.uid)) {
       return next(messages.e(400,'INVALID_USER_NAME'));
     }
-    
+
     if (! checkAndConstraints.activitySessionID(req.body.sessionID)) {
       return next(messages.e(400,'INVALID_DATA'));
     }
-    
-    checkKeyAndGetValue(req,res,next,function(value) { 
-    
+
+    checkKeyAndGetValue(req,res,next,function(stateKey,stateValue) { 
       var host = {
           name: req.params.uid+'.'+domain,
           port: activityServerPort,
           authorization: req.body.sessionID};
 
+      // set sessionCookie
+      res.cookie('session', 
+          JSON.stringify({setter: 'register_access', uid: req.params.uid, sessionID: req.body.sessionID}), 
+          { maxAge: 900000, httpOnly: true });
+
       var jsonData = {
-          id: value.appID
+          id: stateValue.appID
       };
+
       
       dataservers.postToAdmin(host,'/admin/get-app-token',200,jsonData,function(error,json_result) {
-        require('../utils/dump.js').inspect(host,value,error,json_result);
+        if (error) { return next(messages.ei(error)) ; }
+        
+        
+        
+        if (json_result.token) {
+          var accessState = { 
+              status: 'LOGGEDIN', 
+              code: 100,
+              username: req.params.uid,
+              appToken: json_result.token};
+
+          require('../utils/dump.js').inspect(host,stateKey,stateValue,error,json_result);
+          db.setAccessState(stateKey, accessState, function(error2, result) {
+            if (error2) { return next(messages.ei(error2)) ; }
+            require('../utils/dump.js').inspect(accessState,result);
+            return res.json(accessState,accessState.code); 
+          }); 
+
+
+        } else { // error no token //TODO 
+          require('../utils/dump.js').inspect(host,stateValue,error,json_result);
+          return next(messages.ei()) ;
+        }
       }
-          
       );
-      
-      return res.json({status: 'VALIDATED'});
     });
   });
 
@@ -165,12 +189,12 @@ function checkKeyAndGetValue(req,res,next,ifOk) {
   }
 
   db.getAccessState(req.params.key, function(error, result) {
-    if (error) { return next(messages.ei()) ; }
+    if (error) { return next(messages.ei(error)) ; }
     if (! result) {
       return next(messages.e(400,'INVALID_KEY'));
     }
 
-    ifOk(result);
+    ifOk(req.params.key,result);
 
   }); 
 }

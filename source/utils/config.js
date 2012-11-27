@@ -108,6 +108,11 @@ nconf.defaults({
             }
             ]
   },
+  'confirmEmail': {
+    'method': 'pre', // (default = "pre") If "post" then account is created automatically and confirmation is handled by activity server  
+    'postSalt': 'SaltyPryv', // the salt to encrypt the confirmation message
+    'postUrl': 'confirm-email', // the url on the activity server 
+  },
   'redis': {
     'password': 'MyRecordedLife',
   },

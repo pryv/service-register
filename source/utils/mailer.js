@@ -18,9 +18,8 @@ for (key in mailTemplates) {
   logger.debug('Loaded mail template: '+key);
 }
 
-var confirmurlbase = config.get('http:register:url')+'/%challenge%/confirm';
-
-exports.sendConfirm = function (uid,to,challenge,lang) {
+exports.sendConfirm = function (uid,to,url,lang) {
+    
   if ( config.get('mailer:deactivated')) {
     logger.debug('mailer: deactivated mailer');
     return true; //
@@ -33,7 +32,7 @@ exports.sendConfirm = function (uid,to,challenge,lang) {
   }
   var template = mailTemplates[templateCode]; // do not modify template
 
-  var url = confirmurlbase.replace('%challenge%',challenge);
+  
   // send mail with defined transport object
   var mailc = {from: template.from, to: to, subject: template.subject};
   mailc.text = template.text.replace('%uid%',uid);

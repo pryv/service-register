@@ -19,7 +19,6 @@ function replaceAll(text,key_values) {
 
 var rawHtml = fs.readFileSync(__dirname + '/index.html', 'utf8').toString();
 
-
 var indexHtmlSSL = replaceAll(rawHtml,
     {protocol: "https", 
   http_static: config.get('http:static:url'),
