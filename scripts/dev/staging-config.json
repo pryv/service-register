@@ -1,0 +1,26 @@
+{
+  "dns": {
+    "name": "ns1.wactiv.com",
+    "domain": "rec.la",
+    "ip": "91.121.41.240"
+  },
+  "http": {
+    "static": {
+      "url": "https://rec.la:2443/register/index-dev-recla.html",
+      "access": "https://rec.la:2443/register/access/access.html"
+    },
+    "register": { 
+      "url": "https://rec.la:443"
+    }
+  },
+  "server": {
+    "certsPathAndKey": "cert/rec.la",
+    "ip": "91.121.41.240"
+  },
+  "net": {
+    "AAservers_domain": "wactiv.com", 
+    "aaservers_ssl": "true", 
+    "aaservers": [{ "base_name": "test1", "port": 443, "authorization": "register-test-token" }, 
+       { "base_name": "test2", "port": 443, "authorization": "register-test-token" }]
+  }
+}
