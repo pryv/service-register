@@ -1,8 +1,9 @@
 #!/bin/sh
 
-droneId=$1
+# working dir fix
+scriptsFolder=$(cd $(dirname "$0"); pwd)
+cd $scriptsFolder/
+cd ../../
 
-[ -z "$droneId" ] && echo "Expected argument: <fleet drone id>" && exit 1
-
-fleet spawn --drone=$droneId --repo=registration-server -- \
+fleet spawn --remote=staging --drone=s1.simpledata.ch --repo=registration-server -- \
 /home/wactiv/redis-2.4.8/src/redis-server ./db/s1.conf

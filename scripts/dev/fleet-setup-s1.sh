@@ -1,7 +1,10 @@
 #!/bin/sh
 
-droneId=$1
 
-[ -z "$droneId" ] && echo "Expected argument: <fleet drone id>" && exit 1
+# working dir fix
+scriptsFolder=$(cd $(dirname "$0"); pwd)
+cd $scriptsFolder/
+cd ../../
 
-fleet exec --drone=$droneId --repo=registration-server -- ./scripts/setup-environment-s1.sh
+fleet exec --remote=staging --drone=s1.simpledata.ch --repo=registration-server -- ./scripts/dev/setup-environment-s1.sh
+

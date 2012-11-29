@@ -9,9 +9,9 @@ cd $scriptsFolder/..
 # check for well known prereqs that might be missing
 hash git 2>&- || { echo >&2 "I require 'git'."; exit 1; }
 
-$scriptsFolder/setup-database.sh /home/wactiv
+# $scriptsFolder/setup-database.sh /home/wactiv
 
-$scriptsFolder/setup-app.sh production
+./setup-app.bash production
 
 echo "
 

@@ -1,8 +1,10 @@
 #!/bin/sh
 
-droneId=$1
 
-[ -z "$droneId" ] && echo "Expected argument: <fleet drone id>" && exit 1
+# working dir fix
+scriptsFolder=$(cd $(dirname "$0"); pwd)
+cd $scriptsFolder/
+cd ../../
 
-fleet spawn --drone=$droneId --repo=registration-server -- \
-"authbind node source/app-dns.js --dns.ip 91.121.41.94 --dns.hostname ns2.wactiv.com >> /home/wactiv/logs/dns.log 2>&1"
+fleet spawn  --remote=staging --drone=s1.simpledata.ch --repo=registration-server -- \
+"authbind node source/app-dns.js --config /home/wactiv/registration-server/scripts/dev/staging-config-dns2.json >> /home/wactiv/logs/dns.log 2>&1"
