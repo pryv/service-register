@@ -2,20 +2,27 @@
   "dns": {
     "name": "ns1.wactiv.com",
     "domain": "rec.la",
-    "ip": "91.121.41.240"
+    "ip": "91.121.41.240",
+    "port": 53,
+    "staticDataInDomain": { 
+      "www": {"alias": [ { "name": "s1.simpledata.ch" } ]},
+      "sw": {"alias": [ { "name": "s1.simpledata.ch" } ]},
+      "reg": {"alias": [ { "name": "ns1.wactiv.com" } ]}
+    }
   },
   "http": {
     "static": {
-      "url": "https://rec.la:2443/register/index-dev-recla.html",
-      "access": "https://rec.la:2443/register/access/access.html"
+      "url": "https://sw.rec.la:2443/register/index-dev-recla.html",
+      "access": "https://sw.rec.la:2443/register/access/access.html"
     },
     "register": { 
       "url": "https://rec.la:443"
     }
   },
   "server": {
-    "certsPathAndKey": "cert/rec.la",
-    "ip": "91.121.41.240"
+    "certsPathAndKey": "/home/wactiv/registration-server/source/cert/rec.la",
+    "ip": "91.121.41.240",
+    "port": 443
   },
   "net": {
     "AAservers_domain": "wactiv.com", 
