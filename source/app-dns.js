@@ -53,11 +53,7 @@ var staticDataFull = {
     'isc.org': false
 }
 //static entries; matches 'in domains' names
-var staticDataInDomain = { 
-    'www': {alias: [ { name: 'w.pryv.com' } ]}, // static web files repository
-    'sw': {alias: [ { name: 'sw.pryv.net' } ]}, // secured web files repository
-    'reg': {alias: [ { name: 'reg.pryv.net' } ]} // register real name
-};
+var staticDataInDomain = config.get('dns:staticDataInDomain');
 
 
 

@@ -83,6 +83,11 @@ nconf.defaults({
     'domain': 'pryv.io',
     'domain_A': '217.70.184.38',
     'defaultTTL': 3600,
+    'staticDataInDomain': { 
+      'www': {alias: [ { name: 'w.pryv.com' } ]}, // static web files repository
+      'sw': {alias: [ { name: 'sw.pryv.net' } ]}, // secured web files repository
+      'reg': {alias: [ { name: 'reg.pryv.net' } ]} // register real name
+    },
     'nameserver': [
                    {
                      'name': 'dns-gandi-fr-01.pryv.net',
