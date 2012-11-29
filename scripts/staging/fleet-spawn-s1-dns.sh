@@ -8,4 +8,4 @@ cd ../../
 
 
 fleet spawn  --remote=staging --drone=s1.simpledata.ch --repo=registration-server -- \
-"authbind node source/app.js --config /home/wactiv/registration-server/scripts/dev/staging-config-reg.json >> /home/wactiv/logs/registration-server.log 2>&1"
+"authbind node source/app-dns.js --config /home/wactiv/registration-server/scripts/staging/staging-config-dns2.json >> /home/wactiv/logs/dns.log 2>&1"
