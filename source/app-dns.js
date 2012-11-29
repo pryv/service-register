@@ -56,7 +56,6 @@ var staticDataFull = {
 var staticDataInDomain = config.get('dns:staticDataInDomain');
 
 
-
 var serverForName = function(reqName,callback,req,res) { 
   var nullRecord = dns.getRecords({},reqName);
   //simpler request matching in lower case

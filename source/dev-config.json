@@ -1,7 +1,12 @@
 {
   "dns": {
     "name": "local.pryv.net",
-    "domain": "rec.la"
+    "domain": "rec.la",
+    "staticDataInDomain": { 
+      "www": {"alias": [ { "name": "local.rec.la" } ]},
+      "sw": {"alias": [ { "name": "local.rec.la" } ]},
+      "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
+    }
   },
   "http": {
     "static": {
