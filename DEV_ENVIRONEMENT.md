@@ -1,5 +1,9 @@
 # Dev infos
 
+## Staging registration page
+https://sw.rec.la:2443/register/index-staging.html
+
+
 ## Init
 
 - Add the following line to /etc/hosts
