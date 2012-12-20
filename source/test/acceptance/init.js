@@ -1,6 +1,6 @@
 var config = require('../config-test');
 
-var app = require('../../app');
+var app = require('../../server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
@@ -68,7 +68,7 @@ var confirm_challenge = function(test, json_data) {
         status: 302,
         headers : { location: aa_servers_http_mode+"://"+ server_alias +"/?msg=CONFIRMED" },
         method: 'GET',
-        restype: 'html',
+        restype: 'text/plain',
         initialtest: test};
     dataValidation.pathStatusSchema(ntest);
   });

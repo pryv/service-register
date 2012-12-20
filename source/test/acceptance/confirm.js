@@ -1,6 +1,6 @@
 var config = require('../config-test');
 
-var app = require('../../app');
+var app = require('../../server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
@@ -19,7 +19,7 @@ describe('GET /challenge:/confirm', function(){
   tests[key].it = tests[key].desc + ', challenge: ' + tests[key].challenge;
   tests[key].url = '/'+ tests[key].challenge +'/confirm';
   tests[key].method = 'GET';
-  tests[key].restype = 'html';
+  tests[key].restype = 'text/plain';
   
   dataValidation.pathStatusSchema(tests[key]);
   }

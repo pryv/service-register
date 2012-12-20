@@ -3,8 +3,8 @@ var logger = require('winston');
 var messages = require('./messages');
 
 function app_errors(app) {
-
-  app.error(function(error, req, res, next) {
+  
+  app.use(function(error, req, res, next) {
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
       res.json(error.data, error.httpCode);

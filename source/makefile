@@ -26,11 +26,11 @@ test-server:
 test-init:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/init.js
 
-test-check_email:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check_email.js
+test-checkEmail:
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check-email.js
 
 test-changeEmail:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin_changeEmail.js
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin-changeEmail.js
 
 load:
 	@$(MOCHA) --timeout 50000 --reporter spec test/load/*.js

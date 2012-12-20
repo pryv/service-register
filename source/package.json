@@ -1,11 +1,11 @@
 {
   "name": "rec.la-registration-server",
   "description": "",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "author": "SimpleData Sàrl",
   "dependencies": {
-    "express": "2.5.x",
+    "express": "~3.0.0rc4",
     "bcrypt": "0.7.x",
     "json-schema": "0.2.x",
     "nconf": "0.6.x",

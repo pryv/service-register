@@ -1,12 +1,12 @@
 var config = require('../config-test');
 
-var app = require('../../app');
+var app = require('../../server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
 require('readyness/wait/mocha');
 
-describe('POST /init with invalid data', function(){
+describe('POST /init with invalid data (bodyParser test)', function(){
   var tests = [ 
      { data: "NON JSON DATA STRING", contenttype: "JSONSTRING",
        status: 400 , desc : 'invalid JSON', JSchema : schema.error , 

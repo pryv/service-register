@@ -12,4 +12,4 @@ configFile=$2
 [ -z "$configFile" ] && echo "Expected argument: <fleet drone id> <config file>" && exit 1
 
 fleet spawn --drone=$droneId --repo=registration-server -- \
-"node source/app.js --config $2"
+"node source/server.js --config $2"

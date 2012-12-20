@@ -1,6 +1,6 @@
 var config = require('../config-test');
 
-var app = require('../../app');
+var app = require('../../server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../model/schema.responses');
 
@@ -43,7 +43,7 @@ describe('GET /:uid/server', function(){
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
     tests[key].url = '/'+ tests[key].uid +'/server';
     tests[key].method = 'GET';
-    tests[key].restype = 'html';
+    tests[key].restype = 'text/plain';
     
     dataValidation.pathStatusSchema(tests[key]);
   };

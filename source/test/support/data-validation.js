@@ -17,7 +17,7 @@ var _s = require('underscore.string');
  *                // JSONSTRING -> nothing applied -- send JSON
  *                // STRING -> querystring.stringify(test.data) -- send x-www-form-urlencoded
  *  status: 100 | 200 | ...,  // expected status code,
- *  restype: json (default) | html,  //  result data type
+ *  restype: application/json (default) | text/html, text/plain,  //  result data type
  *  JSchema: json-schema // (optional) schema to validate (doesn not seems to work)
  *  JValues: json object // (optional)  with values, should match result 
  *  nextStep: function(test,data) // (optional)  for chained tests, will be called at the end of this one with data received 
@@ -141,11 +141,12 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
       if (test.headers)
         validateHeadersValues(test.headers,res.headers);
 
-      if (test.restype == 'html') {// default JSON
-        res.should.be.html; 
+      if (test.restype) {
+        // also for text/plain
+        res.headers['content-type'].should.equal(test.restype);
         data = bodyarr.join('');
 
-      } else {
+      } else {// default JSON
         res.should.be.json;
         data = JSON.parse(bodyarr.join(''));
 
