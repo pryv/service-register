@@ -39,7 +39,7 @@ describe('POST /access', function(){
 //chained confirm test ... with a valid challenge
 function chainedPoll(test, json_data) {
 
-  describe('GET /access/--key--/status: ', function(){
+  describe('GET /access/--key--: ', function(){
     var ntest = { 
         it : json_data.poll,
         url: json_data.poll,

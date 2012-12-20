@@ -3,13 +3,15 @@ var exec = require('child_process').exec;
 var app = require('../../app-dns');
 var logger = require('winston');
 var should = require('should');
+var _s = require('underscore.string');
 
 require('readyness/wait/mocha');
 
 describe('DNS', function(){
   it('A '+config.get('dns:domain'), function(done){
     dig('CNAME','sw.'+config.get('dns:domain'),function(result) {
-      result.should.equal('sw.pryv.net.\n');
+      var t = config.get('dns:staticDataInDomain:sw:alias');
+      result.should.equal(t[0].name+".");
       done();
     });
 
@@ -29,7 +31,7 @@ function dig(dns_class,name,result) {
     ' '+dns_class+' '+name;
 
   exec(cmd, function callback(error, stdout, stderr){
- 
+    stdout = _s.trim(stdout," \n");
     if (stderr && stderr != '') { throw Error(stderr+' | running '+cmd); }
     
     if ((! stdout) || (stdout == ''))  {
