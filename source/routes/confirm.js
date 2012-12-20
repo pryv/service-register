@@ -13,7 +13,7 @@ var dataservers = require('../network/dataservers.js');
 
 var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var domain = '.'+config.get('dns:domain');
-var confirmDisplayErrorUrl = config.get('http:static:url')+config.get('http:static:error_page');
+var confirmDisplayErrorUrl = config.get('http:static:errorUrl');
 
 var users = require('../utils/users-management.js');
 

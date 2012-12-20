@@ -79,6 +79,13 @@ exports.appAuthorization = function appAuthorization(str) {
   return null;
 };
 
+exports.appToken = function appToken(str) {
+  if (! str) return null;
+  str = _(str).trim();
+  if ( /^([a-zA-Z0-9]{1,200})$/.test(str) ) return str;
+  return null;
+};
+
 exports.accesskey = function accessKey(str) {
   if (! str) return null;
   str = _(str).trim();
@@ -87,6 +94,6 @@ exports.accesskey = function accessKey(str) {
 };
 
 exports.access = function access(json) {
-  // TODO CHECK
+    //TODO Check access structure
   return json;
 };

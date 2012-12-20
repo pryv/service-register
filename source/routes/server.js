@@ -10,12 +10,12 @@ function check(app) {
   var domain = "."+config.get('dns:domain');
 
   var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
-  var server_display_error_url = config.get('http:static:url')+config.get('http:static:error_page');
+  var confirmDisplayErrorUrl = config.get('http:static:errorUrl');
 
   app.get('/:uid/server', function(req, res,next){
 
     if (! checkAndConstraints.uid(req.params.uid)) 
-      return  res.redirect(server_display_error_url+'?id=INVALID_USER_NAME');
+      return  res.redirect(confirmDisplayErrorUrl+'?id=INVALID_USER_NAME');
 
 
     db.getServer(req.params.uid, function(error, result) {
@@ -24,7 +24,7 @@ function check(app) {
         return res.redirect(aaservers_mode+'://'+result+'/?username='+req.params.uid); // good
 
 
-      return res.redirect(server_display_error_url+'?id=UNKOWN_USER_NAME');
+      return res.redirect(confirmDisplayErrorUrl+'?id=UNKOWN_USER_NAME');
     });
   });
 

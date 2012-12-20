@@ -35,7 +35,7 @@ function setupApp(app,ip,port) {
   });
 
   // www
-  require('./routes-to-static/index')(app);
+  require('./routes/index')(app);
   
   // public API routes
   require('./routes/check.js')(app);

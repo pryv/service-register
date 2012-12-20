@@ -42,9 +42,9 @@ nconf.defaults({
   },
   'http': {  // this should match the config of sww
     'static': {
-      'url': 'https://sw.pryv.io/register/index.js',
-      'error_page': '/error.html', // within static:url
-      'access': 'https://sw.pryv.io/register/access/access.html' // ADD A trailing slashes for directories
+      'url': 'https://sw.pryv.me/register/index.html', // for redirection
+      'errorUrl': 'https://sw.pryv.me/register/error.html', 
+      'access': 'https://sw.pryv.io:2443/register/access/access.html' // ADD A trailing slashes for directories
     },
     'register': { // this is the (public) front url 
       'url': 'https://reg.pryv.io:443',  // no trailling "/" !!

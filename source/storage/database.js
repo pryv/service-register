@@ -4,8 +4,6 @@ var redis = require('redis').createClient();
 var config = require('../utils/config');
 var _s = require('underscore.string');
 
-
-
 //redis error management
 redis.on('error', function(err) {
   logger.error('Redis: '+ err.message);
@@ -58,7 +56,7 @@ function getJSON(key, callback) {
     if (error) logger.error('Redis getJSON: '+ key +' e: '+ error, error);
     if (! result) return callback(error, res_json);
     try {
-      var res_json = JSON.parse(result);
+      res_json = JSON.parse(result);
     } catch (e) {
       error = new Error(e+' db.getJSON:('+key+') string ('+result+')is not JSON');
     }

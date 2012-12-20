@@ -11,7 +11,16 @@ var domain = config.get('dns:domain');
 var activityServerPort = config.get('net:aaservers_ssl') ? 443 : 80;
 
 function access(app) {
-
+  
+  function _setAccessState(res,next,key,accessState) {
+    db.setAccessState(key, accessState, function(error, result) {
+      if (error) { return next(messages.ei()) ; }
+      //require('../utils/dump.js').inspect(accessState,result);
+      return res.json(accessState,accessState.code);
+    }); 
+  }
+  
+  
   /**
    * request an access
    */
@@ -22,8 +31,8 @@ function access(app) {
       return next(messages.e(400,'INVALID_APP_ID'));
     }
 
-    var devId = checkAndConstraints.uid(req.body.devID);
-    if (! devId) {
+    var devID = checkAndConstraints.uid(req.body.devID);
+    if (! devID) {
       return next(messages.e(400,'INVALID_USER_NAME'));
     }
 
@@ -68,115 +77,88 @@ function access(app) {
     if (error) {
       return next(messages.ei()) ; 
     }
-
+    
     var key = randGenerator.string(16);
     var accessState = { status: 'NEED_SIGNIN', 
         code: 201,
         key: key,
         appID: appID, 
         access: access, 
-        url: config.get('http:static:access')+'?lang='+lang+
-            '&key='+key+'&domain='+domain+
-            '&registerURL='+encodeURIComponent(config.get('http:register:url')), 
-            poll: config.get('http:register:url')+'/access/'+key+'/status',
+        url: config.get('http:static:access')+
+            '?lang='+lang+
+            '&key='+key+
+            '&appID'+appID+
+            '&devID'+devID+
+            '&appAuthorization'+appAuthorization+
+            '&returnURL='+encodeURIComponent(config.get('http:register:url'))+
+            '&domain='+domain+
+            '&registerURL='+encodeURIComponent(config.get('http:register:url'))+
+            '&access='+encodeURIComponent(JSON.stringify(access)), 
+            poll: config.get('http:register:url')+'/access/'+key,
             returnURL: returnURL,
             poll_rate_ms: 1000};
 
-    db.setAccessState(key, accessState, function(error, result) {
-      if (error) { return next(messages.ei()) ; }
-      return res.json(accessState,accessState.code); 
-    }); 
-
+    _setAccessState(res,next,key,accessState);
   });
-
+  
   /**
    * polling responder
    */
-  app.get('/access/:key/status', function(req, res,next) {
+  app.get('/access/:key', function(req, res,next) {
     checkKeyAndGetValue(req,res,next,function(key,value) { 
       return res.json(value,value.code);
     });
   });
-
+  
   /**
-   * relay a email login
-   * TODO: validate the safety (privacy) of this call that exposes a link between an email and a user.
-   * This can be avoided by relaying the call to uid.pryv.io/admin/login
+   * refuse access
    */
-  app.get('/access/:key/idformail/:email', function(req, res,next) {
-    if (! checkAndConstraints.email(req.params.email)) {
-      return next(messages.e(400,'INVALID_EMAIL'));
-    }
-
+  app.post('/access/:key', function(req, res,next) {
     checkKeyAndGetValue(req,res,next,function(key,value) { 
-      db.getUIDFromMail(req.params.email, function(error, uid) {
-        if (error) return next(messsages.ie()); 
-        if (! uid) {
-          return next(messages.e(404,'UNKOWN_EMAIL'));
-        }
-        return res.json({uid: uid});
-      });
-    });
-  });
-
-
-  /**
-   * get Session ID
-   */
-  app.post('/access/:key/get-app-token/:uid', function(req, res,next) {
-    if (! checkAndConstraints.uid(req.params.uid)) {
-      return next(messages.e(400,'INVALID_USER_NAME'));
-    }
-
-    if (! checkAndConstraints.activitySessionID(req.body.sessionID)) {
-      return next(messages.e(400,'INVALID_DATA'));
-    }
-
-    checkKeyAndGetValue(req,res,next,function(stateKey,stateValue) { 
-      var host = {
-          name: req.params.uid+'.'+domain,
-          port: activityServerPort,
-          authorization: req.body.sessionID};
-
-      // set sessionCookie
-      res.cookie('session', 
-          JSON.stringify({setter: 'register_access', uid: req.params.uid, sessionID: req.body.sessionID}), 
-          { maxAge: 900000, httpOnly: true });
-
-      var jsonData = {
-          id: stateValue.appID
-      };
-
       
-      dataservers.postToAdmin(host,'/admin/get-app-token',200,jsonData,function(error,json_result) {
-        if (error) { return next(messages.ei(error)) ; }
-        
-        
-        
-        if (json_result.token) {
-          var accessState = { 
-              status: 'LOGGEDIN', 
-              code: 100,
-              username: req.params.uid,
-              appToken: json_result.token};
+      if (req.body.status == 'REFUSED') {
+        var accessState = { 
+            status: 'REFUSED', 
+            reasonID: req.body.reasonID || 'REASON_UNDEFINED',
+            message:  req.body.message || '',
+            code: 403};
 
-          require('../utils/dump.js').inspect(host,stateKey,stateValue,error,json_result);
-          db.setAccessState(stateKey, accessState, function(error2, result) {
-            if (error2) { return next(messages.ei(error2)) ; }
-            require('../utils/dump.js').inspect(accessState,result);
-            return res.json(accessState,accessState.code); 
-          }); 
-
-
-        } else { // error no token //TODO 
-          require('../utils/dump.js').inspect(host,stateValue,error,json_result);
-          return next(messages.ei()) ;
+        _setAccessState(res,next,key,accessState);
+      };
+      
+      if (req.body.status == 'ERROR'){
+        var accessState = { 
+            status: 'ERROR', 
+            id: req.body.id || 'INTERNAL_ERROR',
+            message:  req.body.message || '',
+            detail:  req.body.detail || '',
+            code: 403};
+        
+        _setAccessState(res,next,key,accessState);
+      };
+      
+      if (req.body.status == 'ACCEPTED'){
+        
+        if (! checkAndConstraints.uid(req.body.username)) {
+          return next(messages.e(400,'INVALID_USER_NAME'));
         }
+
+        if (! checkAndConstraints.appToken(req.body.token)) {
+          return next(messages.e(400,'INVALID_DATA'));
+        }
+        
+        var accessState = { 
+            status: 'ACCEPTED',
+            username: req.body.username,
+            token: req.body.token,
+            code: 200};
+        
+        _setAccessState(res,next,key,accessState);
       }
-      );
     });
   });
-
+  
+ 
 }
 
 /**
@@ -187,7 +169,8 @@ function checkKeyAndGetValue(req,res,next,ifOk) {
   if (checkAndConstraints.accesskey(req.params.key) == null) {
     return next(messages.e(400,'INVALID_KEY'));
   }
-
+  
+  
   db.getAccessState(req.params.key, function(error, result) {
     if (error) { return next(messages.ei(error)) ; }
     if (! result) {
@@ -195,7 +178,6 @@ function checkKeyAndGetValue(req,res,next,ifOk) {
     }
 
     ifOk(req.params.key,result);
-
   }); 
 }
 
