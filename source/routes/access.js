@@ -78,26 +78,47 @@ function access(app) {
       return next(messages.ei()) ; 
     }
     
+    
+    
+    
+    
     var key = randGenerator.string(16);
+    var pollURL = config.get('http:register:url')+'/access/'+key;
+    
+    var url = config.get('http:static:access')+
+    '?lang='+lang+
+    '&key='+key+
+    '&appID'+appID+
+    '&devID'+devID+
+    '&appAuthorization'+appAuthorization+
+    '&returnURL='+encodeURIComponent(config.get('http:register:url'))+
+    '&domain='+domain+
+    '&registerURL='+encodeURIComponent(config.get('http:register:url'));
+    
+    //TODO add username & sessionID if possible
+    
+    
+    var accessURIc = '&access='+encodeURIComponent(JSON.stringify(access));
+    
+    if ((url.length + accessURIc.length) > 2000) {
+      console.log("url too long");
+      url = url + '&poll='+encodeURIComponent(pollURL);
+    } else {
+      url = url + accessURIc;
+    }
+    
     var accessState = { status: 'NEED_SIGNIN', 
         code: 201,
         key: key,
         appID: appID, 
+        devID: devID,
+        appAuthorization: appAuthorization,
         access: access, 
-        url: config.get('http:static:access')+
-            '?lang='+lang+
-            '&key='+key+
-            '&appID'+appID+
-            '&devID'+devID+
-            '&appAuthorization'+appAuthorization+
-            '&returnURL='+encodeURIComponent(config.get('http:register:url'))+
-            '&domain='+domain+
-            '&registerURL='+encodeURIComponent(config.get('http:register:url'))+
-            '&access='+encodeURIComponent(JSON.stringify(access)), 
-            poll: config.get('http:register:url')+'/access/'+key,
-            returnURL: returnURL,
-            poll_rate_ms: 1000};
-
+        url: url, 
+        poll: pollURL,
+        returnURL: returnURL,
+        poll_rate_ms: 1000};
+    
     _setAccessState(res,next,key,accessState);
   });
   
