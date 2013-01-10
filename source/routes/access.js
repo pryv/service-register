@@ -26,23 +26,13 @@ function access(app) {
    */
   app.post('/access', function(req, res,next){
     //--- parameters --//
-    var appID = checkAndConstraints.appID(req.body.appID);
-    if (! appID) {
+    var requestingAppId = checkAndConstraints.appID(req.body.requestingAppId);
+    if (! requestingAppId) {
       return next(messages.e(400,'INVALID_APP_ID'));
     }
 
-    var devID = checkAndConstraints.uid(req.body.devID);
-    if (! devID) {
-      return next(messages.e(400,'INVALID_USER_NAME'));
-    }
-
-    var appAuthorization = checkAndConstraints.appAuthorization(req.body.appAuthorization);
-    if (! appAuthorization) {
-      return next(messages.e(400,'INVALID_DATA'));
-    }
-
-    var access = checkAndConstraints.access(req.body.access);
-    if (! access) {
+    var requestedPermissions = checkAndConstraints.access(req.body.requestedPermissions);
+    if (! requestedPermissions) {
       return next(messages.e(400,'INVALID_DATA'));
     }
 
@@ -88,17 +78,15 @@ function access(app) {
     var url = config.get('http:static:access')+
     '?lang='+lang+
     '&key='+key+
-    '&appID'+appID+
-    '&devID'+devID+
-    '&appAuthorization'+appAuthorization+
-    '&returnURL='+encodeURIComponent(config.get('http:register:url'))+
+    '&requestingAppId='+requestingAppId+
+    '&returnURL='+encodeURIComponent(returnURL)+
     '&domain='+domain+
     '&registerURL='+encodeURIComponent(config.get('http:register:url'));
     
     //TODO add username & sessionID if possible
     
     
-    var accessURIc = '&access='+encodeURIComponent(JSON.stringify(access));
+    var accessURIc = '&requestedPermissions='+encodeURIComponent(JSON.stringify(requestedPermissions));
     
     if ((url.length + accessURIc.length) > 2000) {
       console.log("url too long");
@@ -110,10 +98,8 @@ function access(app) {
     var accessState = { status: 'NEED_SIGNIN', 
         code: 201,
         key: key,
-        appID: appID, 
-        devID: devID,
-        appAuthorization: appAuthorization,
-        access: access, 
+        requestingAppId: requestingAppId, 
+        requestedPermissions: requestedPermissions, 
         url: url, 
         poll: pollURL,
         returnURL: returnURL,
