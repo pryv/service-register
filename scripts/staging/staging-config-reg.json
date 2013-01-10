@@ -8,7 +8,17 @@
       "www": {"alias": [ { "name": "s1.simpledata.ch" } ]},
       "sw": {"alias": [ { "name": "s1.simpledata.ch" } ]},
       "reg": {"alias": [ { "name": "ns1.wactiv.com" } ]}
-    }
+    },
+    "nameserver": [
+                   {
+                     "name": "ns1.wactiv.com",
+                     "ip": "91.121.41.240"
+                   },
+                   {
+                     "name": "ns2.wactiv.com",
+                     "ip": "91.121.41.94"
+                   }
+                   ]
   },
   "http": {
     "static": {
