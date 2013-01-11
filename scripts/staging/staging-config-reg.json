@@ -26,7 +26,7 @@
       "access": "https://sw.rec.la:2443/register/access/access.html"
     },
     "register": { 
-      "url": "https://rec.la:443"
+      "url": "https://reg.rec.la:443"
     }
   },
   "server": {
