@@ -24,7 +24,16 @@ class reg {
     group   => 'git',
     require => File['/home/git/.ssh'],
   }
-   
+  
+  # live dir
+  file {'/var/www':
+    ensure  => 'directory',
+    mode    => '0644',
+    owner   => 'git',
+    group   => 'git',
+    require => Exec['user git'],
+  }
+
   # init git bare repositories
   #
   exec {'/var/git':
