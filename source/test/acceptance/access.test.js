@@ -16,7 +16,7 @@ describe('POST /access', function(){
     it: 'valid',
     url: '/access',
     method: 'POST',
-    data: { appID: 'reg-test', devID: 'wactiv', appAuthorization: 'ABCDEFGHIJKLMNOPQ', access: { some: 'json', data: 'to request access'}},
+    data: { requestingAppId: 'reg-test', languageCode: 'en', appAuthorization: 'ABCDEFGHIJKLMNOPQ', requestedPermissions: { some: 'json', data: 'to request access'}},
     contenttype: 'JSON',
     status: 201, // created
     JSchema: schema.accessPOST,
@@ -26,7 +26,7 @@ describe('POST /access', function(){
       it: 'invalid App Id',
       url: '/access',
       method: 'POST',
-      data: { appID: 'a', devID: 'wactiv', appAuthorization: 'ABCDEFGHIJKLMNOPQ', access: { some: 'json', data: 'to request access'}},
+      data: { requestingAppId: 'a', languageCode: 'en', appAuthorization: 'ABCDEFGHIJKLMNOPQ', requestedPermissions: { some: 'json', data: 'to request access'}},
       contenttype: 'JSON',
       status: 400, // created
       JSchema: schema.error }
