@@ -36,7 +36,6 @@ function access(app) {
       return next(messages.e(400,'INVALID_DATA'));
     }
 
-
     var lang = checkAndConstraints.lang(req.body.languageCode);
 
     //-- TODO Check URL validity
@@ -58,7 +57,13 @@ function access(app) {
      */
     // is this a known user
     // foreach req.cookies. ...
-
+    if ( req.cookies.accessKey ) {
+      require('../utils/dump.js').inspect( { cookie: req.cookies});
+      checkKeyAndGetValue(req,res,next,function(key,value) { 
+        return res.json(value,value.code);
+      });
+    }
+    //alert (Chaine_commande);
     // .... do some stuff here
 
 
@@ -168,24 +173,33 @@ function access(app) {
  
 }
 
+
+/**
+ * Test the key 
+ */
+function testKeyAndGetValue(key,success,failed) {
+  if (checkAndConstraints.accesskey(key) == null) {
+    return failed(messages.e(400,'INVALID_KEY'));
+  }
+  
+  db.getAccessState(key, function(error, result) {
+    if (error) { return failed(messages.ei(error)) ; }
+    if (! result) {
+      return failed(messages.e(400,'INVALID_KEY'));
+    }
+
+    success(result);
+  }); 
+}
+
 /**
  * Check the key in the request and call ifOk() if a value is found
  * @param ifOk callback(value)
  */
 function checkKeyAndGetValue(req,res,next,ifOk) {
-  if (checkAndConstraints.accesskey(req.params.key) == null) {
-    return next(messages.e(400,'INVALID_KEY'));
-  }
-  
-  
-  db.getAccessState(req.params.key, function(error, result) {
-    if (error) { return next(messages.ei(error)) ; }
-    if (! result) {
-      return next(messages.e(400,'INVALID_KEY'));
-    }
-
-    ifOk(req.params.key,result);
-  }); 
+  testKeyAndGetValue(req.params.key,function(value) {
+    ifOk(req.params.key,value);
+  },next);
 }
 
 module.exports = access;
