@@ -11,7 +11,7 @@
   "http": {
     "static": {
       "url": "https://local.rec.la:8443/register/index-dev-swwreg.html",
-      "access": "https://local.rec.la:4443/access/SDK-VESRION-NUM/access.html"
+      "access": "https://local.rec.la:4443/access/SDK-VERSION-NUM/access.html"
     },
     "register": { 
       "url": "https://reglocal.rec.la:2443"
