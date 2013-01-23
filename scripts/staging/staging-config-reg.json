@@ -23,7 +23,7 @@
   "http": {
     "static": {
       "url": "https://sw.rec.la:2443/register/index-dev-recla.html",
-      "access": "https://sw.rec.la:2443/register/access/access.html"
+      "access": "https://sw.rec.la:2443/access/access.html"
     },
     "register": { 
       "url": "https://reg.rec.la:443"
