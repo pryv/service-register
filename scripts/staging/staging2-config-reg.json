@@ -1,0 +1,45 @@
+{
+  "dns": {
+    "name": "streg-gandi-fr-01.pryv.net",
+    "domain": "rec.la",
+    "ip": "95.142.174.93",
+    "port": 53,
+    "staticDataInDomain": { 
+      "www": {"alias": [ { "name": "stswww-gandi-fr-01.pryv.net" } ]},
+      "sw": {"alias": [ { "name": "stswww-gandi-fr-01.pryv.net" } ]},
+      "reg": {"alias": [ { "name": "streg-gandi-fr-01.pryv.net" } ]}
+    }
+  }
+,
+    "nameserver": [
+                   {
+                     "name": "streg-gandi-fr-01.pryv.net",
+                     "ip": "95.142.174.93"
+                   },
+                   {
+                     "name": "streg-gandi-us-01.pryv.net",
+                     "ip": "173.246.100.43"
+                   }
+                   ]
+},
+  "http": {
+    "static": {
+      "url": "https://sw.rec.la:2443/register/index-dev-recla.html",
+      "access": "https://sw.rec.la:2443/access/v0/access.html"
+    },
+    "register": { 
+      "url": "https://reg.rec.la:443"
+    }
+  },
+  "server": {
+    "certsPathAndKey": "/home/wactiv/registration-server/source/cert/rec.la",
+    "ip": "95.142.174.93",
+    "port": 443
+  },
+  "net": {
+    "AAservers_domain": "pryv.net", 
+    "aaservers_ssl": "true", 
+    "aaservers": [{ "base_name": "stact-simple-01", "port": 443, "authorization": "register-test-token" }, 
+       { "base_name": "stact-simple-02", "port": 443, "authorization": "register-test-token" }]
+  }
+}
