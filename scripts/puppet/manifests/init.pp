@@ -1,4 +1,5 @@
-class reg($nodeversion, $redisversion, $app) {
+class reg($nodeversion, $redisversion, $app, $datadiskname, $redisconffile) {
+  notify{"reg datadiskname: $datadiskname redisconffile: $redisconffile":}
   # package 
   package {
     'tcl8.5': ensure => installed;
@@ -12,6 +13,8 @@ class reg($nodeversion, $redisversion, $app) {
   #
   class{'redissetup':
     redisversion  => $redisversion,
+    datadiskname  => $datadiskname,
+    redisconffile => $redisconffile,
   }
   class{'nodesetup':
     nodeversion => $nodeversion,
