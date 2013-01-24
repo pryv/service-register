@@ -55,15 +55,16 @@ function access(app) {
      * appname: "a name for the app",
      * access: "the required access",
      */
-    // is this a known user
-    // foreach req.cookies. ...
+    
+    // is this a returning user (look in cookies)
     if ( req.cookies.accessKey ) {
       require('../utils/dump.js').inspect( { cookie: req.cookies});
       checkKeyAndGetValue(req,res,next,function(key,value) { 
+        
         return res.json(value,value.code);
       });
     }
-    //alert (Chaine_commande);
+    
     // .... do some stuff here
 
 
