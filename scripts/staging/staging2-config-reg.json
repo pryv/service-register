@@ -21,7 +21,7 @@
                      "ip": "173.246.100.43"
                    }
                    ]
-},
+,
   "http": {
     "static": {
       "url": "https://sw.rec.la:2443/register/index-dev-recla.html",
