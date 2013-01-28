@@ -16,7 +16,6 @@ class reg($nodeversion, $redisversion, $app, $datadiskname, $conffile) {
     source  => "puppet:///modules/reg/var/www/app/source/$conffile.json",
     require => File['/var/www'],
   }
-
   # install node for user root
   #
   class{'redissetup':

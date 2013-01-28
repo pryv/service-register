@@ -32,7 +32,7 @@
     }
   },
   "server": {
-    "certsPathAndKey": "/home/wactiv/registration-server/source/cert/rec.la",
+    "certsPathAndKey": "/var/www/registration-server/source/cert/rec.la",
     "ip": "95.142.174.93",
     "port": 443
   },

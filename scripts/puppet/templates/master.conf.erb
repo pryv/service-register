@@ -12,7 +12,7 @@ stop  on shutdown
 respawn # restart when job dies
  
 script
-exec sudo -u root NODE_ENV=production /usr/local/bin/supervisor -w /var/www/<%= app %> --  /var/www/<%= app %>/source/app.js --config /var/www/<%= app %>/source/config.json >> /var/log/app.log 2>&1
+exec sudo -u root NODE_ENV=production /usr/local/bin/supervisor -w /var/www/<%= app %> --  /var/www/<%= app %>/source/server.js --config /var/www/<%= app %>/source/config.json >> /var/log/app.log 2>&1
 end script
  
 pre-start script                             
