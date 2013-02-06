@@ -2,7 +2,7 @@
   "dns": {
     "name": "streg-gandi-fr-01.pryv.net",
     "domain": "rec.la",
-    "ip": "95.142.174.93",
+    "ip": "0.0.0.0",
     "port": 53,
     "staticDataInDomain": { 
       "www": {"alias": [ { "name": "stswww-gandi-fr-01.pryv.net" } ]},
@@ -14,7 +14,7 @@
     "nameserver": [
                    {
                      "name": "streg-gandi-fr-01.pryv.net",
-                     "ip": "95.142.174.93"
+                     "ip": "95.142.173.56"
                    },
                    {
                      "name": "streg-gandi-us-01.pryv.net",
@@ -24,16 +24,16 @@
 ,
   "http": {
     "static": {
-      "url": "https://sw.rec.la:2443/register/index-dev-recla.html",
-      "access": "https://sw.rec.la:2443/access/v0/access.html"
+      "url": "https://sw.rec.la:4443/register/index-dev-recla.html",
+      "access": "https://sw.rec.la:4443/access/v0/access.html"
     },
     "register": { 
       "url": "https://reg.rec.la:443"
     }
   },
   "server": {
-    "certsPathAndKey": "/var/www/registration-server/source/cert/rec.la",
-    "ip": "95.142.174.93",
+    "certsPathAndKey": "<%= httpcerts %>",
+    "ip": "0.0.0.0",
     "port": 443
   },
   "net": {
