@@ -82,4 +82,11 @@ class reg($app, $slaveof) {
     mode    => '644',
     require => [Exec["supervisor"], File["app config file"]],
   }
+  
+  
+  ### to be tested
+  setup::gitrepos {'gitrepos':
+    reponame => $app,
+    destination => "/tmp/git${appcode}test"
+  }
 }
