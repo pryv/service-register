@@ -86,7 +86,8 @@ nconf.defaults({
     'staticDataInDomain': { 
       'www': {alias: [ { name: 'w.pryv.com' } ]}, // static web files repository
       'sw': {alias: [ { name: 'sw.pryv.net' } ]}, // secured web files repository
-      'reg': {alias: [ { name: 'reg.pryv.net' } ]} // register real name
+      'reg': {alias: [ { name: 'reg.pryv.net' } ]}, // register real name
+      'access': {alias: [ { name: 'reg.pryv.net' } ]} // access need to be migrated
     },
     'nameserver': [
                    {
