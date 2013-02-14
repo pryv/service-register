@@ -22,7 +22,7 @@
   },
   "http": {
     "static": {
-      "url": "https://sw.rec.la:2443/register/index-dev-recla.html",
+      "url": "https://sw.rec.la:443/register/index-dev-recla.html",
       "access": "https://sw.rec.la:2443/access/v0/access.html"
     },
     "register": { 
