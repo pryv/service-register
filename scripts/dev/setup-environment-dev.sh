@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # This script sets up the Pryv registration server development environment on a 64-bit OSX system
-# Original inspiration: activity-server script (thank you Simon)
+# Original inspiration: api-server script (thank you Simon)
 
 # working dir fix
 scriptsFolder=$(cd $(dirname "$0"); pwd)

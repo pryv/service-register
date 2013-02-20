@@ -1,3 +1,5 @@
+**TODO: review and integrate this into the README (check with Simon if needed)**
+
 # Dev infos
 
 ## Staging registration page
