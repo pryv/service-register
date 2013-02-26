@@ -127,6 +127,11 @@ nconf.defaults({
       'deactivate_mailer' : false,
       'add_challenge' : true  // will add the challenge string to the response in order to chain tests
     }
+  },
+  'devel': {
+    'static': {
+      'access' : 'https://l.rec.la:4443/access/SDK-VERSION-NUM/access.html'
+    }
   }
 });
 

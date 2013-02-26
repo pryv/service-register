@@ -75,13 +75,20 @@ function access(app) {
     }
     
     
-    
+     
     
     
     var key = randGenerator.string(16);
     var pollURL = config.get('http:register:url')+'/access/'+key;
     
-    var url = config.get('http:static:access')+
+    var url = config.get('http:static:access');
+ 
+    if (req.body.localDevel === true) {
+       url = config.get('devel:static:access');
+    }
+    
+    
+    url = url +
     '?lang='+lang+
     '&key='+key+
     '&requestingAppId='+requestingAppId+
