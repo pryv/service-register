@@ -25,7 +25,7 @@ var serverOptions = {
 
 var  server = require('https').createServer(serverOptions, app);
 
-var appListening = ready.waitFor('app:listening:'+config.get('server:ip')+':'+config.get('server:port'));
+var appListening = ready.waitFor('register:listening:'+config.get('server:ip')+':'+config.get('server:port'));
 server.listen(config.get('server:port'),config.get('server:ip'), function() {
   var address = server.address();
   var protocol = server.key ? 'https' : 'http';

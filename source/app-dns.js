@@ -131,5 +131,5 @@ var serverForName = function(reqName,callback,req,res) {
 var ready = require('readyness');
 ready.setLogger(logger.info);
 
-readyListening = ready.waitFor('app_static:listening');
+readyListening = ready.waitFor('app_dns:listening');
 dns.start(config.get('dns:port'),config.get('dns:ip'),serverForName,readyListening);
