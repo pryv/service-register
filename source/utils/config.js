@@ -130,7 +130,7 @@ nconf.defaults({
   },
   'devel': {
     'static': {
-      'access' : 'https://l.rec.la:4443/access/SDK-VERSION-NUM/access.html'
+      'access' : 'https://l.rec.la:4443/access/'
     }
   }
 });

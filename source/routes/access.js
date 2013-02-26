@@ -83,8 +83,8 @@ function access(app) {
     
     var url = config.get('http:static:access');
  
-    if (req.body.localDevel === true) {
-       url = config.get('devel:static:access');
+    if (typeof req.body.localDevel !== "undefined") {
+       url = config.get('devel:static:access')+req.body.localDevel;
     }
     
     
