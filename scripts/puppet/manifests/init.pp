@@ -1,6 +1,4 @@
-class reg($app, $slaveof) {
-  
-  
+class reg($hostclass, $app, $slaveof) {
   
   notify{"reg $app slaveof: $slaveof ":}
   
@@ -8,7 +6,6 @@ class reg($app, $slaveof) {
   package {
     'tcl8.5': ensure => installed;
   }
-  
   
   # used by upstart template
   $appcode = "reg"   
@@ -18,18 +15,21 @@ class reg($app, $slaveof) {
   $nodeversion = 'v0.8.2'
   $redisversion = '2.4.16'
   
-   # dependencies
+  # test deployed custom point
+  file{'/tmp/last':
+    source => "puppet:///deployed/$hostclass/last" 
+  }
+  # 
+  #exec{
+    
+  #}
+
+  # dependencies
   class{'nodesetup': nodeversion => $nodeversion, }
   class{'redis': 
     redisversion  => $redisversion,
     slaveof       => $slaveof,
   }
-
-  exec{'supervisor':
-    command => "npm install -g supervisor",
-    require => Class["nodesetup"],
-  }
-  
   
   # app dir
   file {"$appdir":
@@ -37,7 +37,6 @@ class reg($app, $slaveof) {
     mode    => '0644',
     require => File["$::livedir"],
   }
-
   
   if ($app == "staging-registration-server") {
      $nodeenv = "developement"
@@ -66,7 +65,6 @@ class reg($app, $slaveof) {
     require => File["$appdir"],
   }
   
-   
   file {"reg setup script":
     path    =>  "$appdir.setup.bash",
     ensure  => 'file',
@@ -82,6 +80,4 @@ class reg($app, $slaveof) {
     mode    => '644',
     require => [Exec["supervisor"], File["app config file"]],
   }
-  
- 
 }
