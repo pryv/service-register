@@ -8,3 +8,4 @@ db/appendonly.aof
 db/redis_dump.rdb
 redis-*
 registration-server.iml
+register.iml

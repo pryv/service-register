@@ -81,8 +81,7 @@ exports.appAuthorization = function appAuthorization(str) {
 
 exports.appToken = function appToken(str) {
   if (! str) return null;
-  str = _(str).trim();
-  if ( /^([a-zA-Z0-9]{1,200})$/.test(str) ) return str;
+  if ( str.length < 256 ) return str;
   return null;
 };
 
