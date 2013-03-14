@@ -16,13 +16,35 @@ class reg($hostclass, $app, $slaveof) {
   $redisversion = '2.4.16'
   
   # test deployed custom point
-  file{'/tmp/last':
-    source => "puppet:///deployed/$hostclass/last" 
+  file{"/tmp/$app.commit":
+    source => "puppet:///deployed/$app.commit",
+    notify => Exec["/tmp/commit2"],
   }
-  # 
-  #exec{
-    
-  #}
+  exec{'/tmp/commit2':
+    command => "cp /tmp/commit /tmp/commit2",
+    require => File["/tmp/$app.commit"],
+  }
+
+  file{"/tmp/$app.tar.gz":
+    source  => "puppet:///deployed/$app.tar.gz",
+    notify  => Exec["remove old $app"],
+    require => File["$::livedir"],
+  }
+  exec{"remove old $app":
+    command => "rm -rf $app",
+    cwd     => "$::livedir", 
+    require => File["/tmp/$app.tar.gz"],
+  }
+  exec{"uncompress $app.tar.gz":
+    command => "mv /tmp/$app.tar.gz .; tar xfz $app.tar.gz",
+    cwd     => "$::livedir", 
+    require => Exec["remove old $app"],
+  }
+  exec{"run $app.setup.bash":
+    command => "bash $app.setup.bash",
+    cwd     => "$::livedir", 
+    require => Exec["uncompress $app.tar.gz"],
+  }
 
   # dependencies
   class{'nodesetup': nodeversion => $nodeversion, }
