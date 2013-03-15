@@ -91,7 +91,7 @@ class reg($hostclass, $app, $slaveof) {
   file {"upstart":
     path    =>  "/etc/init/reg.conf",
     ensure  => 'file',
-    content => template("head/upstart-default-nodeapp.conf.erb"),
+    content => template("head/upstart-default-nodeapp-minimal-watch.conf.erb"),
     mode    => '644',
     require => [Exec["supervisor"], File["app config file"]],
   }
