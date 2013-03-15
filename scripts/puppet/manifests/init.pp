@@ -15,35 +15,28 @@ class reg($hostclass, $app, $slaveof) {
   $nodeversion = 'v0.8.2'
   $redisversion = '2.4.16'
   
-  # test deployed custom point
+  file{"$::livedir/scripts":
+    ensure  => 'directory',
+    require => File["$::livedir"],
+    before  => Exec["unpacking"],
+  }
+  file{"$::livedir/scripts/unpack.bash":
+    source  => "puppet:///reg/pryv/scripts/unpack.bash",
+    require => File["$::livedir/scripts"],
+    before  => Exec["unpacking"],
+  }
   file{"/tmp/$app.commit":
     source => "puppet:///deployed/$app.commit",
-    notify => Exec["/tmp/commit2"],
   }
-  exec{'/tmp/commit2':
-    command => "cp /tmp/commit /tmp/commit2",
-    require => File["/tmp/$app.commit"],
-  }
-
   file{"/tmp/$app.tar.gz":
     source  => "puppet:///deployed/$app.tar.gz",
-    notify  => Exec["remove old $app"],
+    notify  => Exec["unpacking"],
     require => File["$::livedir"],
   }
-  exec{"remove old $app":
-    command => "rm -rf $app",
+  exec{"unpacking":
+    command => "bash ./scripts/unpack.bash $app", 
     cwd     => "$::livedir", 
     require => File["/tmp/$app.tar.gz"],
-  }
-  exec{"uncompress $app.tar.gz":
-    command => "mv /tmp/$app.tar.gz .; tar xfz $app.tar.gz",
-    cwd     => "$::livedir", 
-    require => Exec["remove old $app"],
-  }
-  exec{"run $app.setup.bash":
-    command => "bash $app.setup.bash",
-    cwd     => "$::livedir", 
-    require => Exec["uncompress $app.tar.gz"],
   }
 
   # dependencies
