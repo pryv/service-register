@@ -15,28 +15,9 @@ class reg($hostclass, $app, $slaveof) {
   $nodeversion = 'v0.8.2'
   $redisversion = '2.4.16'
   
-  file{"$::livedir/scripts":
-    ensure  => 'directory',
-    require => File["$::livedir"],
-    before  => Exec["unpacking"],
-  }
-  file{"$::livedir/scripts/unpack.bash":
-    source  => "puppet:///reg/pryv/scripts/unpack.bash",
-    require => File["$::livedir/scripts"],
-    before  => Exec["unpacking"],
-  }
-  file{"/tmp/$app.commit":
-    source => "puppet:///deployed/$app.commit",
-  }
-  file{"/tmp/$app.tar.gz":
-    source  => "puppet:///deployed/$app.tar.gz",
-    notify  => Exec["unpacking"],
-    require => File["$::livedir"],
-  }
-  exec{"unpacking":
-    command => "bash ./scripts/unpack.bash $app", 
-    cwd     => "$::livedir", 
-    require => File["/tmp/$app.tar.gz"],
+  setup::unpack{'unpack_mechanism':
+    livedir => $::livedir,
+    app     => $app,
   }
 
   # dependencies
