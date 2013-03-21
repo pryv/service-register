@@ -13,7 +13,7 @@ var success = exports.success = {
 var checkExists = exports.checkExists = {
     type: 'object',
     properties: {
-      exists : {
+      reserved : {
         type: 'boolean',
         required: true
       }

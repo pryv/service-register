@@ -18,13 +18,24 @@ exports.extractRessourceFromHostname = function(hostname) {
 var _temp = '([a-z0-9]{1,21})\\.'+ config.get('dns:domain').replace(/\./g,'\\.');
 var extractRessourceFromHostnameRegExp = new RegExp('^'+_temp+'$');
 
-// (alphanum between 5 an 21 chars) case-insensitive
+// (alphanum between 5 an 21 chars) case-insensitive  - and _ authorized
+// trim the uid ..
 exports.uid = function uid(str) {
     if (! str) return null;
     str = _(str).trim();
     //console.log('CHK USERNAME *'+str+'* ');
-    if ( /^([a-zA-Z0-9]{5,21})$/.test(str) ) return str;
+    if ( /^([a-zA-Z0-9])(([a-zA-Z0-9_\-]){3,21})([a-zA-Z0-9])$/.test(str) ) return str;
     return null;
+};
+
+// (not a static DNS entry & not starting by "pryv") case-insensitive
+// uid must have already been checked and cleaned by check-and-constraints.uid(..
+exports.uidReserved = function uid(str) {
+  if (! str) return null;
+  if ( /^(pryv)+(.*)$/.test(str.toLowerCase()) ) return true;
+  // optimise this with some caching
+  if (config.get("dns:staticDataInDomain:"+ str)) return true;
+  return false;
 };
 
 // any chars between 6 and 99 chars, with no trailing spaces.

@@ -7,13 +7,18 @@ var appErrors = require('../utils/app-errors.js');
 function check(app) {
 
   app.get('/:uid/check', function(req, res,next){
-
-    if (! checkAndConstraints.uid(req.params.uid)) 
+    var uid = checkAndConstraints.uid(req.params.uid);
+    if (! uid)
       return next(messages.e(400,'INVALID_USER_NAME'));
-    db.uidExists(req.params.uid,function(error, exists) {
-      if (error) return next(messages.ei());
-      res.json({exists: exists });
-    });
+
+    if (checkAndConstraints.uidReserved(uid)) {
+      res.json({reserved: true, reason: 'RESERVED_USER_NAME' });
+    } else {
+      db.uidExists(req.params.uid,function(error, exists) {
+        if (error) return next(messages.ei());
+        res.json({reserved: exists });
+      });
+    }
   });
 
 }

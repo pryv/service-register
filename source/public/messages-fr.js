@@ -7,6 +7,8 @@ register_messages = {
     'detail' : 'Un nom d\'utilisateur doit être composé de 5 à 21 caractères non accentuées.'},
   'EXISTING_USER_NAME' : { 'message' : 'L\'identifiant existe', 
     'detail' : 'Les identifiants d\'utilisateur doivent être uniques.'},
+  'RESERVED_USER_NAME' : { 'message' : 'Identifiant réservé',
+    'detail' : 'Identifiant réservé.'},
   'INVALID_PASSWORD' : { 'message' : 'Mot de passe non valide', 
     'detail' : 'Les mots de passes sont composés de 6 à 99 caractères.'},
   

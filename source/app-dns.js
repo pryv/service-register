@@ -21,20 +21,20 @@ logger.setLevels(logger.config.syslog.levels);
 
 
 var baseData = {
-      autority: config.get('dns:name')+',admin.'+config.get('dns:domain'),
-    nameserver: config.get('dns:nameserver') 
+      autority: config.get('dns:name') + ',admin.' + config.get('dns:domain'),
+    nameserver: config.get('dns:nameserver')
 };
 
 var mxData = {
-     mail: config.get('dns:mail'),
+     mail: config.get('dns:mail')
 };
 
 var nsData = {
-     nameserver: baseData.nameserver,
+     nameserver: baseData.nameserver
 };
 
 var soaData = {
-     autority: baseData.autority,
+     autority: baseData.autority
 };
 
 
@@ -43,7 +43,7 @@ var rootData = {
     autority: baseData.autority,
   nameserver: baseData.nameserver,
         ip: config.get('dns:domain_A'),
-        mail: mxData.mail,
+        mail: mxData.mail
 };
 
 

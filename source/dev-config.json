@@ -18,7 +18,8 @@
     }
   },
   "server": {
-    "certsPathAndKey": "cert/rec.la"
+    "certsPathAndKey": "cert/rec.la" ,
+    "port": 8443
   },
   "net": {
     "AAservers_domain": "wactiv.com", 
