@@ -13,12 +13,24 @@ var success = exports.success = {
 var checkExists = exports.checkExists = {
     type: 'object',
     properties: {
-      reserved : {
+      exists : {
         type: 'boolean',
         required: true
       }
     }
 }
+
+//route : check
+var checkUID = exports.checkUID = {
+  type: 'object',
+  properties: {
+    reserved : {
+      type: 'boolean',
+      required: true
+    }
+  }
+}
+
 
 //route : init
 var initDone = exports.initDone = {

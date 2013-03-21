@@ -22,16 +22,16 @@ describe('GET /:uid/check', function(){
       JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}},
 
     { uid: 'abc_d-ef', status: 200 , desc : '_ - authorized ',
-      JSchema : schema.checkExists },
+      JSchema : schema.checkUID },
 
     { uid: 'wactiv', status: 200 , desc : 'correct ', 
-      JSchema : schema.checkExists },
+      JSchema : schema.checkUID },
 
     { uid: 'pryvtoto', status: 200 , desc : 'reserved for pryv',
-      JSchema : schema.checkExists,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} },
+      JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} },
 
     { uid: 'access', status: 200 , desc : 'reserved dns',
-      JSchema : schema.checkExists,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'}}
+      JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'}}
     ] ;
   
   for (var key = 0; key < tests.length; key++) { // create PATH and method
