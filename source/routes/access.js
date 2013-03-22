@@ -33,12 +33,15 @@ function access(app) {
 
     var requestedPermissions = checkAndConstraints.access(req.body.requestedPermissions);
     if (! requestedPermissions) {
-      return next(messages.e(400,'INVALID_DATA'));
+      return next(messages.e(400,'INVALID_DATA',{detail: 'Missing or invalid requestedPermissions field'}));
     }
 
     var lang = checkAndConstraints.lang(req.body.languageCode);
 
-    //-- TODO Check URL validity
+    //-- TODO Complete Check URL validity
+    if (typeof (req.body.returnURL) === "undefined") {
+      return next(messages.e(400,'INVALID_DATA',{detail: 'Missing Return Url field'}));
+    }
     var returnURL = req.body.returnURL;
 
     //--- END parameters --//

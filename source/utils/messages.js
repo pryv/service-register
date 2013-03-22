@@ -23,6 +23,12 @@ function cloneMessage(id) {
   return {id: t.id, message: t.message, detail: t.detail};
 }
 
+/**
+ *
+ * @param id  string key of the message to display (references /messages-<lang code>.js)
+ * @param addons  key / value json object to be dumped with the message
+ * @return {*}
+ */
 function say(id,addons) {
   // merge addons
   if (addons) {
