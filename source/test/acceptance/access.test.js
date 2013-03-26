@@ -16,7 +16,7 @@ describe('POST /access', function(){
     it: 'valid',
     url: '/access',
     method: 'POST',
-    data: { requestingAppId: 'reg-test', languageCode: 'en', appAuthorization: 'ABCDEFGHIJKLMNOPQ', requestedPermissions: { some: 'json', data: 'to request access'}},
+    data: { requestingAppId: 'reg-test', languageCode: 'en', returnURL: false, appAuthorization: 'ABCDEFGHIJKLMNOPQ', requestedPermissions: { some: 'json', data: 'to request access'}},
     contenttype: 'JSON',
     status: 201, // created
     JSchema: schema.accessPOST,
@@ -26,7 +26,7 @@ describe('POST /access', function(){
       it: 'invalid App Id',
       url: '/access',
       method: 'POST',
-      data: { requestingAppId: 'a', languageCode: 'en', appAuthorization: 'ABCDEFGHIJKLMNOPQ', requestedPermissions: { some: 'json', data: 'to request access'}},
+      data: { requestingAppId: 'a', languageCode: 'en', returnURL: 'http://BlipBlop.com', appAuthorization: 'ABCDEFGHIJKLMNOPQ', requestedPermissions: { some: 'json', data: 'to request access'}},
       contenttype: 'JSON',
       status: 400, // created
       JSchema: schema.error }
