@@ -1,5 +1,28 @@
 var util = require('util');
 
+
+exports.curlHttpRequest = function (httpOptions, ssl, postData) {
+  var http = ssl ? 'https' : 'http';
+
+  //console.log(postData);
+
+  var command = 'curl -i ';
+
+  if (httpOptions.headers)
+    for (header in httpOptions.headers) {
+      if (httpOptions.headers.hasOwnProperty(header)) {
+        command += '-H "'+header+': '+httpOptions.headers[header]+'" ';
+      }
+    }
+
+  if (httpOptions.method) command += '-X '+httpOptions.method+' ';
+  if (postData) command += '-d \''+postData+'\' ';
+
+  command  += http+'://'+httpOptions.host+':'+httpOptions.port+httpOptions.path;
+  return command;
+}
+
+
 exports.inspect = function inspect (obj) {
   var line = "";
   try {

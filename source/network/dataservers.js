@@ -64,33 +64,43 @@ function postToAdmin(host,path,expectedStatus,jsonData,callback) {
       'Content-Length': postData.length
   }
 
+  var onError = function(reason) {
+     var content =  "\n Request: "+httpOptions.method+" "+httpMode+'://'+httpOptions.host+':'+httpOptions.port+''+httpOptions.path+
+       "\n Data: "+postData;
+     // console.error(require('../utils/dump.js').curlHttpRequest(httpOptions,config.get('net:aaservers_ssl'),postData))
+     return callback(reason+content,null);
+  }
+
   var req = http.request(httpOptions, function(res){
     var bodyarr = [];
+
     res.on('data', function (chunk) { bodyarr.push(chunk); });
     res.on('end', function() {
       if (res.statusCode != expectedStatus) {
-        return callback('\n **start**\n postToAdmin bad result status'+ res.statusCode +' != expectedStatus '
-            +'\n Options: '+httpOptions.method+" "+httpMode+'://'+httpOptions.host+':'+httpOptions.port+''+httpOptions.path
-            +'\n Request: '+postData+' \n Message: '+ bodyarr.join(''),null)+'\n**end**\n';
+        return onError('\n **start**\n  bad result status'+ res.statusCode +' != expectedStatus '+
+           '\nMessage: '+ bodyarr.join('')+'\n**end**\n');
       }
       var resJson = JSON.parse(bodyarr.join(''));
       return callback(null,resJson);
     });
 
   }).on('error', function(e) {
-    return callback("postToAdmin "+ JSON.stringify(host) +"error: " + e.message,null);
+    return onError("Error "+ JSON.stringify(host) +"\n Error: " + e.message);
   });
 
+
   req.on('socket', function (socket) {
-    socket.setTimeout(1000);  
+    socket.setTimeout(5000);
     socket.on('timeout', function() {
       req.abort();
-      return callback('postToAdmin timeout',null);
+      return callback('Timeout');
     });
   });
 
   req.write(postData);
   req.end();
+
+
 }
 
 
