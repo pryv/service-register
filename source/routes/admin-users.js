@@ -9,6 +9,20 @@ var dataservers = require('../network/dataservers.js');
 
 function init(app) {
 
+  /**
+   * get the server list, with the number of users on them
+   */
+  app.get('/admin/servers', function(req, res,next){
+    //TODO add authorization checking
+
+    users.getServers(function(error, list) {
+      if (error) return next(messages.ei());
+      res.json({servers: list});
+    });
+
+  });
+
+
   app.get('/admin/servers/:serverName/users', function(req, res,next){
     //TODO add authorization checking
 

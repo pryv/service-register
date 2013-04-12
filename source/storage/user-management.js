@@ -9,6 +9,22 @@ var exports = exports || {};
 
 
 /**
+ * @param callback function(error,json of {serversName : usage})
+ */
+exports.getServers = function getServers(callback) {
+  var result = {};
+  db.doOnKeysValuesMatching('*:server','*',
+    function (key,value) {
+      if (typeof(result[value]) == 'undefined') result[value] = 0;
+      result[value]++
+    },
+    function (error) {
+      callback(error,result);
+    });
+}
+
+
+/**
  *
  * @param serverName
  * @param callback function(error,array of users)

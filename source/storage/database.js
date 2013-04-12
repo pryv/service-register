@@ -117,7 +117,8 @@ function doOnKeysMatching(keyMask, action, done) {
     }
     done(null,i);
   });
-}
+};
+exports.doOnKeysMatching = doOnKeysMatching;
 
 
 /**
@@ -149,7 +150,7 @@ exports.doOnKeysValuesMatching = function doOnKeysValuesMatching(keyMask, valueM
           if (error) {
             logger.error('doOnKeysValuesMatching: '+ keyMask+' '+valueMask+' e: '+ error, error);
           } else {
-            if (valueMask == result) {
+            if (valueMask == "*" || valueMask == result) {
               action(key,result);
               actionThrown++;
             }

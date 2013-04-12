@@ -44,6 +44,19 @@ var userList = exports.userList = {
 
 
 //route : admin-users
+var serverList = exports.serverList = {
+  type: 'object',
+  properties: {
+    servers : {
+      type: 'object',
+      required: true
+    }
+  }
+}
+
+
+
+//route : admin-users
 var count = exports.count = {
   type: 'object',
   properties: {

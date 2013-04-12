@@ -63,3 +63,21 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function(){
     dataValidation.pathStatusSchema(tests[key]);
   }
 });
+
+describe('GET /admin/servers', function(){
+  var tests = [
+    { status: 200 , desc : '1 done' ,
+      JSchema : schema.serverList  }
+
+
+  ] ;
+
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
+    tests[key].it = tests[key].desc ;
+    tests[key].url = '/admin/servers';
+    tests[key].method = 'GET';
+
+    dataValidation.pathStatusSchema(tests[key]);
+  }
+});
+
