@@ -48,7 +48,7 @@ require('./routes/access.js')(app);
 
 // private API  routes
 require('./routes/admin-changeEmail')(app);
-
+require('./routes/admin-users')(app);
 
 //error management (evolution)
 require('./utils/app-errors.js')(app);

@@ -4,6 +4,9 @@ var redis = require('redis').createClient();
 var config = require('../utils/config');
 var _s = require('underscore.string');
 
+
+var exports = exports || {};
+
 //redis error management
 redis.on('error', function(err) {
   logger.error('Redis: '+ err.message);
@@ -79,7 +82,6 @@ exports.initSet = function initSet(uid, passwordHash, email, language, challenge
   });
 }
 
-
 exports.getServer = function getServer(uid, callback) {
   uid = uid.toLowerCase();
   redis.get(uid +':server',function(error, result) {
@@ -87,6 +89,71 @@ exports.getServer = function getServer(uid, callback) {
     callback(error, result);
   });
 }
+
+/**
+ * "search into keys"
+ * @param keyMask  '*:...'
+ * @param action function(key)
+ * @param done function(error,count) called when done ..  with the count of "action" sent
+ */
+function doOnKeysMatching(keyMask, action, done) {
+  redis.keys(keyMask, function(error,replies) {
+    if (error) {
+      logger.error('Redis getAllKeysMatchingValue: '+ keyMask+' e: '+ error, error);
+      return  done(error,0);
+    }
+    var i;
+    for (i = 0, len = replies.length; i < len; i++) {
+      action(replies[i]);
+    }
+    done(null,i);
+  });
+}
+
+
+/**
+ * "search into values "
+ * @param keyMask
+ * @param valueMask .. a string for now.. TODO a regexp
+ * @param done function(error,count) called when done ..  with the count of "action" sent
+ */
+exports.doOnKeysValuesMatching = function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
+
+  var receivedCount = 0;
+  var actionThrown = 0;
+  var waitFor = -1;
+
+  var checkDone = function() {
+    if (waitFor > 0 && waitFor == receivedCount) done() ;
+  };
+
+  var myDone = function (error,count) {
+     waitFor = count;
+    checkDone();
+  };
+
+
+
+  doOnKeysMatching(keyMask,
+      function (key) {
+        redis.get(key, function(error,result) {
+          if (error) {
+            logger.error('doOnKeysValuesMatching: '+ keyMask+' '+valueMask+' e: '+ error, error);
+          } else {
+            if (valueMask == result) {
+              action(key,result);
+              actionThrown++;
+            }
+          }
+          receivedCount++;
+          checkDone();
+        });
+      }
+    , myDone);
+}
+
+
+
 
 exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
   mail = mail.toLowerCase();

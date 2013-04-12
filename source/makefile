@@ -32,6 +32,9 @@ test-init:
 test-checkEmail:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check-email.js
 
+test-users:
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin-users.js
+
 test-changeEmail:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin-changeEmail.js
 

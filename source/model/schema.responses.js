@@ -31,6 +31,17 @@ var checkUID = exports.checkUID = {
   }
 }
 
+//route : admin-users
+var userList = exports.userList = {
+  type: 'object',
+  properties: {
+    users : {
+      type: 'array',
+      required: true
+    }
+  }
+}
+
 
 //route : init
 var initDone = exports.initDone = {

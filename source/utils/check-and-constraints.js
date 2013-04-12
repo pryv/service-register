@@ -30,7 +30,7 @@ exports.uid = function uid(str) {
 
 // (not a static DNS entry & not starting by "pryv") case-insensitive
 // uid must have already been checked and cleaned by check-and-constraints.uid(..
-exports.uidReserved = function uid(str) {
+exports.uidReserved = function uidReserved(str) {
   if (! str) return null;
   if ( /^(pryv)+(.*)$/.test(str.toLowerCase()) ) return true;
   // optimise this with some caching
@@ -60,6 +60,18 @@ exports.challenge = function challenge(str) {
     str = _(str).trim();
     if ( /^([a-zA-Z0-9]{5,200})$/.test(str) ) return str;
     return null;
+};
+
+/**
+ * Not string check .. just to prevent any string from beeing used
+ * @param str
+ * @return {*}
+ */
+exports.hostname = function hostname(str) {
+  if (! str) return null;
+  str = _(str).trim();
+  if ( /^([a-zA-Z0-9_\.\-]{3,256})$/.test(str) ) return str;
+  return null;
 };
 
 exports.lang = function lang(str) {
