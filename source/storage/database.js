@@ -90,6 +90,15 @@ exports.getServer = function getServer(uid, callback) {
   });
 }
 
+exports.setServer = function setServer(uid, serverName, callback) {
+  uid = uid.toLowerCase();
+  redis.set(uid +':server',serverName,function(error, result) {
+    if (error) logger.error('Redis setServer: '+ uid +' -> '+serverName+' e: '+ error, error);
+    callback(error, result);
+  });
+}
+
+
 /**
  * "search into keys"
  * @param keyMask  '*:...'
@@ -115,7 +124,7 @@ function doOnKeysMatching(keyMask, action, done) {
  * "search into values "
  * @param keyMask
  * @param valueMask .. a string for now.. TODO a regexp
- * @param done function(error,count) called when done ..  with the count of "action" sent
+ * @param done function(error) called when done ..
  */
 exports.doOnKeysValuesMatching = function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 

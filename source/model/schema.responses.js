@@ -43,6 +43,18 @@ var userList = exports.userList = {
 }
 
 
+//route : admin-users
+var count = exports.count = {
+  type: 'object',
+  properties: {
+    count : {
+      type: 'integer',
+      required: true
+    }
+  }
+}
+
+
 //route : init
 var initDone = exports.initDone = {
     type: 'object',

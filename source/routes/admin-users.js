@@ -22,6 +22,23 @@ function init(app) {
 
   });
 
+
+
+  app.get('/admin/servers/:srcServerName/rename/:dstServerName', function(req, res,next){
+    //TODO add authorization checking
+
+    var srcServerName = checkAndConstraints.hostname(req.params.srcServerName);
+    if (! srcServerName) return next(messages.e(400,'INVALID_DATA',{'message': 'srcServerName invalid'}));
+    var dstServerName = checkAndConstraints.hostname(req.params.dstServerName);
+    if (! dstServerName) return next(messages.e(400,'INVALID_DATA',{'message': 'dstServerName invalid'}));
+
+    users.renameServer(srcServerName,dstServerName,function(error, count) {
+      if (error) return next(messages.ei());
+      res.json({count: count});
+    });
+
+  });
+
 }
 
 module.exports = init;
