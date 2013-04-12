@@ -180,21 +180,25 @@ function validateJSONSchema(responseData, jsonSchema) {
   validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
 };
 
+
 /** 
  * helper that test the content of a JSON structure 
  **/
 function validateJsonValues(tests,data_json) {
-  //console.log('\n****'); console.log(tests); console.log(data_json); 
+  //console.log('\n****'); console.log(tests); console.log(data_json);
   for (key in tests) {
-    var testa = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??
-    var dataa = data_json[key];
-    if (testa instanceof Array) {
-      // check values as of an ordered array
-      for(var i = 0; i < testa.length; i++) {
-        validateJsonValues(testa[i],dataa[i]);
+    if (tests.hasOwnProperty(key)) {
+      var testa = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??
+      var dataa = data_json[key];
+      if (testa instanceof Array) {
+        // check values as of an ordered array
+        for(var i = 0; i < testa.length; i++) {
+          validateJsonValues(testa[i],dataa[i]);
+        }
+      } else {
+
+        testa.should.equal(dataa);
       }
-    } else {
-      testa.should.equal(dataa);
     }
   }
 }
