@@ -1,0 +1,51 @@
+{
+  "dns": {
+    "name": "streg-gandi-fr-01.pryv.net",
+     "domain": "pryv.io",
+    "ip": "0.0.0.0",
+    "port": 53,
+    "domain_A": "217.70.184.38",
+    "staticDataInDomain": { 
+      "www": {"alias": [ { "name": "w.pryv.com" } ]},
+      "sw": {"alias": [ { "name": "sw.pryv.net" } ]},
+      "reg": {"alias": [ { "name": "reg-gandi-fr-01.pryv.net" } ]},
+      "access": {"alias": [ { "name": "reg-gandi-fr-01.pryv.net" } ]},
+      "l": {"ip": "127.0.0.1"},
+      "local": {"ip": "127.0.0.1"},
+      "reglocal": {"ip": "127.0.0.1"}
+    }
+		,
+    "nameserver": [
+                   {
+                     "name": "dns-gandi-fr-01.pryv.net",
+                     "ip": "92.243.26.12"
+                   },
+                   {
+                     "name": "dns-gandi-us-01.pryv.net",
+                     "ip": "173.246.102.111"
+                   }
+                   ]
+	},
+  "http": {
+    "static": {
+      "url": "https://w.pryv.com",
+      "access": "https://sw.pryv.io:2443/access/v1/access.html"
+    },
+    "register": { 
+      "url": "https://reg.pryv.io:443"
+    }
+  },
+  "server": {
+    "certsPathAndKey": "<%= httpcerts %>",
+    "ip": "0.0.0.0",
+    "port": 443
+  },
+  "net": {
+    "AAservers_domain": "pryv.net", 
+    "aaservers_ssl": "true", 
+    "aaservers": [
+       { "base_name": "act-gandi-fr-01", "port": 443, "authorization": "register-test-token" },
+       { "base_name": "act-gandi-us-01", "port": 443, "authorization": "register-test-token" }
+       ]
+  }
+}
