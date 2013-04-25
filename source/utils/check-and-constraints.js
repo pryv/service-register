@@ -74,8 +74,10 @@ exports.hostname = function hostname(str) {
   return null;
 };
 
+var supportedLanguages = {en : 'English', fr: 'Français'};
 exports.lang = function lang(str) {
   if (! str) return 'en';
+  if (supportedLanguages.hasOwnProperty(str)) return str;
   return 'en';
 };
 
