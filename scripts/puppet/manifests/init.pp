@@ -1,7 +1,6 @@
 class reg($slaveof) {
-  notify{"reg $environment slaveof: $slaveof ":}
-
   $environment = $pryv::environment
+  notify{"reg $environment slaveof: $slaveof ":}
 
   # used by upstart template
   $app = "registration-server"
