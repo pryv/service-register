@@ -1,22 +1,38 @@
-class reg($hostclass, $app, $slaveof) {
-  
-  notify{"reg $app slaveof: $slaveof ":}
-  
-  # package 
-  package {
-    'tcl8.5': ensure => installed;
-  }
-  
+class reg($slaveof) {
+  notify{"reg $environment slaveof: $slaveof ":}
+
+  $environment = $pryv::environment
+
   # used by upstart template
+  $app = "registration-server"
   $appcode = "reg"   
-  $appdir = "$::livedir/$app"
+  $appdir = "${pryv::livedir}/$app"
   $configdest = "$appdir.conf.json"
   
   $nodeversion = 'v0.8.2'
   $redisversion = '2.4.16'
-  
+
+
+
+
+  ## TODO change master / slave detection
+
+  if ($environment == "staging") {
+    $master = $stregmaster
+  } else {
+    $master = $regmaster
+  }
+
+
+
+
+  # package
+  package {
+    'tcl8.5': ensure => installed;
+  }
+
   setup::unpack{'unpack_mechanism':
-    livedir => $::livedir,
+    livedir => $pryv::livedir,
     app     => $app,
   }
 
@@ -31,19 +47,15 @@ class reg($hostclass, $app, $slaveof) {
   file {"$appdir":
     ensure  => 'directory',
     mode    => '0644',
-    require => File["$::livedir"],
+    require => File["${pryv::livedir}"],
   }
   
-  if ($app == "staging-registration-server") {
-     $nodeenv = "developement"
-     $staging = ".staging"
+  if ($environment == "staging") {
      secret::ssl{"rec.la": }
-     $httpcerts = "$::livedir/secret/rec.la"
+     $httpcerts = "${pryv::livedir}/secret/rec.la"
   } else {
-     $nodeenv = "production"
-     $staging = ""
      secret::ssl{"pryv.io": }
-     $httpcerts = "$::livedir/secret/pryv.io" 
+     $httpcerts = "${pryv::livedir}/secret/pryv.io"
   } 
   
   if ($slaveof) {
@@ -57,7 +69,7 @@ class reg($hostclass, $app, $slaveof) {
     path    => $configdest,
     ensure  => 'file',
     mode    => '0644',
-    content => template("reg/$configname${staging}.config.json.erb"),
+    content => template("reg/${configname}.${environment}.config.json.erb"),
     require => File["$appdir"],
   }
   
