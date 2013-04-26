@@ -11,20 +11,6 @@ class reg($slaveof) {
   $nodeversion = 'v0.8.2'
   $redisversion = '2.4.16'
 
-
-
-
-  ## TODO change master / slave detection
-
-  if ($environment == "staging") {
-    $master = $stregmaster
-  } else {
-    $master = $regmaster
-  }
-
-
-
-
   # package
   package {
     'tcl8.5': ensure => installed;
