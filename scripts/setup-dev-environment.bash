@@ -15,7 +15,7 @@ export REDIS_DATA_FOLDER=${REDIS_BASE_FOLDER}/redis-data
 
 # base
 
-curl -s https://raw.github.com/pryv/dev-scripts/master/setup-repo-copy-node.bash | bash
+curl -s https://raw.github.com/pryv/dev-scripts/master/setup-repo-copy.js-node.bash | bash
 EXIT_CODE=$?
 if [[ ${EXIT_CODE} -ne 0 ]]; then
   echo ""
