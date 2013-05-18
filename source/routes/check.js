@@ -7,8 +7,15 @@ var appErrors = require('../utils/app-errors.js');
 
 function _check(req,res,next,raw) {
   var uid = checkAndConstraints.uid(req.params.uid);
-  if (! uid)
-    return next(messages.e(400,'INVALID_USER_NAME'));
+  if (! uid) {
+    if (raw) {
+      res.header('Content-Type', 'text/plain');
+      res.send("false");
+    } else {
+      return next(messages.e(400,'INVALID_USER_NAME'));
+    }
+  }
+
 
   if (checkAndConstraints.uidReserved(uid)) {
     if (raw) {
@@ -32,7 +39,8 @@ function _check(req,res,next,raw) {
 
 function check(app) {
 
- app.get('/:uid/check/available', function(req, res,next){
+ app.post('/username-check/', function(req, res,next){
+   req.params.uid = req.body.username;
     _check(req,res,next,true);
   });
 
