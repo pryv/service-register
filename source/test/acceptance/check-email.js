@@ -7,6 +7,22 @@ var schema = require('../../model/schema.responses');
 
 require('readyness/wait/mocha');
 
+describe('GET /:uid/check_email/available', function(){
+  var tests =  [
+    { uid: 'wactiv@pryv.io', status: 200 , desc : 'reserved', value: 'false' },
+    { uid: 'abcd.efg_ijkl@bobby.com', status: 200 , desc : 'available', value: 'true' }] ;
+
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
+    tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
+    tests[key].url = '/'+ tests[key].uid +'/check_email/available';
+    tests[key].method = 'GET';
+    tests[key].restype = 'text/plain';
+
+    dataValidation.pathStatusSchema(tests[key]);
+  };
+})
+
+
 describe('GET /:email/check_email', function(){
   var tests = [ 
     { email: 'abcd', status: 400 , desc : 'too short ' ,
