@@ -26,8 +26,8 @@ test-confirm:
 test-server:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/server.js
 
-test-init:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/init.js
+test-user:
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/user.test.js
 
 test-checkEmail:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check-email.js

@@ -38,7 +38,7 @@ require('./routes/index')(app);
 // public API routes
 require('./routes/check.js')(app);
 require('./routes/check-email.js')(app);
-require('./routes/init.js')(app);
+require('./routes/user.js')(app);
 if (config.get('confirmEmail:method') !== 'post') {
   require('./routes/confirm.js')(app);
 }
