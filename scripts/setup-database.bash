@@ -1,70 +1,72 @@
 #!/bin/bash
-. ~/.profile
 
-# This script sets up Redis (engine and data) for the REC.la registration server
-# Meant to be called from 'setup-environment-<target>.sh' scripts
+# Sets up Redis (engine and data) for the registration server.
+# Meant to be run from dev env setup script.
+
+if [[ -z "$REDIS_NAME" ]] || [[ -z "$REDIS_BASE_FOLDER" ]] || [[ -z "$REDIS_DATA_FOLDER" ]]; then
+  echo ""
+  echo "Expected environment variables: 'REDIS_NAME', 'REDIS_BASE_FOLDER', 'REDIS_DATA_FOLDER'"
+  echo ""
+  exit 1
+fi
 
 # working dir fix
-scriptsFolder=$(cd $(dirname "$0"); pwd)
-cd $scriptsFolder/
-. ./env-config.sh
+SCRIPT_FOLDER=$(cd $(dirname "$0"); pwd)
+cd $SCRIPT_FOLDER/
 
-mkdir $dbFolder
-
-targetFolder=$1
-
-if [ -z "$targetFolder" ]
-then
-  echo "
-Expected argument: <target folder path>
-from the script directory \"../../\" is good :)
-"
-  exit 1
-elif [ ! -d $targetFolder ]
-then
-  echo "
-Invalid target folder path: '$targetFolder' does not exist.
-"
-  exit 1
+if [[ ! -d $REDIS_BASE_FOLDER ]]; then
+  mkdir -p $REDIS_BASE_FOLDER
+  if [[ $? -ne 0 ]]; then
+    echo ""
+    echo "Could not create '$REDIS_BASE_FOLDER'. Setup aborted."
+    echo ""
+    exit $((${EXIT_CODE}))
+  fi
 fi
 
-echo "
-Checking for Redis ($targetFolder/$redisName)..."
-if [ ! -d $targetFolder/$redisName ]
-then
-  echo "Not found, installing...
-"
-  cd $targetFolder
- 
-  curl -o "$redisName.tar.gz" http://redis.googlecode.com/files/$redisName.tar.gz
-  tar -xzf $redisName.tar.gz
-  cd $redisName
+if [[ ! -d $REDIS_DATA_FOLDER ]]; then
+  EXIT_CODE=0
+  mkdir -p $REDIS_DATA_FOLDER
+  EXIT_CODE=`expr ${EXIT_CODE} + $?`
+  chown `id -u` $REDIS_DATA_FOLDER
+  EXIT_CODE=`expr ${EXIT_CODE} + $?`
+  if [[ ${EXIT_CODE} -ne 0 ]]; then
+    echo ""
+    echo "Could not create '$REDIS_DATA_FOLDER'. Setup aborted."
+    echo ""
+    exit $((${EXIT_CODE}))
+  fi
+fi
+
+echo ""
+echo "Checking for Redis ($REDIS_BASE_FOLDER/$REDIS_NAME)..."
+if [[ ! -d $REDIS_BASE_FOLDER/$REDIS_NAME ]]; then
+  echo "...installing $REDIS_NAME"
+  echo ""
+  cd $REDIS_BASE_FOLDER
+  EXIT_CODE=0
+  curl -o "$REDIS_NAME.tar.gz" http://redis.googlecode.com/files/$REDIS_NAME.tar.gz
+  EXIT_CODE=`expr ${EXIT_CODE} + $?`
+  tar -xzf $REDIS_NAME.tar.gz
+  EXIT_CODE=`expr ${EXIT_CODE} + $?`
+  cd $REDIS_NAME
   make
+  EXIT_CODE=`expr ${EXIT_CODE} + $?`
   cd ..
-  rm $redisName.tar.gz
+  rm $REDIS_NAME.tar.gz
+  if [[ ${EXIT_CODE} -ne 0 ]]; then
+    echo ""
+    echo "Failed installing Redis. Setup aborted."
+    echo ""
+    exit $((${EXIT_CODE}))
+  fi
 else
-  cd $targetFolder
-  echo "OK"
+  echo "...skipped: $REDIS_NAME already installed"
 fi
 
-redisData=redis-data
-echo "
-Checking for DB data folder ($targetFolder/$redisData)..."
-if [ ! -d $redisData ]
-then
-  echo "Not found, installing...
-"
-  mkdir -p $redisData
-  chown `id -u` $redisData
-else
-  echo "OK"
-fi
-
-echo "
-
-
-If no errors were listed above, the database setup is complete.
-
-To run Redis:
-    $targetFolder/$redisName/src/redis-server [<configuration file>]
-"
+echo ""
+echo "Database setup complete."
+echo ""
+echo "To run Redis:"
+echo "    $REDIS_BASE_FOLDER/$REDIS_NAME/src/redis-server [<configuration file>]"
+echo ""

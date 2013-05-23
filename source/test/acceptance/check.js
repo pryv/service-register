@@ -7,6 +7,23 @@ var schema = require('../../model/schema.responses');
 
 require('readyness/wait/mocha');
 
+describe('GET /username-check/?username=:uid', function(){
+  var tests =  [
+    { uid: 'pryvtoto', status: 200 , desc : 'reserved for pryv', value: 'false' },
+    { uid: 'asdfhgsdkfewg', status: 200 , desc : 'available', value: 'true' }] ;
+
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
+    tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
+    tests[key].url = '/username-check/' ;
+    tests[key].method = 'POST';
+    tests[key].restype = 'text/plain';
+    tests[key].data = {username: tests[key].uid};
+    dataValidation.pathStatusSchema(tests[key]);
+  };
+})
+
+
+
 describe('GET /:uid/check', function(){
   var tests = [ 
     { uid: 'abcd', status: 400 , desc : 'too short ' ,
@@ -21,7 +38,7 @@ describe('GET /:uid/check', function(){
     { uid: 'abc.def', status: 400 , desc : 'invalid character 2',
       JSchema : schema.error, JValues: {"id":'INVALID_USER_NAME'}},
 
-    { uid: 'abc_d-ef', status: 200 , desc : '_ - authorized ',
+    { uid: 'abcd-ef', status: 200 , desc : '- authorized ',
       JSchema : schema.checkUID },
 
     { uid: 'wactiv', status: 200 , desc : 'correct ', 

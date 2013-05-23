@@ -1,36 +1,59 @@
 # Pryv registration API server
 
-
 Node.js / Express server to manage user registration requests.
-TODO: update this README after code and file structure review.
 
 
 ## Setting up the development environment on a Mac
 
-Read, then execute `./scripts/setup-environment-dev.sh`
+Read, then execute `./scripts/setup-dev-environment.bash`. It will check for Redis in the parent folder and install it if necessary.
 
-Start the database `./start/dev/start-database-dev.sh`
+TODO: review the following (probably obsolete and needs cleanup):
 
-## Deploying with fleet: cheat sheet
-
-1. `fleet deploy` to push current branch (note: must be master!) to all fleet drones
-2. `./scripts/fleet-setup-<target>.sh` to setup the target server
-3. `fleet stop <process id>` to stop previous instances (use `fleet ps` to list running processes)
-4. `/scripts/fleet-spawn-<target>.sh` to start the new instances
+- Add the following line to `/etc/hosts`:	`127.0.0.1	reglocal.rec.la`
+- Start: from `source/`, check `dev-config.json` to see if it fits your system, and eventually make a modified copy in `local-config.json` (ignored by git); then run: `node app`
+- Very often you need to work on register and on the relative static web files: checkout `git@github.com:pryv/static-web.git` and run it (look at its DEV_ENVIRONMENT file)
 
 
-## Folder structure
+## Starting up Redis
 
-- `db`: config and scripts for the database (Redis)
-- `misc-scripts`: some helper scripts
-- `source`: TODO: detail structure...
+`./scripts/start-database.sh` in a separate terminal tab/window.
+
+To monitor the db:
+
+```bash
+scripts/connect-database-client.sh
+redis 127.0.0.1:6379> monitor
+```
+
+
+## Running the tests
+
+TODO
 
 
 ## Debugging
 
-[Using Eclipse for debugging](https://github.com/joyent/node/wiki/Using-Eclipse-as-Node-Applications-Debugger)
+TODO: update after folder structure is fixed.
+
+`make test-debug` to attach your debugger of choice.
+
+See also: [using Eclipse for debugging](https://github.com/joyent/node/wiki/Using-Eclipse-as-Node-Applications-Debugger)
+
+
+## Deploying
+
+TODO
+
+
+## Folder structure
+
+TODO: update after folder structure is fixed.
+
+- `db`: config and scripts for the database (Redis)
+- `misc-scripts`: some helper scripts
+- `source`: ...
 
 
 ## Coding conventions
 
-Coding conventions are in the general 'project' repository.
+Coding conventions are [there](https://github.com/pryv/guidelines/). TODO: follow them!

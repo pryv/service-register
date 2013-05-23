@@ -24,7 +24,7 @@ exports.uid = function uid(str) {
     if (! str) return null;
     str = _(str).trim();
     //console.log('CHK USERNAME *'+str+'* ');
-    if ( /^([a-zA-Z0-9])(([a-zA-Z0-9_\-]){3,21})([a-zA-Z0-9])$/.test(str) ) return str;
+    if ( /^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,21})([a-zA-Z0-9])$/.test(str) ) return str;
     return null;
 };
 

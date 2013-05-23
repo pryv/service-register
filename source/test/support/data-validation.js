@@ -146,6 +146,10 @@ exports.jsonResponse = jsonResponse = function(res, test, callback_done, error_s
         res.headers['content-type'].should.equal(test.restype);
         data = bodyarr.join('');
 
+        // test constants
+        if (test.value != null)
+          data.should.equal(test.value);
+
       } else {// default JSON
         res.should.be.json;
         data = JSON.parse(bodyarr.join(''));
