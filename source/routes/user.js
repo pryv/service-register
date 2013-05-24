@@ -20,14 +20,19 @@ module.exports = function (app) {
 
     // TODO  check that it's an authorized url 
 
-
+    var appid = checkAndConstraints.appID(req.body.appid);
+    var hosting = checkAndConstraints.uid(req.body.hosting);
     var username = checkAndConstraints.uid(req.body.username);
     var password = checkAndConstraints.password(req.body.password);
     var email = checkAndConstraints.email(req.body.email);
     var lang = checkAndConstraints.lang(req.body.languageCode); // no check
 
-    if (! username) { return next(messages.e(400,'INVALID_USER_NAME')); }
-    if (checkAndConstraints.uidReserved(username)) { return next(messages.e(400, 'RESERVED_USER_NAME')); }
+    if (! appid) { return next(messages.e(400, 'INVALID_APPID')); }
+
+    if (! username) { return next(messages.e(400, 'INVALID_USER_NAME')); }
+    if (checkAndConstraints.uidReserved(username)) {
+      return next(messages.e(400, 'RESERVED_USER_NAME'));
+    }
     if (! email) { return next(messages.e(400, 'INVALID_EMAIL')); }
     if (! password) { return next(messages.e(400, 'INVALID_PASSWORD'));  }
 
@@ -45,6 +50,9 @@ module.exports = function (app) {
           if (exists) { existsList.push('EXISTING_EMAIL'); }
           callback(error);
         });
+      },
+      function (callback) { // check host
+        //hosting.getServerForHosting(hosting); "continue here"
       }
     ], function (error) {
       if (existsList.length > 0) {

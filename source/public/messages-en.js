@@ -13,7 +13,11 @@ register_messages = {
     'detail' : 'User name must be unique.'},
   'INVALID_PASSWORD' : { 'message' : 'Invalid password', 
     'detail' : 'Password must be between 6 and 50 characters'},
-  
+
+  'INVALID_APPID' : { 'message' : 'Invalid app id',
+    'detail' : 'App id is not recognized'},
+
+
   'INVALID_EMAIL' : { 'message' : 'Invalid email adress', 
     'detail' : 'E-mail address format not recognized'},
   'EXISTING_EMAIL' : { 'message' : 'This e-mail is known', 
