@@ -3,7 +3,7 @@
   "description": "",
   "version": "0.1.1",
   "private": true,
-  "author": "SimpleData Sàrl",
+  "author": "Pryv Sa",
   "dependencies": {
     "express": "~3.0.0rc4",
     "bcrypt": "0.7.x",

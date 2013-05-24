@@ -1,6 +1,6 @@
 var config = require('../config-dns-test');
 var exec = require('child_process').exec;
-var app = require('../../app-dns');
+var app = require('../../source/app-dns');
 var logger = require('winston');
 var should = require('should');
 var _s = require('underscore.string');

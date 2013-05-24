@@ -1,5 +1,5 @@
-var app = require('../../app');
-var config = require('../../utils/config');
+var app = require('../../source/app');
+var config = require('../../source/utils/config');
 var mode = config.get('http:server:ssl') ? 'https' : 'http';
 var http = require(mode); 
 

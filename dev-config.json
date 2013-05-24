@@ -1,0 +1,31 @@
+{
+  "dns": {
+    "name": "local.pryv.net",
+    "domain": "rec.la",
+    "staticDataInDomain": { 
+      "www": {"alias": [ { "name": "local.rec.la" } ]},
+      "sw": {"alias": [ { "name": "local.rec.la" } ]},
+      "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
+    }
+  },
+  "http": {
+    "static": {
+      "url": "https://local.rec.la:4443/register/index-dev-swwreg.html",
+      "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
+    },
+    "register": { 
+      "url": "https://reglocal.rec.la:8443"
+    }
+  },
+  "server": {
+    "certsPathAndKey": "source/cert/rec.la" ,
+    "port": 8443
+  },
+  "net": {
+    "AAservers_domain": "pryv.net",
+    "aaservers_ssl": "true",
+    "aaservers": [
+      { "base_name": "stact-gandi-fr-01", "port": 443, "authorization": "register-test-token" }
+    ]
+  }
+}

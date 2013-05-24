@@ -2,7 +2,7 @@ var config = require('../config-test');
 var validate = require('json-schema').validate;
 var should = require('should');
 var querystring = require('querystring');
-var dump = require('../../utils/dump.js');
+var dump = require('../../source/utils/dump.js');
 var _s = require('underscore.string');
 /**
  * 

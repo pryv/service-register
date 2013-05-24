@@ -1,8 +1,8 @@
 var config = require('../config-test');
 
-var app = require('../../server');
+var app = require('../../source/server');
 var dataValidation = require('../support/data-validation');
-var schema = require('../../model/schema.responses');
+var schema = require('../../source/model/schema.responses');
 
 // the following tests are not "init" dependents
 // other confirm tests are included in the "init" part in order to chain them
