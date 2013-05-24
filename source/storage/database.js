@@ -34,13 +34,14 @@ if (config.get('redis:password')) {
 function checkConnection() {
   //check redis connectivity
   // do not remove, 'wactiv.server' is use by tests
-     
   async.series([
     function (nextStep) { // check db exits
    
       redis.set('wactiv:server', config.get('dns:domain'), function (error) {
         if (error) { return nextStep(error); }
         redis.set('wactiv@pryv.io:email', 'wactiv', function (error) {
+          if (error) { return nextStep(error); }
+          redis.hmset('wactiv:users', {email : 'wactiv@pryv.io'});
           nextStep(error);
         });
 
@@ -87,6 +88,11 @@ function checkConnection() {
         logger.error('DB not available: ', error);
         throw error;
       } else {
+        //-- check db structure
+        _findGhostsEmails();
+        _findGhostsServer()
+
+
         connectionChecked('Redis');
       }
     }
@@ -122,7 +128,7 @@ exports.emailExists = emailExists;
 
 function uidExists(uid, callback) {
   uid = uid.toLowerCase();
-  redis.exists(uid + ':user', function (error, result) {
+  redis.exists(uid + ':users', function (error, result) {
     if (error) { logger.error('Redis to uidExists: ' + uid + ' e: ' + error, error); }
     callback(error, result === 1); // callback anyway
   });
@@ -202,7 +208,9 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 
   var checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
-      done(errors.count === 0 ? null : errors, receivedCount);
+      if (done) {
+        done(errors.count === 0 ? null : errors, receivedCount);
+      }
     }
   };
 
@@ -244,7 +252,7 @@ exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
 exports.setServerAndInfos = function setServerAndInfos(username, server, infos, callback) {
   username = username.toLowerCase();
   var multi = redis.multi();
-  multi.hmset(username + ':user', infos);
+  multi.hmset(username + ':users', infos);
   multi.set(username + ':server', server);
   multi.set(infos.email + ':email', username);
   multi.exec(function (error, result) {
@@ -275,11 +283,11 @@ exports.changeEmail = function changeEmail(username, email, callback) {
     }
 
     // remove previous user e-mail
-    redis.hget(username + ':user', 'email', function (error2, previous_email) {
+    redis.hget(username + ':users', 'email', function (error2, previous_email) {
       if (error2) { return callback(error2); }
 
       var multi = redis.multi();
-      multi.hmset(username + ':user', 'email', email);
+      multi.hmset(username + ':users', 'email', email);
       multi.set(email + ':email', username);
       multi.del(previous_email + ':email');
       multi.exec(function (error3) {
@@ -291,11 +299,55 @@ exports.changeEmail = function changeEmail(username, email, callback) {
       });
 
     });
-
-
-
   });
 };
+
+
+//------------------ db index structural checks ---//
+
+
+function _findGhostsEmails() {
+  doOnKeysValuesMatching('*:email', '*', function (key, username) {
+    var email = key.substring(0, key.lastIndexOf(':'));
+    redis.hgetall(username + ':users', function (error, user) {
+
+      var e = null;
+      if (! user) {
+        e = ' cannot find user :' + username;
+        // redis.del(key);
+      } else if (! user.email) {
+        e = ' cannot find email for :' + username;
+      } else if (email !== user.email) {
+        e = ' != ' + username + ':user.email -> "' + user.email + '"';
+      }
+
+      if (e) {
+        logger.warning('Db structure _findGhostsEmails ' + email + e);
+        //require('../utils/dump.js').inspect( { cookie: user});
+      }
+    });
+  });
+}
+
+function _findGhostsServer() {
+  doOnKeysValuesMatching('*:server', '*', function (key, server) {
+    var username = key.substring(0, key.lastIndexOf(':'));
+    redis.hgetall(username + ':users', function (error, user) {
+
+      var e = null;
+      if (! user) {
+        e = ' cannot find user :' + username;
+        //redis.del(key);
+      }
+
+      if (e) {
+        logger.warning('Db structure _findGhostsServer ' + server + e);
+       // require('../utils/dump.js').inspect( { cookie: user});
+      }
+    });
+  });
+}
+
 
 //------------------ access management ------------//
 
