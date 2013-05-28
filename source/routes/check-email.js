@@ -2,26 +2,25 @@
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
-var appErrors = require('../utils/app-errors.js');
 
-function _checkEmail(req,res,next,raw) {
+function _checkEmail(req, res, next, raw) {
 
   if (! checkAndConstraints.email(req.params.email)) {
-    console.log("There +"+raw);
+    console.log('There +' + raw);
     if (raw) {
       res.header('Content-Type', 'text/plain');
-      return res.send("false");
+      return res.send('false');
     } else {
-      return next(messages.e(400,'INVALID_EMAIL'));
+      return next(messages.e(400, 'INVALID_EMAIL'));
     }
   }
 
 
-  db.emailExists(req.params.email,function(error, exists) {
-    if (error) return next(messages.ei());
+  db.emailExists(req.params.email, function(error, exists) {
+    if (error) { return next(messages.ei()); }
     if (raw) {
       res.header('Content-Type', 'text/plain');
-      res.send(exists ? "false" : "true");
+      res.send(exists ? 'false' : 'true');
     } else {
       res.json({exists: exists });
     }
