@@ -33,7 +33,7 @@ require('./routes/index')(app);
 
 // public API routes
 require('./routes/check.js')(app);
-require('./routes/check-email.js')(app);
+require('./routes/email.js')(app);
 require('./routes/user.js')(app);
 
 require('./routes/server.js')(app);
@@ -41,8 +41,8 @@ require('./routes/access.js')(app);
 require('./routes/hostings.js')(app);
 
 // private API  routes
-require('./routes/admin-changeEmail')(app);
-require('./routes/admin-users')(app);
+require('./routes/system.js')(app);
+require('./routes/admin-users.js')(app);
 
 //error management (evolution)
 require('./utils/app-errors.js')(app);

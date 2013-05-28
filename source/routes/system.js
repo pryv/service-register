@@ -1,14 +1,14 @@
 /**
- * private route for servers to change e-mails
+ * private route for servers
  */
 //check if a UID exists
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 var messages = require('../utils/messages.js');
 var users = require('../utils/users-management.js');
 
-function check(app) {
+module.exports = function (app) {
 
-  app.post('/:username/email/admin', function (req, res, next) {
+  app.post('/system/:username/email', function (req, res, next) {
     //TODO add authorization checking
 
     var username = checkAndConstraints.uid(req.params.username);
@@ -22,6 +22,4 @@ function check(app) {
     users.setEmail(username, email, res, next);
   });
 
-}
-
-module.exports = check;
+};
