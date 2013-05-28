@@ -11,7 +11,7 @@ test-debug:
 	@$(MOCHA) --timeout 3600000 --reporter spec --debug-brk $(TEST_FILES)
 
 test-dns:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/dns.js
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/dns.test.js
 
 test-check:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check.js
