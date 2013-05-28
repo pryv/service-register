@@ -4,42 +4,60 @@ var dataservers = require('../network/dataservers.js');
 var messages = require('../utils/messages.js');
 var db = require('../storage/database.js');
 
-var domain = '.'+config.get('dns:domain');
+var domain = '.' + config.get('dns:domain');
 
 /**
  * 
  * @param host
- * @param json_infos
+ * @param user json object: username / id / email /
  * @param req
  * @param res
  * @param next
  */
-exports.create = function create(host,json_infos,req,res,next) {
-  dataservers.postToAdmin(host,'/register/create-user',201,json_infos,function(error,json_result) {
+exports.create = function create(host, user, req, res, next) {
+
+  dataservers.postToAdmin(host, '/register/create-user', 201, user,
+    function (error, result) {
     if (error) {
-      logger.error('Confirm: findServer: '+error+'\n host'+
-          JSON.stringify(host)+'\n info:'+JSON.stringify(json_infos));
+      logger.error('Confirm: findServer: ' + error + '\n host' +
+          JSON.stringify(host) + '\n info:' + JSON.stringify(user));
       return next(messages.ei());
     }
-    if (json_result.id) {
-      json_infos.id = json_result.id;
-      saveToDB(host,json_infos,req,res,next);
+    if (result.id) {
+      user.id = result.id;
+
+      db.setServerAndInfos(user.username, host.name, user, function (error) {
+        if (error) {
+          logger.error('setServerAndInfos:' + error);
+          return next(messages.ei());
+        }
+        res({server: host.name, alias: user.id + domain}, 200);
+      });
+
+
     } else {
-      logger.error('findServer, invalid data from admin server: '+JSON.stringify(json_result));
+      logger.error('findServer, invalid data from admin server: ' + JSON.stringify(result));
       return next(messages.ei());
     }
 
   });
 
-}
+};
 
-function saveToDB(host,json_infos,req,res,next) {
-//logger.info('SaveToDB: '+ json_infos.username  );
-  db.setServerAndInfos(json_infos.username, host.name, json_infos, function(error,result) {
-    if (error) {
-      logger.error('Confirm: saveToDB:'+error);
-      return next(messages.ei());
-    }
-    res({server: host.name, alias: json_infos.username + domain},200);
+
+/**
+ * a user
+ */
+exports.setEmail = function create(username, email, res, next) {
+
+  db.uidExists(username, function (error, exists) {
+    if (error) { return next(messages.ei()); }
+    if (! exists) { return next(messages.e(404, 'UNKOWN_USER_NAME')); }
+
+    db.changeEmail(username, email, function (error) {
+      if (error) { return next(messages.ei()); }
+      res.json({success: true});
+    });
   });
-}
+
+};
