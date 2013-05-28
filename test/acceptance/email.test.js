@@ -6,7 +6,7 @@ var schema = require('../../source/model/schema.responses');
 
 require('readyness/wait/mocha');
 
-describe('POST /email/check_email', function () {
+describe('POST /email/check', function () {
   var tests =  [
     { uid: 'wactiv@pryv.io', status: 200, desc : 'reserved', value: 'false' },
     { uid: 'abcd.efg_ijkl@bobby.com', status: 200, desc : 'available', value: 'true' }

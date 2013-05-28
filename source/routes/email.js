@@ -7,7 +7,7 @@ module.exports = function (app) {
   /**
    * Route for jquery.validator
    */
-  app.post('/email/check_email/', function (req, res, next) {
+  app.post('/email/check/', function (req, res, next) {
     req.params.email = req.body.email;
     _checkEmail(req, res, next, true);
   });
