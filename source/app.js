@@ -32,7 +32,6 @@ app.configure(function () {
 require('./routes/index')(app);
 
 // public API routes
-require('./routes/check.js')(app);
 require('./routes/email.js')(app);
 require('./routes/user.js')(app);
 
