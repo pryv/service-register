@@ -86,5 +86,53 @@ module.exports = function (app) {
 
   });
 
+  /***-------   other functions           -------------**/
+
+  app.post('/username/check/', function (req, res, next) {
+    req.params.username = req.body.username;
+    _check(req, res, next, true);
+  });
+
+
+  app.get('/:username/check_username', function (req, res, next) {
+    _check(req, res, next, false);
+  });
 
 };
+
+
+
+function _check(req, res, next, raw) {
+  var username = checkAndConstraints.uid(req.params.username);
+
+
+
+  if (! username) {
+    if (raw) {
+      res.header('Content-Type', 'text/plain');
+      return res.send('false');
+    } else {
+      return next(messages.e(400, 'INVALID_USER_NAME'));
+    }
+  }
+
+
+  if (checkAndConstraints.uidReserved(username)) {
+    if (raw) {
+      res.header('Content-Type', 'text/plain');
+      return res.send('false');
+    } else {
+      return res.json({reserved: true, reason: 'RESERVED_USER_NAME' });
+    }
+  } else {
+    db.uidExists(username, function (error, exists) {
+      if (error) { return next(messages.ei()); }
+      if (raw) {
+        res.header('Content-Type', 'text/plain');
+        return res.send(exists ? 'false' : 'true');
+      } else {
+        return res.json({reserved: exists });
+      }
+    });
+  }
+}

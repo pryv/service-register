@@ -83,3 +83,58 @@ describe('POST /user', function () {
 });
 
 
+describe('POST /username/check/', function () {
+  var tests =  [
+    { username: 'pryvtoto', status: 200, desc : 'reserved for pryv', value: 'false' },
+    { username: 'asdfhgsdkfewg', status: 200, desc : 'available', value: 'true' }
+  ];
+
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
+    tests[key].it = tests[key].desc + ', username: ' + tests[key].username;
+    tests[key].url = '/username/check/';
+    tests[key].method = 'POST';
+    tests[key].restype = 'text/plain';
+    tests[key].data = {username: tests[key].username};
+    dataValidation.pathStatusSchema(tests[key]);
+  }
+});
+
+
+
+describe('GET /:username/check_username', function () {
+  var tests = [
+    { username: 'abcd', status: 400, desc : 'too short ',
+      JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
+
+    { username: 'abcdefghijklmnopqrstuvwxyzasaasaaas', status: 400, desc : 'too long ',
+      JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
+
+    { username: 'abc%20def', status: 400, desc : 'invalid character 1',
+      JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
+
+    { username: 'abc.def', status: 400, desc : 'invalid character 2',
+      JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
+
+    { username: 'abcd-ef', status: 200, desc : '- authorized ',
+      JSchema : schema.checkUID },
+
+    { username: 'wactiv', status: 200, desc : 'correct ',
+      JSchema : schema.checkUID },
+
+    { username: 'pryvtoto', status: 200, desc : 'reserved for pryv',
+      JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} },
+
+    { username: 'access', status: 200, desc : 'reserved dns',
+      JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'}}
+  ];
+
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
+    tests[key].it = tests[key].desc + ', username: ' + tests[key].username;
+    tests[key].url = '/' + tests[key].username + '/check_username';
+    tests[key].method = 'GET';
+
+    dataValidation.pathStatusSchema(tests[key]);
+  }
+});
+
+
