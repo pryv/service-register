@@ -3,7 +3,6 @@
 var nconf = require('nconf');
 var logger = require('winston');
 var fs = require('fs');
-var path = require('path');
 
 //Exports
 
@@ -27,9 +26,9 @@ if (typeof(nconf.get('config')) !== 'undefined') {
 
 if (fs.existsSync(configFile)) {
   configFile = fs.realpathSync(configFile);
-  logger.info('using custom config file: '+configFile);
+  logger.info('using custom config file: ' + configFile);
 } else {
-  logger.error('Cannot find custom config file: '+configFile);
+  logger.error('Cannot find custom config file: ' + configFile);
 }
 
 nconf.file({ file: configFile});
@@ -54,15 +53,13 @@ nconf.defaults({
     'port': 2443,
     'ip': '0.0.0.0',
     'ssl': true,
-    'certsPathAndKey': '/home/register/secrets/pryv.io', // will add '-privatekey'.. and others
+    'certsPathAndKey': '/home/register/secrets/pryv.io' // will add '-privatekey'.. and others
   },
   'persistence' : {
     'init-ttl' : 86400, // seconds should be 86400 for a day
     'access-ttl' : 3600  // access-request 
   },
   'net': { // manly used in /network/dataservers
-    'AAservers_domain': 'pryv.net', // domaine for all admin / activity servers
-    'aaservers_ssl': true, // set if admin / activity servers have ssl
     aahostings : {
       regions: {
         europe : {
@@ -76,8 +73,7 @@ nconf.defaults({
                 'gandi.net-fr' : {
                   url : 'http://gandi.net',
                   description: 'No bullshit',
-                  localizedDescription: {},
-                  available: true
+                  localizedDescription: {}
                 }
               }
             },
@@ -88,8 +84,7 @@ nconf.defaults({
                 'green.ch' : {
                   url : 'http://green.ch',
                   description: 'Green Hosting',
-                  localizedDescription: {},
-                  available: false
+                  localizedDescription: {}
                 }
               }
             }
@@ -106,8 +101,7 @@ nconf.defaults({
                 'gandi.net-us' : {
                   url : 'http://gandi.net',
                   description: 'No bullshit',
-                  localizedDescription: {},
-                  available: true
+                  localizedDescription: {}
                 }
               }
             },
@@ -118,8 +112,7 @@ nconf.defaults({
                 'gandi.net-us' : {
                   url : 'http://joyent.com',
                   description: 'High performance',
-                  localizedDescription: {},
-                  available: false
+                  localizedDescription: {}
                 }
               }
             }
@@ -132,17 +125,19 @@ nconf.defaults({
         }
       }
     },
+    'AAservers_domain': 'pryv.net', // domaine for all admin / activity servers
+    'aaservers_ssl': true, // set if admin / activity servers have ssl
     'aaservers': {
-      'gandi.net-fr' : {
+      'gandi.net-fr' : [{
         'base_name': 'act-gandi-fr-01',
         'port': 443,
         'authorization': 'register-test-token'
-      },
-      'gandi.net-us' : {
+      }],
+      'gandi.net-us' : [{
         'base_name': 'act-gandi-us-01',
         'port': 443,
         'authorization': 'register-test-token'
-      }
+      }]
     }
   },
   'mailer': {
@@ -193,7 +188,7 @@ nconf.defaults({
     ]
   },
   'redis': {
-    'password': 'MyRecordedLife',
+    'password': 'MyRecordedLife'
   },
   'test': {
 

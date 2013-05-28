@@ -16,7 +16,18 @@ var domain = '.' + config.get('dns:domain');
  */
 exports.create = function create(host, user, req, res, next) {
 
-  dataservers.postToAdmin(host, '/register/create-user', 201, user,
+
+  var request = {
+    username : user.username,
+    passwordHash : user.passwordHash,
+    language: user.language,
+    email: user.email
+  };
+
+  delete user.passwordHash; // remove to forget the password
+  delete user.password;
+
+  dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
     if (error) {
       logger.error('Confirm: findServer: ' + error + '\n host' +
@@ -26,14 +37,14 @@ exports.create = function create(host, user, req, res, next) {
     if (result.id) {
       user.id = result.id;
 
+
       db.setServerAndInfos(user.username, host.name, user, function (error) {
         if (error) {
           logger.error('setServerAndInfos:' + error);
           return next(messages.ei());
         }
-        res({server: host.name, alias: user.id + domain}, 200);
+        res.json({username: user.username, server: user.username + domain}, 200);
       });
-
 
     } else {
       logger.error('findServer, invalid data from admin server: ' + JSON.stringify(result));

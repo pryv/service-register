@@ -72,15 +72,11 @@ var count = exports.count = {
 var userCreated = exports.userCreated = {
   type: 'object',
   properties: {
-    id: {
+    username: {
       type: 'string',
       required: true
     },
-    message: {
-      type: 'string',
-      required: true
-    },
-    detail: {
+    server: {
       type: 'string',
       required: true
     }

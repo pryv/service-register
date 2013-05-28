@@ -1,13 +1,7 @@
-
-
-
-var config = require('../utils/config');
+var dataservers = require('../network/dataservers.js');
 
 module.exports =  function (app) {
-  console.log("********");
-  app.get('/hostings', function (req, res, next) {
-
-    res.json(config.get('net:aahostings'));
+  app.get('/hostings', function (req, res) {
+    res.json(dataservers.hostings());
   });
-
 };

@@ -17,14 +17,20 @@ register_messages = {
   'INVALID_APPID' : { 'message' : 'Invalid app id',
     'detail' : 'App id is not recognized'},
 
+  'INVALID_HOSTING' : { 'message' : 'Invalid hosting request',
+    'detail' : 'hosting value is invalid'},
+
+  'UNAVAILABLE_HOSTING' : { 'message' : 'Hosting not available',
+    'detail' : 'hosting unkown, not active or unavailable, retry with another one'},
+
 
   'INVALID_EMAIL' : { 'message' : 'Invalid email adress', 
     'detail' : 'E-mail address format not recognized'},
   'EXISTING_EMAIL' : { 'message' : 'This e-mail is known', 
       'detail' : 'This e-mail is already assigned to a user.'},
     
-  'INIT_DONE' : { 'message' : 'Registration started', 
-    'detail' : 'An e-mail has been sent, please check your mailbox to confirm your registration  '},
+  'USER_CREATED' : { 'message' : 'Registration started',
+    'detail' : 'An e-mail has been sent, please check your mailbox to confirm your registration.'},
     
   'ALREADY_CONFIRMED' : { 'message' : 'Already confirmed', 
     'detail' : 'The registration for this user has already been confirmed.'},

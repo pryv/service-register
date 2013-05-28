@@ -22,10 +22,15 @@
     "port": 8443
   },
   "net": {
-    "AAservers_domain": "pryv.net",
-    "aaservers_ssl": "true",
-    "aaservers": [
-      { "base_name": "stact-gandi-fr-01", "port": 443, "authorization": "register-test-token" }
-    ]
+    "gandi.net-fr" : [{
+      "base_name": "stact-gandi-fr-01",
+      "port": 443,
+      "authorization": "register-test-token"
+    }],
+    "gandi.net-us" : [{
+      "base_name": "stact-gandi-us-01",
+      "port": 443,
+      "authorization": "register-test-token"
+    }]
   }
 }

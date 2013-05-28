@@ -4,7 +4,6 @@ TEST_FILES=test/acceptance/*.js
 test:
 	@$(MOCHA) --timeout 1000 --reporter spec $(TEST_FILES)
 
-
 test-detailed:
 	@$(MOCHA) --timeout 300 --reporter spec $(TEST_FILES)
 
@@ -29,14 +28,14 @@ test-hostings:
 test-user:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/user.test.js
 
-test-checkEmail:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/check-email.js
+test-email:
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/email.test.js
+
+test-system:
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/system.test.js
 
 test-admin-users:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin-users.js
-
-test-changeEmail:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin-changeEmail.test.js
 
 load:
 	@$(MOCHA) --timeout 50000 --reporter spec test/load/*.js
