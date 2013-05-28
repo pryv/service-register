@@ -6,7 +6,7 @@ var config = require('../utils/config');
 var async = require('async');
 var semver = require('semver');
 
-var exports = exports || {};
+var exports = exports || {}; // just for IJ to present structure
 
 //redis error management
 redis.on('error', function (err) {
@@ -36,16 +36,8 @@ function checkConnection() {
   // do not remove, 'wactiv.server' is use by tests
   async.series([
     function (nextStep) { // check db exits
-   
-      redis.set('wactiv:server', config.get('dns:domain'), function (error) {
-        if (error) { return nextStep(error); }
-        redis.set('wactiv@pryv.io:email', 'wactiv', function (error) {
-          if (error) { return nextStep(error); }
-          redis.hmset('wactiv:users', {email : 'wactiv@pryv.io'});
-          nextStep(error);
-        });
-
-      });
+      var user = { id: 0, email: 'wactiv@pryv.io' };
+      exports.setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
     },
     function (nextStep) { // get db version
       redis.get(DBVERSION_KEY, function (error, result) {
@@ -90,7 +82,7 @@ function checkConnection() {
       } else {
         //-- check db structure
         _findGhostsEmails();
-        _findGhostsServer()
+        _findGhostsServer();
 
 
         connectionChecked('Redis');
@@ -138,19 +130,6 @@ exports.uidExists = uidExists;
 //Specialized
 
 
-
-exports.initSet = function initSet(uid, passwordHash, email, language, challenge, callback) {
-  var multi = redis.multi();
-  var value = {username: uid, passwordHash: passwordHash, email: email, language: language};
-  var key = challenge + ':init';
-  multi.set(key, JSON.stringify(value));
-  multi.expire(key, config.get('persistence:init-ttl'));
-  multi.exec(function (error, result) {
-    if (error) { logger.error('Redis initSet: ' + uid + ' e: ' + error, error); }
-    callback(error, result); // callback anyway
-  });
-};
-
 exports.getServer = function getServer(uid, callback) {
   uid = uid.toLowerCase();
   redis.get(uid + ':server', function (error, result) {
@@ -197,7 +176,7 @@ exports.doOnKeysMatching = doOnKeysMatching;
  * "search into values "
  * @param keyMask
  * @param valueMask .. a string for now.. TODO a regexp
- * @param done function (error, resultcount) called when done ..
+ * @param done function (error, result_count) called when done ..
  */
 function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 
@@ -250,22 +229,40 @@ exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
 };
 
 exports.setServerAndInfos = function setServerAndInfos(username, server, infos, callback) {
-  username = username.toLowerCase();
-  var multi = redis.multi();
-  multi.hmset(username + ':users', infos);
-  multi.set(username + ':server', server);
-  multi.set(infos.email + ':email', username);
-  multi.exec(function (error, result) {
-    if (error) { logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error); }
-    callback(error, result); // callback anyway
-  });
+  // if user exists remove previous email.
+
+  var  previousEmail = null;
+  async.series([
+    function (serieNext) {
+      redis.hget(username + ':users', 'email', function (error2, email) {
+        previousEmail = email;
+        serieNext(error2);
+      });
+    },
+    function (serieNext) {
+      username = username.toLowerCase();
+      var multi = redis.multi();
+      multi.hmset(username + ':users', infos);
+      multi.set(username + ':server', server);
+      if (previousEmail && previousEmail !== infos.email) { multi.del(previousEmail + ':email'); }
+      multi.set(infos.email + ':email', username);
+      multi.exec(function (error) {
+        if (error) { logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error);}
+        serieNext(error);
+      });
+    }
+  ],
+    function (serieError) {
+      callback(serieError); // callback anyway
+    });
+
 };
 
 /**
  *
  * @param username
  * @param email
- * @param callback function (error) error is null if successfull;
+ * @param callback function (error) error is null if successful;
  */
 exports.changeEmail = function changeEmail(username, email, callback) {
   // check that email does not exists
@@ -319,6 +316,7 @@ function _findGhostsEmails() {
         e = ' cannot find email for :' + username;
       } else if (email !== user.email) {
         e = ' != ' + username + ':user.email -> "' + user.email + '"';
+        // redis.del(key);
       }
 
       if (e) {
@@ -332,6 +330,9 @@ function _findGhostsEmails() {
 function _findGhostsServer() {
   doOnKeysValuesMatching('*:server', '*', function (key, server) {
     var username = key.substring(0, key.lastIndexOf(':'));
+
+    // TODO Check that server is really known
+
     redis.hgetall(username + ':users', function (error, user) {
 
       var e = null;
@@ -350,7 +351,6 @@ function _findGhostsServer() {
 
 
 //------------------ access management ------------//
-
 
 exports.setAccessState = function setAccessState(key, value, callback) {
   var multi = redis.multi();
