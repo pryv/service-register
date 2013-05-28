@@ -1,12 +1,8 @@
 //frameworks
-
-
 var express = require('express');
 var logger = require('winston');
 
 //Dependencies
-var config = require('./utils/config');
-
 var app = module.exports = express();
 
 
@@ -39,11 +35,10 @@ require('./routes/index')(app);
 require('./routes/check.js')(app);
 require('./routes/check-email.js')(app);
 require('./routes/user.js')(app);
-if (config.get('confirmEmail:method') !== 'post') {
-  require('./routes/confirm.js')(app);
-}
+
 require('./routes/server.js')(app);
 require('./routes/access.js')(app);
+require('./routes/hostings.js')(app);
 
 // private API  routes
 require('./routes/admin-changeEmail')(app);
