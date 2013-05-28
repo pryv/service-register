@@ -3,31 +3,23 @@
  */
 //check if a UID exists
 var checkAndConstraints = require('../utils/check-and-constraints.js');
-var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
-var dataservers = require('../network/dataservers.js');
+var users = require('../utils/users-management.js');
 
 function check(app) {
 
-  app.post('/:uid/email/admin', function(req, res,next){
+  app.post('/:username/email/admin', function (req, res, next) {
     //TODO add authorization checking
 
-    var uid = checkAndConstraints.uid(req.params.uid);
-    if (! uid) return next(messages.e(400,'INVALID_USER_NAME'));
+    var username = checkAndConstraints.uid(req.params.username);
+    if (! username) {
+      return next(messages.e(400, 'INVALID_USER_NAME'));
+    }
 
     var email = checkAndConstraints.email(req.body.email);
-    if (! email) return next(messages.e(400,'INVALID_EMAIL'));
+    if (! email) { return next(messages.e(400, 'INVALID_EMAIL')); }
 
-    db.uidExists(req.params.uid,function(error, exists) {
-      if (error) return next(messages.ei());
-      if (! exists) return next(messages.e(404,'UNKOWN_USER_NAME'));
-
-      db.changeEmail(uid,email, function(error) {
-        if (error) return next(message.ei());
-        res.json({success: true});
-      });
-    });
-
+    users.setEmail(username, email, res, next);
   });
 
 }
