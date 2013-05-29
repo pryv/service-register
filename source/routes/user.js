@@ -3,9 +3,7 @@ var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
 var logger = require('winston');
-var randGenerator = require('../utils/random.js');
 var encryption = require('../utils/encryption.js');
-var config = require('../utils/config');
 var async = require('async');
 
 var dataservers = require('../network/dataservers.js');

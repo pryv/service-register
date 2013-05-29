@@ -2,13 +2,10 @@
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
-var appErrors = require('../utils/app-errors.js');
 var config = require('../utils/config');
 var randGenerator = require('../utils/random');
-var dataservers = require('../network/dataservers.js');
 
 var domain = config.get('dns:domain');
-var activityServerPort = config.get('net:aaservers_ssl') ? 443 : 80;
 
 function access(app) {
 
