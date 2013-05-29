@@ -14,7 +14,7 @@ describe('POST /email/check', function () {
 
   for (var key = 0; key < tests.length; key++) { // create PATH and method
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
-    tests[key].url = '/email/check_email/';
+    tests[key].url = '/email/check/';
     tests[key].method = 'POST';
     tests[key].restype = 'text/plain';
     tests[key].data = {email: tests[key].uid};
