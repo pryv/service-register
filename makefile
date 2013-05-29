@@ -1,5 +1,5 @@
 MOCHA=./node_modules/.bin/mocha
-TEST_FILES=test/acceptance/*.js
+TEST_FILES=test/acceptance/*test.js
 
 test:
 	@$(MOCHA) --timeout 1000 --reporter spec $(TEST_FILES)
@@ -17,7 +17,7 @@ test-access:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/access.test.js
 
 test-server:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/server.js
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/server.test.js
 
 test-hostings:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/hostings.test.js
