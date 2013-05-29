@@ -30,9 +30,9 @@ exports.create = function create(host, user, req, res, next) {
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
     if (error) {
-      logger.error('Confirm: findServer: ' + error + '\n host' +
+      logger.error('dataservers.postToAdmin: ' + error + '\n host' +
           JSON.stringify(host) + '\n info:' + JSON.stringify(user));
-      return next(messages.ei());
+      return next(messages.ei(error));
     }
     if (result.id) {
       user.id = result.id;
@@ -40,8 +40,7 @@ exports.create = function create(host, user, req, res, next) {
 
       db.setServerAndInfos(user.username, host.name, user, function (error) {
         if (error) {
-          logger.error('setServerAndInfos:' + error);
-          return next(messages.ei());
+          return next(messages.ei(error));
         }
         res.json({username: user.username, server: user.username + domain}, 200);
       });

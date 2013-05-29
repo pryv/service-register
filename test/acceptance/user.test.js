@@ -1,5 +1,5 @@
 /*global require, describe */
-
+require('../config-test');
 require('../../source/server');
 
 var dataValidation = require('../support/data-validation');

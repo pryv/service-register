@@ -4,6 +4,7 @@ require('../../source/server');
 
 var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
+var db = require('../../source/storage/database');
 
 require('readyness/wait/mocha');
 
@@ -15,12 +16,15 @@ describe('POST /system/:uid/email', function () {
   var randomuser = 'testPFX' + Math.floor(Math.random() * (100000));
   var randommail = randomuser + '@wactiv.chx'; // should not be necessary
 
+  var user = { id: 1, email: 'toto@pryv.io' };
+  db.setServerAndInfos(randomuser, 'unexistant.rec.la', user);
+
   var tests = [
-    { username: 'wac', data : {email: 'wactiv@pryv.io'},
+    { username: 'wac', data : {email: randommail},
       status: 400, desc : 'OK',
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
 
-    { username: 'wactiv', data : {email: randommail},
+    { username: 'wactivtest', data : {email: randommail},
       status: 200, desc : 'OK',
       JSchema : schema.success, JValues: { success : true}}
   ];

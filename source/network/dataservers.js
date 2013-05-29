@@ -23,7 +23,11 @@ exports.hostings = function () {
  * @param callback(error,hostname)
  */
 exports.getHostForHosting = function (hosting) {
+
   var servers = config.get('net:aaservers:' + hosting);
+
+
+  //require('../utils/dump').inspect({hosting: hosting, servers: servers});
 
   if (! servers || servers.length === 0) {
     return null;

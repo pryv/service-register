@@ -253,7 +253,9 @@ exports.setServerAndInfos = function setServerAndInfos(username, server, infos, 
     }
   ],
     function (serieError) {
-      callback(serieError); // callback anyway
+      if (callback) {
+        callback(serieError); // callback anyway
+      }
     });
 
 };
