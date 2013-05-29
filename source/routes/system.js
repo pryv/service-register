@@ -4,7 +4,7 @@
 //check if a UID exists
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 var messages = require('../utils/messages.js');
-var users = require('../utils/users-management.js');
+var users = require('../storage/server-management.js');
 
 module.exports = function (app) {
 

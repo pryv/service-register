@@ -7,7 +7,7 @@ var encryption = require('../utils/encryption.js');
 var async = require('async');
 
 var dataservers = require('../network/dataservers.js');
-var users = require('../utils/users-management.js');
+var users = require('../storage/server-management.js');
 
 module.exports = function (app) {
 
