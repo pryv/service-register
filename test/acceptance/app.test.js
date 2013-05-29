@@ -1,4 +1,10 @@
 /*global describe*/
+
+/*
+ * test for generic behaviour of the app
+ * TODO add unexpected error catching
+ */
+
 require('../config-test');
 require('../../source/server');
 var dataValidation = require('../support/data-validation');

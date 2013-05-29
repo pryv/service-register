@@ -67,18 +67,25 @@ describe('POST /user', function () {
       status: 200, desc : 'valid JSON GET', JSchema : schema.userCreated,
       JValues: { username: defaults.username}  }
   ];
-  // tests.length
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
 
-    tests[key].url = '/user';
-    tests[key].method = 'POST';
+  function doTest(key) {
+    // add defaults
     Object.keys(defaults).forEach(function (dkey) {
       if (tests[key].data[dkey] === undefined) {
         tests[key].data[dkey] = defaults[dkey];
       }
     });
+    tests[key].url = '/user';
+    tests[key].method = 'POST';
+
     tests[key].it = tests[key].desc + ', username: ' + tests[key].data.username;
     dataValidation.pathStatusSchema(tests[key]);
+
+  }
+
+  // tests.length
+  for (var key = 0; key < tests.length; key++) { // create PATH and method
+    doTest(key);
   }
 });
 
