@@ -33,11 +33,11 @@ exports.getServers = function getServers(callback) {
 exports.getUsersOnServer = function getUsersOnServer(serverName,callback) {
   var result = new Array();
   db.doOnKeysValuesMatching('*:server', serverName,
-    function (key,value) {
+    function (key) {
       result.push(key.split(':')[0]);
     },
     function (error) {
-      callback(error,result);
+      callback(error, result);
     });
 }
 

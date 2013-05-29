@@ -188,7 +188,7 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
   var checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
       if (done) {
-        done(errors.count === 0 ? null : errors, receivedCount);
+        done(errors.length === 0 ? null : errors, receivedCount);
       }
     }
   };
