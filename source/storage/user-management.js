@@ -48,7 +48,7 @@ exports.getUsersOnServer = function getUsersOnServer(serverName,callback) {
  * @param dstServerName
  * @param callback function(error,number_of_changes)
  */
-exports.renameServer = function renameServer(srcServerName,dstServerName,callback) {
+exports.renameServer = function renameServer(srcServerName, dstServerName, callback) {
 
   var errors = new Array();
 
@@ -56,14 +56,14 @@ exports.renameServer = function renameServer(srcServerName,dstServerName,callbac
   var actionThrown = 0;
   var waitForDone = true;
 
-  var checkDone = function() {
-    if ((! waitForDone) && actionThrown == receivedCount) {
-      callback(errors.length > 0 ? errors : null,receivedCount) ;
+  var checkDone = function () {
+    if ((! waitForDone) && actionThrown === receivedCount) {
+      callback(errors.length > 0 ? errors : null, receivedCount);
     }
   };
 
   var myDone = function (error) {
-    if (error) errors.push(error);
+    if (error) { errors.push(error); }
     waitForDone = false;
     checkDone();
   };
@@ -71,7 +71,7 @@ exports.renameServer = function renameServer(srcServerName,dstServerName,callbac
 
 
   db.doOnKeysValuesMatching('*:server', srcServerName,
-    function (key,value) {
+    function (key, value) {
       var uid = key.split(':')[0];
       actionThrown++;
       checkDone();

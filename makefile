@@ -31,7 +31,7 @@ test-email:
 test-system:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/system.test.js
 
-test-admin-users:
+test-admin:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin.test.js
 
 load:

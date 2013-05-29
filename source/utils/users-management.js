@@ -61,11 +61,11 @@ exports.create = function create(host, user, req, res, next) {
 exports.setEmail = function create(username, email, res, next) {
 
   db.uidExists(username, function (error, exists) {
-    if (error) { return next(messages.ei()); }
+    if (error) { return next(messages.ei(error)); }
     if (! exists) { return next(messages.e(404, 'UNKOWN_USER_NAME')); }
 
     db.changeEmail(username, email, function (error) {
-      if (error) { return next(messages.ei()); }
+      if (error) { return next(messages.ei(error)); }
       res.json({success: true});
     });
   });

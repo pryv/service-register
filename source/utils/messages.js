@@ -67,7 +67,7 @@ function internal(res) {
 exports.ei = function ei(error) {
   if (! error) { error = new Error(); }
   if (! (error instanceof Error)) { error = new Error(error); }
-  logger.error('internal error : \n' +  error.stack);
+  logger.error('internal error : ' + error.message + '\n' +  error.stack);
   return new REGError(500, say('INTERNAL_ERROR'));
 };
 

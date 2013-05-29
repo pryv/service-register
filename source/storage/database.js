@@ -247,7 +247,7 @@ exports.setServerAndInfos = function setServerAndInfos(username, server, infos, 
       if (previousEmail && previousEmail !== infos.email) { multi.del(previousEmail + ':email'); }
       multi.set(infos.email + ':email', username);
       multi.exec(function (error) {
-        if (error) { logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error);}
+        if (error) { logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error); }
         serieNext(error);
       });
     }
@@ -278,7 +278,8 @@ exports.changeEmail = function changeEmail(username, email, callback) {
     }
 
     if (email_username !== null) {
-      return callback(new Error('Cannot set e-mail: ' + email + ' it\'s already used'));
+      return callback(new Error('Cannot set e-mail: ' + email + ' to :' + username +
+        ' it\'s already used by: ' + email_username));
     }
 
     // remove previous user e-mail

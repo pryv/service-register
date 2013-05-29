@@ -31,6 +31,7 @@ describe('GET /admin/servers/:serverName/users', function () {
 });
 
 describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () {
+
   var tests = [
     { srcServerName: 'a', dstServerName: 'ab.cd.ef', status: 400, desc : 'invalid src',
       JSchema : schema.error, JValues: {id: 'INVALID_DATA'}},
