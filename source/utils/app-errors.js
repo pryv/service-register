@@ -3,28 +3,29 @@ var logger = require('winston');
 var messages = require('./messages');
 
 function app_errors(app) {
-  
-  app.use(function(error, req, res, next) {
+  app.use(function (error, req, res, next) {
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
-      res.json(error.data, error.httpCode);
-    } else {
-      if (! (error instanceof Error)) {
-        logger.error('app_errors unkown object : '+ error);
-        return logger.error( (new Error()).stack );
-      }
-      logger.error('app_errors : '+ error);
-      logger.error( error.stack );
-      //next();
+      return res.json(error.httpCode, error.data);
     }
+
+    if (! (error instanceof Error)) {
+      logger.error('app_errors unkown object : ' + error);
+      logger.error((new Error()).stack);
+    }  else {
+      logger.error('app_errors : ' + error);
+      logger.error(error.stack);
+    }
+    var err = new messages.REGError(500, messages.say('INTERNAL_ERROR'));
+    res.json(err.httpCode, err.data);
   });
 
   process.on('uncaughtException', function (err) {
-    if (err == false || err == undefined) {
+    if (! err) {
       err = new Error();
     }
-    logger.error('uncaughtException : '+ err);
-    logger.error( err.stack );
+    logger.error('uncaughtException : ' + err);
+    logger.error(err.stack);
   });
 
 }

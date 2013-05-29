@@ -10,6 +10,9 @@ app.configure('development', function () {
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
   logger['default'].transports.console.level = 'debug';
   logger['default'].transports.console.colorize = true;
+
+
+
 });
 
 app.configure('production', function () {
@@ -47,3 +50,7 @@ require('./routes/admin.js')(app);
 require('./utils/app-errors.js')(app);
 
 
+app.get('/bug', function (req, res, next) {
+  var bug;
+  bug(req, res, next);
+});

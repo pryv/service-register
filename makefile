@@ -10,7 +10,7 @@ test-detailed:
 test-debug:
 	@$(MOCHA) --timeout 3600000 --reporter spec --debug-brk $(TEST_FILES)
 
-test-bodyParser:
+test-app:
 	@$(MOCHA) --timeout 3600000 --reporter spec  test/acceptance/app.test.js
 
 test-dns:
