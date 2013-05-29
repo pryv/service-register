@@ -32,7 +32,7 @@ test-system:
 	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/system.test.js
 
 test-admin-users:
-	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin-users.js
+	@$(MOCHA) --timeout 5000 --reporter spec test/acceptance/admin.test.js
 
 load:
 	@$(MOCHA) --timeout 50000 --reporter spec test/load/*.js

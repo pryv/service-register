@@ -41,7 +41,7 @@ require('./routes/hostings.js')(app);
 
 // private API  routes
 require('./routes/system.js')(app);
-require('./routes/admin-users.js')(app);
+require('./routes/admin.js')(app);
 
 //error management (evolution)
 require('./utils/app-errors.js')(app);
