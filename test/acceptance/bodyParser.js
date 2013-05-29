@@ -1,20 +1,21 @@
-var config = require('../config-test');
-
-var app = require('../../source/server');
+/*global describe*/
+require('../config-test');
+require('../../source/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
 
 require('readyness/wait/mocha');
 
-describe('POST /init with invalid data (bodyParser test)', function(){
-  var tests = [ 
-     { data: "NON JSON DATA STRING", contenttype: "JSONSTRING",
-       status: 400 , desc : 'invalid JSON', JSchema : schema.error , 
-       JValues: {"id":'INVALID_JSON_REQUEST'}
-     } ];
+describe('POST /init with invalid data (bodyParser test)', function () {
+  var tests = [
+    { data: 'NON JSON DATA STRING', contenttype: 'JSONSTRING',
+      status: 400, desc : 'invalid JSON', JSchema : schema.error,
+      JValues: {'id': 'INVALID_JSON_REQUEST'}
+    }
+  ];
 
   for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc ;
+    tests[key].it = tests[key].desc;
     tests[key].url = '/init';
     tests[key].method = 'POST';
     dataValidation.pathStatusSchema(tests[key]);
