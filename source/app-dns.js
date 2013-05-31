@@ -21,95 +21,91 @@ logger.setLevels(logger.config.syslog.levels);
 
 
 var baseData = {
-      autority: config.get('dns:name') + ',admin.' + config.get('dns:domain'),
-    nameserver: config.get('dns:nameserver')
+  autority: config.get('dns:name') + ',admin.' + config.get('dns:domain'),
+  nameserver: config.get('dns:nameserver')
 };
 
 var mxData = {
-     mail: config.get('dns:mail')
+  mail: config.get('dns:mail')
 };
 
 var nsData = {
-     nameserver: baseData.nameserver
+  nameserver: baseData.nameserver
 };
 
 var soaData = {
-     autority: baseData.autority
+  autority: baseData.autority
 };
 
 
 
 var rootData = {
-    autority: baseData.autority,
+  autority: baseData.autority,
   nameserver: baseData.nameserver,
-        ip: config.get('dns:domain_A'),
-        mail: mxData.mail
+  ip: config.get('dns:domain_A'),
+  mail: mxData.mail
 };
 
 
 
 //static entries; matches a fully qualified names
 var staticDataFull = {
-    'isc.org': false
-}
+  'isc.org': false
+};
 //static entries; matches 'in domains' names
 var staticDataInDomain = config.get('dns:staticDataInDomain');
 
 
-var serverForName = function(reqName,callback,req,res) { 
-  var nullRecord = dns.getRecords({},reqName);
+var serverForName = function (reqName, callback, req, res) {
+  var nullRecord = dns.getRecords({}, reqName);
   //simpler request matching in lower case
-  keyName = reqName.toLowerCase()
-  
+  var keyName = reqName.toLowerCase();
+
   //reserved, static records
   if (keyName in staticDataFull) {
-    return callback(req,res,dns.getRecords(staticDataFull[keyName],reqName));
+    return callback(req, res, dns.getRecords(staticDataFull[keyName], reqName));
   }
-  
-  logger.info('DNS: '+keyName);
+
+  logger.info('DNS: ' + keyName);
 
   // root request
-  if (keyName == config.get('dns:domain')) {
+  if (keyName === config.get('dns:domain')) {
     switch (req.q[0].typeName) {
     case 'MX':
-      return callback(req,res,dns.getRecords(mxData,reqName));
-      break;
+      return callback(req, res, dns.getRecords(mxData, reqName));
     case 'NS':
-      return callback(req,res,dns.getRecords(nsData,reqName));
-      break;
+      return callback(req, res, dns.getRecords(nsData, reqName));
     case 'SOA':
     case 'DNSKEY':
-      return callback(req,res,dns.getRecords(soaData,reqName));
-      break;
+      return callback(req, res, dns.getRecords(soaData, reqName));
     default:
-      return callback(req,res,dns.getRecords(rootData,reqName));
-    break;
+      return callback(req, res, dns.getRecords(rootData, reqName));
     }
   }
 
   // look for matches within domain .pryv.io
   var uid = checkAndConstraints.extractRessourceFromHostname(keyName);
-  
+
   if (! uid) {
-  	logger.info('DNS: (Not in domain) '+keyName);
-  	return callback(req,res,nullRecord);
+    logger.info('DNS: (Not in domain) ' + keyName);
+    return callback(req, res, nullRecord);
   }
-  
+
   // reserved, static records within domain
   if (uid in staticDataInDomain) {
-    return callback(req,res,dns.getRecords(staticDataInDomain[uid],reqName));
+    return callback(req, res, dns.getRecords(staticDataInDomain[uid], reqName));
   }
-  
+
   // 0 to 4 char length are reserved
   if (uid.length < 5) {
     // nothing found
-    return callback(req,res,nullRecord);
+    return callback(req, res, nullRecord);
   }
 
 
-  db.getServer(uid,function(error,result) {
+  db.getServer(uid, function (error, result) {
     //console.log('*** FOUND :'+ result);
-    if (error || ! result) return callback(req,res,nullRecord);
+    if (error || ! result) { return callback(req, res, nullRecord); }
     var dyn = {'alias': [ { name: result } ] };
     // add Authority or Nameservers
     switch (req.q[0].typeName) {
@@ -121,15 +117,13 @@ var serverForName = function(reqName,callback,req,res) {
       break;
     }
 
-    rec = dns.getRecords(dyn,reqName);
-    return callback(req,res,rec); // ndns-warper.sendresponse
+    var rec = dns.getRecords(dyn, reqName);
+    return callback(req, res, rec); // ndns-warper.sendresponse
   });
-  
-   
-}
+};
 
 var ready = require('readyness');
 ready.setLogger(logger.info);
 
-readyListening = ready.waitFor('app_dns:listening');
-dns.start(config.get('dns:port'),config.get('dns:ip'),serverForName,readyListening);
+var readyListening = ready.waitFor('app_dns:listening');
+dns.start(config.get('dns:port'), config.get('dns:ip'), serverForName, readyListening);
