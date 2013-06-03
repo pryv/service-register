@@ -13,8 +13,30 @@ var http = require(httpMode);
 //http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
 //https://github.com/benlowry/node-geoip-native
 
+
+var hostings = null;
 exports.hostings = function () {
-  return config.get('net:aahostings');
+  if (hostings === null) {
+    var aaservers = config.get('net:aaservers');
+    hostings = config.get('net:aahostings');
+    Object.keys(hostings.regions).forEach(function (region) {
+      if (hostings.regions[region].zones) {
+        Object.keys(hostings.regions[region].zones).forEach(function (zone) {
+          if (hostings.regions[region].zones[zone].hostings) {
+            Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
+              hostings.regions[region].zones[zone].hostings[hosting].available = false;
+              if (aaservers[hosting] && aaservers[hosting].length > 0) {
+                hostings.regions[region].zones[zone].hostings[hosting].available = true;
+              }
+            });
+          }
+        });
+      }
+    });
+
+  }
+
+  return hostings;
 };
 
 /**

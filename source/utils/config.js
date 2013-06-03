@@ -64,7 +64,7 @@ nconf.defaults({
       regions: {
         europe : {
           name : 'Europe',
-          localizedNames : { fr : 'Europe'},
+          localizedName : { fr : 'Europe'},
           zones : {
             france : {
               name : 'France',
@@ -72,6 +72,7 @@ nconf.defaults({
               hostings: {
                 'gandi.net-fr' : {
                   url : 'http://gandi.net',
+                  name : 'Gandi',
                   description: 'No bullshit',
                   localizedDescription: {}
                 }
@@ -83,8 +84,9 @@ nconf.defaults({
               hostings: {
                 'green.ch' : {
                   url : 'http://green.ch',
+                  name: 'Green.ch',
                   description: 'Green Hosting',
-                  localizedDescription: {}
+                  localizedDescription: { fr : 'Eco-hébergement'}
                 }
               }
             }
@@ -92,7 +94,7 @@ nconf.defaults({
         },
         'north-america' : {
           name : 'North America',
-          localizedNames : { fr : 'Amérique du Nord'},
+          localizedName : { fr : 'Amérique du Nord'},
           zones : {
             'usa-east' : {
               name : 'East-coast USA',
@@ -100,6 +102,7 @@ nconf.defaults({
               hostings: {
                 'gandi.net-us' : {
                   url : 'http://gandi.net',
+                  name : 'Gandi',
                   description: 'No bullshit',
                   localizedDescription: {}
                 }
@@ -109,8 +112,9 @@ nconf.defaults({
               name : 'West-coast USA',
               localizedName : { fr : 'USA cote ouest'},
               hostings: {
-                'gandi.net-us' : {
+                'joyent' : {
                   url : 'http://joyent.com',
+                  name : 'Joyent',
                   description: 'High performance',
                   localizedDescription: {}
                 }
@@ -120,7 +124,7 @@ nconf.defaults({
         },
         asia : {
           name : 'Asia (coming soon)',
-          localizedNames : { fr : 'Asie (bientôt disponible)'},
+          localizedName : { fr : 'Asie (bientôt disponible)'},
           hostings: {}
         }
       }
