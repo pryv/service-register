@@ -112,7 +112,7 @@ nconf.defaults({
               name : 'West-coast USA',
               localizedName : { fr : 'USA cote ouest'},
               hostings: {
-                'joyent' : {
+                'joyent.net-usw' : {
                   url : 'http://joyent.com',
                   name : 'Joyent',
                   description: 'High performance',
@@ -125,7 +125,20 @@ nconf.defaults({
         asia : {
           name : 'Asia (coming soon)',
           localizedName : { fr : 'Asie (bientôt disponible)'},
-          hostings: {}
+          zones : {
+            'hk' : {
+              name : 'Hong-Kong',
+              localizedName : { },
+              hostings: {
+                'fenqi.asia-hg' : {
+                  url : 'http://fenqi.asia',
+                  name : 'Fengqi.asia',
+                  description: 'We Make Your Business Fly',
+                  localizedDescription: {}
+                }
+              }
+            }
+          }
         }
       }
     },

@@ -32,7 +32,14 @@
         "base_name": "stact-gandi-us-01",
         "port": 443,
         "authorization": "register-test-token"
-      }]
+      }],
+      "joyent.net-usw": [
+        {
+          "base_name": "stact-joyent-usw-01",
+          "port": 443,
+          "authorization": "register-test-token"
+        }
+      ]
     }
   }
 }
