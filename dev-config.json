@@ -2,7 +2,7 @@
   "dns": {
     "name": "local.pryv.net",
     "domain": "rec.la",
-    "staticDataInDomain": { 
+    "staticDataInDomain": {
       "www": {"alias": [ { "name": "local.rec.la" } ]},
       "sw": {"alias": [ { "name": "local.rec.la" } ]},
       "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
@@ -13,7 +13,7 @@
       "url": "https://local.rec.la:4443/register/index-dev-swwreg.html",
       "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
     },
-    "register": { 
+    "register": {
       "url": "https://reglocal.rec.la:8443"
     }
   },
@@ -22,15 +22,17 @@
     "port": 8443
   },
   "net": {
-    "gandi.net-fr" : [{
-      "base_name": "stact-gandi-fr-01",
-      "port": 443,
-      "authorization": "register-test-token"
-    }],
-    "gandi.net-us" : [{
-      "base_name": "stact-gandi-us-01",
-      "port": 443,
-      "authorization": "register-test-token"
-    }]
+    "aaservers": {
+      "gandi.net-fr" : [{
+        "base_name": "stact-gandi-fr-01",
+        "port": 443,
+        "authorization": "register-test-token"
+      }],
+      "gandi.net-us" : [{
+        "base_name": "stact-gandi-us-01",
+        "port": 443,
+        "authorization": "register-test-token"
+      }]
+    }
   }
 }
