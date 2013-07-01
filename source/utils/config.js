@@ -123,8 +123,8 @@ nconf.defaults({
           }
         },
         asia : {
-          name : 'Asia (coming soon)',
-          localizedName : { fr : 'Asie (bientôt disponible)'},
+          name : 'Asia',
+          localizedName : { fr : 'Asie'},
           zones : {
             'hk' : {
               name : 'Hong-Kong',
@@ -139,6 +139,11 @@ nconf.defaults({
               }
             }
           }
+        },
+        australia : {
+          name : 'Australia (Coming soon)',
+          localizedName : { fr : 'Australie (bientôt disponible)'},
+          zones : { }
         }
       }
     },
