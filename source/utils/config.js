@@ -130,7 +130,7 @@ nconf.defaults({
               name : 'Hong-Kong',
               localizedName : { },
               hostings: {
-                'fenqi.asia-hg' : {
+                'fenqi.asia-hk' : {
                   url : 'http://fenqi.asia',
                   name : 'Fengqi.asia',
                   description: 'We Make Your Business Fly',
