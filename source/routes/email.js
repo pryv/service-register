@@ -39,7 +39,7 @@ module.exports = function (app) {
 function _checkEmail(req, res, next, raw) {
 
   if (! checkAndConstraints.email(req.params.email)) {
-    console.log('There +' + raw);
+    //console.log('There +' + raw);
     if (raw) {
       res.header('Content-Type', 'text/plain');
       return res.send('false');

@@ -37,7 +37,12 @@ describe('POST /user', function () {
       JValues: {'id': 'INVALID_USER_NAME' } },
 
     { data: { username: 'pryvwa' },
-      status: 400, desc : 'Invalid user',
+      status: 400, desc : 'Reserved user starting by pryv',
+      JSchema :  schema.error,
+      JValues: {'id': 'RESERVED_USER_NAME' } },
+
+    { data: { username: 'facebook' },
+      status: 400, desc : 'Reserved user starting from list',
       JSchema :  schema.error,
       JValues: {'id': 'RESERVED_USER_NAME' } },
 
@@ -49,14 +54,14 @@ describe('POST /user', function () {
     { data: {  username: 'wactiv'},
       status: 400, desc : 'Existing user',
       JSchema :  schema.multipleErrors,
-      JValues: { 'id': 'INVALID_DATA',
-        'errors': [ {'id': 'EXISTING_USER_NAME' } ]   }},
+      JValues: { 'id': 'EXISTING_USER_NAME' } },
+
+
 
     { data: {  email: 'wactiv@pryv.io'},
       status: 400, desc : 'Existing e-mail',
       JSchema :  schema.multipleErrors,
-      JValues: {'id' : 'INVALID_DATA',
-        'errors': [ {'id': 'EXISTING_EMAIL' } ]   }},
+      JValues: { 'id': 'EXISTING_EMAIL'     }},
 
     { data: {   username: 'wactiv', email: 'wactiv@pryv.io'},
       status: 400, desc : 'Existing e-mail & username',
@@ -92,6 +97,7 @@ describe('POST /user', function () {
 
 describe('POST /username/check/', function () {
   var tests =  [
+    { username: 'facebook', status: 200, desc : 'reserved from list', value: 'false' },
     { username: 'pryvtoto', status: 200, desc : 'reserved for pryv', value: 'false' },
     { username: 'asdfhgsdkfewg', status: 200, desc : 'available', value: 'true' }
   ];
@@ -129,6 +135,9 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID },
 
     { username: 'pryvtoto', status: 200, desc : 'reserved for pryv',
+      JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} },
+
+    { username: 'facebook', status: 200, desc : 'reserved from list',
       JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} },
 
     { username: 'access', status: 200, desc : 'reserved dns',

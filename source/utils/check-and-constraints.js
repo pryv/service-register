@@ -39,15 +39,7 @@ exports.hosting = function hosting(str) {
   return null;
 };
 
-// (not a static DNS entry & not starting by "pryv") case-insensitive
-// uid must have already been checked and cleaned by check-and-constraints.uid(..
-exports.uidReserved = function uidReserved(str) {
-  if (! str) { return null; }
-  if (/^(pryv)+(.*)$/.test(str.toLowerCase())) { return true; }
-  // TODO optimise this with some caching
-  if (config.get('dns:staticDataInDomain:' + str)) { return true; }
-  return false;
-};
+
 
 // any chars between 6 and 99 chars, with no trailing spaces.
 exports.password = function password(str) {

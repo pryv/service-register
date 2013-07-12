@@ -92,6 +92,23 @@ function checkConnection() {
 }
 
 
+/**
+ * simply map redis.set
+ */
+function set(key, callback) {
+  redis.set(key, callback);
+}
+exports.set = set;
+
+/**
+ * simply map redis.get
+ */
+function get(key, callback) {
+  redis.get(key, callback);
+}
+exports.get = get;
+
+
 function getJSON(key, callback) {
   redis.get(key, function (error, result) {
     var res_json = null;
@@ -371,3 +388,61 @@ exports.getAccessState = function getAccessState(key, callback) {
 };
 
 
+//----------------- reserved words --------------//
+var RESERVED_WORDS_VERSION = 'reservedwords:version';
+var RESERVED_WORDS_LIST = 'reservedwords:list';
+exports.reservedWordsVersion = function reservedWordsVersion(callback) {
+  redis.get(RESERVED_WORDS_VERSION, function (error, version) {
+    if (error) {
+      logger.error('ReservedWordManagement version ' + error, error);
+      return callback(error, false);
+    }
+    return callback(false, version);
+  });
+};
+
+exports.reservedWordsLoad = function reservedWordsLoad(version, wordArray, callback) {
+
+
+  async.series([
+    function (nextStep) { // delete word set version
+      redis.del(RESERVED_WORDS_VERSION, function (error) {
+        nextStep(error);
+      });
+    },
+    function (nextStep) { // delete word list
+      redis.del(RESERVED_WORDS_LIST, function (error) {
+        nextStep(error);
+      });
+    },
+    function (nextStep) { // load word list
+      redis.sadd(RESERVED_WORDS_LIST, wordArray, function (error) {
+        nextStep(error);
+      });
+    },
+    function (nextStep) { // set version
+      redis.set(RESERVED_WORDS_VERSION, version, function (error) {
+        nextStep(error);
+      });
+    }
+  ],
+    function (serieError) {
+      if (serieError) {
+        logger.error('ReservedWordManagement error ' + serieError, serieError);
+      }
+      if (callback) {
+        callback(serieError); // callback anyway
+      }
+    });
+};
+
+exports.reservedWordsExists = function reservedWordsExists(word, callback) {
+  redis.sismember(RESERVED_WORDS_LIST, word, function (error, result) {
+    if (error) {
+      logger.error('DB reservedWordsExists ' + error, error);
+      return callback(error, false);
+    }
+    callback(false, result === 1);
+
+  });
+};

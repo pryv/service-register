@@ -9,6 +9,9 @@ var async = require('async');
 var dataservers = require('../network/dataservers.js');
 var users = require('../storage/server-management.js');
 
+var reservedWords = require('../storage/reserved-userid-management.js');
+
+
 module.exports = function (app) {
 
   // request pre processing
@@ -32,17 +35,19 @@ module.exports = function (app) {
     };
 
     if (! user.appid) { return next(messages.e(400, 'INVALID_APPID')); }
-
     if (! user.username) { return next(messages.e(400, 'INVALID_USER_NAME')); }
-    if (checkAndConstraints.uidReserved(user.username)) {
-      return next(messages.e(400, 'RESERVED_USER_NAME'));
-    }
     if (! user.email) { return next(messages.e(400, 'INVALID_EMAIL')); }
     if (! user.password) { return next(messages.e(400, 'INVALID_PASSWORD'));  }
 
     var existsList = [];
 
     async.parallel([
+      function (callback) {  // test username
+        reservedWords.useridIsReserved(user.username, function (error, reserved) {
+          if (reserved) { existsList.push('RESERVED_USER_NAME'); }
+          callback(error);
+        });
+      },
       function (callback) {  // test username
         db.uidExists(user.username, function (error, exists) {
           if (exists) { existsList.push('EXISTING_USER_NAME'); }
@@ -61,6 +66,9 @@ module.exports = function (app) {
       }
     ], function (error) {
       if (existsList.length > 0) {
+        if (existsList.length === 1) {
+          return next(messages.e(400, existsList[0]));
+        }
         return next(messages.ex(400, 'INVALID_DATA', existsList));
       }
       if (error) { return next(messages.ei(error)); }
@@ -104,7 +112,6 @@ function _check(req, res, next, raw) {
   var username = checkAndConstraints.uid(req.params.username);
 
 
-
   if (! username) {
     if (raw) {
       res.header('Content-Type', 'text/plain');
@@ -115,14 +122,18 @@ function _check(req, res, next, raw) {
   }
 
 
-  if (checkAndConstraints.uidReserved(username)) {
-    if (raw) {
-      res.header('Content-Type', 'text/plain');
-      return res.send('false');
-    } else {
+
+  reservedWords.useridIsReserved(username, function (error, reserved) {
+    if (error) { return next(error); }
+
+    if (reserved) {
+      if (raw) {
+        res.header('Content-Type', 'text/plain');
+        return res.send('false');
+      }
       return res.json({reserved: true, reason: 'RESERVED_USER_NAME' });
     }
-  } else {
+
     db.uidExists(username, function (error, exists) {
       if (error) { return next(messages.ei()); }
       if (raw) {
@@ -132,5 +143,6 @@ function _check(req, res, next, raw) {
         return res.json({reserved: exists });
       }
     });
-  }
+  });
+
 }

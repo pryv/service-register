@@ -6,13 +6,11 @@ var logger = require('winston');
 var app = module.exports = express();
 
 
+
 app.configure('development', function () {
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
   logger['default'].transports.console.level = 'debug';
   logger['default'].transports.console.colorize = true;
-
-
-
 });
 
 app.configure('production', function () {

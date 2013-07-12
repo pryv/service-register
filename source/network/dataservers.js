@@ -84,7 +84,13 @@ function getClientIp(req) {
 //POST request to an admin server, callback(error,json_result)
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
-  var httpOptions = { host : host.name, port: host.port, path: path, method: 'POST' };
+  var httpOptions = {
+    host : host.name,
+    port: host.port,
+    path: path,
+    method: 'POST',
+    rejectUnauthorized: false
+  };
   var postData = JSON.stringify(jsonData);
 
   //console.log(postData);
