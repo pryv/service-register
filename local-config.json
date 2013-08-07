@@ -1,24 +1,24 @@
 {
   "dns": {
     "name": "local.pryv.net",
-    "domain": "rec.la",
+    "domain": "pryv.in",
     "staticDataInDomain": {
-      "www": {"alias": [ { "name": "local.rec.la" } ]},
-      "sw": {"alias": [ { "name": "local.rec.la" } ]},
-      "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
+      "www": {"alias": [ { "name": "local.pryv.in" } ]},
+      "sw": {"alias": [ { "name": "local.pryv.in" } ]},
+      "reg": {"alias": [ { "name": "reglocal.pryv.in" } ]}
     }
   },
   "http": {
     "static": {
-      "url": "https://local.rec.la:4443/register/index-dev-swwreg.html",
+      "url": "https://local.rec.la:4443/",
       "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
     },
     "register": {
-      "url": "https://reglocal.rec.la:8443"
+      "url": "https://reglocal.pryv.in:8443"
     }
   },
   "server": {
-    "certsPathAndKey": "source/cert/rec.la" ,
+    "certsPathAndKey": "source/cert/pryv.in" ,
     "port": 8443
   },
   "net": {
