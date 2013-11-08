@@ -3,6 +3,7 @@
 var nconf = require('nconf');
 var logger = require('winston');
 var fs = require('fs');
+var os = require('os');
 
 //Exports
 
@@ -219,6 +220,10 @@ nconf.defaults({
     'static': {
       'access' : 'https://l.rec.la:4443/access/'
     }
+  },
+  'newrelic': {
+    'app_name' : 'Register ' + os.hostname(),
+    'license_key' : 'de249e5a0385813fbe37d5e35fd01c65bad43ea4'
   }
 });
 
