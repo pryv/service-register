@@ -1,8 +1,3 @@
-
-var myConfig = require('./source/utils/config'),
-
-console.log(myConfig);
-
 /**
  * New Relic agent configuration.
  *
