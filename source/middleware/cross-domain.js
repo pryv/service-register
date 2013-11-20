@@ -17,6 +17,7 @@ module.exports = function (req, res, next) {
   if (req.method === 'OPTIONS') {
     console.log('Cross Domain OPTIONS REQUEST: ' + req.url);
     res.send(200);
+  } else {
+    next();
   }
-  next();
 };
