@@ -7,7 +7,7 @@
 SCRIPT_FOLDER=$(cd $(dirname "$0"); pwd)
 cd $SCRIPT_FOLDER/..
 
-export NODE_VERSION=v0.8.23
+export NODE_VERSION=v0.10.23
 
 export REDIS_NAME=redis-2.6.13
 export REDIS_BASE_FOLDER=../..
