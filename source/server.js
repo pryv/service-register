@@ -12,6 +12,12 @@ var ready = require('readyness');
 ready.setLogger(logger.info);
 
 
+// -- new relic -- hack conf in order to pass directly configuration values
+process.env.NEW_RELIC_LICENSE_KEY = config.get('newrelic:license_key');
+process.env.NEW_RELIC_APP_NAME = config.get('newrelic:app_name');
+require('newrelic');
+
+
 //https server
 logger.info('Register  server :' + config.get('http:register:url'));
 logger.info('Static  server :' + config.get('http:static:url'));
