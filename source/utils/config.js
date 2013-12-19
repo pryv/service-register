@@ -9,14 +9,14 @@ var os = require('os');
 
 module.exports = nconf;
 
-//Setup nconf to use (in-order): 
+//Setup nconf to use (in-order):
 //1. Command-line arguments
 //2. Environment variables
 
 nconf.argv()
   .env();
 
-//3. A file located at .. 
+//3. A file located at ..
 var configFile = fs.existsSync('local-config.json') ? 'local-config.json' : 'dev-config.json';
 if (typeof(nconf.get('config')) !== 'undefined') {
   configFile = nconf.get('config');
@@ -46,11 +46,11 @@ nconf.defaults({
       'errorUrl': 'https://sw.pryv.me/register/error.html',
       'access': 'https://sw.pryv.io:2443/access/v0/access.html' // ADD A trailing slashes for dir
     },
-    'register': { // this is the (public) front url 
+    'register': { // this is the (public) front url
       'url': 'https://reg.pryv.io:443'  // no trailling "/" !!
     }
   },
-  'server': { // see http:register for public url 
+  'server': { // see http:register for public url
     'port': 2443,
     'ip': '0.0.0.0',
     'ssl': true,
@@ -58,7 +58,7 @@ nconf.defaults({
   },
   'persistence' : {
     'init-ttl' : 86400, // seconds should be 86400 for a day
-    'access-ttl' : 3600  // access-request 
+    'access-ttl' : 3600  // access-request
   },
   'net': { // manly used in /network/dataservers
     aahostings : {

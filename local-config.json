@@ -1,36 +1,55 @@
 {
   "dns": {
     "name": "local.pryv.net",
-    "domain": "pryv.in",
+    "domain": "rec.la",
     "staticDataInDomain": {
-      "www": {"alias": [ { "name": "local.pryv.in" } ]},
-      "sw": {"alias": [ { "name": "local.pryv.in" } ]},
-      "reg": {"alias": [ { "name": "reglocal.pryv.in" } ]}
+      "www": {"alias": [ { "name": "local.rec.la" } ]},
+      "sw": {"alias": [ { "name": "local.rec.la" } ]},
+      "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
     }
   },
   "http": {
     "static": {
-      "url": "https://local.rec.la:4443/",
+      "url": "https://l.rec.la:4443",
       "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
     },
     "register": {
-      "url": "https://reglocal.pryv.in:8443"
+      "url": "https://reg.rec.la:8443"
     }
   },
   "server": {
-    "certsPathAndKey": "source/cert/pryv.in" ,
+    "certsPathAndKey": "source/cert/rec.la" ,
     "port": 8443
   },
   "net": {
+    aahostings : {
+      regions: {
+        hereAndSurroundings : {
+          name : 'Here and surroundings',
+          localizedName : { fr : 'Ici et environs'},
+          zones : {
+            here : {
+              name : 'Here',
+              localizedName : { fr : 'Ici'},
+              hostings: {
+                'local' : {
+                  url : 'http://this.is.not.important',
+                  name : 'Local server',
+                  description: 'Locally running API server',
+                  localizedDescription: {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "AAservers_domain": "rec.la",
+    "aaservers_ssl": false,
     "aaservers": {
-      "gandi.net-fr" : [{
-        "base_name": "stact-gandi-fr-01",
-        "port": 443,
-        "authorization": "register-test-token"
-      }],
-      "gandi.net-us" : [{
-        "base_name": "stact-gandi-us-01",
-        "port": 443,
+      "local" : [{
+        "base_name": "local",
+        "port": 3443,
         "authorization": "register-test-token"
       }]
     }
