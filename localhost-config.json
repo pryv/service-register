@@ -1,0 +1,57 @@
+{
+  "dns": {
+    "name": "local.pryv.net",
+    "domain": "rec.la",
+    "staticDataInDomain": {
+      "www": {"alias": [ { "name": "local.rec.la" } ]},
+      "sw": {"alias": [ { "name": "local.rec.la" } ]},
+      "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
+    }
+  },
+  "http": {
+    "static": {
+      "url": "https://l.rec.la:4443",
+      "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
+    },
+    "register": {
+      "url": "https://reg.rec.la:8443"
+    }
+  },
+  "server": {
+    "certsPathAndKey": "source/cert/rec.la" ,
+    "port": 8443
+  },
+  "net": {
+    "aahostings" : {
+      "regions": {
+        "hereAndSurroundings" : {
+          "name" : "Here and surroundings",
+          "localizedName" : { "fr" : "Ici et environs"},
+          "zones" : {
+            "here" : {
+              "name" : "Here",
+              "localizedName" : { "fr" : "Ici"},
+              "hostings": {
+                "local" : {
+                  "url" : "http://this.is.not.important",
+                  "name" : "Local server",
+                  "description": "Locally running API server",
+                  "localizedDescription": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "AAservers_domain": "rec.la",
+    "aaservers_ssl": false,
+    "aaservers": {
+      "local" : [{
+        "base_name": "local",
+        "port": 3443,
+        "authorization": "register-test-token"
+      }]
+    }
+  }
+}
