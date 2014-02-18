@@ -22,6 +22,30 @@
     "port": 8443
   },
   "net": {
+    "aahostings": {
+      "regions": {
+        "hereAndSurroundings": {
+          "name": "Here and surroundings",
+          "localizedName": { "fr": "Ici et environs"},
+          "zones": {
+            "here": {
+              "name": "Here",
+              "localizedName": { "fr": "Ici"},
+              "hostings": {
+                "local": {
+                  "url": "http://this.is.not.important",
+                  "name": "Local server",
+                  "description": "Locally running API server",
+                  "localizedDescription": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "AAservers_domain": "rec.la",
+    "aaservers_ssl": false,
     "aaservers": {
       "gandi.net-fr" : [{
         "base_name": "stact-gandi-fr-01",
