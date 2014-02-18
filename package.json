@@ -1,10 +1,11 @@
 {
-  "name": "pryv.io-registration-server",
+  "name": "pryv-registration-server",
   "description": "",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "author": "Pryv Sa",
   "dependencies": {
+    "airbrake": "0.3.x",
     "async": "0.2.x",
     "bcrypt": "0.7.x",
     "express": "3.0.x",

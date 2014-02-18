@@ -224,6 +224,9 @@ nconf.defaults({
   'newrelic': {
     'app_name' : 'Register ' + os.hostname(),
     'license_key' : 'de249e5a0385813fbe37d5e35fd01c65bad43ea4'
+  },
+  airbrake: {
+    key: '88ec825519c81c3a248a5d19284970a0' // registration server key
   }
 });
 

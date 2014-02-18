@@ -3,10 +3,10 @@
  */
 
 var app = require('./app'),
-config = require('./utils/config'),
-fs = require('fs'),
-logger = require('winston'),
-_ = require('underscore.string');
+    config = require('./utils/config'),
+    fs = require('fs'),
+    logger = require('winston'),
+    _ = require('underscore.string');
 
 var ready = require('readyness');
 ready.setLogger(logger.info);
@@ -17,6 +17,9 @@ process.env.NEW_RELIC_LICENSE_KEY = config.get('newrelic:license_key');
 process.env.NEW_RELIC_APP_NAME = config.get('newrelic:app_name');
 require('newrelic');
 
+// send crashes to Airbrake service
+var airbrake = require('airbrake').createClient(config.get('airbrake:key'));
+airbrake.handleExceptions();
 
 //https server
 logger.info('Register  server :' + config.get('http:register:url'));
