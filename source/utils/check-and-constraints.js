@@ -49,6 +49,14 @@ exports.password = function password(str) {
   return null;
 };
 
+// any chars between 5 and 99 chars, with no trailing spaces.
+exports.invitationToken = function invitationToken(str) {
+  if (! str) { return null; }
+  str = _(str).trim();
+  if (str.length > 4 && str.length < 100) { return str; }
+  return null;
+};
+
 exports.email = function email(str) {
   if (! str) { return null; }
   str = _(str).trim();

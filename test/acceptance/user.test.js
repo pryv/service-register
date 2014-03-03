@@ -17,10 +17,17 @@ describe('POST /user', function () {
     appid :  'pryv-test',
     username : randomuser,
     email : randomuser + '@wactiv.chx', // should not be necessary
-    password: 'abcdefgh'
+    password: 'abcdefgh',
+    invitationtoken: 'enjoy'
   };
 
   var tests = [
+    { data: { invitationtoken: 'aa'},
+      status: 400, desc : 'Invalid invitation',
+      JSchema :  schema.error,
+      JValues: {'id': 'INVALID_INVITATION' } },
+
+
     { data: { hosting: ''},
       status: 400, desc : 'Invalid hosting',
       JSchema :  schema.error,

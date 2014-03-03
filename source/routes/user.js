@@ -12,6 +12,9 @@ var users = require('../storage/server-management.js');
 var reservedWords = require('../storage/reserved-userid-management.js');
 
 
+
+var invitationToken = require('../storage/invitations-management.js');
+
 module.exports = function (app) {
 
   // request pre processing
@@ -31,6 +34,7 @@ module.exports = function (app) {
       username: checkAndConstraints.uid(req.body.username),
       password: checkAndConstraints.password(req.body.password),
       email: checkAndConstraints.email(req.body.email),
+      invitationToken: checkAndConstraints.invitationToken(req.body.invitationtoken),
       language: checkAndConstraints.lang(req.body.languageCode) // no check
     };
 
@@ -38,10 +42,17 @@ module.exports = function (app) {
     if (! user.username) { return next(messages.e(400, 'INVALID_USER_NAME')); }
     if (! user.email) { return next(messages.e(400, 'INVALID_EMAIL')); }
     if (! user.password) { return next(messages.e(400, 'INVALID_PASSWORD'));  }
+    if (! user.invitationToken) { return next(messages.e(400, 'INVALID_INVITATION'));  }
 
     var existsList = [];
 
     async.parallel([
+      function (callback) {  // test username
+        invitationToken.checkIfValid(user.invitationToken, function (valid, error) {
+          if (! valid) { existsList.push('INVALID_INVITATION'); }
+          callback(error);
+        });
+      },
       function (callback) {  // test username
         reservedWords.useridIsReserved(user.username, function (error, reserved) {
           if (reserved) { existsList.push('RESERVED_USER_NAME'); }

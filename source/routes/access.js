@@ -7,6 +7,9 @@ var randGenerator = require('../utils/random');
 
 var domain = config.get('dns:domain');
 
+
+var invitationToken = require('../storage/invitations-management.js');
+
 function access(app) {
 
   function _setAccessState(res, next, key, accessState) {
@@ -127,8 +130,10 @@ function access(app) {
    * access tester
    */
   app.post('/access/invitationtoken/check', function (req, res) {
-    res.header('Content-Type', 'text/plain');
-    return res.send((req.body.invitationtoken === 'enjoy') ? 'true' : 'false');
+    invitationToken.checkIfValid(req.body.invitationtoken, function (isValid/*, error*/) {
+      res.header('Content-Type', 'text/plain');
+      res.send(isValid ? 'true' : 'false');
+    });
   });
 
   /**

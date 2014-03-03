@@ -6,6 +6,9 @@ var db = require('../storage/database.js');
 
 var domain = '.' + config.get('dns:domain');
 
+
+var invitationToken = require('./invitations-management.js');
+
 /**
  * 
  * @param host
@@ -42,7 +45,12 @@ exports.create = function create(host, user, req, res, next) {
         if (error) {
           return next(messages.ei(error));
         }
-        res.json({username: user.username, server: user.username + domain}, 200);
+        invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+          if (error) {
+            return next(messages.ei(error));
+          }
+          res.json({username: user.username, server: user.username + domain}, 200);
+        });
       });
 
     } else {
