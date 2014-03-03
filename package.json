@@ -11,7 +11,6 @@
     "express": "3.0.x",
     "json-schema": "0.2.x",
     "nconf": "0.6.x",
-    "newrelic": "~1.1.0",
     "nodemailer": "0.3.x",
     "readyness": "0.1.x",
     "redis": "0.7.x",

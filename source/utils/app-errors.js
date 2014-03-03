@@ -20,6 +20,7 @@ function app_errors(app) {
     res.json(err.httpCode, err.data);
   });
 
+  /**    we let this to airbrake
   process.on('uncaughtException', function (err) {
     if (! err) {
       err = new Error();
@@ -27,7 +28,7 @@ function app_errors(app) {
     logger.error('uncaughtException : ' + err);
     logger.error(err.stack);
   });
-
+  **/
 }
 
 module.exports = app_errors;

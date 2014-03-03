@@ -1,4 +1,7 @@
 {
+  "airbrake": {
+    "disable": true
+  },
   "dns": {
     "name": "local.pryv.net",
     "domain": "pryv.in",

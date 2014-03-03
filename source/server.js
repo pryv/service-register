@@ -12,14 +12,11 @@ var ready = require('readyness');
 ready.setLogger(logger.info);
 
 
-// -- new relic -- hack conf in order to pass directly configuration values
-process.env.NEW_RELIC_LICENSE_KEY = config.get('newrelic:license_key');
-process.env.NEW_RELIC_APP_NAME = config.get('newrelic:app_name');
-require('newrelic');
-
 // send crashes to Airbrake service
-var airbrake = require('airbrake').createClient(config.get('airbrake:key'));
-airbrake.handleExceptions();
+if (config.get('airbrake:disable') !== true) {
+  var airbrake = require('airbrake').createClient(config.get('airbrake:key'));
+  airbrake.handleExceptions();
+}
 
 //https server
 logger.info('Register  server :' + config.get('http:register:url'));
