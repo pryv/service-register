@@ -128,7 +128,7 @@ function access(app) {
    */
   app.post('/access/invitationtoken/check', function (req, res) {
     res.header('Content-Type', 'text/plain');
-    return res.send((req.body.token === 'enjoy') ? 'true' : 'false');
+    return res.send((req.body.invitationtoken === 'enjoy') ? 'true' : 'false');
   });
 
   /**
