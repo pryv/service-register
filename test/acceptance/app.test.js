@@ -28,6 +28,7 @@ describe('POST /init with invalid data (bodyParser test)', function () {
   }
 });
 
+/**
 describe('GET /bug to test invalid code', function () {
   var tests = [
     { status: 500, desc : 'invalid javascript', JSchema : schema.error,
@@ -42,5 +43,5 @@ describe('GET /bug to test invalid code', function () {
     dataValidation.pathStatusSchema(tests[key]);
   }
 });
-
+**/
 
