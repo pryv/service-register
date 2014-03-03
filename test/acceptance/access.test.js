@@ -6,6 +6,24 @@ var schema = require('../../source/model/schema.responses');
 
 require('readyness/wait/mocha');
 
+
+describe('POST /access/invitation/:token/check', function () {
+    var tests =  [
+      { token: 'facebook', status: 200, desc : 'invalid', value: 'false' },
+      { token: 'enjoy', status: 200, desc : 'valid', value: 'true' }
+    ];
+
+    for (var key = 0; key < tests.length; key++) { // create PATH and method
+      tests[key].it = tests[key].desc + ', token: ' + tests[key].username;
+      tests[key].url = '/access/invitationtoken/check/';
+      tests[key].method = 'POST';
+      tests[key].restype = 'text/plain';
+      tests[key].data = {token: tests[key].token};
+      dataValidation.pathStatusSchema(tests[key]);
+    }
+  });
+
+
 // TODO complete tests with real devID
 describe('POST /access', function () {
   var tests = [];

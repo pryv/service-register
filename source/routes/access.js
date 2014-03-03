@@ -124,6 +124,14 @@ function access(app) {
   });
 
   /**
+   * access tester
+   */
+  app.post('/access/invitationtoken/check', function (req, res) {
+    res.header('Content-Type', 'text/plain');
+    return res.send((req.body.token === 'enjoy') ? 'true' : 'false');
+  });
+
+  /**
    * polling responder
    */
   app.get('/access/:key', function (req, res, next) {
