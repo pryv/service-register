@@ -83,11 +83,11 @@ nconf.defaults({
               name : 'Switzerland',
               localizedName: { fr : 'Suisse'},
               hostings: {
-                'green.ch' : {
-                  url : 'http://green.ch',
-                  name: 'Green.ch',
-                  description: 'Green Hosting',
-                  localizedDescription: { fr : 'Eco-hébergement'}
+                'swisscom.ch' : {
+                  url : 'http://w.pryv.com',
+                  name: 'Comming Soon...',
+                  description: 'Coming soon',
+                  localizedDescription: { }
                 }
               }
             }
