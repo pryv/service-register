@@ -84,9 +84,9 @@ nconf.defaults({
               localizedName: { fr : 'Suisse'},
               hostings: {
                 'swisscom.ch' : {
-                  url : 'http://w.pryv.com',
-                  name: 'Comming Soon...',
-                  description: 'Coming soon',
+                  url : 'http://www.swisscom.ch',
+                  name: 'Swisscom',
+                  description: 'Swiss quality',
                   localizedDescription: { }
                 }
               }
