@@ -3,8 +3,9 @@
  */
 
 var db = require('../storage/database.js');
-
+var async = require('async');
 var exports = exports || {};
+var _ = require('underscore');
 
 
 /**
@@ -82,4 +83,74 @@ exports.renameServer = function renameServer(srcServerName, dstServerName, callb
       });
 
     }, myDone);
+};
+
+
+exports.getAllUsersInfos = function getAllUsersInfos(callback) {
+  var userlist = {};
+  var waiter = 1;
+  function done1() {
+    waiter--;
+    if (waiter === 0) {
+      callback(null, userlist);
+    }
+  }
+
+
+  db.doOnKeysMatching('*:users',
+    function (userkey) { // action
+
+      var user = userkey.substring(0, userkey.length - 6);
+
+      userlist[user] = {};
+      waiter++;
+      this.getUserInfos(user, function (errors, userInfos) {
+        userlist[user] = userInfos;
+        userlist[user].errors =  errors;
+        done1();
+      });
+    }.bind(this), function (/*error, count*/) {  // done
+      done1();
+    });
+};
+
+
+exports.getUserInfos = function getUserInfos(username, callback) {
+  var result = { username : username };
+  var errors = [];
+
+  async.parallel([
+    function (done) { // -- get user informations
+      db.getSet(username + ':users', function (error, user) {
+        if (error) {
+          errors.push({user: error});
+        } else if (! user) {
+          errors.push({user: username + ':users is empty'});
+        } else {
+          _.extend(result, user);
+        }
+        done(null);
+      });
+    },
+    function (done) { // -- get server location
+      db.getServer(username, function (error, server) {
+        if (error) {
+          errors.push({server: error});
+        } else if (! server) {
+          errors.push({server: username + ':server is empty'});
+        } else {
+          result.server = server;
+        }
+        done(null);
+      });
+    }
+  ],
+    function (error) {
+
+      if (errors.length === 0) { errors = null; }
+      callback(errors, result);
+
+    });
+
+
 };

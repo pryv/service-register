@@ -4,18 +4,33 @@
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 var users = require('../storage/user-management.js');
 var messages = require('../utils/messages.js');
+var tohtml = require('../utils/2html.js');
 
 function init(app) {
 
   /**
-   * get the server list, with the number of users on them
+   * get the user list,
    */
-  app.get('/admin/servers', function (req, res, next) {
+  app.get('/admin/users', function (req, res, next) {
     //TODO add authorization checking
 
-    users.getServers(function (error, list) {
-      if (error) { return next(messages.ei()); }
-      res.json({servers: list});
+    var headers = {
+      username : 'Username',
+      email: 'e-mail',
+      language: 'lang',
+      server: 'Server',
+      appid: 'From app',
+      invitationToken : 'Token',
+      errors: 'Errors'
+    };
+
+    users.getAllUsersInfos(function (error, list) {
+      console.log(error, list);
+
+      //res.json({users: list, error: error});
+
+      res.send(tohtml.toTable(headers, list));
+
     });
 
   });

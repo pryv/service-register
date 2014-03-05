@@ -108,6 +108,13 @@ function get(key, callback) {
 }
 exports.get = get;
 
+/**
+ * simply map redis.hgetall
+ */
+exports.getSet = function getSet(key, callback) {
+  redis.hgetall(key, callback);
+}
+
 
 function getJSON(key, callback) {
   redis.get(key, function (error, result) {
@@ -318,6 +325,8 @@ exports.changeEmail = function changeEmail(username, email, callback) {
     });
   });
 };
+
+
 
 
 //------------------ db index structural checks ---//
