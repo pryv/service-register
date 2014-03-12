@@ -1,22 +1,41 @@
 //check if a UID exists
-var db = require('../storage/database.js');
 var messages = require('../utils/messages.js');
-var config = require('../utils/config');
+var checkAndConstraints = require('../utils/check-and-constraints.js');
 
 
-var domain = config.get('dns:domain');
 
 var accessCommon = require('../access/access-lib.js');
 
 
 var invitationToken = require('../storage/invitations-management.js');
 
+
+
+function requestAccess(req, res, next) {
+  accessCommon.requestAccess(req.body, function (accessState) {
+
+    res.json(accessState, accessState.code);
+  }, next);
+}
+
+
+function setAccessState(res, next, key, accessState) {
+  accessCommon.setAccessState(key, accessState, function (accessState) {
+    res.json(accessState, accessState.code);
+  }, function (errorMessage) {
+    next(errorMessage);
+  });
+}
+
+
+
+
 function access(app) {
 
   /**
    * request an access
    */
-  app.post('/access', accessCommon._requestAccess);
+  app.post('/access', requestAccess);
 
   /**
    * access tester
@@ -53,7 +72,7 @@ function access(app) {
           code: 403
         };
 
-        accessCommon._setAccessState(res, next, key, accessStateA);
+        setAccessState(res, next, key, accessStateA);
       }  else if (req.body.status === 'ERROR') {
         var accessStateB = {
           status: 'ERROR',
@@ -63,7 +82,7 @@ function access(app) {
           code: 403
         };
 
-        accessCommon._setAccessState(res, next, key, accessStateB);
+        setAccessState(res, next, key, accessStateB);
       } else if (req.body.status === 'ACCEPTED') {
 
         if (! checkAndConstraints.uid(req.body.username)) {
@@ -81,7 +100,7 @@ function access(app) {
           code: 200
         };
 
-        accessCommon._setAccessState(res, next, key, accessStateC);
+        setAccessState(res, next, key, accessStateC);
       }
     }, next);
   });

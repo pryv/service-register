@@ -87,7 +87,7 @@ exports.pathStatusSchema = pathStatusSchema = function pathStatusSchema (test) {
 
 
     //-- Do request --//
-    var req = http.request(http_options, function(res){
+    var req = http.request(http_options, function(res) {
       var error_status = false;
 
       try {

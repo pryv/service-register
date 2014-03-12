@@ -5,16 +5,12 @@ var randGenerator = require('../utils/random');
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 
 
-exports._setAccessState = function (res, next, key, accessState) {
-  this.setAccessState(key, accessState, function (accessState) {
-    res.json(accessState, accessState.code);
-  }, function (errorMessage) {
-    next(errorMessage);
-  });
-};
+var domain = config.get('dns:domain');
+
+var accessLib = module.exports = {};
 
 
-exports.setAccessState = function setAccessState(key, accessState, successHandler, errorCallback) {
+accessLib.setAccessState = function setAccessState(key, accessState, successHandler, errorCallback) {
   db.setAccessState(key, accessState, function (error) {
     if (error) { return errorCallback(messages.ei()); }
     //require('../utils/dump.js').inspect(accessState, result);
@@ -23,16 +19,8 @@ exports.setAccessState = function setAccessState(key, accessState, successHandle
 };
 
 
-exports._requestAccess = function (req, res, next) {
 
-  this.requestAccess(req.body, function (accessState) { 
-
-    res.send(accessState);
-  }, next);
-};
-
-
-exports.requestAccess = function requestAccess(parameters, successHandler, errorHandler) {
+accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
   //--- parameters --//
   var requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
@@ -125,16 +113,18 @@ exports.requestAccess = function requestAccess(parameters, successHandler, error
     returnURL: returnURL,
     poll_rate_ms: 1000};
 
-  setAccessState(key, accessState, successHandler, errorHandler);
+  accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 
 };
+
+
 
 
 
 /**
  * Test the key
  */
-exports.testKeyAndGetValue = function testKeyAndGetValue(key, success, failed) {
+accessLib.testKeyAndGetValue = function testKeyAndGetValue(key, success, failed) {
   if (! checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));
   }
@@ -148,6 +138,7 @@ exports.testKeyAndGetValue = function testKeyAndGetValue(key, success, failed) {
     success(result);
   });
 };
+
 
 
 
