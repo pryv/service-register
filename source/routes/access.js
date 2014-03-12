@@ -1,18 +1,20 @@
 //check if a UID exists
+
+var express = express = require('express');
 var messages = require('../utils/messages.js');
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 
-
-
 var accessCommon = require('../access/access-lib.js');
-
 
 var invitationToken = require('../storage/invitations-management.js');
 
 
-
 function requestAccess(req, res, next) {
-  accessCommon.requestAccess(req.body, function (accessState) {
+
+  var params =  req.body;
+  params.sso = req.signedCookies.sso;
+
+  accessCommon.requestAccess(params, function (accessState) {
 
     res.json(accessState, accessState.code);
   }, next);
@@ -27,10 +29,10 @@ function setAccessState(res, next, key, accessState) {
   });
 }
 
-
-
-
 function access(app) {
+
+
+  app.all('/access/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
 
   /**
    * request an access

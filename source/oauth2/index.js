@@ -7,7 +7,7 @@ var logger = require('winston');
 
 var app = express();
 
-
+var accessCommon = require('../access/access-lib.js');
 
 app.configure(function () {
   app.oauth = oauthserver({
@@ -16,30 +16,41 @@ app.configure(function () {
     debug: true
   });
   app.use(express.bodyParser());
-  app.use(express.cookieParser());
-  app.use(express.session({secret: 'JHDGHSTEFSHSFGFSGFSG'}));
 });
+
+app.all('/oauth/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
 
 // Handle token grant requests
 app.all('/oauth/token', app.oauth.grant());
 
 // Show them the "do you authorise xyz app to access your content?" page
 app.get('/oauth/authorise', function (req, res, next) {
-  console.log('/oauth/authorise');
-  console.log(req.query);
-
-  if (!req.session.user) {
-    // If they aren't logged in, send them to your own login implementation
 
 
+  var parameters = {
+    sso: req.signedCookies.sso,
+    requestingAppId: req.query.client_id,
+    requestedPermissions: [ {streamId : '*', level: 'manage'} ], // TODO adapt to clientId
+    languageCode: 'en',
+    returnURL: req.query.redirect_uri + '?',
+    oauthState: req.query.state
+  };
 
-    return res.redirect('https:///login?redirect=' + req.path + '&client_id=' +
-      req.query.client_id + '&redirect_uri=' + req.query.redirect_uri);
-  }
+  accessCommon.requestAccess(parameters, function (accessState) {
+    console.log(accessState);
 
-  res.render('authorise', {
-    client_id: req.query.client_id,
-    redirect_uri: req.query.redirect_uri
+    if (accessState.status === 'NEED_SIGNIN') {
+      return res.redirect(decodeURIComponent(accessState.url));
+    }
+
+    res.render('authorise', {
+      client_id: accessState.username,
+      redirect_uri: parameters.returnURL
+    });
+
+  }, function (errorMessage) { 
+    console.error('GET /oauth/authorise', errorMessage);
+    next(errorMessage);
   });
 });
 
@@ -57,42 +68,6 @@ app.post('/oauth/authorise', function (req, res, next) {
   // The third param should for the user/uid (only used for passing to saveAuthCode)
   next(null, req.body.allow === 'yes', req.session.user.id, req.session.user);
 }));
-
-// Show login
-app.get('/login', function (req, res, next) {
-  res.render('login', {
-    redirect: req.query.redirect,
-    client_id: req.query.client_id,
-    redirect_uri: req.query.redirect_uri
-  });
-});
-
-// Handle login
-app.post('/login', function (req, res, next) {
-  // Insert your own login mechanism
-  if (req.body.email !== 'thom@nightworld.com') {
-    res.render('login', {
-      redirect: req.body.redirect,
-      client_id: req.body.client_id,
-      redirect_uri: req.body.redirect_uri
-    });
-  } else {
-    // Successful logins should send the user back to the /oauth/authorise
-    // with the client_id and redirect_uri (you could store these in the session)
-    return res.redirect((req.body.redirect || '/home') + '?client_id=' +
-      req.body.client_id + '&redirect_uri=' + req.body.redirect_uri);
-  }
-});
-
-app.get('/secret', app.oauth.authorise(), function (req, res) {
-  // Will require a valid access_token
-  res.send('Secret area');
-});
-
-app.get('/public', function (req, res) {
-  // Does not require an access_token
-  res.send('Public area');
-});
 
 // Error handling
 app.use(app.oauth.errorHandler());

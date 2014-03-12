@@ -10,6 +10,10 @@ var domain = config.get('dns:domain');
 var accessLib = module.exports = {};
 
 
+accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') || 
+  'Hallowed Be Thy Name, O Node';
+
+
 accessLib.setAccessState = function setAccessState(key, accessState, successHandler, errorCallback) {
   db.setAccessState(key, accessState, function (error) {
     if (error) { return errorCallback(messages.ei()); }
@@ -22,10 +26,13 @@ accessLib.setAccessState = function setAccessState(key, accessState, successHand
 
 accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
+  console.log('accessLib.requestAccess sso:' + parameters.sso);
+
   //--- parameters --//
   var requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
   if (! requestingAppId) {
-    return errorHandler(messages.e(400, 'INVALID_APP_ID'));
+    return errorHandler(messages.e(400, 'INVALID_APP_ID',
+      {requestingAppId: parameters.requestingAppId}));
   }
 
   var requestedPermissions = checkAndConstraints.access(parameters.requestedPermissions);
@@ -41,6 +48,8 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
   }
   var returnURL = parameters.returnURL;
+
+  var oauthState = parameters.oauthState;
 
   //--- END parameters --//
 
@@ -90,6 +99,10 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     '&domain=' + domain +
     '&registerURL=' + encodeURIComponent(config.get('http:register:url'));
 
+  if (oauthState) {
+    url += '&oauthState=' + oauthState;
+  }
+
   //TODO add username & sessionID if possible
 
 
@@ -111,6 +124,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     url: url,
     poll: pollURL,
     returnURL: returnURL,
+    oauthState: oauthState,
     poll_rate_ms: 1000};
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
