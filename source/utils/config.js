@@ -23,8 +23,6 @@ if (typeof(nconf.get('config')) !== 'undefined') {
 }
 
 
-
-
 if (fs.existsSync(configFile)) {
   configFile = fs.realpathSync(configFile);
   logger.info('using custom config file: ' + configFile);
@@ -212,6 +210,9 @@ nconf.defaults({
   },
   'redis': {
     'password': 'MyRecordedLife'
+  },
+  oauth2: {
+    port: 9090
   },
   'test': {
 

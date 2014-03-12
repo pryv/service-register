@@ -44,7 +44,6 @@ if (config.get('server:port') > 0) {
   server.listen(config.get('server:port'), config.get('server:ip'), function () {
     var address = server.address();
     var protocol = server.key ? 'https' : 'http';
-
     var sslmessage =  server.key ? ' with ssl certs: ' +
     config.get('server:certsPathAndKey') : '';
 
@@ -63,4 +62,5 @@ if (config.get('server:port') > 0) {
 }
 //start dns
 require('./app-dns');
+require('./oauth2/index.js');
 

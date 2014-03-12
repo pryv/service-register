@@ -1,6 +1,6 @@
 //frameworks
-var express = require('express');
 var logger = require('winston');
+var express = require('express');
 
 //Dependencies
 var app = module.exports = express();
@@ -37,7 +37,10 @@ require('./routes/email.js')(app);
 require('./routes/user.js')(app);
 
 require('./routes/server.js')(app);
+
+//access
 require('./routes/access.js')(app);
+
 require('./routes/hostings.js')(app);
 
 // private API  routes
