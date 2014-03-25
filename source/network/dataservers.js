@@ -19,9 +19,9 @@ exports.hostings = function () {
   if (hostings === null) {
     var aaservers = config.get('net:aaservers');
     hostings = config.get('net:aahostings');
-    Object.keys(hostings.regions).forEach(function (region) {
+    Object.keys(hostings.regions).forEach(function (region) {    // for each region(default config)
       if (hostings.regions[region].zones) {
-        Object.keys(hostings.regions[region].zones).forEach(function (zone) {
+        Object.keys(hostings.regions[region].zones).forEach(function (zone) { // zones
           if (hostings.regions[region].zones[zone].hostings) {
             Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
               hostings.regions[region].zones[zone].hostings[hosting].available = false;

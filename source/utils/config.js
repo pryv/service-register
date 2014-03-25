@@ -81,7 +81,7 @@ nconf.defaults({
               name : 'Switzerland',
               localizedName: { fr : 'Suisse'},
               hostings: {
-                'swisscom.ch' : {
+                'swisscom.ch-ch' : {
                   url : 'http://www.swisscom.ch',
                   name: 'Swisscom',
                   description: 'Swiss quality',
