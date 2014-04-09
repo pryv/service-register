@@ -1,3 +1,5 @@
+/*jshint -W098*/
+
 //may be used for user management
 var logger = require('winston');
 var messages = require('./messages');
@@ -10,7 +12,7 @@ function app_errors(app) {
     }
 
     if (! (error instanceof Error)) {
-      logger.error('app_errors unkown object : ' + error);
+      logger.error('app_errors unknown object : ' + error);
       logger.error((new Error()).stack);
     }  else {
       logger.error('app_errors : ' + error);

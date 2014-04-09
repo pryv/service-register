@@ -1,49 +1,69 @@
-/*global describe*/
-require('../../source/server');
-
-var dataValidation = require('../support/data-validation');
-var schema = require('../../source/model/schema.responses');
+/*global describe,it*/
+var server = require('../../source/server'),
+    validation = require('../support/data-validation'),
+    schemas = require('../../source/model/schema.responses'),
+    request = require('superagent');
 
 require('readyness/wait/mocha');
 
 describe('POST /email/check', function () {
-  var tests =  [
-    { uid: 'wactiv@pryv.io', status: 200, desc : 'reserved', value: 'false' },
-    { uid: 'abcd.efg_ijkl@bobby.com', status: 200, desc : 'available', value: 'true' }
-  ];
 
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
-    tests[key].url = '/email/check/';
-    tests[key].method = 'POST';
-    tests[key].restype = 'text/plain';
-    tests[key].data = {email: tests[key].uid};
+  var path = '/email/check/';
 
-    dataValidation.pathStatusSchema(tests[key]);
-  }
+  it('reserved', function (done) {
+    request.post(server.url + path).send({email: 'wactiv@pryv.io'}).end(function (res) {
+      validation.check(res, {
+        status: 200,
+        text: 'false'
+      }, done);
+    });
+  });
+
+  it('available', function (done) {
+    request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'}).end(function (res) {
+      validation.check(res, {
+        status: 200,
+        text: 'true'
+      }, done);
+    });
+  });
+
 });
 
-
 describe('GET /:email/check_email', function () {
-  var tests = [
-    { email: 'abcd', status: 400, desc : 'too short ',
-      JSchema : schema.error, JValues: {id: 'INVALID_EMAIL'}},
 
-    { email: 'abcd.efg_ijkl@bobby.com', status: 200, desc : 'does not exists',
-      JSchema: schema.checkExists,
-      JValues: { exists: false}},
-
-    { email: 'wactiv@pryv.io', status: 200, desc : 'does exists',
-      JSchema: schema.checkExists,
-      JValues: { exists: true}}
-  ];
-
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc + ', email: ' + tests[key].email;
-    tests[key].url = '/' + tests[key].email + '/check_email';
-    tests[key].method = 'GET';
-
-    dataValidation.pathStatusSchema(tests[key]);
+  function getPath(email) {
+    return '/' + email + '/check_email';
   }
+
+  it('too short', function (done) {
+    request.get(server.url + getPath('abcd')).end(function (res) {
+      validation.checkError(res, {
+        status: 400,
+        id: 'INVALID_EMAIL'
+      }, done);
+    });
+  });
+
+  it('does not exist', function (done) {
+    request.get(server.url + getPath('abcd.efg_ijkl@bobby.com')).end(function (res) {
+      validation.check(res, {
+        status: 200,
+        schema: schemas.checkExists,
+        body: {exists: false}
+      }, done);
+    });
+  });
+
+  it('does exist', function (done) {
+    request.get(server.url + getPath('wactiv@pryv.io')).end(function (res) {
+      validation.check(res, {
+        status: 200,
+        schema: schemas.checkExists,
+        body: {exists: true}
+      }, done);
+    });
+  });
+
 });
 

@@ -34,6 +34,12 @@ nconf.file({ file: configFile});
 
 //Set default values
 nconf.defaults({
+  auth: {
+    authorizedKeys: {
+      'test-admin-key': { roles: ['admin'] },
+      'test-system-key': { roles: ['system'] }
+    }
+  },
   'languages': {
     'default' : 'en',
     'supported' : [{'en': 'English'}, {'fr': 'Français'}]

@@ -23,7 +23,7 @@ function check(app) {
         return res.redirect(aaservers_mode + '://' + result + '/?username=' + req.params.uid);
       }
 
-      return res.redirect(confirmDisplayErrorUrl + '?id=UNKOWN_USER_NAME');
+      return res.redirect(confirmDisplayErrorUrl + '?id=UNKNOWN_USER_NAME');
     });
   });
 
@@ -37,7 +37,7 @@ function check(app) {
     db.getServer(req.params.uid, function (error, result) {
       if (error) { return next(messages.ei()); }
       if (result) { return res.json({server: result, alias: req.params.uid + domain }, 200); }//good
-      return next(messages.e(404, 'UNKOWN_USER_NAME'));
+      return next(messages.e(404, 'UNKNOWN_USER_NAME'));
     });
   });
 

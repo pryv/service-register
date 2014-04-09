@@ -1,11 +1,9 @@
-/*global register_messages*/
 /**
  * provides tools to construct messages for clients.
  */
 
 var logger = require('winston');
-require('../public/messages-en.js');
-var mstrings = register_messages;
+var mstrings = require('../public/messages-en.js');
 
 //add ids to all messages
 Object.keys(mstrings).forEach(function (key) {
@@ -43,7 +41,7 @@ function say(id, addons) {
 }
 
 /**
-// create a JSON ready error for this code 
+// create a JSON ready error for this code
 function error_data(id, extra) {
   var content = mstrings['en'][id];
   if (content == undefined) {
@@ -66,7 +64,7 @@ exports.ei = function ei(error) {
 };
 
 /** single error **/
-exports.e = function e(httpCode, id, addons) {  
+exports.e = function e(httpCode, id, addons) {
   return new REGError(httpCode, say(id, addons));
 };
 

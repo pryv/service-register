@@ -1,5 +1,5 @@
 //success : changeEmail
-var success = exports.success = {
+exports.success = {
   type: 'object',
   properties: {
     success : {
@@ -10,7 +10,7 @@ var success = exports.success = {
 };
 
 //route : check
-var checkExists = exports.checkExists = {
+exports.checkExists = {
   type: 'object',
   properties: {
     exists : {
@@ -21,7 +21,7 @@ var checkExists = exports.checkExists = {
 };
 
 //route : check
-var checkUID = exports.checkUID = {
+exports.checkUID = {
   type: 'object',
   properties: {
     reserved : {
@@ -32,7 +32,7 @@ var checkUID = exports.checkUID = {
 };
 
 //route : admin-users
-var userList = exports.userList = {
+exports.userList = {
   type: 'object',
   properties: {
     users : {
@@ -44,7 +44,7 @@ var userList = exports.userList = {
 
 
 //route : admin-users
-var serverList = exports.serverList = {
+exports.serverList = {
   type: 'object',
   properties: {
     servers : {
@@ -54,10 +54,8 @@ var serverList = exports.serverList = {
   }
 };
 
-
-
 //route : admin-users
-var count = exports.count = {
+exports.count = {
   type: 'object',
   properties: {
     count : {
@@ -69,7 +67,7 @@ var count = exports.count = {
 
 
 //route : init
-var userCreated = exports.userCreated = {
+exports.userCreated = {
   type: 'object',
   properties: {
     username: {
@@ -85,7 +83,7 @@ var userCreated = exports.userCreated = {
 
 
 //confirm : server & server : server
-var server = exports.server = {
+exports.server = {
   type: 'object',
   properties: {
     server : {
@@ -100,7 +98,7 @@ var server = exports.server = {
 };
 
 //confirm : server (already confirmed)
-var alreadyConfirmed = exports.alreadyConfirmed = {
+exports.alreadyConfirmed = {
   type: 'object',
   properties: {
     server : {
@@ -127,7 +125,7 @@ var alreadyConfirmed = exports.alreadyConfirmed = {
 };
 
 //hostings
-var hostings = exports.hostings = {
+exports.hostings = {
   type: 'object',
   properties: {
     regions: {
@@ -139,7 +137,7 @@ var hostings = exports.hostings = {
 
 
 //errors
-var error = exports.error = {
+exports.error = {
   type: 'object',
   properties: {
     id: {
@@ -151,14 +149,13 @@ var error = exports.error = {
       required: true
     },
     detail: {
-      type: 'string',
-      required: true
+      type: 'string'
     }
   }
 };
 
 //errors multiple
-var multipleErrors = exports.multipleErrors = {
+exports.multipleErrors = {
   type: 'object',
   properties: {
     id: {
@@ -197,7 +194,7 @@ var multipleErrors = exports.multipleErrors = {
 
 
 
-var accessPOST = exports.accessPOST = {
+exports.accessPOST = {
   type: 'object',
   properties: {
     url : {
@@ -211,7 +208,7 @@ var accessPOST = exports.accessPOST = {
   }
 };
 
-var accessGET = exports.accessGET = {
+exports.accessGET = {
   type: 'object',
   properties: {
     status : {

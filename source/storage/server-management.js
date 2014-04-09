@@ -10,7 +10,7 @@ var domain = '.' + config.get('dns:domain');
 var invitationToken = require('./invitations-management.js');
 
 /**
- * 
+ *
  * @param host
  * @param user json object: username / id / email /
  * @param req
@@ -70,7 +70,7 @@ exports.setEmail = function create(username, email, res, next) {
 
   db.uidExists(username, function (error, exists) {
     if (error) { return next(messages.ei(error)); }
-    if (! exists) { return next(messages.e(404, 'UNKOWN_USER_NAME')); }
+    if (! exists) { return next(messages.e(404, 'UNKNOWN_USER_NAME')); }
 
     db.changeEmail(username, email, function (error) {
       if (error) { return next(messages.ei(error)); }
