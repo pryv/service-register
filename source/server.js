@@ -5,8 +5,7 @@
 var app = require('./app'),
     config = require('./utils/config'),
     fs = require('fs'),
-    logger = require('winston'),
-    _ = require('underscore.string');
+    logger = require('winston');
 
 var ready = require('readyness');
 ready.setLogger(logger.info);
@@ -27,8 +26,10 @@ if (config.get('server:port') > 0) {
 
   var serverOptions = {};
 
-  var server = null;
-  if (config.get('server:ssl')) {
+  var server = null,
+      ssl = config.get('server:ssl');
+  // HACK: config doesn't parse bools when passed from command-line
+  if (ssl && ssl !== 'false') {
     serverOptions = {
       key : fs.readFileSync(config.get('server:certsPathAndKey') + '-key.pem').toString(),
       cert : fs.readFileSync(config.get('server:certsPathAndKey') + '-cert.crt').toString(),
@@ -44,11 +45,13 @@ if (config.get('server:port') > 0) {
   server.listen(config.get('server:port'), config.get('server:ip'), function () {
     var address = server.address();
     var protocol = server.key ? 'https' : 'http';
-    var sslmessage =  server.key ? ' with ssl certs: ' +
-    config.get('server:certsPathAndKey') : '';
 
-    appListening(_.sprintf('SW %s://%s:%d in %s mode ' + sslmessage,
-      protocol, address.address, address.port, app.settings.env));
+    server.url = protocol + '://' + address.address + ':' + address.port;
+
+    var readyMessage = 'Registration server v' + require('../package.json').version +
+        ' [' + app.settings.env + '] listening on ' + server.url;
+    logger.info(readyMessage);
+    appListening(readyMessage); // TODO: replace that "readyness" thing with simple event messaging
   }).on('error', function (e) {
       if (e.code === 'EACCES') {
         logger.error('Cannot ' + e.syscall);
