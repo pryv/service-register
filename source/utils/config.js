@@ -158,12 +158,12 @@ nconf.defaults({
       'gandi.net-fr' : [{
         'base_name': 'act-gandi-fr-01',
         'port': 443,
-        'authorization': 'register-test-token'
+        'authorization': 'cz90{k)2{3u8q0C'
       }],
       'gandi.net-us' : [{
         'base_name': 'act-gandi-us-01',
         'port': 443,
-        'authorization': 'register-test-token'
+        'authorization': 'cz90{k)2{3u8q0C'
       }]
     }
   },

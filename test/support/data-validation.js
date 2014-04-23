@@ -85,6 +85,7 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       }
     }
     //console.log(JSON.stringify(test));
+    //
     //console.log(JSON.stringify(http_options));
 
 
@@ -152,7 +153,7 @@ function jsonResponse(res, test, callback_done, error_status, http_options, post
         data = bodyarr.join('');
 
         // test constants
-        if (test.value !== null) {
+        if (test.value) {
           data.should.equal(test.value);
         }
 

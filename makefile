@@ -7,7 +7,7 @@ else
 endif
 
 test:
-	@$(MOCHA) --timeout 1000 --reporter dot $(APP_CONFIG) $(TEST_FILES)
+	@$(MOCHA) --timeout 10000 --reporter dot $(APP_CONFIG) $(TEST_FILES)
 
 test-detailed:
 	@$(MOCHA) --timeout 1000 --reporter spec $(APP_CONFIG) $(TEST_FILES)

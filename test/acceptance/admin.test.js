@@ -60,6 +60,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
   }
 });
 
+
 describe('GET /admin/servers', function () {
   var tests = [
     { status: 200, desc : '1 done',

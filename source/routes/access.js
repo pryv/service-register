@@ -59,7 +59,7 @@ function access(app) {
   });
 
   /**
-   * refuse access
+   * change access state
    */
   app.post('/access/:key', function (req, res, next) {
     var key = req.params.key;
@@ -87,11 +87,14 @@ function access(app) {
         setAccessState(res, next, key, accessStateB);
       } else if (req.body.status === 'ACCEPTED') {
 
-        if (! checkAndConstraints.uid(req.body.username)) {
+        var username = checkAndConstraints.uid(req.body.username);
+
+        if (! username) {
           return next(messages.e(400, 'INVALID_USER_NAME'));
         }
 
-        if (! checkAndConstraints.appToken(req.body.token)) {
+
+        if (! checkAndConstraints.appToken(username)) {
           return next(messages.e(400, 'INVALID_DATA'));
         }
 

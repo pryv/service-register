@@ -27,7 +27,7 @@ describe('POST /user', function () {
       JSchema :  schema.error,
       JValues: {'id': 'INVALID_INVITATION' } },
 
-
+    /**
     { data: { hosting: ''},
       status: 400, desc : 'Invalid hosting',
       JSchema :  schema.error,
@@ -77,7 +77,7 @@ describe('POST /user', function () {
         'errors': [ {'id': 'EXISTING_USER_NAME' }, {'id': 'EXISTING_EMAIL' } ]   }},
     { data: { },
       status: 200, desc : 'valid JSON GET', JSchema : schema.userCreated,
-      JValues: { username: defaults.username}  }
+      JValues: { username: defaults.username}  }       **/
   ];
 
   function doTest(key) {

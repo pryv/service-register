@@ -13,14 +13,16 @@ function check(app) {
 
   app.get('/:uid/server', function (req, res, next) {
 
-    if (! checkAndConstraints.uid(req.params.uid)) {
+    var uid = checkAndConstraints.uid(req.params.uid);
+
+    if (! uid) {
       return  res.redirect(confirmDisplayErrorUrl + '?id=INVALID_USER_NAME');
     }
 
-    db.getServer(req.params.uid, function (error, result) {
+    db.getServer(uid, function (error, result) {
       if (error) { return next(messages.ie()); }
       if (result) {   // good
-        return res.redirect(aaservers_mode + '://' + result + '/?username=' + req.params.uid);
+        return res.redirect(aaservers_mode + '://' + result + '/?username=' + uid);
       }
 
       return res.redirect(confirmDisplayErrorUrl + '?id=UNKNOWN_USER_NAME');
@@ -29,14 +31,17 @@ function check(app) {
 
 
   app.post('/:uid/server', function (req, res, next) {
+    var uid = checkAndConstraints.uid(req.params.uid);
 
-    if (! checkAndConstraints.uid(req.params.uid)) {
+    if (! uid) {
       return next(messages.e(400, 'INVALID_USER_NAME'));
     }
 
-    db.getServer(req.params.uid, function (error, result) {
+    db.getServer(uid, function (error, result) {
+
       if (error) { return next(messages.ei()); }
-      if (result) { return res.json({server: result, alias: req.params.uid + domain }, 200); }//good
+      if (result) { return res.json({server: result, alias: uid + domain }, 200); }//good
+
       return next(messages.e(404, 'UNKNOWN_USER_NAME'));
     });
   });

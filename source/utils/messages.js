@@ -28,16 +28,16 @@ function cloneMessage(id) {
  * @return {*}
  */
 function say(id, addons) {
+  var content = cloneMessage(id);
   // merge addons
   if (addons) {
-    var content = cloneMessage(id);
+
     for (var i in addons) {
       if (addons.hasOwnProperty(i)) { content[i] = addons[i]; }
     }
-    return content;
   }
 
-  return mstrings[id];
+  return content;
 }
 
 /**

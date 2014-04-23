@@ -23,7 +23,7 @@ var extractRessourceFromHostnameRegExp = new RegExp('^' + _temp + '$');
 // trim the uid ..
 exports.uid = function uid(str) {
   if (! str) { return null; }
-  str = _(str).trim();
+  str = _(str).trim().toLowerCase();
   //console.log('CHK USERNAME *' +str+ '* ');
   if (/^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,21})([a-zA-Z0-9])$/.test(str)) { return str;  }
   return null;

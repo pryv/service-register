@@ -18,6 +18,8 @@ var messages = {
 
   'INVALID_APPID' : { 'message' : 'Invalid app id',
     'detail' : 'App id is not recognized'},
+  'INVALID_INVITATION' : { 'message' : 'Invalid invitation token',
+    'detail' : 'Request one from pryv'},
 
   'INVALID_HOSTING' : { 'message' : 'Invalid hosting request',
     'detail' : 'hosting value is invalid'},

@@ -29,6 +29,7 @@ app.configure(function () {
   // TODO: setup logger handling for uncaught exceptions
 });
 
+
 // www
 require('./routes/index')(app);
 
@@ -46,6 +47,7 @@ require('./routes/hostings.js')(app);
 // private API  routes
 require('./routes/users.js')(app);
 require('./routes/admin.js')(app);
+
 
 //error management (evolution)
 require('./utils/app-errors.js')(app);
