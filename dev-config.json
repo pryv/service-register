@@ -29,18 +29,18 @@
       "gandi.net-fr" : [{
         "base_name": "stact-gandi-fr-01",
         "port": 443,
-        "authorization": "register-test-token"
+        "authorization": "cz90{k)2{3u8q0C"
       }],
       "gandi.net-us" : [{
         "base_name": "stact-gandi-us-01",
         "port": 443,
-        "authorization": "register-test-token"
+        "authorization": "cz90{k)2{3u8q0C"
       }],
       "joyent.net-usw": [
         {
           "base_name": "stact-joyent-usw-01",
           "port": 443,
-          "authorization": "register-test-token"
+          "authorization": "cz90{k)2{3u8q0C"
         }
       ]
     }

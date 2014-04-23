@@ -44,11 +44,10 @@ module.exports = function (app) {
     if (! user.password) { return next(messages.e(400, 'INVALID_PASSWORD'));  }
     if (! user.invitationToken) { return next(messages.e(400, 'INVALID_INVITATION'));  }
 
-    var existsList = [];;
+    var existsList = [];
     async.parallel([
       function (callback) {  // test username
         invitationToken.checkIfValid(user.invitationToken, function (valid, error) {
-          console.log(valid);
           if (! valid) { existsList.push('INVALID_INVITATION'); }
           callback(error);
         });
@@ -77,8 +76,7 @@ module.exports = function (app) {
       }
     ], function (error) {
       if (existsList.length > 0) {
-        console.log('*23');
-        console.log(existsList);
+
         if (existsList.length === 1) {
           return next(messages.e(400, existsList[0]));
         }

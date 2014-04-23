@@ -14,10 +14,11 @@ accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret'
   'Hallowed Be Thy Name, O Node';
 
 
-accessLib.setAccessState = function setAccessState(key, accessState, successHandler, errorCallback) {
+accessLib.setAccessState =
+  function setAccessState(key, accessState, successHandler, errorCallback) {
   db.setAccessState(key, accessState, function (error) {
     if (error) { return errorCallback(messages.ei()); }
-    //require('../utils/dump.js').inspect(accessState, result);
+    //require('../utils/dump.js').inspect(accessState);
     return successHandler(accessState);
   });
 };
