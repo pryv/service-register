@@ -255,6 +255,8 @@ exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
 exports.setServerAndInfos = function setServerAndInfos(username, server, infos, callback) {
   // if user exists remove previous email.
 
+  infos.registeredTimestamp =  Date.now();
+
   var  previousEmail = null;
   async.series([
     function (serieNext) {

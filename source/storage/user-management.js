@@ -87,7 +87,7 @@ exports.renameServer = function renameServer(srcServerName, dstServerName, callb
 
 
 exports.getAllUsersInfos = function getAllUsersInfos(callback) {
-  var userlist = {};
+  var userlist = [];
   var waiter = 1;
   function done1() {
     waiter--;
@@ -102,11 +102,10 @@ exports.getAllUsersInfos = function getAllUsersInfos(callback) {
 
       var user = userkey.substring(0, userkey.length - 6);
 
-      userlist[user] = {};
       waiter++;
       this.getUserInfos(user, function (errors, userInfos) {
-        userlist[user] = userInfos;
-        userlist[user].errors =  errors;
+        userInfos.errors =  errors;
+        userlist.push(userInfos);
         done1();
       });
     }.bind(this), function (/*error, count*/) {  // done

@@ -15,6 +15,7 @@ function init(app) {
     //TODO add authorization checking
 
     var headers = {
+      registeredDate : 'Registered At',
       username : 'Username',
       email: 'e-mail',
       language: 'lang',
@@ -25,7 +26,24 @@ function init(app) {
     };
 
     users.getAllUsersInfos(function (error, list) {
-      console.log(error, list);
+
+      // convert timestamp tor readable data
+      list.forEach(function (user) {
+        if (! user.registeredTimestamp) {
+          user.registeredTimestamp = 0;
+          user.registeredDate = '';
+        } else {
+
+          user.registeredDate = new Date(+user.registeredTimestamp).toUTCString();
+        }
+      });
+
+      // convert timestamp tor readable data
+      list.sort(function (a, b) {
+        return b.registeredTimestamp - a.registeredTimestamp;
+
+      });
+
 
       //res.json({users: list, error: error});
 

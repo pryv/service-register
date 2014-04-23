@@ -1,4 +1,4 @@
-exports.toTable = function toTable(headers, jsonTable) {
+exports.toTable = function toTable(headers, infoArray) {
   var result = '<table border="1">\n<tr>';
   Object.keys(headers).forEach(function (key) {
     result += '<th>' + headers[key] + '</th>';
@@ -6,13 +6,12 @@ exports.toTable = function toTable(headers, jsonTable) {
   result += '</tr>\n';
 
 
-  Object.keys(jsonTable).forEach(function (keyline) {
-    var line = jsonTable[keyline];
+  infoArray.forEach(function (line) {
     result += '<tr>';
     Object.keys(headers).forEach(function (key) {
       var value = '';
       if (line[key]) {
-        if (typeof a_string === line[key]) {
+        if (typeof line[key] === 'string') {
           value = line[key];
         } else {
           value = JSON.stringify(line[key]);
