@@ -8,7 +8,7 @@
 require('../config-test');
 require('../../source/server');
 var dataValidation = require('../support/data-validation');
-var schema = require('../../source/model/schema.responses');
+var schema = require('../../source/model/schema.responses.js');
 
 require('readyness/wait/mocha');
 

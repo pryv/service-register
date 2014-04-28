@@ -3,7 +3,7 @@ APP_CONFIG=--server.ssl false
 ifdef TEST
 	TEST_FILES=test/acceptance/$(TEST).test.js
 else
-	TEST_FILES=test/acceptance/*.test.js
+	TEST_FILES=test/acceptance/*.test.js test/internal/*.test.js
 endif
 
 test:

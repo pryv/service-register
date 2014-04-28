@@ -124,6 +124,26 @@ exports.alreadyConfirmed = {
   }
 };
 
+
+//apps
+exports.appsList = {
+  type: 'object',
+  properties: {
+    apps: {
+      type: 'object'
+    }
+  }
+};
+
+exports.appsSingle = {
+  type: 'object',
+  properties: {
+    app: {
+      type: 'object'
+    }
+  }
+};
+
 //hostings
 exports.hostings = {
   type: 'object',
