@@ -11,8 +11,6 @@ var users = require('../storage/server-management.js');
 
 var reservedWords = require('../storage/reserved-userid-management.js');
 
-
-
 var invitationToken = require('../storage/invitations-management.js');
 
 module.exports = function (app) {

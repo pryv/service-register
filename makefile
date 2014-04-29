@@ -1,7 +1,7 @@
 MOCHA=NODE_ENV=development ./node_modules/.bin/mocha
 APP_CONFIG=--server.ssl false
 ifdef TEST
-	TEST_FILES=test/acceptance/$(TEST).test.js
+	TEST_FILES=test/$(TEST).test.js
 else
 	TEST_FILES=test/acceptance/*.test.js test/internal/*.test.js
 endif

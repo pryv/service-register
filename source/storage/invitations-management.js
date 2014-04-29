@@ -1,10 +1,53 @@
 var messages = require('../utils/messages.js');
+var db = require('../storage/database.js');
+var _ = require('underscore');
+var async = require('async');
+
+var randtoken = require('rand-token').generator({
+  chars: 'a-z'
+});
+
+
+function dbKey(token) {
+  return token + ':invitation';
+}
 
 /**
- * check if token is valid
+ * create N tokens
  */
-exports.checkIfValid = function (token, callback) {
-  callback(token === 'enjoy');
+exports.generate = function (number, adminId, description, callback) {
+  var createdAt = new Date().getTime();
+
+  async.times(number, function (n, next) {
+    // Generate a 5 characters token:
+    var token = randtoken.generate(5);
+
+    var data = {createdAt: createdAt, createdBy: adminId, description: description};
+    db.setSet(dbKey(token), data, function (error) {
+      _.extend(data, {id : token});
+      next(error, data);
+    });
+  }, function (error, tokens) {
+    callback(error, tokens);
+  });
+
+
+};
+
+
+/**
+ * check if token is valid, and return the result information i
+ */
+exports.checkIfValid = function checkIfValid(token, callback) {
+  if (token === 'enjoy') {
+    return callback(true);
+  }
+
+  db.getSet(dbKey(token), function (error, result) {
+    if (error || ! result || result.consumedAt) { return callback(false); }
+
+    return callback(true);
+  });
 };
 
 
@@ -12,9 +55,23 @@ exports.checkIfValid = function (token, callback) {
  * consumeToken (return false if fail)
  */
 exports.consumeToken = function (token, username, callback) {
-  var error = null;
-  if (token !== 'enjoy') {
-    error = messages.e(404, 'INVALID_INVITATION');
+  if (token === 'enjoy') {
+    return callback();
   }
-  callback(error);
+
+  this.checkIfValid(token, function (isValid) {
+    if (! isValid) {  return callback(messages.e(404, 'INVALID_INVITATION')); }
+
+    db.setSetValue(dbKey(token), 'consumedAt', new Date().getTime(), function (error) {
+      if (error) { return callback(error); }
+      db.setSetValue(dbKey(token), 'consumedBy', username, function (error) {
+        callback(error);
+      });
+    });
+
+
+  });
+
+
 };
+

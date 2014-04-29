@@ -113,7 +113,22 @@ exports.get = get;
  */
 exports.getSet = function getSet(key, callback) {
   redis.hgetall(key, callback);
-}
+};
+
+
+/**
+ * simply map redis.hmset
+ */
+exports.setSet = function setSet(key, keyMap, callback) {
+  redis.hmset(key, keyMap, callback);
+};
+
+/**
+ * simply map redis.hset
+ */
+exports.setSetValue = function setSet(keySet, key,  value, callback) {
+  redis.hset(keySet, key,  value, callback);
+};
 
 
 function getJSON(key, callback) {

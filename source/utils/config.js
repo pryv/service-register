@@ -38,6 +38,10 @@ nconf.defaults({
     authorizedKeys: {
       'test-admin-key': { roles: ['admin'] },
       'test-system-key': { roles: ['system'] }
+    },
+    authorizedUsers: {
+      perki: { key: 'bipbop', roles: ['admin']},
+      adrien: { key: 'hoplayoup', roles: ['invitation']}
     }
   },
   'languages': {
