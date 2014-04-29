@@ -115,6 +115,54 @@ exports.getSet = function getSet(key, callback) {
   redis.hgetall(key, callback);
 };
 
+/**
+ * get all Sets matching
+ */
+exports.getSetsMatching = function (keyMask, done, cleanKey) {
+  redis.keys(keyMask, function (error, keys) {
+    if (error) {
+      logger.error('Redis getAllSetsMatching: ' + keyMask + ' e: ' + error, error);
+      return done(error, null);
+    }
+
+    var result = {};
+    async.times(keys.length, function (n, next) {
+
+      this.getSet(keys[n], function (error, data) {
+        if (error) { return next(error); }
+        var key = cleanKey ? cleanKey(keys[n]) : keys[n];
+        result[key] = data;
+        next(error);
+      });
+    }.bind(this), function (error) {
+      done(error, result);
+    });
+  }.bind(this));
+};
+
+/**
+ * get all Sets matching
+ */
+exports.getSetsAsArrayMatching = function (keyMask, done, tweak) {
+  redis.keys(keyMask, function (error, keys) {
+    if (error) {
+      logger.error('Redis getAllSetsMatching: ' + keyMask + ' e: ' + error, error);
+      return done(error, null);
+    }
+
+    async.times(keys.length, function (n, next) {
+
+      this.getSet(keys[n], function (error, data) {
+        if (error) { return next(error); }
+        if (tweak) { tweak(keys[n], data); }
+        next(error, data);
+      });
+    }.bind(this), function (error, result) {
+      done(error, result);
+    });
+  }.bind(this));
+};
+
 
 /**
  * simply map redis.hmset
@@ -389,7 +437,7 @@ function _findGhostsServer() {
 
       if (e) {
         logger.warning('Db structure _findGhostsServer ' + server + e);
-       // require('../utils/dump.js').inspect( { cookie: user});
+        // require('../utils/dump.js').inspect( { cookie: user});
       }
     });
   });

@@ -5,6 +5,7 @@ var checkAndConstraints = require('../utils/check-and-constraints.js');
 var users = require('../storage/user.js');
 var messages = require('../utils/messages.js');
 var tohtml = require('../utils/2html.js');
+var invitations = require('../storage/invitations.js')
 
 function init(app) {
 
@@ -49,6 +50,21 @@ function init(app) {
 
       res.send(tohtml.toTable(headers, list));
 
+    });
+
+  });
+
+
+  // --------------- invitations ---
+
+  app.get('/admin/users/invitations', function (req, res, next){
+    //TODO add authorization checking
+
+    invitations.getAll(function (error, invitations) {
+      if (error) {
+        return next(messages.ei());
+      }
+      res.json(invitations);
     });
 
   });
@@ -106,6 +122,8 @@ function init(app) {
     });
 
   });
+
+
 
 }
 
