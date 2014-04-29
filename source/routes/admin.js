@@ -2,7 +2,7 @@
  * private routes for admin to manage users
  */
 var checkAndConstraints = require('../utils/check-and-constraints.js');
-var users = require('../storage/user-management.js');
+var users = require('../storage/user.js');
 var messages = require('../utils/messages.js');
 var tohtml = require('../utils/2html.js');
 

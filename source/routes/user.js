@@ -7,11 +7,11 @@ var encryption = require('../utils/encryption.js');
 var async = require('async');
 
 var dataservers = require('../network/dataservers.js');
-var users = require('../storage/server-management.js');
+var users = require('../storage/server.js');
 
-var reservedWords = require('../storage/reserved-userid-management.js');
+var reservedWords = require('../storage/reserved-userid.js');
 
-var invitationToken = require('../storage/invitations-management.js');
+var invitationToken = require('../storage/invitations.js');
 
 module.exports = function (app) {
 

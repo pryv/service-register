@@ -6,7 +6,7 @@ var checkAndConstraints = require('../utils/check-and-constraints.js');
 
 var accessCommon = require('../access/access-lib.js');
 
-var invitationToken = require('../storage/invitations-management.js');
+var invitationToken = require('../storage/invitations.js');
 
 
 function requestAccess(req, res, next) {

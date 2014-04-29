@@ -10,7 +10,7 @@ require('../../source/server');
 var should = require('should');
 require('readyness/wait/mocha');
 
-var invitations = require('../../source/storage/invitations-management.js');
+var invitations = require('../../source/storage/invitations.js');
 
 describe('INTERNAL invitations managements', function () {
 

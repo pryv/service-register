@@ -7,7 +7,7 @@
 
 var checkAndConstraints = require('../utils/check-and-constraints'),
     messages = require('../utils/messages'),
-    users = require('../storage/server-management'),
+    users = require('../storage/server'),
     requireRoles = require('../middleware/requireRoles');
 
 module.exports = function (app) {

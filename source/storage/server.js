@@ -7,7 +7,7 @@ var db = require('../storage/database.js');
 var domain = '.' + config.get('dns:domain');
 
 
-var invitationToken = require('./invitations-management.js');
+var invitationToken = require('./invitations.js');
 
 /**
  *
