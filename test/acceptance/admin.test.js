@@ -1,9 +1,11 @@
-/*global describe*/
+/*global describe, it*/
 var config = require('../config-test');
-require('../../source/server');
+var server = require('../../source/server');
 
 var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
+
+var request = require('superagent');
 
 require('readyness/wait/mocha');
 
@@ -74,4 +76,27 @@ describe('GET /admin/servers', function () {
 
     dataValidation.pathStatusSchema(tests[key]);
   }
+});
+
+
+describe('/admin/users/invitations', function () {
+
+  describe('GET ', function () {
+    it('should send a list of current tokens', function (done) {
+      request.get(server.url + '/admin/users/invitations').end(function (res) {
+        dataValidation.check(res, {
+          status: 200
+        }, function (error) {
+          if (error) { done(error); }
+          res.body.should.have.property('invitations');
+          res.body.invitations.should.be.instanceOf(Array);
+          res.body.invitations.forEach(function (tokenData) {
+            tokenData.should.have.property('id');
+            tokenData.should.have.property('createdAt');
+          });
+          done();
+        });
+      });
+    });
+  });
 });

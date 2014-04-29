@@ -64,7 +64,7 @@ function init(app) {
       if (error) {
         return next(messages.ei());
       }
-      res.json(invitations);
+      res.json({invitations: invitations});
     });
 
   });
