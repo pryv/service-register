@@ -8,7 +8,7 @@
     "airbrake": "0.3.x",
     "async": "0.2.x",
     "bcrypt": "0.7.x",
-    "express": "3.0.x",
+    "express": "3.5.x",
     "json-schema": "0.2.x",
     "nconf": "0.6.x",
     "nodemailer": "0.3.x",
