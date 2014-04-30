@@ -46,7 +46,7 @@ describe('GET /:uid/server', function () {
     tests[key].it = tests[key].desc + ', uid: ' + tests[key].uid;
     tests[key].url = '/' + tests[key].uid + '/server';
     tests[key].method = 'GET';
-    tests[key].restype = 'text/plain';
+    tests[key].restype = 'text/plain; charset=UTF-8';
 
     dataValidation.pathStatusSchema(tests[key]);
   }
