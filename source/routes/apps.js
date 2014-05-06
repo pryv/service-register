@@ -1,5 +1,9 @@
 var _ = require('underscore');
-var appsList = require('../apps/apps-data.json');
+
+var config = require('../utils/config');
+
+
+var appsList = config.get('appList');
 var messages = require('../utils/messages.js');
 
 
