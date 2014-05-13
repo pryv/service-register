@@ -5,15 +5,15 @@ var checkAndConstraints = require('../utils/check-and-constraints.js');
 var users = require('../storage/user.js');
 var messages = require('../utils/messages.js');
 var tohtml = require('../utils/2html.js');
-var invitations = require('../storage/invitations.js')
+var invitations = require('../storage/invitations.js');
+var requireRoles = require('../middleware/requireRoles');
 
 function init(app) {
 
   /**
    * get the user list,
    */
-  app.get('/admin/users', function (req, res, next) {
-    //TODO add authorization checking
+  app.get('/admin/users', requireRoles('admin'), function (req, res, next) {
 
     var headers = {
       registeredDate : 'Registered At',
@@ -57,8 +57,8 @@ function init(app) {
 
   // --------------- invitations ---
 
-  app.get('/admin/users/invitations', function (req, res, next){
-    //TODO add authorization checking
+  app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next){
+
 
     invitations.getAll(function (error, invitations) {
       if (error) {
@@ -73,8 +73,8 @@ function init(app) {
   /**
    * get the server list, with the number of users on them
    */
-  app.get('/admin/servers', function (req, res, next) {
-    //TODO add authorization checking
+  app.get('/admin/servers', requireRoles('admin'), function (req, res, next) {
+
 
     users.getServers(function (error, list) {
       if (error) { return next(messages.ei()); }
@@ -85,8 +85,7 @@ function init(app) {
 
 
 
-  app.get('/admin/servers/:serverName/users', function (req, res, next){
-    //TODO add authorization checking
+  app.get('/admin/servers/:serverName/users', requireRoles('admin'), function (req, res, next){
 
     var serverName = checkAndConstraints.hostname(req.params.serverName);
     if (! serverName) {
@@ -102,8 +101,8 @@ function init(app) {
 
 
 
-  app.get('/admin/servers/:srcServerName/rename/:dstServerName', function (req, res, next){
-    //TODO add authorization checking
+  app.get('/admin/servers/:srcServerName/rename/:dstServerName',
+    requireRoles('system'), function (req, res, next) {
 
     var srcServerName = checkAndConstraints.hostname(req.params.srcServerName);
     if (! srcServerName) {

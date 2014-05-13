@@ -14,6 +14,7 @@ module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
 
   return function (req, res, next) {
     var auth = req.headers.authorization || req.query.auth;
+
     if (! auth || ! authorizedKeys[auth]) {
       return next(new messages.REGError(401, {
         id: 'unauthorized',
@@ -27,6 +28,8 @@ module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
       key: auth,
       roles: authorizedKeys[auth].roles
     };
+
+
     if (! access.roles.some(function (role) { return roles.indexOf(role) !== -1; })) {
       return next(new messages.REGError(403, {
         id: 'forbidden',
