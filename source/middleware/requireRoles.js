@@ -24,10 +24,15 @@ module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
     if (! req.context) {
       req.context = {};
     }
+
+    var tempA = auth.split('|');
     var access = req.context.access = {
+      username: (tempA.length > 0) ? res[0] : 'system',
       key: auth,
       roles: authorizedKeys[auth].roles
     };
+
+
 
 
     if (! access.roles.some(function (role) { return roles.indexOf(role) !== -1; })) {

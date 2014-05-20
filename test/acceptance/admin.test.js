@@ -103,4 +103,23 @@ describe('/admin/users/invitations', function () {
       });
     });
   });
+
+
+  describe('future POST ', function () {
+    it('should create a list of token', function (done) {
+      request.get(server.url + '/admin/users/invitations/post' +
+          '?auth=' + authAdminKey +
+          '&count=2&message=testx'
+        ).end(function (res) {
+          dataValidation.check(res, {
+            status: 200
+          }, function (error) {
+            if (error) { done(error); }
+            res.body.should.have.property('data');
+            res.body.data.should.be.instanceOf(Array);
+            done();
+          });
+        });
+    });
+  });
 });

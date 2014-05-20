@@ -13,7 +13,7 @@ function init(app) {
   /**
    * get the user list,
    */
-  app.get('/admin/users', requireRoles('admin'), function (req, res, next) {
+  app.get('/admin/users', requireRoles('admin'), function (req, res/*, next*/) {
 
     var headers = {
       registeredDate : 'Registered At',
@@ -57,18 +57,73 @@ function init(app) {
 
   // --------------- invitations ---
 
-  app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next){
+  app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
 
 
     invitations.getAll(function (error, invitations) {
       if (error) {
         return next(messages.ei());
       }
+
+
+      if (req.query.toHTML) {
+
+        var headers = {
+          createdDate : 'Created At',
+          createdBy : 'by',
+          description: 'description',
+          consumedDate: 'ConsumedAt',
+          consumedBy: 'ConsumedBy',
+          id: 'Token'
+        };
+
+        // convert timestamp tor readable data
+        invitations.forEach(function (token) {
+          if (! token.consumedAt) {
+            token.consumedDate = '';
+          } else {
+            token.consumedDate = new Date(+token.consumedAt).toUTCString();
+          }
+          token.createdDate = new Date(+token.createdAt).toUTCString();
+        });
+
+
+        invitations.sort(function (a, b) {
+          return b.createdAt - a.createdAt;
+
+        });
+        res.send(tohtml.toTable(headers, invitations));
+        return;
+      }
+
       res.json({invitations: invitations});
     });
 
   });
 
+  //TODO the following must be handled by a POST /invitations
+  app.get('/admin/users/invitations/post', requireRoles('admin'), function (req, res, next){
+
+    var count = req.query.count * 1;
+    if (count !== parseInt(count)) {
+      console.log('*23', count);
+      return next(messages.e(400, 'INVALID_DATA',
+        {'message': 'count is not and integer ' + count}));
+    }
+    var message = req.query.message || '';
+
+    invitations.generate(count, req.context.access.username, message, function (error, result) {
+      if (error) {
+        return next(messages.ei());
+      }
+      res.json({data: result});
+    });
+
+  });
+
+
+
+  // -------------- servers
 
   /**
    * get the server list, with the number of users on them

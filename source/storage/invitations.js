@@ -31,7 +31,7 @@ exports.generate = function (number, adminId, description, callback) {
 
   async.times(number, function (n, next) {
     // Generate a 5 characters token:
-    var token = randtoken.generate(5);
+    var token = randtoken.generate(6);
 
     var data = {createdAt: createdAt, createdBy: adminId, description: description};
     db.setSet(dbKey(token), data, function (error) {
