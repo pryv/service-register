@@ -106,7 +106,6 @@ function init(app) {
 
     var count = req.query.count * 1;
     if (count !== parseInt(count)) {
-      console.log('*23', count);
       return next(messages.e(400, 'INVALID_DATA',
         {'message': 'count is not and integer ' + count}));
     }

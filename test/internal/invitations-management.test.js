@@ -96,7 +96,6 @@ describe('INTERNAL invitations managements', function () {
         should.not.exist(error);
         should.exist(result);
         result.should.be.instanceOf(Array);
-        console.log(result);
         for (var i = 0; i < result.length; i++) {
           result[0].should.have.property('id');
           result[0].should.have.property('createdAt');

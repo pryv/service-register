@@ -14,7 +14,7 @@ function dbKey(token) {
 
 
 exports.getAll = function (callback) {
-  var cutI = ':invitation'.length + 1;
+  var cutI = ':invitation'.length;
 
   db.getSetsAsArrayMatching('*:invitation', function (error, data) {
     callback(error, data);
@@ -31,7 +31,7 @@ exports.generate = function (number, adminId, description, callback) {
 
   async.times(number, function (n, next) {
     // Generate a 5 characters token:
-    var token = randtoken.generate(6);
+    var token = randtoken.generate(5);
 
     var data = {createdAt: createdAt, createdBy: adminId, description: description};
     db.setSet(dbKey(token), data, function (error) {
