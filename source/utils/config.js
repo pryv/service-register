@@ -240,20 +240,7 @@ nconf.defaults({
     key: '88ec825519c81c3a248a5d19284970a0' // registration server key
   },
   appList: {
-    'test-a': {
-      displayName: 'Test app A',
-      description: 'Test app A description',
-      iconURL: 'http://placehold.it/150&text=A',
-      appURL: 'https://pryv.com',
-      settingsPageURL: 'https://api.pryv.com'
-    },
-    'test-b': {
-      displayName: 'Test app B',
-      description: 'Test app B description',
-      iconURL: 'http://placehold.it/150&text=B',
-      appURL: 'https://pryv.com',
-      settingsPageURL: 'https://api.pryv.com'
-    }
+    // apps defined in specific configs (dev/staging/production)
   }
 });
 
