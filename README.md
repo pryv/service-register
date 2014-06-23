@@ -2,6 +2,17 @@
 
 Node.js / Express server to manage user registration requests.
 
+## Deleting a user
+
+open redis console on reg-gandi-fr-01
+
+
+- get <user>:email
+- del <email>:email
+- del <user>:server
+- dele <user>:users
+
+
 
 ## Setting up the development environment on a Mac
 
