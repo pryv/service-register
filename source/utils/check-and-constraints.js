@@ -16,7 +16,7 @@ exports.extractRessourceFromHostname = function (hostname) {
   return matchArray[1];
 };
 
-var _temp = '([a-z0-9-]{1,21})\\.' + config.get('dns:domain').replace(/\./g, '\\.');
+var _temp = '([a-z0-9-]{1,100})\\.' + config.get('dns:domain').replace(/\./g, '\\.');
 var extractRessourceFromHostnameRegExp = new RegExp('^' + _temp + '$');
 
 // (alphanumeric between 5 an 21 chars) case-insensitive  -  authorized
@@ -25,7 +25,7 @@ exports.uid = function uid(str) {
   if (! str) { return null; }
   str = _(str).trim().toLowerCase();
   //console.log('CHK USERNAME *' +str+ '* ');
-  if (/^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,21})([a-zA-Z0-9])$/.test(str)) { return str;  }
+  if (/^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,100})([a-zA-Z0-9])$/.test(str)) { return str;  }
   return null;
 };
 
