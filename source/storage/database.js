@@ -315,8 +315,14 @@ exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
   });
 };
 
+
+/** this user will never been created for real**/
+var blackHoleUser = 'recla';
+
 exports.setServerAndInfos = function setServerAndInfos(username, server, infos, callback) {
   // if user exists remove previous email.
+
+  if (username === blackHoleUser)  { return callback(); }
 
   infos.registeredTimestamp =  Date.now();
 
@@ -341,11 +347,11 @@ exports.setServerAndInfos = function setServerAndInfos(username, server, infos, 
       });
     }
   ],
-    function (serieError) {
-      if (callback) {
-        callback(serieError); // callback anyway
-      }
-    });
+  function (serieError) {
+    if (callback) {
+      callback(serieError); // callback anyway
+    }
+  });
 
 };
 
