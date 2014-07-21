@@ -64,7 +64,6 @@ describe('POST /user', function () {
       JValues: { 'id': 'EXISTING_USER_NAME' } },
 
 
-
     { data: {  email: 'wactiv@pryv.io'},
       status: 400, desc : 'Existing e-mail',
       JSchema :  schema.multipleErrors,
@@ -77,7 +76,10 @@ describe('POST /user', function () {
         'errors': [ {'id': 'EXISTING_USER_NAME' }, {'id': 'EXISTING_EMAIL' } ]   }},
     { data: { },
       status: 200, desc : 'valid JSON GET', JSchema : schema.userCreated,
-      JValues: { username: defaults.username.toLowerCase()}  }
+      JValues: { username: defaults.username.toLowerCase()}  },
+    { data: { username: 'recla', email: 'recla@pryv.io'},
+      status: 200, desc : 'valid JSON GET', JSchema : schema.userCreated,
+      JValues: { username: 'recla'}  }
   ];
 
   function doTest(key) {
@@ -126,7 +128,10 @@ describe('GET /:username/check_username', function () {
     { username: 'abcd', status: 400, desc : 'too short ',
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
 
-    { username: 'abcdefghijklmnopqrstuvwxyzasaasaaas', status: 400, desc : 'too long ',
+    { username: 'abcdefghijklmnopqrstuvwxyzasaasaaas' +
+      'abcdefghijklmnopqrstuvwxyzasaasaaas' +
+      'abcdefghijklmnopqrstuvwxyzasaasaaas' +
+      'abcdefghijklmnopqrstuvwxyzasaasaaas', status: 400, desc : 'too long ',
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}},
 
     { username: 'abc%20def', status: 400, desc : 'invalid character 1',
@@ -139,6 +144,9 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID },
 
     { username: 'wactiv', status: 200, desc : 'correct ',
+      JSchema : schema.checkUID },
+
+    { username: 'recla', status: 200, desc : 'always available ',
       JSchema : schema.checkUID },
 
     { username: 'pryvtoto', status: 200, desc : 'reserved for pryv',
