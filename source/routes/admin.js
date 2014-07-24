@@ -46,9 +46,10 @@ function init(app) {
       });
 
 
-      //res.json({users: list, error: error});
-
-      res.send(tohtml.toTable(headers, list));
+      if (req.query.toHTML) {
+        res.send(tohtml.toTable(headers, list));
+      }
+      res.json({users: list, error: error});
 
     });
 
