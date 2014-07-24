@@ -48,6 +48,7 @@ function init(app) {
 
       if (req.query.toHTML) {
         res.send(tohtml.toTable(headers, list));
+        return;
       }
       res.json({users: list, error: error});
 
