@@ -7,10 +7,10 @@ Node.js / Express server to manage user registration requests.
 open redis console on reg-gandi-fr-01
 
 
-- get <user>:email
+- hgetall <user>:users
 - del <email>:email
 - del <user>:server
-- dele <user>:users
+- del <user>:users
 
 
 
