@@ -18,7 +18,7 @@ module.exports = function (app) {
   // request pre processing
   app.post('/user', function (req, res, next) {
     if (req.body === undefined) {
-      logger.error('/init : How could body be empty??');
+      logger.error('/user : How could body be empty??');
       return next(messages.ei());
     }
 
@@ -33,6 +33,7 @@ module.exports = function (app) {
       password: checkAndConstraints.password(req.body.password),
       email: checkAndConstraints.email(req.body.email),
       invitationToken: checkAndConstraints.invitationToken(req.body.invitationtoken),
+      referer: checkAndConstraints.referer(req.body.referer),
       language: checkAndConstraints.lang(req.body.languageCode) // no check
     };
 

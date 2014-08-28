@@ -57,6 +57,14 @@ exports.invitationToken = function invitationToken(str) {
   return null;
 };
 
+// any chars between 1 and 99 chars, with no trailing spaces.
+exports.referer = function referer(str) {
+  if (! str) { return null; }
+  str = _(str).trim();
+  if (str.length > 0 && str.length < 100) { return str; }
+  return null;
+};
+
 exports.email = function email(str) {
   if (! str) { return null; }
   str = _(str).trim();

@@ -22,6 +22,7 @@ function init(app) {
       language: 'lang',
       server: 'Server',
       appid: 'From app',
+      referer: 'Referer',
       invitationToken : 'Token',
       errors: 'Errors'
     };

@@ -18,7 +18,8 @@ describe('POST /user', function () {
     username : randomuser,
     email : randomuser + '@wactiv.chx', // should not be necessary
     password: 'abcdefgh',
-    invitationtoken: 'enjoy'
+    invitationtoken: 'enjoy',
+    referer: 'pryv'
   };
 
   var tests = [
