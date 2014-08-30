@@ -13,7 +13,8 @@ module.exports =  function (app) {
    * This single request is cached one hour
    */
   app.get('/apps', function (req, res) {
-    res.setHeader('Cache-Control', 'max-age=3600');
+    // BIG MISTAKE THAT MADE cors ...
+    //res.setHeader('Cache-Control', 'max-age=3600');
 
     var data = [];
     Object.keys(appsList).forEach(function(appid) {
