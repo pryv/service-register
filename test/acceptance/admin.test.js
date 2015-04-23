@@ -11,8 +11,10 @@ require('readyness/wait/mocha');
 
 var domain = config.get('dns:domain');
 
-var authAdminKey = 'perki|ghjfsduz743';
+var authAdminKey = 'test-admin-key';
 var authSystemKey = 'test-system-key';
+
+
 
 describe('GET /admin/servers/:serverName/users', function () {
   var tests = [
