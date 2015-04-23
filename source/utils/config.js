@@ -36,12 +36,7 @@ nconf.file({ file: configFile});
 nconf.defaults({
   auth: {
     authorizedKeys: {
-      'test-admin-key': { roles: ['admin'] },
-      'test-system-key': { roles: ['system'] },
-      'perki|ghjfsduz743' : { roles: ['admin'] },
-      'adrien|SHD7253bsd': { roles: ['admin']},
-      'evelina|72DH63hgsd': { roles: ['admin']},
-      'frederic|6wZDH7216': { roles: ['admin']}
+
     }
   },
   'languages': {
@@ -70,156 +65,10 @@ nconf.defaults({
   },
   'net': { // manly used in /network/dataservers
     aahostings : {
-      regions: {
-        europe : {
-          name : 'Europe',
-          localizedName : { fr : 'Europe'},
-          zones : {
-            france : {
-              name : 'France',
-              localizedName : { fr : 'France'},
-              hostings: {
-                'gandi.net-fr' : {
-                  url : 'http://gandi.net',
-                  name : 'Gandi',
-                  description: 'No bullshit',
-                  localizedDescription: {}
-                }
-              }
-            },
-            switzerland: {
-              name : 'Switzerland',
-              localizedName: { fr : 'Suisse'},
-              hostings: {
-                'swisscom.ch-ch' : {
-                  url : 'http://www.swisscom.ch',
-                  name: 'Swisscom',
-                  description: 'Swiss quality',
-                  localizedDescription: { }
-                }
-              }
-            }
-          }
-        },
-        'north-america' : {
-          name : 'North America',
-          localizedName : { fr : 'Amérique du Nord'},
-          zones : {
-            'usa-east' : {
-              name : 'East-coast USA',
-              localizedName : { fr : 'USA cote est'},
-              hostings: {
-                'gandi.net-us' : {
-                  url : 'http://gandi.net',
-                  name : 'Gandi',
-                  description: 'No bullshit',
-                  localizedDescription: {}
-                }
-              }
-            },
-            'usa-west' : {
-              name : 'West-coast USA',
-              localizedName : { fr : 'USA cote ouest'},
-              hostings: {
-                'joyent.net-usw' : {
-                  url : 'http://joyent.com',
-                  name : 'Joyent',
-                  description: 'High performance',
-                  localizedDescription: {}
-                }
-              }
-            }
-          }
-        },
-        asia : {
-          name : 'Asia',
-          localizedName : { fr : 'Asie'},
-          zones : {
-            'hk' : {
-              name : 'Hong-Kong',
-              localizedName : { },
-              hostings: {
-                'fengqi.asia-hk' : {
-                  url : 'http://fenqi.asia',
-                  name : 'Fengqi.asia',
-                  description: 'We Make Your Business Fly',
-                  localizedDescription: {}
-                }
-              }
-            }
-          }
-        },
-        australia : {
-          name : 'Australia (Coming soon)',
-          localizedName : { fr : 'Australie (bientôt disponible)'},
-          zones : { }
-        }
-      }
     },
-    'AAservers_domain': 'pryv.net', // domaine for all admin / activity servers
+    'AAservers_domain': 'pryv.net', // domain for all admin / activity servers
     'aaservers_ssl': true, // set if admin / activity servers have ssl
-    'aaservers': {
-      'gandi.net-fr' : [{
-        'base_name': 'act-gandi-fr-01',
-        'port': 443,
-        'authorization': 'cz90{k)2{3u8q0C'
-      }],
-      'gandi.net-us' : [{
-        'base_name': 'act-gandi-us-01',
-        'port': 443,
-        'authorization': 'cz90{k)2{3u8q0C'
-      }]
-    }
-  },
-  'mailer': {
-    'deactivated' : false, // globally deactivate mailing
-    'confirm-sender-email': 'active@pryv.com',
-    'amazon_ses' : {
-      'accesskeyid': 'AKIAIHR6HVRME43VNCSA',
-      'secretkey': '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',
-      'serviceurl': 'https://email.us-east-1.amazonaws.com'
-    }
-  },
-  'dns': {
-    'port': 2053,
-    'ip': '0.0.0.0',
-    'name': 'local.pryv.net',
-    'domain': 'pryv.io',
-    'domain_A': '217.70.184.38',
-    'defaultTTL': 3600,
-    'staticDataInDomain': {
-      'www': {alias: [ { name: 'w.pryv.com' } ]}, // static web files repository
-      'sw': {alias: [ { name: 'sw.pryv.net' } ]}, // secured web files repository
-      'reg': {alias: [ { name: 'reg.pryv.net' } ]}, // register real name
-      'access': {alias: [ { name: 'reg.pryv.net' } ]} // access need to be migrated
-    },
-    'nameserver': [
-      {
-        'name': 'dns-gandi-fr-01.pryv.net',
-        'ip': '92.243.26.12'
-      },
-      {
-        'name': 'dns-gandi-fr-02.pryv.net',
-        'ip': '95.142.162.163'
-      }
-    ],
-    'mail': [
-      {
-        'name': 'spool.mail.gandi.net',
-        'ip': '217.70.184.6',
-        'ttl': 10800,
-        'priority': 10
-      },
-      {
-        'name': 'fb.mail.gandi.net',
-        'ip': '217.70.184.162',
-        'ttl': 10800,
-        'priority': 50
-      }
-    ]
-  },
-  'redis': {
-    'password': 'MyRecordedLife'
+    'aaservers': {}
   },
   oauth2: {
     port: 9090
@@ -232,12 +81,8 @@ nconf.defaults({
       'access' : 'https://l.rec.la:4443/access/'
     }
   },
-  'newrelic': {
-    'app_name' : 'Register ' + os.hostname(),
-    'license_key' : 'de249e5a0385813fbe37d5e35fd01c65bad43ea4'
-  },
   airbrake: {
-    key: '88ec825519c81c3a248a5d19284970a0' // registration server key
+    key: 'xxxxxxxx' // registration server key
   },
   appList: {
     // apps defined in specific configs (dev/staging/production)
