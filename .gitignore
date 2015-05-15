@@ -9,4 +9,5 @@ db/redis_dump.rdb
 redis-*
 registration-server.iml
 register.iml
+service-register.iml
 newrelic_agent.log
