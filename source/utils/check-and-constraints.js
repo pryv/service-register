@@ -7,6 +7,32 @@ var  _ = require('underscore');
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
+var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
+
+/**
+ * extract resource and domain name from hostname
+ */
+
+exports.extractDomainAndResource = function (hostname) {
+    config_get_dns_domains = ["pryv.in","pryv.li"];
+    domains = config_get_dns_domains;
+
+    for (var i = 0; i < domains.length; i++) {
+       if ( hostname.endsWith('.' + domains[i]) ) {
+        resource = hostname.slice(0, - domains[i].length - 1 )
+        if (checkUsername.exec(resource)) {
+            return { resource: resource, domain: domains[i]};
+          }
+        else {
+            throw new Error("Username not recognized in hostname.")
+          }
+       }
+    }
+    throw new Error("Domain name not recognized in hostname.");
+}
+
+
+
 /**
  * extract resource from hostname
  */
