@@ -67,9 +67,8 @@ var serverForName = function (reqName, callback, req, res) {
   }
 
   logger.info('DNS: ' + keyName);
-
-  // root request
-  if (keyName === config.get('dns:domain')) {
+ 
+  if ( config.get('dns:domains').indexOf(keyName) ) { 
     switch (req.q[0].typeName) {
     case 'MX':
       return callback(req, res, dns.getRecords(mxData, reqName));
@@ -80,14 +79,18 @@ var serverForName = function (reqName, callback, req, res) {
       return callback(req, res, dns.getRecords(soaData, reqName));
     default:
       return callback(req, res, dns.getRecords(rootData, reqName));
-    }
+    }   
   }
-
 
   console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
-  var uid = checkAndConstraints.extractRessourceFromHostname(keyName);
+  try {
+    var uid = checkAndConstraints.extractRessourceFromHostname(keyName);
+  }
+  catch (err) {
+    logger.info('DNS: ' + err);
+  }
 
   if (! uid) {
     logger.info('DNS: (Not in domain) ' + keyName);
