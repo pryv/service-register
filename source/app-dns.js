@@ -68,7 +68,7 @@ var serverForName = function (reqName, callback, req, res) {
 
   logger.info('DNS: ' + keyName);
  
-  if ( config.get('dns:domains').indexOf(keyName) ) { 
+  if ( config.get('dns:domains').indexOf(keyName) > -1) {
     switch (req.q[0].typeName) {
     case 'MX':
       return callback(req, res, dns.getRecords(mxData, reqName));
