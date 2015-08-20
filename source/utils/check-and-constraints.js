@@ -12,7 +12,7 @@ var checkDomain = new RegExp('([.a-z0-9-]{1,100})' + '$');
 
 
 String.prototype.endsWith = function(suffix) {
-      return this.indexOf(suffix, this.length - suffix.length) !== -1; 
+      return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
 /**
@@ -24,24 +24,24 @@ exports.extractRessourceFromHostname = function (hostname) {
     Object.prototype.getName = function() { 
          var funcNameRegex = /function (.{1,})\(/;
             var results = (funcNameRegex).exec((this).constructor.toString());
-               return (results && results.length > 1) ? results[1] : ""; 
-    }   
+               return (results && results.length > 1) ? results[1] : "";
+    }
 
     console.log(hostname);
     console.log(hostname.getName());
 
     for (var i = 0; i < domains.length; i++) {
-       if ( hostname.endsWith('.' + domains[i]) ) { 
-        resource = hostname.slice(0, - domains[i].length - 1 ) 
+       if ( hostname.endsWith('.' + domains[i]) ) {
+        resource = hostname.slice(0, - domains[i].length - 1 )
         if (checkUsername.exec(resource)) {
             //return { resource: resource, domain: domains[i]};
             return resource;
-          }   
+          }
         else {
             throw new Error("Username not recognized in hostname.");
-          }   
-       }   
-    }   
+          }
+       }
+    }
     throw new Error("Domain name not recognized in hostname.");
 }
 

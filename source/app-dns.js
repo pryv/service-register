@@ -79,7 +79,7 @@ var serverForName = function (reqName, callback, req, res) {
       return callback(req, res, dns.getRecords(soaData, reqName));
     default:
       return callback(req, res, dns.getRecords(rootData, reqName));
-    }   
+    }
   }
 
   console.log("**** " + keyName);

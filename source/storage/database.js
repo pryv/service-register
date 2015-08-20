@@ -20,6 +20,15 @@ var dbversion = null;
 var connectionChecked = require('readyness').waitFor('database');
 
 
+//PASSWORD CHECKING
+if (config.get('redis:password')) {
+  redis.auth(config.get('redis:password'), function () {
+    logger.info('Redis client authentified');
+    checkConnection();
+  });
+} else {
+  checkConnection();
+}
 
 
 function checkConnection() {
@@ -517,14 +526,3 @@ exports.reservedWordsExists = function reservedWordsExists(word, callback) {
 
   });
 };
-
-
-//PASSWORD CHECKING
-if (config.get('redis:password')) {
-  redis.auth(config.get('redis:password'), function () {
-    logger.info('Redis client authentified');
-    checkConnection();
-  });
-} else {
-  checkConnection();
-}
