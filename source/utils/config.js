@@ -86,18 +86,6 @@ nconf.defaults({
                   localizedDescription: {}
                 }
               }
-            },
-            switzerland: {
-              name : 'Switzerland',
-              localizedName: { fr : 'Suisse'},
-              hostings: {
-                'swisscom.ch-ch' : {
-                  url : 'http://www.swisscom.ch',
-                  name: 'Swisscom',
-                  description: 'Swiss quality',
-                  localizedDescription: { }
-                }
-              }
             }
           }
         },
