@@ -49,7 +49,9 @@ if (config.get('server:port') > 0) {
     server.url = protocol + '://' + address.address + ':' + address.port;
 
     var readyMessage = 'Registration server v' + require('../package.json').version +
-        ' [' + app.settings.env + '] listening on ' + server.url;
+        ' [' + app.settings.env + '] listening on ' + server.url +
+      '\n Serving main domain: ' + config.get('dns:domain') +
+      ' extras: ' + config.get('dns:domains');
     logger.info(readyMessage);
     appListening(readyMessage); // TODO: replace that "readyness" thing with simple event messaging
   }).on('error', function (e) {
