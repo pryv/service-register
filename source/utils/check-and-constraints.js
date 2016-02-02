@@ -27,8 +27,6 @@ exports.extractRessourceFromHostname = function (hostname) {
                return (results && results.length > 1) ? results[1] : "";
     }
 
-    console.log(hostname);
-    console.log(hostname.getName());
 
     for (var i = 0; i < domains.length; i++) {
        if ( hostname.endsWith('.' + domains[i]) ) {
