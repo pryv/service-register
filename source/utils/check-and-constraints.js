@@ -7,17 +7,41 @@ var  _ = require('underscore');
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
+var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
+var checkDomain = new RegExp('([.a-z0-9-]{1,100})' + '$');
+
+
+String.prototype.endsWith = function(suffix) {
+      return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
 /**
  * extract resource from hostname
  */
 exports.extractRessourceFromHostname = function (hostname) {
-  var matchArray = extractRessourceFromHostnameRegExp.exec(hostname);
-  if (! matchArray) { return null; }
-  return matchArray[1];
-};
+    domains = config.get('dns:domains');
 
-var _temp = '([a-z0-9-]{1,100})\\.' + config.get('dns:domain').replace(/\./g, '\\.');
-var extractRessourceFromHostnameRegExp = new RegExp('^' + _temp + '$');
+    Object.prototype.getName = function() { 
+         var funcNameRegex = /function (.{1,})\(/;
+            var results = (funcNameRegex).exec((this).constructor.toString());
+               return (results && results.length > 1) ? results[1] : "";
+    }
+
+
+    for (var i = 0; i < domains.length; i++) {
+       if ( hostname.endsWith('.' + domains[i]) ) {
+        resource = hostname.slice(0, - domains[i].length - 1 )
+        if (checkUsername.exec(resource)) {
+            //return { resource: resource, domain: domains[i]};
+            return resource;
+          }
+        else {
+            throw new Error("Username not recognized in hostname.");
+          }
+       }
+    }
+    throw new Error("Domain name not recognized in hostname.");
+}
 
 // (alphanumeric between 5 an 21 chars) case-insensitive  -  authorized
 // trim the uid ..

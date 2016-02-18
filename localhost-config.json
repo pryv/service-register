@@ -1,4 +1,15 @@
 {
+  "redis" : {
+    "password": "MyRecordedLife"
+  },
+  "auth": {
+    "authorizedKeys": {
+      "test-admin-key": { "roles": ["admin"] },
+      "test-system-key": { "roles": ["system"] },
+      "perki|ghjfsduz743" : { "roles": ["admin"] },
+      "evelina|72DH63hgsd": { "roles": ["admin"]}
+    }
+  },
   "dns": {
     "name": "local.pryv.net",
     "domain": "rec.la",

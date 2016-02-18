@@ -1,14 +1,42 @@
 {
+  "auth": {
+    "authorizedKeys": {
+      "test-admin-key": { "roles": ["admin"] },
+      "test-system-key": { "roles": ["system"] }
+    }
+  },
+  "redis": {
+    "password": "MyRecordedLife"
+  },
   "airbrake": {
     "disable": true
   },
   "dns": {
     "name": "local.pryv.net",
     "domain": "pryv.in",
+    "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
     "staticDataInDomain": {
-      "www": {"alias": [ { "name": "local.pryv.in" } ]},
-      "sw": {"alias": [ { "name": "local.pryv.in" } ]},
-      "reg": {"alias": [ { "name": "reglocal.pryv.in" } ]}
+      "www": {
+        "alias": [
+          {
+            "name": "local.pryv.in"
+          }
+        ]
+      },
+      "sw": {
+        "alias": [
+          {
+            "name": "local.pryv.in"
+          }
+        ]
+      },
+      "reg": {
+        "alias": [
+          {
+            "name": "reglocal.pryv.in"
+          }
+        ]
+      }
     }
   },
   "http": {
@@ -21,21 +49,25 @@
     }
   },
   "server": {
-    "certsPathAndKey": "source/cert/pryv.in" ,
+    "certsPathAndKey": "source/cert/pryv.in",
     "port": 8443
   },
   "net": {
     "aaservers": {
-      "gandi.net-fr" : [{
-        "base_name": "stact-gandi-fr-01",
-        "port": 443,
-        "authorization": "cz90{k)2{3u8q0C"
-      }],
-      "gandi.net-us" : [{
-        "base_name": "stact-gandi-us-01",
-        "port": 443,
-        "authorization": "cz90{k)2{3u8q0C"
-      }],
+      "gandi.net-fr": [
+        {
+          "base_name": "stact-gandi-fr-01",
+          "port": 443,
+          "authorization": "cz90{k)2{3u8q0C"
+        }
+      ],
+      "gandi.net-us": [
+        {
+          "base_name": "stact-gandi-us-01",
+          "port": 443,
+          "authorization": "cz90{k)2{3u8q0C"
+        }
+      ],
       "joyent.net-usw": [
         {
           "base_name": "stact-joyent-usw-01",
@@ -43,6 +75,123 @@
           "authorization": "cz90{k)2{3u8q0C"
         }
       ]
+    },
+    "aahostings": {
+      "regions": {
+        "europe": {
+          "name": "Europe",
+          "localizedName": {
+            "fr": "Europe"
+          },
+          "zones": {
+            "france": {
+              "name": "France",
+              "localizedName": {
+                "fr": "France"
+              },
+              "hostings": {
+                "gandi.net-fr": {
+                  "url": "http://gandi.net",
+                  "name": "Gandi",
+                  "description": "No bullshit",
+                  "localizedDescription": {
+
+                  }
+                }
+              }
+            },
+            "switzerland": {
+              "name": "Switzerland",
+              "localizedName": {
+                "fr": "Suisse"
+              },
+              "hostings": {
+                "swisscom.ch-ch": {
+                  "url": "http://www.swisscom.ch",
+                  "name": "Swisscom",
+                  "description": "Swiss quality",
+                  "localizedDescription": {
+
+                  }
+                }
+              }
+            }
+          }
+        },
+        "north-america": {
+          "name": "North America",
+          "localizedName": {
+            "fr": "Amérique du Nord"
+          },
+          "zones": {
+            "usa-east": {
+              "name": "East-coast USA",
+              "localizedName": {
+                "fr": "USA cote est"
+              },
+              "hostings": {
+                "gandi.net-us": {
+                  "url": "http://gandi.net",
+                  "name": "Gandi",
+                  "description": "No bullshit",
+                  "localizedDescription": {
+
+                  }
+                }
+              }
+            },
+            "usa-west": {
+              "name": "West-coast USA",
+              "localizedName": {
+                "fr": "USA cote ouest"
+              },
+              "hostings": {
+                "joyent.net-usw": {
+                  "url": "http://joyent.com",
+                  "name": "Joyent",
+                  "description": "High performance",
+                  "localizedDescription": {
+
+                  }
+                }
+              }
+            }
+          }
+        },
+        "asia": {
+          "name": "Asia",
+          "localizedName": {
+            "fr": "Asie"
+          },
+          "zones": {
+            "hk": {
+              "name": "Hong-Kong",
+              "localizedName": {
+
+              },
+              "hostings": {
+                "fengqi.asia-hk": {
+                  "url": "http://fenqi.asia",
+                  "name": "Fengqi.asia",
+                  "description": "We Make Your Business Fly",
+                  "localizedDescription": {
+
+                  }
+                }
+              }
+            }
+          }
+        },
+        "australia": {
+          "name": "Australia (Coming soon)",
+          "localizedName": {
+            "fr": "Australie (bientôt disponible)"
+          },
+          "zones": {
+
+          }
+        }
+      }
     }
   },
   "airbrake": {
