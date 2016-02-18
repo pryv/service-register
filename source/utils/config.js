@@ -34,6 +34,9 @@ nconf.file({ file: configFile});
 
 //Set default values
 nconf.defaults({
+  dns: {
+    'defaultTTL' : 3600
+  },
   auth: {
     authorizedKeys: {
 

@@ -82,7 +82,7 @@ var serverForName = function (reqName, callback, req, res) {
     }
   }
 
-  console.log("**** " + keyName);
+  //console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
   try {
