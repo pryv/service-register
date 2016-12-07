@@ -1,7 +1,4 @@
 var config = require('../utils/config');
-var logger = require('winston');
-
-//-- 
 var httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http';
 var http = require(httpMode);
 
@@ -24,10 +21,9 @@ exports.hostings = function () {
         Object.keys(hostings.regions[region].zones).forEach(function (zone) { // zones
           if (hostings.regions[region].zones[zone].hostings) {
             Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
-              hostings.regions[region].zones[zone].hostings[hosting].available = false;
-              if (aaservers[hosting] && aaservers[hosting].length > 0) {
-                hostings.regions[region].zones[zone].hostings[hosting].available = true;
-              }
+
+              hostings.regions[region].zones[zone].hostings[hosting].available =
+                aaservers[hosting] && aaservers[hosting].length > 0;
             });
           }
         });
@@ -40,9 +36,7 @@ exports.hostings = function () {
 };
 
 /**
- *
  * @param hosting
- * @param callback(error,hostname)
  */
 exports.getHostForHosting = function (hosting) {
 
@@ -60,7 +54,7 @@ exports.getHostForHosting = function (hosting) {
 };
 
 
-
+/*
 //http://catapulty.tumblr.com/post/8303749793/heroku-and-node-js-how-to-get-the-client-ip-address
 function getClientIp(req) {
   var ipAddress = null;
@@ -80,6 +74,7 @@ function getClientIp(req) {
   }
   return ipAddress;
 }
+*/
 
 //POST request to an admin server, callback(error,json_result)
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {

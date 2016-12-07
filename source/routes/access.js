@@ -1,6 +1,7 @@
 //check if a UID exists
 
-var express = express = require('express');
+// TODO: Check this assignation
+var express = require('express');
 var messages = require('../utils/messages.js');
 var checkAndConstraints = require('../utils/check-and-constraints.js');
 

@@ -1,8 +1,11 @@
 var model = module.exports;
 
 // curl "http://localhost:9090/oauth/authorise?client_id=ifttt&"
-// curl -X -v -d 'client_id=ifttt&client_secret=sadfjt125dasvhGSDdhas&grant_type=authorization_code' -X POST "http://localhost:9090/oauth/token"
-// curl "http://localhost:9090/oauth/authorise?client_id=ifttt-all&response_type=code&redirect_uri=https://ifttt.com/channels/pryv/authorize&scope=ifttt&state=-8da2pciLMkqa4X_XdaQ4g"
+// curl -X -v -d 'client_id=ifttt&client_secret=sadfjt125dasvhGSDdhas&grant_type=authorization_code'
+// -X POST "http://localhost:9090/oauth/token"
+
+// curl "http://localhost:9090/oauth/authorise?client_id=ifttt-all
+// &response_type=code&redirect_uri=https://ifttt.com/channels/pryv/authorize&scope=ifttt&state=-8da2pciLMkqa4X_XdaQ4g"
 
 /**
  * POST /oauth2/token HTTP/1.1
@@ -15,7 +18,9 @@ var model = module.exports;
  client_id=ifttt&client_secret=sadfjt125dasvhGSDdhas&grant_type=authorization_code&code=UhdDI7wTQWhJWGhQ&redirect_uri=https%3A%2F%2Fifttt.com%2Fchannels%2Fpryv%2Fauthorize
  */
 
-// curl -X POST -d "client_id=ifttt-all&client_secret=sadfjt125dasvhGSDdhas&grant_type=authorization_code&code=UhdDI7wTQWhJWGhQ&redirect_uri=https%3A%2F%2Fifttt.com%2Fchannels%2Fpryv%2Fauthorize" "http://localhost:9090/oauth/token"
+// curl -X POST -d "client_id=ifttt-all&client_secret=sadfjt125dasvhGSDdhas
+// &grant_type=authorization_code&code=UhdDI7wTQWhJWGhQ&redirect_uri=https%3A%2F%2Fifttt.com%2Fchannels%2Fpryv%2Fauthorize"
+//  "http://localhost:9090/oauth/token"
 
 // In-memory datastores:
 var oauthAccessTokens = [],
@@ -120,7 +125,7 @@ model.saveRefreshToken = function (refreshToken, clientId, expires, userId, call
 
 
 model.getAuthCode = function (bearerCode, callback) {
-  console.log("in getAuthCode (bearerCode: " + bearerCode + ")");
+  console.log('in getAuthCode (bearerCode: ' + bearerCode + ')');
 
   callback(null, {
     accessToken: 'youpipipi',

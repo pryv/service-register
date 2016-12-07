@@ -85,8 +85,10 @@ var serverForName = function (reqName, callback, req, res) {
   //console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
+  var uid;
+
   try {
-    var uid = checkAndConstraints.extractRessourceFromHostname(keyName);
+    uid = checkAndConstraints.extractRessourceFromHostname(keyName);
   }
   catch (err) {
     logger.info('DNS: ' + err);

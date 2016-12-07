@@ -6,11 +6,15 @@ var messages = require('../utils/messages');
  */
 
 module.exports =  function(req, res, next){
-  if (req._body) return next();
+  if (req._body) {
+    return next();
+  }
   req.body = req.body || {};
 
   // check Content-Type
-  if ('application/json' != req.headers['content-type']) return next();
+  if ('application/json' !== req.headers['content-type']) {
+    return next();
+  }
 
   // flag as parsed
   req._body = true;
@@ -18,7 +22,7 @@ module.exports =  function(req, res, next){
   // parse
   var buf = '';
   req.setEncoding('utf8');
-  req.on('data', function(chunk){ buf += chunk });
+  req.on('data', function(chunk){ buf += chunk; });
   req.on('end', function(){
     try {
       req.body = buf.length ? JSON.parse(buf) : {};

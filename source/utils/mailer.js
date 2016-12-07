@@ -10,13 +10,13 @@ var SESTransport = nodemailer.createTransport('SES', {
 });
 
 //load mails templates
-var mailTemplates = new Array();
+var mailTemplates = [];
 require('../mails/confirm-en.js')(mailTemplates);
 
-for (key in mailTemplates) {
+mailTemplates.forEach(function(key) {
   mailTemplates[key].from += ' <'+config.get('mailer:confirm-sender-email') +'>';
   logger.debug('Loaded mail template: '+key);
-}
+});
 
 exports.sendConfirm = function (uid,to,url,lang) {
     
@@ -26,7 +26,7 @@ exports.sendConfirm = function (uid,to,url,lang) {
   }
   // find mail template
   var templateCode = 'confirm:'+lang;
-  if (! templateCode in mailTemplates) {
+  if (! (templateCode in mailTemplates)) {
     logger.debug('Missing mail template translation: '+templateCode);
     templateCode = 'confirm:en';
   }
@@ -39,13 +39,11 @@ exports.sendConfirm = function (uid,to,url,lang) {
   mailc.html = template.html.replace('%uid%',uid);
   mailc.text = mailc.text.replace('%url%',url);
   mailc.html = mailc.html.replace('%url%',url);
-  SESTransport.sendMail(mailc, function(error, response){
+  SESTransport.sendMail(mailc, function(error){
     if(error){
       logger.debug(error);
-    }else{
-      //logger.info('Message sent: ' + response.message);
     }
     SESTransport.close(); // shut down the connection pool, no more messages
   });
 
-}
+};
