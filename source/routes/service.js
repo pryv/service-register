@@ -4,7 +4,7 @@ var config = require('../utils/config');
 
 var infos = {
   version : '0.1.0',
-  register : config.get('http:register'),
+  register : config.get('http:register:url'),
   access: 'https://access.' + config.get('dns:domain') + '/access',
   api: 'https://{username}.' +  config.get('dns:domain') + '/'
 };
