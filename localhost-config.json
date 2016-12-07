@@ -29,7 +29,7 @@
     }
   },
   "server": {
-    "certsPathAndKey": "source/cert/rec.la" ,
+    "certsPathAndKey": "node_modules/rec-la/src/rec.la" ,
     "port": 8443
   },
   "net": {

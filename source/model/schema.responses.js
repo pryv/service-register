@@ -9,6 +9,43 @@ exports.success = {
   }
 };
 
+
+
+//route : service/inofs
+exports.serviceInfos = {
+  type: 'object',
+  properties: {
+    version : {
+      type: 'string',
+      required: true
+    },
+    register: {
+      type: 'string',
+      required: true
+    },
+    access: {
+      type: 'string',
+      required: true
+    },
+    api: {
+      type: 'string',
+      required: true
+    },
+    name: {
+      type: 'string'
+    },
+    home: {
+      type: 'string'
+    },
+    support: {
+      type: 'string'
+    },
+    terms: {
+      type: 'string'
+    }
+  }
+};
+
 //route : check
 exports.checkExists = {
   type: 'object',

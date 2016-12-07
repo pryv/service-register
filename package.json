@@ -1,7 +1,7 @@
 {
   "name": "pryv-registration-server",
   "description": "",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "author": "Pryv Sa",
   "dependencies": {
@@ -11,19 +11,20 @@
     "express": "3.5.x",
     "json-schema": "0.2.x",
     "nconf": "0.6.x",
+    "node-oauth2-server": "~2.0.2",
     "nodemailer": "0.3.x",
+    "rand-token": "~0.2.1",
     "readyness": "0.1.x",
     "redis": "0.12.x",
     "semver": "1.1.4",
     "underscore": "1.3.x",
     "underscore.string": "2.2.x",
-    "winston": "0.6.x",
-    "node-oauth2-server": "~2.0.2",
-    "rand-token": "~0.2.1"
+    "winston": "0.6.x"
   },
   "devDependencies": {
     "mocha": "latest",
     "should": "3.3.1",
-    "superagent": "latest"
+    "superagent": "latest",
+    "rec-la": "^0.1.2"
   }
 }

@@ -33,6 +33,9 @@ app.configure(function () {
 // www
 require('./routes/index')(app);
 
+// service infos
+require('./routes/service.js')(app);
+
 // public API routes
 require('./routes/email.js')(app);
 require('./routes/user.js')(app);
