@@ -91,6 +91,10 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     url = config.get('devel:static:access') + parameters.localDevel;
   }
 
+  if (typeof parameters.reclaDevel !== 'undefined') {
+    url = 'https://sw.rec.la' + parameters.reclaDev;
+  }
+
 
   url = url +
     '?lang=' + lang +
