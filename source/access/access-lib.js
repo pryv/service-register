@@ -92,7 +92,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   }
 
   if (typeof parameters.reclaDevel !== 'undefined') {
-    url = 'https://sw.rec.la' + parameters.reclaDev;
+    url = 'https://sw.rec.la' + parameters.reclaDevel;
   }
 
 
