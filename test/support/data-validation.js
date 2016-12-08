@@ -4,6 +4,7 @@ var validate = require('json-schema').validate;
 var querystring = require('querystring');
 var schemas = require('../../source/model/schema.responses');
 var _s = require('underscore.string');
+
 /**
  *
  * test structure
@@ -60,7 +61,6 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
     };
 
     var http = require(_protocol);
-
 
     var post_data = '';
     if (test.method === 'POST') {

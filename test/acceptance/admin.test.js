@@ -89,7 +89,7 @@ describe('/admin/users/invitations', function () {
   describe('GET ', function () {
     it('should send a list of current tokens', function (done) {
       request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey)
-      .end(function (res) {
+      .end(function (err, res) {
         dataValidation.check(res, {
           status: 200
         }, function (error) {
@@ -112,7 +112,7 @@ describe('/admin/users/invitations', function () {
       request.get(server.url + '/admin/users/invitations/post' +
           '?auth=' + authAdminKey +
           '&count=2&message=testx'
-        ).end(function (res) {
+        ).end(function (err, res) {
           dataValidation.check(res, {
             status: 200
           }, function (error) {
