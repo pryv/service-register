@@ -11,7 +11,7 @@ describe('/service', function () {
   describe('GET /service/infos', function () {
 
     it('infos', function (done) {
-      request.get(config.get('http:register:url') + '/service/infos').end(function (err, res) {
+      request.get(config.get('http:register:url') + '/service/infos').end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.serviceInfos

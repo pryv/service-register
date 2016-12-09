@@ -11,7 +11,7 @@ describe('/apps', function () {
   describe('GET /apps', function () {
 
     it('appList', function (done) {
-      request.get(server.url + '/apps').end(function (err, res) {
+      request.get(server.url + '/apps').end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.appsList
@@ -30,7 +30,7 @@ describe('/apps', function () {
   describe('GET /apps/:appid', function () {
 
     it('valid appId', function (done) {
-      request.get(server.url + '/apps/test-a').end(function (err, res) {
+      request.get(server.url + '/apps/test-a').end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.appsSingle

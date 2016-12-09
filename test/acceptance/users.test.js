@@ -26,7 +26,7 @@ describe('/users', function () {
     it('must change the username\'s email', function (done) {
       request.post(server.url + getPath()).send({email: 'toto@pryv.io'})
           .set('Authorization', defaultAuth)
-          .end(function (err, res) {
+          .end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.success,
@@ -38,7 +38,7 @@ describe('/users', function () {
     it('must return an error if the username is unknown', function (done) {
       request.post(server.url + getPath('baduser')).send({email: 'toto@pryv.io'})
           .set('Authorization', defaultAuth)
-          .end(function (err, res) {
+          .end(function (res) {
         validation.checkError(res, {
           status: 404,
           id: 'UNKNOWN_USER_NAME'
@@ -49,7 +49,7 @@ describe('/users', function () {
     it('must return an error if the email is invalid', function (done) {
       request.post(server.url + getPath()).send({email: 'bad@email'})
           .set('Authorization', defaultAuth)
-          .end(function (err, res) {
+          .end(function (res) {
         validation.checkError(res, {
           status: 400,
           id: 'INVALID_EMAIL'
@@ -59,7 +59,7 @@ describe('/users', function () {
 
     it('must return an error if the request auth key is missing or unknown', function (done) {
       request.post(server.url + getPath()).send({email: 'toto@pryv.io'})
-          .end(function (err, res) {
+          .end(function (res) {
         validation.checkError(res, {
           status: 401,
           'id': 'unauthorized'
@@ -70,7 +70,7 @@ describe('/users', function () {
     it('must return an error if the request auth key is unauthorized', function (done) {
       request.post(server.url + getPath()).send({email: 'toto@pryv.io'})
           .set('Authorization', 'test-admin-key')
-          .end(function (err, res) {
+          .end(function (res) {
         validation.checkError(res, {
           status: 403,
           'id': 'forbidden'
@@ -82,7 +82,7 @@ describe('/users', function () {
       // reset test user (could be optimized by directly calling into the DB)
       request.post(server.url + getPath()).send({email: defaultEmail})
           .set('Authorization', defaultAuth)
-          .end(function (err, res) {
+          .end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.success

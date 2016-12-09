@@ -11,7 +11,7 @@ describe('POST /email/check', function () {
   var path = '/email/check/';
 
   it('reserved', function (done) {
-    request.post(server.url + path).send({email: 'wactiv@pryv.io'}).end(function (err, res) {
+    request.post(server.url + path).send({email: 'wactiv@pryv.io'}).end(function (res) {
       validation.check(res, {
         status: 200,
         text: 'false'
@@ -21,7 +21,7 @@ describe('POST /email/check', function () {
 
   it('available', function (done) {
     request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'})
-      .end(function (err, res) {
+      .end(function (res) {
       validation.check(res, {
         status: 200,
         text: 'true'
@@ -38,7 +38,7 @@ describe('GET /:email/check_email', function () {
   }
 
   it('too short', function (done) {
-    request.get(server.url + getPath('abcd')).end(function (err, res) {
+    request.get(server.url + getPath('abcd')).end(function (res) {
       validation.checkError(res, {
         status: 400,
         id: 'INVALID_EMAIL'
@@ -47,7 +47,7 @@ describe('GET /:email/check_email', function () {
   });
 
   it('does not exist', function (done) {
-    request.get(server.url + getPath('abcd.efg_ijkl@bobby.com')).end(function (err, res) {
+    request.get(server.url + getPath('abcd.efg_ijkl@bobby.com')).end(function (res) {
       validation.check(res, {
         status: 200,
         schema: schemas.checkExists,
@@ -57,7 +57,7 @@ describe('GET /:email/check_email', function () {
   });
 
   it('does exist', function (done) {
-    request.get(server.url + getPath('wactiv@pryv.io')).end(function (err, res) {
+    request.get(server.url + getPath('wactiv@pryv.io')).end(function (res) {
       validation.check(res, {
         status: 200,
         schema: schemas.checkExists,
