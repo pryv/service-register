@@ -21,7 +21,6 @@ if (config.get('airbrake:disable') !== true) {
 logger.info('Register  server :' + config.get('http:register:url'));
 logger.info('Static  server :' + config.get('http:static:url'));
 
-
 if (config.get('server:port') > 0) {
 
   var serverOptions = {};
