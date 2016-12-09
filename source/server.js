@@ -27,6 +27,7 @@ if (config.get('server:port') > 0) {
 
   var server = null,
       ssl = config.get('server:ssl');
+
   // HACK: config doesn't parse bools when passed from command-line
   if (ssl && ssl !== 'false') {
     serverOptions = {
