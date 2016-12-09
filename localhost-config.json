@@ -2,6 +2,9 @@
   "redis" : {
     "password": "MyRecordedLife"
   },
+  "airbrake": {
+    "disable": true
+  },
   "auth": {
     "authorizedKeys": {
       "test-admin-key": { "roles": ["admin"] },
