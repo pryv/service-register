@@ -5,7 +5,7 @@ var logger = require('winston');
 var messages = require('./messages');
 
 function app_errors(app) {
-  app.use(function (error, req, res) {
+  app.use(function (error, req, res, next) {
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
       return res.json(error.httpCode, error.data);
