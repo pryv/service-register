@@ -4,6 +4,7 @@ var validate = require('json-schema').validate;
 var querystring = require('querystring');
 var schemas = require('../../source/model/schema.responses');
 var _s = require('underscore.string');
+var request = require('superagent');
 
 /**
  *
@@ -59,38 +60,31 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       path: urlO.path,
       method: test.method
     };
-
-    var http = require(_protocol);
-
+    
     var post_data = '';
+    var req;
+
     if (test.method === 'POST') {
+      req = request.post(urlO.href);
       if (test.contenttype === 'JSON') {
         post_data = JSON.stringify(test.data);
-        http_options.headers = {
-          'Content-Type': 'application/json',
-          'Content-Length': post_data.length
-        };
+        req.set('Content-Type', 'application/json');
+        req.set('Content-Length', post_data.length);
       } else if (test.contenttype === 'JSONSTRING') {
         post_data = test.data;
-        http_options.headers = {
-          'Content-Type': 'application/json',
-          'Content-Length': post_data.length
-        };
+        req.set('Content-Type', 'application/json');
+        req.set('Content-Length', post_data.length);
       } else { // JSON to STRING
         post_data = querystring.stringify(test.data);
-        http_options.headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': post_data.length
-        };
+        req.set('Content-Type', 'application/x-www-form-urlencoded');
+        req.set('Content-Length', post_data.length);
       }
+      req.send(post_data);
+    } else if (test.method === 'GET') {
+      req = request.get(urlO.href);
     }
-    //console.log(JSON.stringify(test));
-    //
-    //console.log(JSON.stringify(http_options));
 
-
-    //-- Do request --//
-    var req = http.request(http_options, function (res) {
+    req.end(function(res) {
       var error_status = false;
 
       try {
@@ -102,13 +96,14 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       // process response
       jsonResponse(res, test, done, error_status, http_options, post_data);
 
-    }).on('error', function (e) {
-      throw new Error('Got error: ' + e.message, e);
     });
-    if (test.method === 'POST') {
-      req.write(post_data);
-    }
-    req.end();
+
+    /* TODO: mimic this with superagent if necessary
+     .on('error', function (e) {
+     throw new Error('Got error: ' + e.message, e);
+     });
+     */
+
   });
 };
 
@@ -270,6 +265,7 @@ exports.check = function (response, expected, done) {
  * @param {Function} done Optional
  */
 exports.checkError = function (response, expected, done) {
+  console.log(response);
   response.statusCode.should.eql(expected.status);
   checkJSON(response, schemas.error);
   var error = response.body; //response.body.error
