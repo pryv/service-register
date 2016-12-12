@@ -34,6 +34,7 @@ module.exports =  function (app) {
     var appid = req.params.appid;
 
     var appData = {id : appid};
+    console.log(appsList[appid]);
     _.extend(appData, appsList[appid]);
     if (! appData) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'unkown appid : ' + appid}));

@@ -2,6 +2,7 @@
 var server = require('../../source/server'),
   validation = require('../support/data-validation'),
   schemas = require('../../source/model/schema.responses'),
+  should = require('should'),
   request = require('superagent');
 
 require('readyness/wait/mocha');
@@ -16,8 +17,19 @@ describe('/apps', function () {
           status: 200,
           schema: schemas.appsList
         }, function (error) {
-          if (error) { done(error); }
+          if (error) {
+            return done(error);
+          }
+          should.exists(res.body);
+          should.exists(res.body.apps);
+
+          /*
+          For now desactivated in apps.js
+          should.exists(res.headers);
+          should.exists(res.headers['cache-control']);
           res.headers['cache-control'].should.eql('max-age=3600');
+          */
+
           res.body.should.have.property('apps');
           res.body.apps.should.be.instanceOf(Array);
           res.body.apps.forEach(checkApp);
@@ -35,7 +47,9 @@ describe('/apps', function () {
           status: 200,
           schema: schemas.appsSingle
         }, function (error) {
-          if (error) { done(error); }
+          if (error) {
+            return done(error);
+          }
           res.body.should.have.property('app');
           checkApp(res.body.app);
           done();
