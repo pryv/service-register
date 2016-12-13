@@ -42,18 +42,13 @@ var should = require('should');
 exports.pathStatusSchema = function pathStatusSchema(test) {
   it(test.it, function (done) {
 
-    //-- Prepare the http request --//
-    if (_s.startsWith(test.url, '/')) {
-      test.url = config.get('http:register:url') + test.url;
-    }
-
-    var url = require('url').parse(test.url);
+    var url = config.get('server:url') + test.url;
 
     var post_data = '';
     var req;
 
     if (test.method === 'POST') {
-      req = request.post(url.href);
+      req = request.post(url);
       if (test.contenttype === 'JSON') {
         post_data = JSON.stringify(test.data);
         req.set('Content-Type', 'application/json');
@@ -69,9 +64,8 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       }
       req.send(post_data);
     } else if (test.method === 'GET') {
-      req = request.get(url.href);
+      req = request.get(url);
     }
-
     req.end(function(err, res) {
       should.not.exists(err);
       should.exists(res);
@@ -112,12 +106,12 @@ function jsonResponse(res, test, callback_done) {
 
     // test schema
     if (test.JSchema) {
-      validateJSONSchema(data, test.JSchema);
+      validateJSONSchema(res.body, test.JSchema);
     }
 
     // test constants
     if (test.JValues) {
-      validateJsonValues(test.JValues, data);
+      validateJsonValues(test.JValues, res.body);
     }
 
   }
@@ -125,7 +119,7 @@ function jsonResponse(res, test, callback_done) {
   // if everything works.. then callback for result
 
   if (test.nextStep) {
-    test.nextStep(test, data);
+    test.nextStep(test, res.body);
   }
 
   callback_done();
@@ -213,7 +207,6 @@ exports.check = function (response, expected, done) {
  * @param {Function} done Optional
  */
 exports.checkError = function (response, expected, done) {
-  console.log(response);
   response.statusCode.should.eql(expected.status);
   checkJSON(response, schemas.error);
   var error = response.body; //response.body.error

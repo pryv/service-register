@@ -47,6 +47,7 @@ if (config.get('server:port') > 0) {
     var protocol = server.key ? 'https' : 'http';
 
     server.url = protocol + '://' + address.address + ':' + address.port;
+    config.set('server:url', server.url);
 
     var readyMessage = 'Registration server v' + require('../package.json').version +
         ' [' + app.settings.env + '] listening on ' + server.url +
