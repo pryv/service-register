@@ -5,6 +5,7 @@ var querystring = require('querystring');
 var schemas = require('../../source/model/schema.responses');
 var _s = require('underscore.string');
 var request = require('superagent');
+var should = require('should');
 
 /**
  *
@@ -60,7 +61,7 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       path: urlO.path,
       method: test.method
     };
-    
+
     var post_data = '';
     var req;
 
@@ -84,25 +85,14 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       req = request.get(urlO.href);
     }
 
-    req.end(function(res) {
-      var error_status = false;
-
-      try {
-        res.should.have.status(test.status);
-      } catch (e) {
-        error_status = e;
-      }
+    req.end(function(err, res) {
+      should.not.exists(err);
+      should.exists(res);
+      res.should.have.status(test.status);
 
       // process response
-      jsonResponse(res, test, done, error_status, http_options, post_data);
-
+      jsonResponse(res, test, done);
     });
-
-    /* TODO: mimic this with superagent if necessary
-     .on('error', function (e) {
-     throw new Error('Got error: ' + e.message, e);
-     });
-     */
 
   });
 };
@@ -113,74 +103,45 @@ exports.jsonResponse = jsonResponse;
  * JSchema: jscon-schema for validation
  * JValues: expected key-value pair for content validation
  */
-function jsonResponse(res, test, callback_done, error_status, http_options, post_data) {
+function jsonResponse(res, test, callback_done) {
 
-  var bodyarr = [];
-  res.on('data', function (chunk) { bodyarr.push(chunk); });
-  res.on('end', function () {
+  // test headers?
+  if (test.headers) {
+    validateHeadersValues(test.headers, res.headers);
+  }
 
-    function display_error() {
-      console.log('\nREQUEST: ' + http_options.method + ' ' + http_options.host + ':' +
-          http_options.port + http_options.path);
-      console.log('HEADERS: ' + JSON.stringify(http_options.headers));
-      console.log('BODY: ' + post_data);
-      console.log('\nRESPONSE\nSTATUS: ' + res.statusCode);
-      console.log('HEADERS: ' + JSON.stringify(res.headers));
-      console.log('BODY: ');
-      console.log(bodyarr.join(''));
-    }
-    if (error_status) {
-      display_error();
-      throw error_status;
+  if (test.restype) {
+    // also for text/plain
+    res.headers['content-type'].should.equal(test.restype);
+
+    // test constants
+    if (test.value) {
+      res.body.should.equal(test.value);
     }
 
-    var data = null;
+  } else {// default JSON
+    /*jshint -W030 */
+    res.should.be.json;
 
-    try {
-      // test headers?
-      if (test.headers) {
-        validateHeadersValues(test.headers, res.headers);
-      }
-
-      if (test.restype) {
-        // also for text/plain
-        res.headers['content-type'].should.equal(test.restype);
-        data = bodyarr.join('');
-
-        // test constants
-        if (test.value) {
-          data.should.equal(test.value);
-        }
-
-      } else {// default JSON
-        /*jshint -W030 */
-        res.should.be.json;
-        data = JSON.parse(bodyarr.join(''));
-
-        // test schema
-        if (test.JSchema) {
-          validateJSONSchema(data, test.JSchema);
-        }
-
-        // test constants
-        if (test.JValues) {
-          validateJsonValues(test.JValues, data);
-        }
-
-      }
-
-      // if everything works.. then callback for result
-
-      if (test.nextStep) {
-        test.nextStep(test, data);
-      }
-
-    } catch (e) {
-      display_error();
-      throw e;
+    // test schema
+    if (test.JSchema) {
+      validateJSONSchema(data, test.JSchema);
     }
-    callback_done();
-  });
+
+    // test constants
+    if (test.JValues) {
+      validateJsonValues(test.JValues, data);
+    }
+
+  }
+
+  // if everything works.. then callback for result
+
+  if (test.nextStep) {
+    test.nextStep(test, data);
+  }
+
+  callback_done();
 }
 
 
