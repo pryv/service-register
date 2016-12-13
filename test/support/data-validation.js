@@ -41,32 +41,19 @@ var should = require('should');
  */
 exports.pathStatusSchema = function pathStatusSchema(test) {
   it(test.it, function (done) {
-    var _protocol = false;
 
     //-- Prepare the http request --//
     if (_s.startsWith(test.url, '/')) {
       test.url = config.get('http:register:url') + test.url;
     }
-    if (_s.startsWith(test.url, 'http')) {
-      _protocol = _s.startsWith(test.url, 'https') ? 'https': 'http';
-    } else {
-      throw new Error('Cannot determine protocol: ' + test.url);
-    }
 
-    var urlO = require('url').parse(test.url);
-
-    var http_options = {
-      host: urlO.hostname,
-      port: urlO.port,
-      path: urlO.path,
-      method: test.method
-    };
+    var url = require('url').parse(test.url);
 
     var post_data = '';
     var req;
 
     if (test.method === 'POST') {
-      req = request.post(urlO.href);
+      req = request.post(url.href);
       if (test.contenttype === 'JSON') {
         post_data = JSON.stringify(test.data);
         req.set('Content-Type', 'application/json');
@@ -82,7 +69,7 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       }
       req.send(post_data);
     } else if (test.method === 'GET') {
-      req = request.get(urlO.href);
+      req = request.get(url.href);
     }
 
     req.end(function(err, res) {
