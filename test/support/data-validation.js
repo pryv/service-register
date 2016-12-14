@@ -43,10 +43,10 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
   it(test.it, function (done) {
 
     var url = config.get('server:url') + test.url;
-
     var post_data = '';
     var req;
 
+    // POST request
     if (test.method === 'POST') {
       req = request.post(url);
       if (test.contenttype === 'JSON') {
@@ -63,15 +63,17 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
         req.set('Content-Length', post_data.length);
       }
       req.send(post_data);
-    } else if (test.method === 'GET') {
+    }
+    // GET request
+    else {
       req = request.get(url);
     }
+    // Validate response
     req.end(function(err, res) {
       should.not.exists(err);
       should.exists(res);
       res.should.have.status(test.status);
 
-      // process response
       jsonResponse(res, test, done);
     });
 

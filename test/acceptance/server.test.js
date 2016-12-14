@@ -9,10 +9,9 @@ require('readyness/wait/mocha');
 
 var domain = config.get('dns:domain');
 
-
-
 describe('POST /:uid/server', function () {
-  var tests =  [ { uid: 'abcd', status: 400, desc : 'too short ',
+
+    var tests =  [ { uid: 'abcd', status: 400, desc : 'too short ',
     JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME' } },
     { uid: 'abcdefghijkl', status: 404, desc : 'unknown',
       JSchema: schema.error,

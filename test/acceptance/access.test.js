@@ -6,8 +6,6 @@ var schema = require('../../source/model/schema.responses');
 
 require('readyness/wait/mocha');
 
-function xdescribe() {};
-
 describe('POST /access/invitationtoken/check', function () {
     var tests =  [
       { invitationtoken: 'facebook', status: 200, desc : 'invalid', value: 'false' },
