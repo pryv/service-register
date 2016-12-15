@@ -51,8 +51,7 @@ describe('POST /access', function () {
       },
       contenttype: 'JSON',
       status: 201,
-      JSchema: schema.accessPOST,
-      nextStep: chainedPoll
+      JSchema: schema.accessPOST
     };
 
     var result;
