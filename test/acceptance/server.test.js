@@ -15,43 +15,43 @@ var path = '/server';
 describe('POST /:uid/server', function () {
 
   it('too short', function (done) {
-    var tooShort = { uid: 'abcd', status: 400, desc : 'too short ',
+    var test = { uid: 'abcd', status: 400, desc : 'too short ',
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME' } };
 
-    request.post(server.url + '/' + tooShort.uid + path).send({}).end(function (err, res) {
+    request.post(server.url + '/' + test.uid + path).send({}).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(tooShort.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, tooShort, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
   it('unknown', function (done) {
-    var unknown = { uid: 'abcdefghijkl', status: 404, desc : 'unknown',
+    var test = { uid: 'abcdefghijkl', status: 404, desc : 'unknown',
       JSchema: schema.error,
       JValues: {'id': 'UNKNOWN_USER_NAME' } };
 
-    request.post(server.url + '/' + unknown.uid + path).send({}).end(function (err, res) {
+    request.post(server.url + '/' + test.uid + path).send({}).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(unknown.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, unknown, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
   it('known', function (done) {
-    var known = { uid: 'wactiv', status: 200, desc : 'known',
+    var test = { uid: 'wactiv', status: 200, desc : 'known',
       JSchema: schema.server,
       JValues: {'server': domain, 'alias': 'wactiv.' + domain } };
 
-    request.post(server.url + '/' + known.uid + path).send({}).end(function (err, res) {
+    request.post(server.url + '/' + test.uid + path).send({}).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(known.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, known, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
@@ -62,38 +62,38 @@ describe('POST /:uid/server', function () {
 describe('GET /:uid/server', function () {
 
   it('too short', function (done) {
-    var tooShort = { uid: 'abcd', status: 302, desc : 'too short '};
+    var test = { uid: 'abcd', status: 302, desc : 'too short '};
 
-    request.get(server.url + '/' + tooShort.uid + path).end(function (err, res) {
+    request.get(server.url + '/' + test.uid + path).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(tooShort.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, tooShort, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
   it('unknown', function (done) {
-    var unknown = { uid: 'abcdefghijkl', status: 302, desc : 'unknown'};
+    var test = { uid: 'abcdefghijkl', status: 302, desc : 'unknown'};
 
-    request.get(server.url + '/' + unknown.uid + path).end(function (err, res) {
+    request.get(server.url + '/' + test.uid + path).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(unknown.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, unknown, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
   it('unknown', function (done) {
-    var known = { uid: 'wactiv', status: 302, desc : 'known' };
+    var test = { uid: 'wactiv', status: 302, desc : 'known' };
 
-    request.get(server.url + '/' + known.uid + path).end(function (err, res) {
+    request.get(server.url + '/' + test.uid + path).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(known.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, known, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 

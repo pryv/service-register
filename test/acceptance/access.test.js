@@ -14,24 +14,24 @@ describe('POST /access/invitationtoken/check', function () {
   var path = '/access/invitationtoken/check/';
 
   it('invalid', function (done) {
-    var invalid = { invitationtoken: 'facebook', status: 200, value: 'false' };
-    request.post(server.url + path).send(invalid.invitationtoken).end(function(err,res) {
+    var test = { invitationtoken: 'facebook', status: 200, value: 'false' };
+    request.post(server.url + path).send(test.invitationtoken).end(function(err,res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(invalid.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, invalid, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
   it('valid', function (done) {
-    var valid = { invitationtoken: 'enjoy', status: 200, value: 'true' };
-    request.post(server.url + path).send(valid.invitationtoken).end(function(err,res) {
+    var test = { invitationtoken: 'enjoy', status: 200, value: 'true' };
+    request.post(server.url + path).send(test.invitationtoken).end(function(err,res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(valid.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, valid, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 
@@ -44,7 +44,7 @@ describe('POST /access', function () {
   var path = '/access';
 
   it('valid', function (done) {
-    var valid = {
+    var test = {
       data: {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: false,
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
@@ -59,13 +59,13 @@ describe('POST /access', function () {
 
     async.series([
       function makeRequest(stepDone) {
-        request.post(server.url + path).send(valid).end(function (err, res) {
+        request.post(server.url + path).send(test.data).end(function (err, res) {
           should.not.exists(err);
           should.exists(res);
-          res.should.have.status(valid.status);
+          res.should.have.status(test.status);
           result = res;
 
-          dataValidation.jsonResponse(res, valid, stepDone);
+          dataValidation.jsonResponse(res, test, stepDone);
         });
       },
       function validate(stepDone) {
@@ -88,7 +88,7 @@ describe('POST /access', function () {
   });
 
   it('invalid', function (done) {
-    var invalid = {
+    var test = {
       url: '/access',
       method: 'POST',
       data: {
@@ -101,12 +101,12 @@ describe('POST /access', function () {
       JSchema: schema.error
     };
 
-    request.post(server.url + path).send(invalid).end(function (err, res) {
+    request.post(server.url + path).send(test.data).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(invalid.status);
+      res.should.have.status(test.status);
 
-      dataValidation.jsonResponse(res, invalid, done);
+      dataValidation.jsonResponse(res, test, done);
     });
   });
 });
