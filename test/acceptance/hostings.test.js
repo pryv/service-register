@@ -1,22 +1,28 @@
-/*global describe*/
+/*global describe, it*/
 require('../config-test');
-require('../../source/server');
+var server = require('../../source/server');
 
 var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
+var should = require('should');
+var request = require('superagent');
 
 require('readyness/wait/mocha');
 
 describe('GET /hostings', function () {
-  var tests =  [
-    { status: 200, desc : 'validSchema',  JSchema : schema.hostings }
-  ];
 
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc;
-    tests[key].url = '/hostings';
-    tests[key].method = 'GET';
-    dataValidation.pathStatusSchema(tests[key]);
-  }
+  it('valid', function (done) {
+    var test = { status: 200, desc : 'validSchema',  JSchema : schema.hostings };
+    var path = '/hostings';
+
+    request.get(server.url + path).end(function(err,res) {
+      should.not.exists(err);
+      should.exists(res);
+      res.should.have.status(test.status);
+
+      dataValidation.jsonResponse(res, test, done);
+    });
+  });
+
 });
 
