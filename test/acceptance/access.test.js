@@ -5,6 +5,7 @@ var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
 var request = require('superagent');
 var async = require('async');
+var should = require('should');
 
 require('readyness/wait/mocha');
 
