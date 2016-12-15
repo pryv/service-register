@@ -69,4 +69,3 @@ if (config.get('server:port') > 0) {
 //start dns
 require('./app-dns');
 require('./oauth2/index.js');
-

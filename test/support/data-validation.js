@@ -70,6 +70,7 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
     }
     // Validate response
     req.end(function(err, res) {
+      console.log('XXX',res);
       should.not.exists(err);
       should.exists(res);
       res.should.have.status(test.status);

@@ -18,7 +18,7 @@
     "domain": "rec.la",
     "staticDataInDomain": {
       "www": {"alias": [ { "name": "local.rec.la" } ]},
-      "sw": {"alias": [ { "name": "local.rec.la" } ]},
+      "sw": {"alias": [ { "name": "sw.pryv.in" } ]},
       "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
     }
   },
