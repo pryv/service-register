@@ -1,8 +1,7 @@
 /*global describe,it*/
-require('../../source/server');
-var config = require('../../source/utils/config');
-var mode = config.get('server:ssl') ? 'https' : 'http';
-var http = require(mode);
+var server = require('../../source/server');
+var request = require('superagent');
+var should = require('should');
 
 require('readyness/wait/mocha');
 
@@ -12,30 +11,26 @@ describe('LOAD ', function () {
   it('GET /:uid/check  10000x', function(done){
 
     var requests = 5000;
-    var count = requests + 0;
+    var count =  0;
 
-
-    function gotit(res, done) {
-      count--;
-      if (count === 0) { done(); }
-    }
+    this.timeout(requests*2);
 
     function charge() {
-      //console.log(JSON.stringify(test));
-      var req = http.request(http_options, function (res) {
-        gotit(res, done);
-      }).on('error', function(e) {
-          throw new Error('Got error: ' + e.message, e);
-        });
-
-      req.end();
+      var path = '/perki/check_username';
+      request.get(server.url + path).end(function(err,res) {
+        should.not.exists(err);
+        should.exists(res);
+        count++;
+        if(count < requests) {
+          charge();
+        } else {
+          done();
+        }
+      });
     }
 
-    var http_options = { path: '/perki/check_username', port: config.get('server:port')};
-    require('../../source/utils/dump').inspect({mode: mode, http_options: http_options});
-    for (var i = 0; i < requests; i++) {
-      charge();
-    }
+    charge();
+
   });
 
 });
