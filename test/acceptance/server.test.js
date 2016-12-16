@@ -85,7 +85,7 @@ describe('GET /:uid/server', function () {
     });
   });
 
-  it('unknown', function (done) {
+  it('known', function (done) {
     var test = { uid: 'wactiv', status: 302, desc : 'known' };
 
     request.get(server.url + '/' + test.uid + path).end(function (err, res) {

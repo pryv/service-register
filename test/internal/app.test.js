@@ -14,6 +14,7 @@ var request = require('superagent');
 
 require('readyness/wait/mocha');
 
+/*
 describe('POST /init with invalid data (bodyParser test)', function () {
 
   it('invalid JSON', function (done) {
@@ -23,7 +24,7 @@ describe('POST /init with invalid data (bodyParser test)', function () {
       JValues: {'id': 'INVALID_JSON_REQUEST'}
     };
 
-    request.post(server.url + path).send(test.data).end(function (res) {
+    request.post(server.url + path).send(test.data).end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
       res.should.have.status(test.status);
@@ -34,7 +35,7 @@ describe('POST /init with invalid data (bodyParser test)', function () {
 
 });
 
-/**
+
 describe('GET /bug to test invalid code', function () {
   var tests = [
     { status: 500, desc : 'invalid javascript', JSchema : schema.error,

@@ -20,7 +20,7 @@ function check(app) {
     }
 
     db.getServer(uid, function (error, result) {
-      if (error) { return next(messages.ie()); }
+      if (error) { return next(messages.ei()); }
       if (result) {   // good
         return res.redirect(aaservers_mode + '://' + result + '/?username=' + uid);
       }
