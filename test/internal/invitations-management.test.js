@@ -5,7 +5,6 @@
  * TODO add unexpected error catching
  */
 
-require('../config-test');
 require('../../source/server');
 var should = require('should');
 require('readyness/wait/mocha');

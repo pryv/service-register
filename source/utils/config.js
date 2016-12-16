@@ -17,7 +17,7 @@ nconf.argv()
 
 //3. A file located at ..
 var configFile =
-  fs.existsSync('localhost-config.json') ? 'localhost-config.json' : 'dev-config.json';
+  fs.existsSync('dev-config.json') ? 'dev-config.json': 'localhost-config.json';
 if (typeof(nconf.get('config')) !== 'undefined') {
   configFile = nconf.get('config');
 }

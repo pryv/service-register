@@ -5,7 +5,6 @@
  * TODO add unexpected error catching
  */
 
-require('../config-test');
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses.js');
