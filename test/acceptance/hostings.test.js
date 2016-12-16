@@ -3,7 +3,6 @@ var server = require('../../source/server');
 
 var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
-var should = require('should');
 var request = require('superagent');
 
 require('readyness/wait/mocha');
@@ -15,11 +14,7 @@ describe('GET /hostings', function () {
     var path = '/hostings';
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 

@@ -5,7 +5,6 @@ var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
 var _ = require('lodash');
 var request = require('superagent');
-var should = require('should');
 
 require('readyness/wait/mocha');
 
@@ -31,11 +30,7 @@ describe('POST /user', function () {
       JValues: {'id': 'INVALID_INVITATION' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -46,11 +41,7 @@ describe('POST /user', function () {
       JValues: {'id': 'INVALID_HOSTING' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -61,11 +52,7 @@ describe('POST /user', function () {
       JValues: {'id': 'INVALID_APPID' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -76,11 +63,7 @@ describe('POST /user', function () {
       JValues: {'id': 'INVALID_USER_NAME' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+    dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -91,11 +74,7 @@ describe('POST /user', function () {
       JValues: {'id': 'RESERVED_USER_NAME' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -106,11 +85,7 @@ describe('POST /user', function () {
       JValues: {'id': 'RESERVED_USER_NAME' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -121,11 +96,7 @@ describe('POST /user', function () {
       JValues: {'id': 'INVALID_EMAIL' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -136,11 +107,7 @@ describe('POST /user', function () {
       JValues: { 'id': 'EXISTING_USER_NAME' } };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -151,11 +118,7 @@ describe('POST /user', function () {
       JValues: { 'id': 'EXISTING_EMAIL'     }};
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -167,11 +130,7 @@ describe('POST /user', function () {
         'errors': [ {'id': 'EXISTING_USER_NAME' }, {'id': 'EXISTING_EMAIL' } ]   }};
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err. res, test, done);
     });
   });
 
@@ -181,11 +140,7 @@ describe('POST /user', function () {
       JValues: { username: defaults.username.toLowerCase()}  };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -195,11 +150,7 @@ describe('POST /user', function () {
       JValues: { username: 'recla'}  };
 
     request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -213,11 +164,7 @@ describe('POST /username/check/', function () {
     var test =  { username: 'facebook', status: 200, desc : 'reserved from list', value: 'false' };
 
     request.post(server.url + path).send(_.extend(defaults, test.username)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -225,11 +172,7 @@ describe('POST /username/check/', function () {
     var test = { username: 'pryvtoto', status: 200, desc : 'reserved for pryv', value: 'false' };
 
     request.post(server.url + path).send(_.extend(defaults, test.username)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -237,11 +180,7 @@ describe('POST /username/check/', function () {
     var test = { username: 'asdfhgsdkfewg', status: 200, desc : 'available', value: 'true' };
 
     request.post(server.url + path).send(_.extend(defaults, test.username)).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -257,11 +196,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}};
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -273,11 +208,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}};
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -286,11 +217,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}};
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -299,11 +226,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME'}};
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -312,11 +235,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID };
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -325,11 +244,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID };
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -338,11 +253,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID };
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -351,11 +262,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} };
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -364,11 +271,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'} };
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -377,11 +280,7 @@ describe('GET /:username/check_username', function () {
       JSchema : schema.checkUID,  JValues: {reserved : true, reason : 'RESERVED_USER_NAME'}};
 
     request.get(server.url + '/' + test.username + path).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 

@@ -14,8 +14,6 @@ var domain = config.get('dns:domain');
 var authAdminKey = 'test-admin-key';
 var authSystemKey = 'test-system-key';
 
-var should = require('should');
-
 describe('GET /admin/servers/:serverName/users', function () {
 
   it('invalid', function (done) {
@@ -24,11 +22,7 @@ describe('GET /admin/servers/:serverName/users', function () {
     var path = '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -38,11 +32,7 @@ describe('GET /admin/servers/:serverName/users', function () {
     var path = '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -52,11 +42,7 @@ describe('GET /admin/servers/:serverName/users', function () {
     var path = '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -71,11 +57,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -86,11 +68,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -101,11 +79,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+     dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -116,11 +90,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+    dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -131,11 +101,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+       dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -150,11 +116,7 @@ describe('GET /admin/servers', function () {
     var path = '/admin/servers' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 });

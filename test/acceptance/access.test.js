@@ -4,7 +4,6 @@ var dataValidation = require('../support/data-validation');
 var schema = require('../../source/model/schema.responses');
 var request = require('superagent');
 var async = require('async');
-var should = require('should');
 
 require('readyness/wait/mocha');
 
@@ -15,22 +14,14 @@ describe('POST /access/invitationtoken/check', function () {
   it('invalid', function (done) {
     var test = { invitationtoken: 'facebook', status: 200, value: 'false' };
     request.post(server.url + path).send(test.invitationtoken).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
   it('valid', function (done) {
     var test = { invitationtoken: 'enjoy', status: 200, value: 'true' };
     request.post(server.url + path).send(test.invitationtoken).end(function(err,res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -59,12 +50,8 @@ describe('POST /access', function () {
     async.series([
       function makeRequest(stepDone) {
         request.post(server.url + path).send(test.data).end(function (err, res) {
-          should.not.exists(err);
-          should.exists(res);
-          res.should.have.status(test.status);
           result = res;
-
-          dataValidation.jsonResponse(res, test, stepDone);
+          dataValidation.jsonResponse(err, res, test, stepDone);
         });
       },
       function validate(stepDone) {
@@ -76,11 +63,7 @@ describe('POST /access', function () {
         };
 
         request.get(server.url + test.url).end(function(err,res) {
-          should.not.exists(err);
-          should.exists(res);
-          res.should.have.status(test.status);
-
-          dataValidation.jsonResponse(res, test, stepDone);
+          dataValidation.jsonResponse(err, res, test, stepDone);
         });
       }
     ], done);
@@ -101,11 +84,7 @@ describe('POST /access', function () {
     };
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
-      should.not.exists(err);
-      should.exists(res);
-      res.should.have.status(test.status);
-
-      dataValidation.jsonResponse(res, test, done);
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 });

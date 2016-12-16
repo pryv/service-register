@@ -86,7 +86,11 @@ exports.jsonResponse = jsonResponse;
  * JSchema: jscon-schema for validation
  * JValues: expected key-value pair for content validation
  */
-function jsonResponse(res, test, callback_done) {
+function jsonResponse(err, res, test, callback_done) {
+
+  should.not.exists(err);
+  should.exists(res);
+  res.should.have.status(test.status);
 
   // test headers?
   if (test.headers) {
