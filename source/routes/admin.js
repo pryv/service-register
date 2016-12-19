@@ -35,42 +35,35 @@ function init(app) {
           user.registeredTimestamp = 0;
           user.registeredDate = '';
         } else {
-
-          user.registeredDate = new Date(+user.registeredTimestamp).toUTCString();
+          user.registeredDate = new Date(parseInt(user.registeredTimestamp)).toUTCString();
         }
       });
 
-      // convert timestamp tor readable data
+      // sort by timestamp
       list.sort(function (a, b) {
         return b.registeredTimestamp - a.registeredTimestamp;
-
       });
 
-
       if (req.query.toHTML) {
-        res.send(tohtml.toTable(headers, list));
-        return;
+        return res.send(tohtml.toTable(headers, list));
       }
+
       res.json({users: list, error: error});
 
     });
 
   });
 
-
   // --------------- invitations ---
 
   app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
-
 
     invitations.getAll(function (error, invitations) {
       if (error) {
         return next(messages.ei());
       }
 
-
       if (req.query.toHTML) {
-
         var headers = {
           createdDate : 'Created At',
           createdBy : 'by',
@@ -82,21 +75,16 @@ function init(app) {
 
         // convert timestamp tor readable data
         invitations.forEach(function (token) {
-          if (! token.consumedAt) {
-            token.consumedDate = '';
-          } else {
-            token.consumedDate = new Date(+token.consumedAt).toUTCString();
-          }
-          token.createdDate = new Date(+token.createdAt).toUTCString();
+          token.consumeDate = (token.consumedAt) ? new Date(parseInt(token.consumedAt)).toUTCString() : '';
+          token.createdDate = new Date(parseInt(token.createdAt)).toUTCString();
         });
-
 
         invitations.sort(function (a, b) {
           return b.createdAt - a.createdAt;
 
         });
-        res.send(tohtml.toTable(headers, invitations));
-        return;
+
+        return res.send(tohtml.toTable(headers, invitations));
       }
 
       res.json({invitations: invitations});
@@ -107,11 +95,7 @@ function init(app) {
   //TODO the following must be handled by a POST /invitations
   app.get('/admin/users/invitations/post', requireRoles('admin'), function (req, res, next){
 
-    var count = req.query.count * 1;
-    if (count !== parseInt(count)) {
-      return next(messages.e(400, 'INVALID_DATA',
-        {'message': 'count is not and integer ' + count}));
-    }
+    var count = parseInt(req.query.count);
     var message = req.query.message || '';
 
     invitations.generate(count, req.context.access.username, message, function (error, result) {
@@ -123,15 +107,11 @@ function init(app) {
 
   });
 
-
-
-  // -------------- servers
-
   /**
+   * Servers
    * get the server list, with the number of users on them
    */
   app.get('/admin/servers', requireRoles('admin'), function (req, res, next) {
-
 
     users.getServers(function (error, list) {
       if (error) { return next(messages.ei()); }
@@ -139,8 +119,6 @@ function init(app) {
     });
 
   });
-
-
 
   app.get('/admin/servers/:serverName/users', requireRoles('admin'), function (req, res, next){
 
@@ -156,8 +134,6 @@ function init(app) {
 
   });
 
-
-
   app.get('/admin/servers/:srcServerName/rename/:dstServerName',
     requireRoles('system'), function (req, res, next) {
 
@@ -165,6 +141,7 @@ function init(app) {
     if (! srcServerName) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'srcServerName invalid'}));
     }
+
     var dstServerName = checkAndConstraints.hostname(req.params.dstServerName);
     if (! dstServerName) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'dstServerName invalid'}));
@@ -178,8 +155,6 @@ function init(app) {
     });
 
   });
-
-
 
 }
 
