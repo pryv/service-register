@@ -37,9 +37,7 @@ module.exports = function (app) {
 };
 
 function _checkEmail(req, res, next, raw) {
-
   if (! checkAndConstraints.email(req.params.email)) {
-    //console.log('There +' + raw);
     if (raw) {
       res.header('Content-Type', 'text/plain');
       return res.send('false');
@@ -52,7 +50,7 @@ function _checkEmail(req, res, next, raw) {
     if (error) { return next(messages.ei()); }
     if (raw) {
       res.header('Content-Type', 'text/plain');
-      res.send(exists ? 'false' : 'true');
+      res.send(exists ? 'true' : 'false');
     } else {
       res.json({exists: exists });
     }

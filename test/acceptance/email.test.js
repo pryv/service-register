@@ -14,7 +14,7 @@ describe('POST /email/check', function () {
     request.post(server.url + path).send({email: 'wactiv@pryv.io'}).end(function (res) {
       validation.check(res, {
         status: 200,
-        text: 'false'
+        text: 'true'
       }, done);
     });
   });
@@ -24,7 +24,7 @@ describe('POST /email/check', function () {
       .end(function (res) {
       validation.check(res, {
         status: 200,
-        text: 'true'
+        text: 'false'
       }, done);
     });
   });
