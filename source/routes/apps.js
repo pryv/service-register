@@ -28,13 +28,12 @@ module.exports =  function (app) {
 
 
   app.get('/apps/:appid', function (req, res, next) {
-    if (! req.params.appid) {
+    var appid = req.params.appid;
+    if (! appid) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'missing appid'}));
     }
-    var appid = req.params.appid;
 
     var appData = {id : appid};
-    console.log(appsList[appid]);
     _.extend(appData, appsList[appid]);
     if (! appData) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'unkown appid : ' + appid}));
