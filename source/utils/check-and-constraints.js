@@ -27,12 +27,10 @@ exports.extractRessourceFromHostname = function (hostname) {
                return (results && results.length > 1) ? results[1] : '';
     };
 
-
     for (var i = 0; i < domains.length; i++) {
        if ( hostname.endsWith('.' + domains[i]) ) {
         var resource = hostname.slice(0, - domains[i].length - 1 );
         if (checkUsername.exec(resource)) {
-            //return { resource: resource, domain: domains[i]};
             return resource;
           }
         else {
@@ -48,9 +46,8 @@ exports.extractRessourceFromHostname = function (hostname) {
 exports.uid = function uid(str) {
   if (! str) { return null; }
   str = _(str).trim().toLowerCase();
-  //console.log('CHK USERNAME *' +str+ '* ');
-  if (/^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,100})([a-zA-Z0-9])$/.test(str)) { return str;  }
-  return null;
+  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,100})([a-zA-Z0-9])$/;
+  return (filter.test(str)) ? str : null;
 };
 
 
@@ -59,8 +56,8 @@ exports.uid = function uid(str) {
 exports.hosting = function hosting(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (/^([a-zA-Z0-9])(([a-zA-Z0-9\-\.]){2,70})([a-zA-Z0-9])$/.test(str)) { return str;  }
-  return null;
+  var filter =  /^([a-zA-Z0-9])(([a-zA-Z0-9\-\.]){2,70})([a-zA-Z0-9])$/;
+  return (filter.test(str)) ? str : null;
 };
 
 
@@ -69,24 +66,21 @@ exports.hosting = function hosting(str) {
 exports.password = function password(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (str.length > 5 && str.length < 100) { return str; }
-  return null;
+  return (str.length > 5 && str.length < 100) ? str : null;
 };
 
 // any chars between 5 and 99 chars, with no trailing spaces.
 exports.invitationToken = function invitationToken(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (str.length > 4 && str.length < 100) { return str; }
-  return null;
+  return (str.length > 4 && str.length < 100) ? str : null;
 };
 
 // any chars between 1 and 99 chars, with no trailing spaces.
 exports.referer = function referer(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (str.length > 0 && str.length < 100) { return str; }
-  return null;
+  return (str.length > 0 && str.length < 100) ? str : null;
 };
 
 exports.email = function email(str) {
@@ -94,15 +88,14 @@ exports.email = function email(str) {
   str = _(str).trim();
   // not perfect 
   var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  if (filter.test(str)) { return str; }
-  return null;
+  return (filter.test(str)) ? str : null;
 };
 
 exports.challenge = function challenge(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (/^([a-zA-Z0-9]{5,200})$/.test(str)) { return str; }
-  return null;
+  var filter = /^([a-zA-Z0-9]{5,200})$/;
+  return (filter.test(str)) ? str : null;
 };
 
 /**
@@ -113,51 +106,47 @@ exports.challenge = function challenge(str) {
 exports.hostname = function hostname(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (/^([a-zA-Z0-9_\.\-]{3,256})$/.test(str)) { return str; }
-  return null;
+  var filter = /^([a-zA-Z0-9_\.\-]{3,256})$/;
+  return (filter.test(str)) ? str : null;
 };
 
 var supportedLanguages = {en : 'English', fr: 'Français'};
 exports.lang = function lang(str) {
   if (! str) { return 'en'; }
-  if (supportedLanguages.hasOwnProperty(str)) { return str; }
-  return 'en';
+  return (supportedLanguages.hasOwnProperty(str)) ? str : 'en';
 };
 
 
 exports.appID = function appID(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (str.length > 5 && str.length < 100) { return str; }
-  return null;
+  return (str.length > 5 && str.length < 100) ? str : null;
 };
 
 
 exports.activitySessionID = function activitySessionID(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (str.length > 5 && str.length < 100) { return str; }
-  return null;
+  return (str.length > 5 && str.length < 100) ? str : null;
 };
 
 exports.appAuthorization = function appAuthorization(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (/^([a-zA-Z0-9]{10,200})$/.test(str)) { return str; }
-  return null;
+  var filter = /^([a-zA-Z0-9]{10,200})$/;
+  return (filter.test(str)) ? str : null;
 };
 
 exports.appToken = function appToken(str) {
   if (! str) { return null; }
-  if (str.length < 256) { return str; }
-  return null;
+  return (str.length < 256) ? str : null;
 };
 
 exports.accesskey = function accessKey(str) {
   if (! str) { return null; }
   str = _(str).trim();
-  if (/^([a-zA-Z0-9]{10,200})$/.test(str)) { return str; }
-  return null;
+  var filter = /^([a-zA-Z0-9]{10,200})$/;
+  return (filter.test(str)) ? str : null;
 };
 
 exports.access = function access(json) {
