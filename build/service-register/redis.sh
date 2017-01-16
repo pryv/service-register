@@ -36,3 +36,16 @@ run rm $redis_file
 run rm -r redis-src
 popd
 
+# Create redis data directory
+run mkdir /data
+run chown redis:redis /data
+
+# Copy redis configuration
+mkdir /etc/redis
+run cp /pd_build/config/redis.conf /etc/redis/redis.conf
+run touch /var/log/redis.log
+run chown redis:redis /var/log/redis.log
+
+# Copy redis start script
+mkdir /etc/service/redis
+run cp /pd_build/runit/redis /etc/service/redis/run
