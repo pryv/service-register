@@ -12,6 +12,7 @@
     "disable": true
   },
   "dns": {
+    "port": 5353,
     "name": "local.pryv.net",
     "domain": "pryv.in",
     "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],

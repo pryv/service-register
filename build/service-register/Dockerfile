@@ -7,6 +7,9 @@ RUN /pd_build/install.sh
 # Redis is installed to keep state here:
 VOLUME /data
 
-# API exposes this port:
-EXPOSE 9000
+# Ports: 
+#   9000        main api server
+#   5353/udp    dns interface for service-register
+#
+EXPOSE 9000 5353/udp
 
