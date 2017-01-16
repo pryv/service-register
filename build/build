@@ -5,6 +5,16 @@ set -e
 # Builds 'service-register' docker image with the version given below. 
 version="1.0.0"
 
+# Create a release.tar that contains all the code. 
+pushd ..
+tar cf build/service-register/release.tar \
+  --exclude .git \
+  --exclude node_modules \
+  --exclude build \
+  .
+popd
+
+# Build the docker image
 pushd service-register
 sudo docker build -f Dockerfile -t pryv/service-register:$version .
 popd
