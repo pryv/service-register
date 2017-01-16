@@ -9,7 +9,7 @@ cd $SCRIPT_FOLDER/..
 
 export NODE_VERSION=v0.10.23
 
-export REDIS_NAME=redis-2.6.13
+export REDIS_NAME=redis-2.4.16
 export REDIS_BASE_FOLDER=../..
 export REDIS_DATA_FOLDER=${REDIS_BASE_FOLDER}/redis-data
 

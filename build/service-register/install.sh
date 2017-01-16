@@ -8,6 +8,7 @@ run /pd_build/enable_repos.sh
 
 # Installs prerequisites for the application.
 run /pd_build/prerequisites.sh
+run /pd_build/redis.sh
 
 # Install the service-register application.
 run /pd_build/release.sh
