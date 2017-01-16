@@ -17,5 +17,7 @@ run run tar -x --owner app -f \
 
 PYTHON=$(which python2.7) run npm install --production
 
+run cp /pd_build/config/service-register.json $target_dir/production.json
+
 run mkdir /etc/service/$service_name
 run cp /pd_build/runit/$service_name /etc/service/$service_name/run
