@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Builds 'service-register' docker image with the version given below. 
+version="1.0.0"
+
+pushd service-register
+sudo docker build -f Dockerfile -t pryv/service-register:$version .
+popd
