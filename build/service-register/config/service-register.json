@@ -57,9 +57,8 @@
     "aaservers": {
       "gandi.net-fr": [
         {
-          "base_name": "http://core:9000/",
-          "port": 443,
-          "authorization": "cz90{k)2{3u8q0C"
+          "base_url": "http://core:9000/",
+          "authorization": "OVERRIDE ME"
         }
       ],
       "gandi.net-us": [

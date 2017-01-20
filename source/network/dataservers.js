@@ -82,6 +82,31 @@ function getClientIp(req) {
   return ipAddress;
 }
 
+function getLegacyAdminClient(host, path, postData) {
+  const useSSL = config.get('net:aaservers_ssl') || true;
+  host.name = host.base_name + '.' + config.get('net:AAservers_domain');
+  const httpClient = useSSL ? https : http; 
+
+  var httpOptions = {
+    host : host.name,
+    port: host.port,
+    path: path,
+    method: 'POST',
+    rejectUnauthorized: false
+  };
+  
+  httpOptions.headers = {
+    'Content-Type': 'application/json',
+    'authorization': host.authorization,
+    'Content-Length': postData.length
+  };
+  
+  return {
+    client: httpClient, 
+    options: httpOptions,
+  };
+}
+
 // Deals with parsing the 'base_url' field in the host object. Returns an 
 // object that has fields 'client' and 'options' - together they will yield 
 // the http call to make: 
@@ -90,7 +115,13 @@ function getClientIp(req) {
 //    httpCall.client.request(httpCall.options, function() { ... })
 //
 function getAdminClient(host, path, postData) {
-  var coreServer = url.parse(host.base_name);
+  if (host.base_url === undefined) {
+    // We used to define the path to the core server using 'base_name', 'port'
+    // and net:AAservers_domain. This function implements that as a fallback. 
+    return getLegacyAdminClient(host, path, postData);
+  }
+  
+  var coreServer = url.parse(host.base_url);
   
   const useSSL = (coreServer.protocol === 'https:');
   const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
