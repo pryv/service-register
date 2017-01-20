@@ -1,5 +1,6 @@
 var config = require('../utils/config');
 var logger = require('winston');
+const url = require('url');
 
 //-- 
 var httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http';
@@ -83,14 +84,17 @@ function getClientIp(req) {
 
 //POST request to an admin server, callback(error,json_result)
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {
-  host.name = host.base_name + '.' + config.get('net:AAservers_domain');
+  var coreServer = url.parse(host.base_url);
+  var ssl = url.protocol === 'https'; 
+  var port = coreServer.port || (ssl ? 443 : 80);
   var httpOptions = {
-    host : host.name,
-    port: host.port,
+    host : url.hostname,
+    port: port,
     path: path,
     method: 'POST',
     rejectUnauthorized: false
   };
+  
   var postData = JSON.stringify(jsonData);
 
   //console.log(postData);
