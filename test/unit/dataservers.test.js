@@ -15,7 +15,6 @@ describe('network/dataservers', function () {
       };
     }
     
-    
     it('should return port 80 for http urls', function() {
       var given = getAdminClient(url("http://foo.com/"), "/path", "foobar"); 
       
@@ -29,7 +28,8 @@ describe('network/dataservers', function () {
       given.client.should.equal(https);
     });
     it('should return port 9000 for an url with custom port', function() {
-      var given = getAdminClient(url("http://foo.com:9000/"), "/path", "foobar"); 
+      var given = getAdminClient(
+        url("http://foo.com:9000/"), "/path", "foobar"); 
       
       given.options.port.should.equal(9000);
       given.client.should.equal(http);
@@ -38,6 +38,27 @@ describe('network/dataservers', function () {
       var given = getAdminClient(url("http://foo.com/"), "/path", "foobar"); 
       
       given.options.host.should.equal("foo.com");
+    });
+    
+    describe("fallback to old behaviour", function() {
+      const oldHost = {
+        "base_name": "stact-gandi-fr-01",
+        "port": 443,
+        "authorization": "lkajsflsajflj"
+      };
+      
+      it("still uses old fields if base_url is absent", function() {
+        var given = getAdminClient(oldHost, "/path", "foobar"); 
+        
+        // 'pryv.net' is read from net:AAservers_domain. This is the current
+        // default.
+        given.options.host.should.equal("stact-gandi-fr-01.pryv.net"); 
+        given.options.port.should.equal(443); 
+        
+        // This is controlled by net:aaservers_ssl, but set to true in the
+        // default config. 
+        given.client.should.equal(https);
+      });
     });
   });
 });
