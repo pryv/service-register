@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 var config = require('../utils/config');
 var logger = require('winston');
 
@@ -89,9 +90,9 @@ function getClientIp(req) {
 //    httpCall.client.request(httpCall.options, function() { ... })
 //
 function getAdminClient(host, path, postData) {
-  var coreServer = url.parse(host.base_url);
+  var coreServer = url.parse(host.base_name);
   
-  const useSSL = (coreServer.protocol == 'https:'); 
+  const useSSL = (coreServer.protocol === 'https:');
   const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
 
   const httpClient = useSSL ? https : http; 
@@ -125,8 +126,8 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   var httpCall = getAdminClient(host, path, postData); 
 
   var onError = function (reason) {
-    var content =  '\n Request: ' + httpOptions.method + ' ' +
-      httpMode + '://' + httpOptions.host + ':' + httpOptions.port + '' + httpOptions.path +
+    var content =  '\n Request: ' + httpCall.options.method + ' ' +
+      httpCall.options.host + ':' + httpCall.options.port + '' + httpCall.options.path +
       '\n Data: ' + postData;
     // console.error(require('../utils/dump.js').curlHttpRequest(httpOptions,config.get('net:aaservers_ssl'),postData))
     return callback(reason + content, null);
@@ -164,3 +165,4 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
 exports.getAdminClient = getAdminClient; 
 exports.postToAdmin = postToAdmin;
+/* jshint ignore:end */

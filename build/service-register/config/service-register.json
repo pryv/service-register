@@ -57,7 +57,7 @@
     "aaservers": {
       "gandi.net-fr": [
         {
-          "base_name": "stact-gandi-fr-01",
+          "base_name": "http://core:9000/",
           "port": 443,
           "authorization": "cz90{k)2{3u8q0C"
         }
