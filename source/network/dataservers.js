@@ -1,10 +1,9 @@
 var config = require('../utils/config');
 var logger = require('winston');
-const url = require('url');
 
-//-- 
-var httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http';
-var http = require(httpMode);
+const url = require('url');
+const http = require("http");
+const https = require("https");
 
 /**
  * deal with the server logic
@@ -82,28 +81,48 @@ function getClientIp(req) {
   return ipAddress;
 }
 
-//POST request to an admin server, callback(error,json_result)
-function postToAdmin(host, path, expectedStatus, jsonData, callback) {
+// Deals with parsing the 'base_url' field in the host object. Returns an 
+// object that has fields 'client' and 'options' - together they will yield 
+// the http call to make: 
+//
+//    var httpCall = getAdminClient(host, path, postData); 
+//    httpCall.client.request(httpCall.options, function() { ... })
+//
+function getAdminClient(host, path, postData) {
   var coreServer = url.parse(host.base_url);
-  var ssl = url.protocol === 'https'; 
-  var port = coreServer.port || (ssl ? 443 : 80);
+  
+  const useSSL = (coreServer.protocol == 'https:'); 
+  const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
+
+  const httpClient = useSSL ? https : http; 
+  
   var httpOptions = {
-    host : url.hostname,
+    host : coreServer.hostname,
     port: port,
     path: path,
     method: 'POST',
     rejectUnauthorized: false
   };
   
-  var postData = JSON.stringify(jsonData);
-
-  //console.log(postData);
-
   httpOptions.headers = {
     'Content-Type': 'application/json',
     'authorization': host.authorization,
     'Content-Length': postData.length
   };
+  
+  return {
+    client: httpClient, 
+    options: httpOptions,
+  };
+}
+
+//POST request to an admin server, callback(error,json_result)
+function postToAdmin(host, path, expectedStatus, jsonData, callback) {
+
+  var postData = JSON.stringify(jsonData);
+  //console.log(postData);
+
+  var httpCall = getAdminClient(host, path, postData); 
 
   var onError = function (reason) {
     var content =  '\n Request: ' + httpOptions.method + ' ' +
@@ -113,7 +132,7 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     return callback(reason + content, null);
   };
 
-  var req = http.request(httpOptions, function (res) {
+  var req = httpCall.client.request(httpCall.options, function (res) {
     var bodyarr = [];
 
     res.on('data', function (chunk) { bodyarr.push(chunk); });
@@ -141,9 +160,7 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
   req.write(postData);
   req.end();
-
-
 }
 
-
+exports.getAdminClient = getAdminClient; 
 exports.postToAdmin = postToAdmin;
