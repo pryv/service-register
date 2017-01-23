@@ -7,14 +7,26 @@ version="1.0.0"
 
 # Create a release.tar that contains all the code. 
 pushd ..
-tar cf build/service-register/release.tar \
+tar cf build/release.tar \
   --exclude .git \
   --exclude node_modules \
   --exclude build \
   .
 popd
 
-# Build the docker image
+# Build the docker image (commented out)
+: <<'END'
+echo "---------------------------- building service-register ----------------------"
 pushd service-register
+cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/service-register:$version .
 popd
+END
+
+echo "---------------------------- building register ------------------------------"
+pushd register
+cp ../release.tar .
+sudo docker build -f Dockerfile -t pryv/register:$version .
+sudo docker tag pryv/register:$version pryv/register:latest
+popd
+
