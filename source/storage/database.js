@@ -1,8 +1,8 @@
 /*global require*/
 //handle the database
 var logger = require('winston');
-var redis = require('redis').createClient();
 var config = require('../utils/config');
+var redis = require('redis').createClient(config.get('redis:port'), config.get('redis:host'));
 var async = require('async');
 var semver = require('semver');
 
