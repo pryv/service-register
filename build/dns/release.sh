@@ -20,15 +20,15 @@ PYTHON=$(which python2.7) run npm install --production
 
 # Copy the config file
 run mkdir -p $conf_dir && \
-  cp /pd_build/config/register.json $conf_dir/register.json
+  cp /pd_build/config/dns.json $conf_dir/dns.json
 
 # Create the log dir
 run mkdir -p $log_dir && \
-  touch $log_dir/register.log && chown -R app:app $log_dir
+  touch $log_dir/dns.log && chown -R app:app $log_dir
 
 # Install the script that runs the register service
-run mkdir /etc/service/register
-run cp /pd_build/runit/register /etc/service/register/run
+run mkdir /etc/service/dns
+run cp /pd_build/runit/dns /etc/service/dns/run
 
 # Enable CRON for nightly job
 run rm /etc/service/cron/down
