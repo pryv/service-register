@@ -28,4 +28,16 @@
       }
     }
   },
+  "redis": {
+    "password": "MyRecordedLife",
+    "host": "redis",
+    "port": 6379
+  },
+  "airbrake": {
+    "disable": true
+  },
+  "server": {
+    "ssl": false,
+    "port": 9000
+  }
 }

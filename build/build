@@ -15,18 +15,23 @@ tar cf build/release.tar \
 popd
 
 # Build the docker image (commented out)
-: <<'END'
 echo "---------------------------- building service-register ----------------------"
 pushd service-register
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/service-register:$version .
 popd
-END
 
 echo "---------------------------- building register ------------------------------"
 pushd register
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/register:$version .
 sudo docker tag pryv/register:$version pryv/register:latest
+popd
+
+echo "---------------------------- building dns -----------------------------------"
+pushd dns
+cp ../release.tar .
+sudo docker build -f Dockerfile -t pryv/dns:$version .
+sudo docker tag pryv/dns:$version pryv/dns:latest
 popd
 
