@@ -1,13 +1,9 @@
 var express = require('express'),
-  oauthserver = require('node-oauth2-server'); // Would be: 'node-oauth2-server'
-
-
-var config = require('../utils/config');
-var logger = require('winston');
-
-var app = express();
-
-var accessCommon = require('../access/access-lib.js');
+  oauthserver = require('node-oauth2-server'), // Would be: 'node-oauth2-server'
+  config = require('../utils/config'),
+  logger = require('winston'),
+  app = express(),
+  accessCommon = require('../access/access-lib.js');
 
 app.configure(function () {
   app.oauth = oauthserver({
@@ -26,7 +22,6 @@ app.all('/oauth/token', app.oauth.grant());
 // Show them the "do you authorise xyz app to access your content?" page
 app.get('/oauth/authorise', function (req, res, next) {
 
-
   var parameters = {
     sso: req.signedCookies.sso,
     requestingAppId: req.query.client_id,
@@ -37,7 +32,6 @@ app.get('/oauth/authorise', function (req, res, next) {
   };
 
   accessCommon.requestAccess(parameters, function (accessState) {
-    console.log(accessState);
 
     if (accessState.status === 'NEED_SIGNIN') {
       return res.redirect(decodeURIComponent(accessState.url));

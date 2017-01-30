@@ -62,7 +62,6 @@ model.dump = function () {
  */
 
 model.getAccessToken = function (bearerToken, callback) {
-  console.log('*21');
   for(var i = 0, len = oauthAccessTokens.length; i < len; i++) {
     var elem = oauthAccessTokens[i];
     if(elem.accessToken === bearerToken) {
@@ -73,7 +72,6 @@ model.getAccessToken = function (bearerToken, callback) {
 };
 
 model.getRefreshToken = function (bearerToken, callback) {
-  console.log('*27');
   for(var i = 0, len = oauthRefreshTokens.length; i < len; i++) {
     var elem = oauthRefreshTokens[i];
     if(elem.refreshToken === bearerToken) {
@@ -84,7 +82,6 @@ model.getRefreshToken = function (bearerToken, callback) {
 };
 
 model.getClient = function (clientId, clientSecret, callback) {
-  console.log('*23');
   for(var i = 0, len = oauthClients.length; i < len; i++) {
     var elem = oauthClients[i];
     if(elem.clientId === clientId && elem.clientSecret === clientSecret) {
@@ -95,13 +92,11 @@ model.getClient = function (clientId, clientSecret, callback) {
 };
 
 model.grantTypeAllowed = function (clientId, grantType, callback) {
-  console.log('*22' + grantType + '>' + clientId + ' .. ' + authorizedClientIds[grantType]);
   callback(false, authorizedClientIds[grantType] &&
     authorizedClientIds[grantType].indexOf(clientId.toLowerCase()) >= 0);
 };
 
 model.saveAccessToken = function (accessToken, clientId, expires, userId, callback) {
-  console.log('*28', accessToken, clientId, expires, userId);
   oauthAccessTokens.unshift({
     accessToken: accessToken,
     clientId: clientId,
@@ -125,14 +120,9 @@ model.saveRefreshToken = function (refreshToken, clientId, expires, userId, call
 
 
 model.getAuthCode = function (bearerCode, callback) {
-  console.log('in getAuthCode (bearerCode: ' + bearerCode + ')');
-
   callback(null, {
     accessToken: 'youpipipi',
     clientId: 'ifttt-all',
     userId: 'perkikiki'
   });
 };
-
-
-
