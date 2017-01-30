@@ -1,6 +1,4 @@
-//service info route
 var config = require('../utils/config');
-
 
 var infos = {
   version : '0.1.0',
@@ -25,11 +23,9 @@ if (config.get('service:terms')) {
   infos.terms = config.get('service:terms');
 }
 
-
 module.exports = function (app) {
-
+  // Service info route
   app.get('/service/infos', function (req, res/*, next*/) {
     res.json(infos);
   });
-
 };

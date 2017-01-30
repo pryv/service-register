@@ -1,17 +1,11 @@
-var _ = require('underscore');
-
-var config = require('../utils/config');
-
-
-var appsList = config.get('appList');
-var messages = require('../utils/messages.js');
-
+var _ = require('underscore'),
+  config = require('../utils/config'),
+  appsList = config.get('appList'),
+  messages = require('../utils/messages.js');
 
 module.exports =  function (app) {
 
-  /**
-   * This single request is cached one hour
-   */
+  // This single request is cached one hour
   app.get('/apps', function (req, res) {
     // BIG MISTAKE THAT MADE cors ...
     //res.setHeader('Cache-Control', 'max-age=3600');

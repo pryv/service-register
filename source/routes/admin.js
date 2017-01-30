@@ -1,18 +1,16 @@
 /**
  * private routes for admin to manage users
  */
-var checkAndConstraints = require('../utils/check-and-constraints.js');
-var users = require('../storage/user.js');
-var messages = require('../utils/messages.js');
-var tohtml = require('../utils/2html.js');
-var invitations = require('../storage/invitations.js');
-var requireRoles = require('../middleware/requireRoles');
+var checkAndConstraints = require('../utils/check-and-constraints.js'),
+  users = require('../storage/user.js'),
+  messages = require('../utils/messages.js'),
+  tohtml = require('../utils/2html.js'),
+  invitations = require('../storage/invitations.js'),
+  requireRoles = require('../middleware/requireRoles');
 
 function init(app) {
 
-  /**
-   * get the user list,
-   */
+  // Get the user list
   app.get('/admin/users', requireRoles('admin'), function (req, res/*, next*/) {
 
     var headers = {
@@ -29,7 +27,7 @@ function init(app) {
 
     users.getAllUsersInfos(function (error, list) {
 
-      // convert timestamp tor readable data
+      // Convert timestamp tor readable data
       list.forEach(function (user) {
         if (! user.registeredTimestamp) {
           user.registeredTimestamp = 0;
@@ -39,7 +37,7 @@ function init(app) {
         }
       });
 
-      // sort by timestamp
+      // Sort by timestamp
       list.sort(function (a, b) {
         return b.registeredTimestamp - a.registeredTimestamp;
       });
@@ -54,8 +52,7 @@ function init(app) {
 
   });
 
-  // --------------- invitations ---
-
+  // Invitations
   app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
 
     invitations.getAll(function (error, invitations) {
@@ -73,7 +70,7 @@ function init(app) {
           id: 'Token'
         };
 
-        // convert timestamp tor readable data
+        // Convert timestamp tor readable data
         invitations.forEach(function (token) {
           token.consumeDate = (token.consumedAt) ? new Date(parseInt(token.consumedAt)).toUTCString() : '';
           token.createdDate = new Date(parseInt(token.createdAt)).toUTCString();
@@ -81,7 +78,6 @@ function init(app) {
 
         invitations.sort(function (a, b) {
           return b.createdAt - a.createdAt;
-
         });
 
         return res.send(tohtml.toTable(headers, invitations));
@@ -107,10 +103,7 @@ function init(app) {
 
   });
 
-  /**
-   * Servers
-   * get the server list, with the number of users on them
-   */
+  // Servers: get the server list, with the number of users on them
   app.get('/admin/servers', requireRoles('admin'), function (req, res, next) {
 
     users.getServers(function (error, list) {
@@ -128,7 +121,9 @@ function init(app) {
     }
 
     users.getUsersOnServer(serverName, function (error, list) {
-      if (error) { return next(messages.ei(error)); }
+      if (error) {
+        return next(messages.ei(error));
+      }
       res.json({users: list});
     });
 

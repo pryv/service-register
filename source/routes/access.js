@@ -1,22 +1,15 @@
-//check if a UID exists
-
-// TODO: Check this assignation
-var express = require('express');
-var messages = require('../utils/messages.js');
-var checkAndConstraints = require('../utils/check-and-constraints.js');
-
-var accessCommon = require('../access/access-lib.js');
-
-var invitationToken = require('../storage/invitations.js');
+var express = require('express'),
+  messages = require('../utils/messages.js'),
+  checkAndConstraints = require('../utils/check-and-constraints.js'),
+  accessCommon = require('../access/access-lib.js'),
+  invitationToken = require('../storage/invitations.js');
 
 
 function requestAccess(req, res, next) {
-
   var params =  req.body;
   params.sso = req.signedCookies.sso;
 
   accessCommon.requestAccess(params, function (accessState) {
-
     res.json(accessState, accessState.code);
   }, next);
 }
@@ -31,8 +24,6 @@ function setAccessState(res, next, key, accessState) {
 }
 
 function access(app) {
-
-
   app.all('/access/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
 
   /**
@@ -66,7 +57,6 @@ function access(app) {
     var key = req.params.key;
     accessCommon.testKeyAndGetValue(key, function (/*value*/) {
 
-
       if (req.body.status === 'REFUSED') {
         var accessStateA = {
           status: 'REFUSED',
@@ -74,9 +64,9 @@ function access(app) {
           message:  req.body.message || '',
           code: 403
         };
-
         setAccessState(res, next, key, accessStateA);
-      }  else if (req.body.status === 'ERROR') {
+
+      } else if (req.body.status === 'ERROR') {
         var accessStateB = {
           status: 'ERROR',
           id: req.body.id || 'INTERNAL_ERROR',
@@ -84,16 +74,13 @@ function access(app) {
           detail:  req.body.detail || '',
           code: 403
         };
-
         setAccessState(res, next, key, accessStateB);
+
       } else if (req.body.status === 'ACCEPTED') {
-
         var username = checkAndConstraints.uid(req.body.username);
-
         if (! username) {
           return next(messages.e(400, 'INVALID_USER_NAME'));
         }
-
 
         if (! checkAndConstraints.appToken(username)) {
           return next(messages.e(400, 'INVALID_DATA'));
