@@ -1,18 +1,13 @@
-var db = require('../storage/database.js');
-var messages = require('../utils/messages.js');
-var config = require('../utils/config');
-var randGenerator = require('../utils/random');
-var checkAndConstraints = require('../utils/check-and-constraints.js');
-
-
-var domain = config.get('dns:domain');
-
-var accessLib = module.exports = {};
-
+var db = require('../storage/database.js'),
+  messages = require('../utils/messages.js'),
+  config = require('../utils/config'),
+  randGenerator = require('../utils/random'),
+  checkAndConstraints = require('../utils/check-and-constraints.js'),
+  domain = config.get('dns:domain'),
+  accessLib = module.exports = {};
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node';
-
 
 accessLib.setAccessState =
   function setAccessState(key, accessState, successHandler, errorCallback) {
@@ -25,12 +20,9 @@ accessLib.setAccessState =
     });
   };
 
-
 accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
-  console.log('accessLib.requestAccess sso:' + parameters.sso);
-
-  //--- parameters --//
+  // Parameters
   var requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
   if (!requestingAppId) {
     return errorHandler(messages.e(400, 'INVALID_APP_ID',
@@ -45,24 +37,17 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
   var lang = checkAndConstraints.lang(parameters.languageCode);
 
-  //-- TODO Complete Check URL validity
+  // TODO Complete Check URL validity
   if (typeof (parameters.returnURL) === 'undefined') {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
   }
-  var returnURL = parameters.returnURL;
 
+  var returnURL = parameters.returnURL;
   var oauthState = parameters.oauthState;
 
   //--- END parameters --//
 
-
-  //--- CHECK IF APP IS AUTHORIZED ---//
-
-
-  //-- TODO
-
-
-  //--- END CHECK APP AUTH ---//
+  //-- TODO Check if app is authorized
 
   /**
    * appname: 'a name for the app',
@@ -70,10 +55,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
    */
 
     // is this a returning user (look in cookies)
-
-
     // .... do some stuff here
-
 
     // step 2 .. register or log in
   var error = false;
@@ -81,11 +63,9 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     return errorHandler(messages.ei());
   }
 
-
-  var key = randGenerator.string(16);
-  var pollURL = config.get('http:register:url') + '/access/' + key;
-
-  var url = config.get('http:static:access');
+  var key = randGenerator.string(16),
+    pollURL = config.get('http:register:url') + '/access/' + key,
+    url = config.get('http:static:access');
 
   if (typeof parameters.localDevel !== 'undefined') {
     url = config.get('devel:static:access') + parameters.localDevel;
@@ -94,7 +74,6 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   if (typeof parameters.reclaDevel !== 'undefined') {
     url = 'https://sw.rec.la' + parameters.reclaDevel;
   }
-
 
   url = url +
     '?lang=' + lang +
@@ -110,12 +89,11 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
   //TODO add username & sessionID if possible
 
-
   var accessURIc = '&requestedPermissions=' +
     encodeURIComponent(JSON.stringify(requestedPermissions));
 
   if ((url.length + accessURIc.length) > 2000) {
-    console.log('url too long');
+    // URL too long
     url = url + '&poll=' + encodeURIComponent(pollURL);
   } else {
     url = url + accessURIc;
@@ -135,9 +113,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
-
 };
-
 
 /**
  * Test the key
@@ -158,7 +134,3 @@ accessLib.testKeyAndGetValue = function testKeyAndGetValue(key, success, failed)
     success(result);
   });
 };
-
-
-
-
