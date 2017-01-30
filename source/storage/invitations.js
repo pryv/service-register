@@ -1,17 +1,15 @@
-var messages = require('../utils/messages.js');
-var db = require('../storage/database.js');
-var _ = require('underscore');
-var async = require('async');
+var messages = require('../utils/messages.js'),
+  db = require('../storage/database.js'),
+  _ = require('underscore'),
+  async = require('async');
 
 var randtoken = require('rand-token').generator({
   chars: 'a-z'
 });
 
-
 function dbKey(token) {
   return token + ':invitation';
 }
-
 
 exports.getAll = function (callback) {
   var cutI = ':invitation'.length;
@@ -24,7 +22,7 @@ exports.getAll = function (callback) {
 };
 
 /**
- * create N tokens
+ * Create N tokens
  */
 exports.generate = function (number, adminId, description, callback) {
   var createdAt = new Date().getTime();
@@ -41,13 +39,10 @@ exports.generate = function (number, adminId, description, callback) {
   }, function (error, tokens) {
     callback(error, tokens);
   });
-
-
 };
 
-
 /**
- * check if token is valid, and return the result information i
+ * Check if token is valid, and return the result information i
  */
 exports.checkIfValid = function checkIfValid(token, callback) {
   if (token === 'enjoy') {
@@ -55,7 +50,9 @@ exports.checkIfValid = function checkIfValid(token, callback) {
   }
 
   db.getSet(dbKey(token), function (error, result) {
-    if (error || ! result || result.consumedAt) { return callback(false); }
+    if (error || ! result || result.consumedAt) {
+      return callback(false);
+    }
 
     return callback(true);
   });
@@ -63,7 +60,7 @@ exports.checkIfValid = function checkIfValid(token, callback) {
 
 
 /**
- * consumeToken (return false if fail)
+ * ConsumeToken (return false if fail)
  */
 exports.consumeToken = function (token, username, callback) {
   if (token === 'enjoy') {
@@ -71,18 +68,19 @@ exports.consumeToken = function (token, username, callback) {
   }
 
   this.checkIfValid(token, function (isValid) {
-    if (! isValid) {  return callback(messages.e(404, 'INVALID_INVITATION')); }
+    if (! isValid) {
+      return callback(messages.e(404, 'INVALID_INVITATION'));
+    }
 
     db.setSetValue(dbKey(token), 'consumedAt', new Date().getTime(), function (error) {
-      if (error) { return callback(error); }
+      if (error) {
+        return callback(error);
+      }
+
       db.setSetValue(dbKey(token), 'consumedBy', username, function (error) {
         callback(error);
       });
     });
-
-
   });
-
-
 };
 

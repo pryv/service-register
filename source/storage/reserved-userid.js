@@ -1,8 +1,8 @@
-var logger = require('winston');
-var db = require('../storage/database.js');
-var config = require('../utils/config');
+var logger = require('winston'),
+  db = require('../storage/database.js'),
+  config = require('../utils/config');
 
-//Reserved words
+// Reserved words
 var wordsLoaded = require('readyness').waitFor('reservedWords');
 
 load(function (error) {
@@ -12,11 +12,11 @@ load(function (error) {
   wordsLoaded();
 });
 
-
 function load(callback) {
-
   db.reservedWordsVersion(function (error, currentVersion) {
-    if (error) {  return callback(error); }
+    if (error) {
+      return callback(error);
+    }
     var words = require('../references/reserved-words.json');
     if (currentVersion === words.version) {
       logger.info('Reserved word list version: ' + words.version + ' is up to date');
@@ -25,7 +25,9 @@ function load(callback) {
     }
 
     db.reservedWordsLoad(words.version, words.list, function (error) {
-      if (error) { return callback(error); }
+      if (error) {
+        return callback(error);
+      }
       logger.info('Reserved word list updated to version ' + words.version +
         ' with ' + words.list.length + ' words');
       words = null;
@@ -41,7 +43,9 @@ function load(callback) {
  * uid must have already been checked and cleaned by check-and-constraints.uid(..
  */
 exports.useridIsReserved = function (userid, callback) {
-  if (! userid) { return null; }
+  if (! userid) {
+    return null;
+  }
   userid = userid.toLowerCase();
   if (/^(pryv)+(.*)$/.test(userid)) {
     return callback(null, true);
@@ -51,6 +55,4 @@ exports.useridIsReserved = function (userid, callback) {
     return callback(null, true);
   }
   db.reservedWordsExists(userid, callback);
-
-
 };

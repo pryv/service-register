@@ -1,13 +1,10 @@
-var logger = require('winston');
-var config = require('../utils/config');
-var dataservers = require('../network/dataservers.js');
-var messages = require('../utils/messages.js');
-var db = require('../storage/database.js');
-
-var domain = '.' + config.get('dns:domain');
-
-
-var invitationToken = require('./invitations.js');
+var logger = require('winston'),
+  config = require('../utils/config'),
+  dataservers = require('../network/dataservers.js'),
+  messages = require('../utils/messages.js'),
+  db = require('../storage/database.js'),
+  domain = '.' + config.get('dns:domain'),
+  invitationToken = require('./invitations.js');
 
 /**
  *
@@ -19,7 +16,6 @@ var invitationToken = require('./invitations.js');
  */
 exports.create = function create(host, user, req, res, next) {
 
-
   var request = {
     username : user.username,
     passwordHash : user.passwordHash,
@@ -27,7 +23,7 @@ exports.create = function create(host, user, req, res, next) {
     email: user.email
   };
 
-  delete user.passwordHash; // remove to forget the password
+  delete user.passwordHash; // Remove to forget the password
   delete user.password;
 
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
@@ -39,7 +35,6 @@ exports.create = function create(host, user, req, res, next) {
     }
     if (result.id) {
       user.id = result.id;
-
 
       db.setServerAndInfos(user.username, host.name, user, function (error) {
         if (error) {
@@ -57,11 +52,8 @@ exports.create = function create(host, user, req, res, next) {
       logger.error('findServer, invalid data from admin server: ' + JSON.stringify(result));
       return next(messages.ei());
     }
-
   });
-
 };
-
 
 /**
  * a user
@@ -69,11 +61,18 @@ exports.create = function create(host, user, req, res, next) {
 exports.setEmail = function create(username, email, res, next) {
 
   db.uidExists(username, function (error, exists) {
-    if (error) { return next(messages.ei(error)); }
-    if (! exists) { return next(messages.e(404, 'UNKNOWN_USER_NAME')); }
+    if (error) {
+      return next(messages.ei(error));
+    }
+
+    if (! exists) {
+      return next(messages.e(404, 'UNKNOWN_USER_NAME'));
+    }
 
     db.changeEmail(username, email, function (error) {
-      if (error) { return next(messages.ei(error)); }
+      if (error) {
+        return next(messages.ei(error));
+      }
       res.json({success: true});
     });
   });

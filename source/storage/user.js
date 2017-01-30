@@ -1,12 +1,11 @@
 /**
- * extension of database.js dedicated to user management
+ * Extension of database.js dedicated to user management
  */
 
-var db = require('../storage/database.js');
-var async = require('async');
-var exports = exports || {};
-var _ = require('underscore');
-
+var db = require('../storage/database.js'),
+  async = require('async'),
+  exports = exports || {},
+  _ = require('underscore');
 
 /**
  * @param callback function(error, json of {serversName : usage})
@@ -15,14 +14,15 @@ exports.getServers = function getServers(callback) {
   var result = {};
   db.doOnKeysValuesMatching('*:server', '*',
     function (key, value) {
-      if (typeof(result[value]) === 'undefined') { result[value] = 0; }
+      if (typeof(result[value]) === 'undefined') {
+        result[value] = 0;
+      }
       result[value]++;
     },
     function (error) {
       callback(error, result);
     });
 };
-
 
 /**
  *
@@ -40,7 +40,6 @@ exports.getUsersOnServer = function getUsersOnServer(serverName, callback) {
     });
 };
 
-
 /**
  *
  * @param srcServerName
@@ -49,11 +48,10 @@ exports.getUsersOnServer = function getUsersOnServer(serverName, callback) {
  */
 exports.renameServer = function renameServer(srcServerName, dstServerName, callback) {
 
-  var errors = [];
-
-  var receivedCount = 0;
-  var actionThrown = 0;
-  var waitForDone = true;
+  var errors = [],
+    receivedCount = 0,
+    actionThrown = 0,
+    waitForDone = true;
 
   var checkDone = function () {
     if ((! waitForDone) && actionThrown === receivedCount) {
@@ -61,13 +59,13 @@ exports.renameServer = function renameServer(srcServerName, dstServerName, callb
     }
   };
 
-  var myDone = function (error) {
-    if (error) { errors.push(error); }
+  var done = function (error) {
+    if (error) {
+      errors.push(error);
+    }
     waitForDone = false;
     checkDone();
   };
-
-
 
   db.doOnKeysValuesMatching('*:server', srcServerName,
     function (key) {
@@ -81,21 +79,20 @@ exports.renameServer = function renameServer(srcServerName, dstServerName, callb
         receivedCount++;
         checkDone();
       });
-
-    }, myDone);
+    }, done);
 };
 
 
 exports.getAllUsersInfos = function getAllUsersInfos(callback) {
-  var userlist = [];
-  var waiter = 1;
-  function done1() {
+  var userlist = [],
+    waiter = 1;
+
+  function done() {
     waiter--;
     if (waiter === 0) {
       callback(null, userlist);
     }
   }
-
 
   db.doOnKeysMatching('*:users',
     function (userkey) { // action
@@ -106,20 +103,20 @@ exports.getAllUsersInfos = function getAllUsersInfos(callback) {
       this.getUserInfos(user, function (errors, userInfos) {
         userInfos.errors =  errors;
         userlist.push(userInfos);
-        done1();
+        done();
       });
     }.bind(this), function (/*error, count*/) {  // done
-      done1();
+      done();
     });
 };
 
 
 exports.getUserInfos = function getUserInfos(username, callback) {
-  var result = { username : username };
-  var errors = [];
+  var result = { username : username },
+    errors = [];
 
   async.parallel([
-    function (done) { // -- get user informations
+    function (stepDone) { // Get user information
       db.getSet(username + ':users', function (error, user) {
         if (error) {
           errors.push({user: error});
@@ -128,10 +125,10 @@ exports.getUserInfos = function getUserInfos(username, callback) {
         } else {
           _.extend(result, user);
         }
-        done(null);
+        stepDone(null);
       });
     },
-    function (done) { // -- get server location
+    function (done) { // Get server location
       db.getServer(username, function (error, server) {
         if (error) {
           errors.push({server: error});
@@ -145,11 +142,10 @@ exports.getUserInfos = function getUserInfos(username, callback) {
     }
   ],
     function (error) {
-
-      if (errors.length === 0) { errors = null; }
+      if (errors.length === 0) {
+        errors = null;
+      }
       callback(errors, result);
 
     });
-
-
 };
