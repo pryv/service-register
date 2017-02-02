@@ -3,7 +3,12 @@
 set -e
 
 # Builds 'service-register' docker image with the version given below. 
-version="1.0.0"
+scripts/build_name
+
+version=$(cat build_tag)
+if [ -e release_build ]; then
+  echo "This is a release build, it will update 'latest' tags."
+fi
 
 # Create a release.tar that contains all the code. 
 pushd ..
@@ -19,13 +24,18 @@ echo "---------------------------- building service-register -------------------
 pushd service-register
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/service-register:$version .
+if [ -e ../release_build ]; then
+  sudo docker tag pryv/service-register:$version pryv/service-register:latest
+fi
 popd
 
 echo "---------------------------- building register ------------------------------"
 pushd register
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/register:$version .
-sudo docker tag pryv/register:$version pryv/register:latest
+if [ -e ../release_build ]; then
+  sudo docker tag pryv/register:$version pryv/register:latest
+fi
 popd
 
 echo "---------------------------- building dns -----------------------------------"
