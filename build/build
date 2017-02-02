@@ -10,6 +10,22 @@ if [ -e release_build ]; then
   echo "This is a release build, it will update 'latest' tags."
 fi
 
+function release {
+  local service_name=$1
+  local version=$2
+  
+  if [ -e ../release_build ]; then
+    sudo docker tag $service_name:$version $service_name:latest
+
+    # Publication to registry:
+    sudo docker tag $service_name:$version localhost:5000/$service_name:$version
+    sudo docker tag $service_name:$version localhost:5000/$service_name:latest
+    
+    sudo docker push localhost:5000/$service_name:$version
+    sudo docker push localhost:5000/$service_name:latest
+  fi
+}
+
 # Create a release.tar that contains all the code. 
 pushd ..
 tar cf build/release.tar \
@@ -24,40 +40,20 @@ echo "---------------------------- building service-register -------------------
 pushd service-register
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/service-register:$version .
-if [ -e ../release_build ]; then
-  sudo docker tag pryv/service-register:$version pryv/service-register:latest
-fi
+release "pryv/service-register" $version
 popd
 
 echo "---------------------------- building register ------------------------------"
 pushd register
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/register:$version .
-if [ -e ../release_build ]; then
-  sudo docker tag pryv/register:$version pryv/register:latest
-
-  # Publication to registry:
-  sudo docker tag pryv/register:$version localhost:5000/pryv/register:$version
-  sudo docker tag pryv/register:$version localhost:5000/pryv/register:latest
-  
-  sudo docker push localhost:5000/pryv/register:$version
-  sudo docker push localhost:5000/pryv/register:latest
-fi
+release "pryv/register" $version
 popd
 
 echo "---------------------------- building dns -----------------------------------"
 pushd dns
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/dns:$version .
-if [ -e ../release_build ]; then
-  sudo docker tag pryv/dns:$version pryv/dns:latest
-
-  # Publication to registry:
-  sudo docker tag pryv/dns:$version localhost:5000/pryv/dns:$version
-  sudo docker tag pryv/dns:$version localhost:5000/pryv/dns:latest
-  
-  sudo docker push localhost:5000/pryv/dns:$version
-  sudo docker push localhost:5000/pryv/dns:latest
-fi
+release "pryv/dns" $version
 popd
 
