@@ -35,6 +35,13 @@ cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/register:$version .
 if [ -e ../release_build ]; then
   sudo docker tag pryv/register:$version pryv/register:latest
+
+  # Publication to registry:
+  sudo docker tag pryv/register:$version localhost:5000/pryv/register:$version
+  sudo docker tag pryv/register:$version localhost:5000/pryv/register:latest
+  
+  sudo docker push localhost:5000/pryv/register:$version
+  sudo docker push localhost:5000/pryv/register:latest
 fi
 popd
 
@@ -42,6 +49,15 @@ echo "---------------------------- building dns --------------------------------
 pushd dns
 cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/dns:$version .
-sudo docker tag pryv/dns:$version pryv/dns:latest
+if [ -e ../release_build ]; then
+  sudo docker tag pryv/dns:$version pryv/dns:latest
+
+  # Publication to registry:
+  sudo docker tag pryv/dns:$version localhost:5000/pryv/dns:$version
+  sudo docker tag pryv/dns:$version localhost:5000/pryv/dns:latest
+  
+  sudo docker push localhost:5000/pryv/dns:$version
+  sudo docker push localhost:5000/pryv/dns:latest
+fi
 popd
 
