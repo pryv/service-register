@@ -3,20 +3,29 @@ var checkAndConstraints = require('../utils/check-and-constraints.js'),
   db = require('../storage/database.js'),
   messages = require('../utils/messages.js');
 
+/**
+ * Routes to handle emails
+ * @param app
+ */
 module.exports = function (app) {
 
-  // Route for jquery.validator
-  app.post('/email/check/', function (req, res, next) {
+  /**
+   * POST /email/check/: check existence of an email
+   */
+  app.post('/email/check', function (req, res, next) {
     req.params.email = req.body.email;
     _checkEmail(req, res, next, true);
   });
 
+  /**
+   * GET /:email/check_email: check existence of an email
+   */
   app.get('/:email/check_email', function (req, res, next) {
     _checkEmail(req, res, next, false);
   });
 
   /**
-   * Get a userName for an email
+   * GET /:email/uid: get username for a given email
    * TODO: safety (privacy) of this call that exposes a link between an email and a user.
    */
   app.get('/:email/uid', function (req, res, next) {
