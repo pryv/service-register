@@ -3,12 +3,18 @@ var checkAndConstraints = require('../utils/check-and-constraints.js'),
   messages = require('../utils/messages.js'),
   config = require('../utils/config');
 
-function check(app) {
-
+/**
+ * Routes to discover server assignations
+ * @param app
+ */
+module.exports = function (app) {
   var domain = '.' + config.get('dns:domain');
   var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
   var confirmDisplayErrorUrl = config.get('http:static:errorUrl');
 
+  /**
+   * GET /:uid/server: find the server hosting the provided username (uid)
+   */
   app.get('/:uid/server', function (req, res, next) {
     var uid = checkAndConstraints.uid(req.params.uid);
 
@@ -17,7 +23,6 @@ function check(app) {
     }
 
     db.getServer(uid, function (error, result) {
-
       if (error) {
         return next(messages.ei());
       }
@@ -30,6 +35,10 @@ function check(app) {
     });
   });
 
+  /**
+   * POST /:uid/server: find the server hosting the provided username (uid)
+   * TODO: add uid in the payload?
+   */
   app.post('/:uid/server', function (req, res, next) {
     var uid = checkAndConstraints.uid(req.params.uid);
 
@@ -38,7 +47,6 @@ function check(app) {
     }
 
     db.getServer(uid, function (error, result) {
-
       if (error) {
         return next(messages.ei());
       }
@@ -50,7 +58,4 @@ function check(app) {
       return next(messages.e(404, 'UNKNOWN_USER_NAME'));
     });
   });
-
-}
-
-module.exports = check;
+};
