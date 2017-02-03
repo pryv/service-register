@@ -1,7 +1,9 @@
 var config = require('../utils/config');
 
-// Load index.html, redirect to register Home page
-
+/**
+ * Load index.html, redirect to register Home page
+ * @param app
+ */
 module.exports = function(app) {
   app.get('/', function(req, res) {
     return res.redirect(config.get('http:static:url'));
