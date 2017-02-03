@@ -27,7 +27,9 @@ if (config.get('redis:password')) {
   });
 } else {
   logger.info('Redis client initialized, no authentication set.');
-  checkConnection();
+  process.nextTick(function() {
+    checkConnection();
+  });
 }
 
 function checkConnection() {
