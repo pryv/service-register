@@ -32,7 +32,7 @@
           "base_url": "http://core:9000/",
           "authorization": "OVERRIDE ME"
         }
-      ],
+      ]
     },
     "aahostings": {
       "regions": {
