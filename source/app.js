@@ -47,8 +47,6 @@ require('./routes/access.js')(app);
 
 require('./routes/hostings.js')(app);
 
-require('./routes/apps.js')(app);
-
 // private API  routes
 require('./routes/users.js')(app);
 require('./routes/admin.js')(app);
