@@ -1,6 +1,3 @@
-/**
- * private routes for admin to manage users
- */
 var checkAndConstraints = require('../utils/check-and-constraints.js'),
   users = require('../storage/user.js'),
   messages = require('../utils/messages.js'),
@@ -8,9 +5,12 @@ var checkAndConstraints = require('../utils/check-and-constraints.js'),
   invitations = require('../storage/invitations.js'),
   requireRoles = require('../middleware/requireRoles');
 
-function init(app) {
+/**
+ * Routes for admin to manage users
+ */
+module.exports = function (app) {
 
-  // Get the user list
+  // GET /admin/users: get the user list
   app.get('/admin/users', requireRoles('admin'), function (req, res/*, next*/) {
 
     var headers = {
@@ -47,12 +47,10 @@ function init(app) {
       }
 
       res.json({users: list, error: error});
-
     });
-
   });
 
-  // Invitations
+  // GET /admin/users/invitations: get the invitations list
   app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
 
     invitations.getAll(function (error, invitations) {
@@ -85,10 +83,12 @@ function init(app) {
 
       res.json({invitations: invitations});
     });
-
   });
 
-  //TODO the following must be handled by a POST /invitations
+  /**
+   * GET /admin/users/invitations/post: generate an invitation
+   * TODO the following must be handled by a POST /invitations
+   */
   app.get('/admin/users/invitations/post', requireRoles('admin'), function (req, res, next){
 
     var count = parseInt(req.query.count);
@@ -100,10 +100,11 @@ function init(app) {
       }
       res.json({data: result});
     });
-
   });
 
-  // Servers: get the server list, with the number of users on them
+  /**
+   * GET /admin/servers: get the server list with the number of users on them
+   */
   app.get('/admin/servers', requireRoles('admin'), function (req, res, next) {
 
     users.getServers(function (error, list) {
@@ -113,6 +114,9 @@ function init(app) {
 
   });
 
+  /**
+   * GET /admin/servers/:serverName/users: get the list of user for a given server
+   */
   app.get('/admin/servers/:serverName/users', requireRoles('admin'), function (req, res, next){
 
     var serverName = checkAndConstraints.hostname(req.params.serverName);
@@ -126,9 +130,11 @@ function init(app) {
       }
       res.json({users: list});
     });
-
   });
 
+  /**
+   * GET /admin/server/:srcServerName/rename/:dstServerName: rename a server
+   */
   app.get('/admin/servers/:srcServerName/rename/:dstServerName',
     requireRoles('system'), function (req, res, next) {
 
@@ -148,9 +154,6 @@ function init(app) {
       }
       res.json({count: count});
     });
-
   });
 
-}
-
-module.exports = init;
+};
