@@ -4,35 +4,24 @@ var express = require('express'),
   accessCommon = require('../access/access-lib.js'),
   invitationToken = require('../storage/invitations.js');
 
+/**
+ * Routes handling applications access
+ * @param app
+ */
+module.exports = function (app) {
 
-function requestAccess(req, res, next) {
-  var params =  req.body;
-  params.sso = req.signedCookies.sso;
-
-  accessCommon.requestAccess(params, function (accessState) {
-    res.json(accessState, accessState.code);
-  }, next);
-}
-
-
-function setAccessState(res, next, key, accessState) {
-  accessCommon.setAccessState(key, accessState, function (accessState) {
-    res.json(accessState, accessState.code);
-  }, function (errorMessage) {
-    next(errorMessage);
-  });
-}
-
-function access(app) {
+  /**
+   * All access routes use cookies
+   */
   app.all('/access/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
 
   /**
-   * request an access
+   * POST /access: request an access
    */
-  app.post('/access', requestAccess);
+  app.post('/access', _requestAccess);
 
   /**
-   * access tester
+   * POST /access/invitationtoken/check: check validity of an invitation token
    */
   app.post('/access/invitationtoken/check', function (req, res) {
     invitationToken.checkIfValid(req.body.invitationtoken, function (isValid/*, error*/) {
@@ -42,7 +31,7 @@ function access(app) {
   });
 
   /**
-   * polling responder
+   * GET /access/:key: access polling with given key
    */
   app.get('/access/:key', function (req, res, next) {
     accessCommon.testKeyAndGetValue(req.params.key, function (value) {
@@ -51,7 +40,7 @@ function access(app) {
   });
 
   /**
-   * change access state
+   * POST /access/:key: update state of access polling
    */
   app.post('/access/:key', function (req, res, next) {
     var key = req.params.key;
@@ -64,7 +53,7 @@ function access(app) {
           message:  req.body.message || '',
           code: 403
         };
-        setAccessState(res, next, key, accessStateA);
+        _setAccessState(res, next, key, accessStateA);
 
       } else if (req.body.status === 'ERROR') {
         var accessStateB = {
@@ -74,7 +63,7 @@ function access(app) {
           detail:  req.body.detail || '',
           code: 403
         };
-        setAccessState(res, next, key, accessStateB);
+        _setAccessState(res, next, key, accessStateB);
 
       } else if (req.body.status === 'ACCEPTED') {
         var username = checkAndConstraints.uid(req.body.username);
@@ -93,13 +82,26 @@ function access(app) {
           code: 200
         };
 
-        setAccessState(res, next, key, accessStateC);
+        _setAccessState(res, next, key, accessStateC);
       }
     }, next);
   });
+};
 
+function _requestAccess(req, res, next) {
+  var params =  req.body;
+  params.sso = req.signedCookies.sso;
 
+  accessCommon.requestAccess(params, function (accessState) {
+    res.json(accessState, accessState.code);
+  }, next);
 }
 
 
-module.exports = access;
+function _setAccessState(res, next, key, accessState) {
+  accessCommon.setAccessState(key, accessState, function (accessState) {
+    res.json(accessState, accessState.code);
+  }, function (errorMessage) {
+    next(errorMessage);
+  });
+}
