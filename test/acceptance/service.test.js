@@ -2,7 +2,8 @@
 var validation = require('../support/data-validation'),
   schemas = require('../../source/model/schema.responses'),
   request = require('superagent'),
-  server = require('../../source/server');
+  server = require('../../source/server'),
+  should = require('should');
 
 require('readyness/wait/mocha');
 
@@ -19,5 +20,55 @@ describe('/service', function () {
       });
     });
   });
+
+  describe('GET /service/apps', function () {
+
+    it('appList', function (done) {
+      request.get(server.url + '/service/apps').end(function (res) {
+        validation.check(res, {
+          status: 200,
+          schema: schemas.appsList
+        }, function (error) {
+          if (error) {
+            return done(error);
+          }
+          should.exists(res.body);
+          should.exists(res.body.apps);
+
+          res.body.should.have.property('apps');
+          res.body.apps.should.be.instanceOf(Array);
+          res.body.apps.forEach(checkApp);
+          done();
+        });
+      });
+    });
+  });
+
+  describe('GET /service/apps/:appid', function () {
+
+    it('valid appId', function (done) {
+      request.get(server.url + '/service/apps/test-a').end(function (res) {
+        validation.check(res, {
+          status: 200,
+          schema: schemas.appsSingle
+        }, function (error) {
+          if (error) {
+            return done(error);
+          }
+          res.body.should.have.property('app');
+          checkApp(res.body.app);
+          done();
+        });
+      });
+    });
+
+  });
+
+  function checkApp(appData) {
+    appData.should.have.property('id');
+    appData.should.have.property('description');
+    appData.should.have.property('iconURL');
+    appData.should.have.property('appURL');
+  }
 
 });
