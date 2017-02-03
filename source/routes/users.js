@@ -1,17 +1,19 @@
-/**
- * Routes for users.
- *
- * This file is meant to contain all /users routes, after routes are changed to
- * REST-like structure, cf. https://trello.com/c/NVdNVqMN/53
- */
-
 var checkAndConstraints = require('../utils/check-and-constraints'),
     messages = require('../utils/messages'),
     users = require('../storage/server'),
     requireRoles = require('../middleware/requireRoles');
 
+/**
+ * Routes for users
+ * This file is meant to contain all /users routes, after routes are changed to
+ * REST-like structure, cf. https://trello.com/c/NVdNVqMN/53
+ * @param app
+ */
 module.exports = function (app) {
 
+  /**
+   * POST /users/:username/change-email: change the email address for given user
+   */
   app.post('/users/:username/change-email', requireRoles('system'), function (req, res, next) {
     var email = checkAndConstraints.email(req.body.email);
     if (! email) {
@@ -23,5 +25,4 @@ module.exports = function (app) {
 
     users.setEmail(req.params.username, email, res, next);
   });
-
 };
