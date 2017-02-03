@@ -1,7 +1,8 @@
 var config = require('../utils/config'),
   _ = require('underscore'),
   appsList = config.get('appList'),
-  messages = require('../utils/messages.js');
+  messages = require('../utils/messages.js'),
+  dataservers = require('../network/dataservers.js');
 
 var infos = {
   version : '0.1.0',
@@ -70,4 +71,11 @@ module.exports = function (app) {
 
     res.json({ app: appData });
   });
+
+  /**
+   * GET /service/hostings:  get the list of available hostings
+   */
+    app.get('/service/hostings', function (req, res) {
+      res.json(dataservers.hostings());
+    });
 };

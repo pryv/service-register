@@ -3,7 +3,8 @@ var validation = require('../support/data-validation'),
   schemas = require('../../source/model/schema.responses'),
   request = require('superagent'),
   server = require('../../source/server'),
-  should = require('should');
+  should = require('should'),
+  dataValidation = require('../support/data-validation');
 
 require('readyness/wait/mocha');
 
@@ -59,6 +60,19 @@ describe('/service', function () {
           checkApp(res.body.app);
           done();
         });
+      });
+    });
+
+  });
+
+  describe('GET /service/hostings', function () {
+
+    it('valid', function (done) {
+      var test = { status: 200, desc : 'validSchema',  JSchema : schemas.hostings };
+      var path = '/service/hostings';
+
+      request.get(server.url + path).end(function(err,res) {
+        dataValidation.jsonResponse(err, res, test, done);
       });
     });
 
