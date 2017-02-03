@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -e
-
-cd /data/
-exec chpst -u redis /usr/local/bin/redis-server /etc/redis/redis.conf

@@ -1,8 +1,0 @@
-#!/bin/sh
-
-set -e
-
-cd /var/pryv/service-register/
-
-export NODE_ENV=production
-exec chpst -u app /usr/bin/node source/server.js --config production.json

@@ -29,7 +29,6 @@
     }
   },
   "redis": {
-    "password": "MyRecordedLife",
     "host": "redis",
     "port": 6379
   },
