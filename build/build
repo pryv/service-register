@@ -36,13 +36,6 @@ tar cf build/release.tar \
 popd
 
 # Build the docker image (commented out)
-echo "---------------------------- building service-register ----------------------"
-pushd service-register
-cp ../release.tar .
-sudo docker build -f Dockerfile -t pryv/service-register:$version .
-release "pryv/service-register" $version
-popd
-
 echo "---------------------------- building register ------------------------------"
 pushd register
 cp ../release.tar .
