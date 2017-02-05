@@ -107,13 +107,17 @@ function getLegacyAdminClient(host, path, postData) {
   };
 }
 
-// Deals with parsing the 'base_url' field in the host object. Returns an 
-// object that has fields 'client' and 'options' - together they will yield 
-// the http call to make: 
-//
-//    var httpCall = getAdminClient(host, path, postData); 
-//    httpCall.client.request(httpCall.options, function() { ... })
-//
+/**
+ * Deals with parsing the 'base_url' field in the host object. Returns an 
+ * object that has fields 'client' and 'options' - together they will yield 
+ * the http call to make: 
+ * 
+ *    var httpCall = getAdminClient(host, path, postData); 
+ *    httpCall.client.request(httpCall.options, function() { ... })
+ *
+ * As a _side effect_, sets the `.name` field on host to the host name of the 
+ * server used for the call.  
+ */
 function getAdminClient(host, path, postData) {
   if (host.base_url === undefined) {
     // We used to define the path to the core server using 'base_name', 'port'
@@ -142,15 +146,23 @@ function getAdminClient(host, path, postData) {
     'Content-Length': postData.length
   };
   
+  // SIDE EFFECT
+  host.name = coreServer.hostname;
+  
   return {
     client: httpClient, 
     options: httpOptions,
   };
 }
 
-//POST request to an admin server, callback(error,json_result)
+/** 
+ * POSTs a request to the core server indicated by `host`. Calls the callback
+ * which has the signature `function(error, json_result)`. 
+ * 
+ * As a _side effect_, `host.name` is set to the name of the actual host used 
+ * for this call. 
+ */
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {
-
   var postData = JSON.stringify(jsonData);
   //console.log(postData);
 

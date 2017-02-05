@@ -15,6 +15,16 @@ describe('network/dataservers', function () {
       };
     }
     
+    it('should set .name as a side effect on the host structure', function() {
+      var host = {
+        base_url: 'http://foo.com:9000', 
+        authorization: 'foooo', 
+      }; 
+      
+      getAdminClient(host, '/path', 'foobar')
+      
+      host.name.should.equal('foo.com'); 
+    });
     it('should return port 80 for http urls', function() {
       var given = getAdminClient(url("http://foo.com/"), "/path", "foobar"); 
       
