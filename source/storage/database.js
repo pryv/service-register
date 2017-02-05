@@ -239,6 +239,11 @@ exports.setServer = function setServer(uid, serverName, callback) {
 
 /**
  * "search into keys"
+ * 
+ * NOTE Redis documentation warns against using this in application code. 
+ *    See https://redis.io/commands/keys. We should probably deprecate this 
+ *    internally and try to get rid of it in the long run. (ksc, 5Feb17)
+ *
  * @param keyMask  '*:...'
  * @param action function (key)
  * @param done function (error,count) called when done ..  with the count of "action" sent
