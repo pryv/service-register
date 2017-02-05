@@ -14,11 +14,11 @@
   },
   "http": {
     "static": {
-      "url": "https://l.rec.la:4443",
+      "url": "https://sw.rec.la",
       "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
     },
     "register": {
-      "url": "https://reglocal.pryv.in:8443"
+      "url": "https://reg.rec.la"
     }
   },
   "server": {
