@@ -32,34 +32,32 @@ exports.create = function create(host, user, req, res, next) {
 
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
-    if (error) {
-      logger.error('dataservers.postToAdmin: ' + error + '\n host' +
-          JSON.stringify(host) + '\n info:' + JSON.stringify(user));
-      return next(messages.ei(error));
-    }
-    if (result.id) {
-      user.id = result.id;
+      if (error) {
+        logger.error('dataservers.postToAdmin: ' + error + '\n host' +
+            JSON.stringify(host) + '\n info:' + JSON.stringify(user));
+        return next(messages.ei(error));
+      }
+      if (result.id) {
+        user.id = result.id;
 
-
-      db.setServerAndInfos(user.username, host.name, user, function (error) {
-        if (error) {
-          return next(messages.ei(error));
-        }
-        invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+        db.setServerAndInfos(user.username, host.name, user, function (error) {
           if (error) {
             return next(messages.ei(error));
           }
-          res.json({username: user.username, server: user.username + domain}, 200);
+          invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+            if (error) {
+              return next(messages.ei(error));
+            }
+
+            res.json({username: user.username, server: user.username + domain}, 200);
+          });
         });
-      });
 
-    } else {
-      logger.error('findServer, invalid data from admin server: ' + JSON.stringify(result));
-      return next(messages.ei());
-    }
-
-  });
-
+      } else {
+        logger.error('findServer, invalid data from admin server: ' + JSON.stringify(result));
+        return next(messages.ei());
+      }
+    });
 };
 
 
