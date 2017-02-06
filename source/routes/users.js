@@ -1,7 +1,14 @@
 var checkAndConstraints = require('../utils/check-and-constraints'),
-    messages = require('../utils/messages'),
-    users = require('../storage/server'),
-    requireRoles = require('../middleware/requireRoles');
+  messages = require('../utils/messages'),
+  users = require('../storage/server'),
+  requireRoles = require('../middleware/requireRoles'),
+  db = require('../storage/database.js'),
+  logger = require('winston'),
+  encryption = require('../utils/encryption.js'),
+  async = require('async'),
+  dataservers = require('../network/dataservers.js'),
+  reservedWords = require('../storage/reserved-userid.js'),
+  invitationToken = require('../storage/invitations.js');
 
 /**
  * Routes for users
@@ -11,12 +18,130 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
  */
 module.exports = function (app) {
 
+  // Request pre processing
+  app.post('/users', function (req, res, next) {
+    if (req.body === undefined) {
+      logger.error('/users : How could body be empty??');
+      return next(messages.ei());
+    }
+
+    // TODO  check that it's an authorized url
+    var hosting = checkAndConstraints.hosting(req.body.hosting);
+    if (! hosting) {
+      return next(messages.e(400, 'INVALID_HOSTING'));
+    }
+
+    var user = {
+      appid: checkAndConstraints.appID(req.body.appid),
+      username: checkAndConstraints.uid(req.body.username),
+      password: checkAndConstraints.password(req.body.password),
+      email: checkAndConstraints.email(req.body.email),
+      invitationToken: checkAndConstraints.invitationToken(req.body.invitationtoken),
+      referer: checkAndConstraints.referer(req.body.referer),
+      language: checkAndConstraints.lang(req.body.languageCode) // no check
+    };
+
+    if (! user.appid) {
+      return next(messages.e(400, 'INVALID_APPID'));
+    }
+    if (! user.username) {
+      return next(messages.e(400, 'INVALID_USER_NAME'));
+    }
+    if (! user.email) {
+      return next(messages.e(400, 'INVALID_EMAIL'));
+    }
+    if (! user.password) {
+      return next(messages.e(400, 'INVALID_PASSWORD'));
+    }
+    if (! user.invitationToken) {
+      return next(messages.e(400, 'INVALID_INVITATION'));
+    }
+
+    var existsList = [];
+    async.parallel([
+      function (callback) {  // test username
+        invitationToken.checkIfValid(user.invitationToken, function (valid, error) {
+          if (! valid) {
+            existsList.push('INVALID_INVITATION');
+          }
+          callback(error);
+        });
+      },
+      function (callback) {  // test username
+        reservedWords.useridIsReserved(user.username, function (error, reserved) {
+          if (reserved) {
+            existsList.push('RESERVED_USER_NAME');
+          }
+          callback(error);
+        });
+      },
+      function (callback) {  // test username
+        db.uidExists(user.username, function (error, exists) {
+          if (exists) {
+            existsList.push('EXISTING_USER_NAME');
+          }
+          callback(error);
+        });
+      },
+      function (callback) {  // test email
+        db.emailExists(user.email, function (error, exists) {
+          if (exists) {
+            existsList.push('EXISTING_EMAIL');
+          }
+          callback(error);
+        });
+      },
+      function (callback) { // check host
+        callback(null);
+        //hosting.getServerForHosting(hosting); "continue here"
+      }
+    ], function (error) {
+
+      if (existsList.length > 0) {
+        if (existsList.length === 1) {
+          return next(messages.e(400, existsList[0]));
+        }
+        return next(messages.ex(400, 'INVALID_DATA', existsList));
+      }
+
+      if (error) {
+        return next(messages.ei(error));
+      }
+
+      encryption.hash(user.password, function (errorEncryt, passwordHash) {
+        if (errorEncryt) {
+          return next(messages.ei(errorEncryt));
+        }
+
+        user.passwordHash =  passwordHash;
+
+        // Create user
+        var host = dataservers.getHostForHosting(hosting);
+        if (!host) {
+          return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
+        }
+
+        users.create(host, user, req, res, next);
+      });
+    });
+  });
+
+  app.post('/users/check', function (req, res, next) {
+    req.params.username = req.body.username;
+    _check(req, res, next, true);
+  });
+
+
+  app.get('/users/:username/check_username', function (req, res, next) {
+    _check(req, res, next, false);
+  });
+
   /**
    * POST /users/:username/change-email: change the email address for given user
    */
   app.post('/users/:username/change-email', requireRoles('system'), function (req, res, next) {
     var email = checkAndConstraints.email(req.body.email);
-    if (! email) {
+    if (!email) {
       return next(new messages.REGError(400, {
         id: 'INVALID_EMAIL',
         message: '"' + req.body.email + '" is not a valid e-mail address'
@@ -26,3 +151,42 @@ module.exports = function (app) {
     users.setEmail(req.params.username, email, res, next);
   });
 };
+
+function _check(req, res, next, raw) {
+  var username = checkAndConstraints.uid(req.params.username);
+
+  if (! username) {
+    if (raw) {
+      res.header('Content-Type', 'text/plain');
+      return res.send('false');
+    } else {
+      return next(messages.e(400, 'INVALID_USER_NAME'));
+    }
+  }
+
+  reservedWords.useridIsReserved(username, function (error, reserved) {
+    if (error) {
+      return next(error);
+    }
+
+    if (reserved) {
+      if (raw) {
+        res.header('Content-Type', 'text/plain');
+        return res.send('false');
+      }
+      return res.json({reserved: true, reason: 'RESERVED_USER_NAME' });
+    }
+
+    db.uidExists(username, function (error, exists) {
+      if (error) {
+        return next(messages.ei());
+      }
+      if (raw) {
+        res.header('Content-Type', 'text/plain');
+        return res.send(exists ? 'false' : 'true');
+      } else {
+        return res.json({reserved: exists });
+      }
+    });
+  });
+}

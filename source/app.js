@@ -38,8 +38,6 @@ require('./routes/service.js')(app);
 
 // public API routes
 require('./routes/email.js')(app);
-require('./routes/user.js')(app);
-
 require('./routes/server.js')(app);
 
 //access
