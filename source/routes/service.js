@@ -41,9 +41,9 @@ module.exports = function (app) {
   });
 
   /**
-   * GET /service/apps: retrieve the list of applications linked to this service
+   * GET /apps: retrieve the list of applications linked to this service
    */
-  app.get('/service/apps', function (req, res) {
+  app.get('/apps', function (req, res) {
     var data = [];
     Object.keys(appsList).forEach(function(appid) {
       var appData = {id : appid};
@@ -55,9 +55,9 @@ module.exports = function (app) {
   });
 
   /**
-   * GET /service/apps/:appid: retrieve specific information about specified application
+   * GET /apps/:appid: retrieve specific information about specified application
    */
-  app.get('/service/apps/:appid', function (req, res, next) {
+  app.get('/apps/:appid', function (req, res, next) {
     var appid = req.params.appid;
     if (! appid) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'missing appid'}));
@@ -73,9 +73,9 @@ module.exports = function (app) {
   });
 
   /**
-   * GET /service/hostings:  get the list of available hostings
+   * GET /hostings:  get the list of available hostings
    */
-    app.get('/service/hostings', function (req, res) {
+    app.get('/hostings', function (req, res) {
       res.json(dataservers.hostings());
     });
 };

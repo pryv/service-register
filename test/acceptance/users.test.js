@@ -21,9 +21,9 @@ var defaults = {
 
 require('readyness/wait/mocha');
 
-describe('/users', function () {
+describe('/user', function () {
 
-  var basePath = '/users',
+  var basePath = '/user',
     defaultUsername = 'wactiv',
     defaultEmail = 'wactiv@pryv.io',
     defaultAuth = 'test-system-key';
@@ -75,7 +75,7 @@ describe('/users', function () {
       JValues: {'id': 'INVALID_USER_NAME'}
     };
 
-    request.post(server.url + path).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -186,8 +186,8 @@ describe('/users', function () {
   });
 
 
-  describe('POST /check/', function () {
-    var path = basePath + '/check/';
+  describe('POST /username/check', function () {
+    var path = '/username/check';
 
     it('reserved list', function (done) {
       var test = {username: 'facebook', status: 200, desc: 'reserved from list', value: 'false'};
@@ -216,10 +216,9 @@ describe('/users', function () {
   });
 
   describe('GET /:username/check_username', function () {
-    var path = '/check_username';
 
     function getPath(username) {
-      return basePath + '/' + (username || defaultUsername) + '/check_username';
+      return '/' + (username || defaultUsername) + '/check_username';
     }
 
     it('too short', function (done) {
@@ -337,10 +336,10 @@ describe('/users', function () {
 
   });
 
-  describe('POST /:username/change-email', function () {
+  describe('POST /users/:username/change-email', function () {
 
     function getPath(username) {
-      return basePath + '/' + (username || defaultUsername) + '/change-email';
+      return '/users/' + (username || defaultUsername) + '/change-email';
     }
 
     it('must change the username\'s email', function (done) {

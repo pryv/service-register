@@ -10,7 +10,7 @@ require('readyness/wait/mocha');
 
 describe('/service', function () {
 
-  describe('GET /service/infos', function () {
+  describe('GET /infos', function () {
 
     it('infos', function (done) {
       request.get(server.url + '/service/infos').end(function (res) {
@@ -22,10 +22,10 @@ describe('/service', function () {
     });
   });
 
-  describe('GET /service/apps', function () {
+  describe('GET /apps', function () {
 
     it('appList', function (done) {
-      request.get(server.url + '/service/apps').end(function (res) {
+      request.get(server.url + '/apps').end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.appsList
@@ -45,10 +45,10 @@ describe('/service', function () {
     });
   });
 
-  describe('GET /service/apps/:appid', function () {
+  describe('GET /apps/:appid', function () {
 
     it('valid appId', function (done) {
-      request.get(server.url + '/service/apps/test-a').end(function (res) {
+      request.get(server.url + '/apps/test-a').end(function (res) {
         validation.check(res, {
           status: 200,
           schema: schemas.appsSingle
@@ -65,11 +65,11 @@ describe('/service', function () {
 
   });
 
-  describe('GET /service/hostings', function () {
+  describe('GET /hostings', function () {
 
     it('valid', function (done) {
       var test = { status: 200, desc : 'validSchema',  JSchema : schemas.hostings };
-      var path = '/service/hostings';
+      var path = '/hostings';
 
       request.get(server.url + path).end(function(err,res) {
         dataValidation.jsonResponse(err, res, test, done);

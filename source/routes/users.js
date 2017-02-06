@@ -18,10 +18,12 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
  */
 module.exports = function (app) {
 
-  // Request pre processing
-  app.post('/users', function (req, res, next) {
+  /**
+   * POST /user: create a new user
+   */
+  app.post('/user', function (req, res, next) {
     if (req.body === undefined) {
-      logger.error('/users : How could body be empty??');
+      logger.error('/user : How could body be empty??');
       return next(messages.ei());
     }
 
@@ -126,18 +128,23 @@ module.exports = function (app) {
     });
   });
 
-  app.post('/users/check', function (req, res, next) {
+  /**
+   * POST /username/check: check the existence/validity of a given username
+   */
+  app.post('/username/check', function (req, res, next) {
     req.params.username = req.body.username;
     _check(req, res, next, true);
   });
 
-
-  app.get('/users/:username/check_username', function (req, res, next) {
+  /**
+   * GET /:username/check_username: check the existence/validity of a given username
+   */
+  app.get('/:username/check_username', function (req, res, next) {
     _check(req, res, next, false);
   });
 
   /**
-   * POST /users/:username/change-email: change the email address for given user
+   * POST /users/:username/change-email: change the email address for a given user
    */
   app.post('/users/:username/change-email', requireRoles('system'), function (req, res, next) {
     var email = checkAndConstraints.email(req.body.email);

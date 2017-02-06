@@ -40,13 +40,12 @@ require('./routes/service.js')(app);
 require('./routes/email.js')(app);
 require('./routes/server.js')(app);
 
-//access
-require('./routes/access.js')(app);
-
 // private API  routes
 require('./routes/users.js')(app);
 require('./routes/admin.js')(app);
 
+//access
+require('./routes/access.js')(app);
 
 //error management (evolution)
 require('./utils/app-errors.js')(app);
