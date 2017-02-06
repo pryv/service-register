@@ -1,6 +1,6 @@
 // dns server 
 var logger = require('winston');
-var dns = require('./dnsserver-lib/ndns-warper.js');
+var dns = require('./dnsserver-lib/ndns-wraper.js');
 var config = require('./utils/config');
 var checkAndConstraints = require('./utils/check-and-constraints.js');
 var db = require('./storage/database.js');

@@ -1,4 +1,4 @@
-var ndns = require('./ndns2.js');
+var ndns = require('./ndns.js');
 
 require('./_extend.js');
 
