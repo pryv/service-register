@@ -35,7 +35,10 @@ nconf.file({ file: configFile});
 //Set default values
 nconf.defaults({
   dns: {
-    'defaultTTL' : 3600
+    'defaultTTL' : 3600,
+    'ip': '127.0.0.1',
+    'name': 'localhost',
+    'port': '2053'
   },
   auth: {
     authorizedKeys: {
