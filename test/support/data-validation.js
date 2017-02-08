@@ -3,7 +3,6 @@ var config = require('../../source/utils/config');
 var validate = require('json-schema').validate;
 var querystring = require('querystring');
 var schemas = require('../../source/model/schema.responses');
-var _s = require('underscore.string');
 var request = require('superagent');
 var should = require('should');
 
@@ -103,7 +102,8 @@ function jsonResponse(err, res, test, callback_done) {
 
     // test constants
     if (test.value) {
-      res.body.should.equal(test.value);
+      var body = (test.restype === 'text/plain') ? res.text : res.body;
+      body.should.equal(test.value);
     }
 
   } else {// default JSON

@@ -12,15 +12,15 @@ describe('POST /access/invitationtoken/check', function () {
   var path = '/access/invitationtoken/check/';
 
   it('invalid', function (done) {
-    var test = { invitationtoken: 'facebook', status: 200, value: 'false' };
-    request.post(server.url + path).send(test.invitationtoken).end(function(err,res) {
+    var test = { invitationtoken: 'facebook', status: 200, value: 'false', restype:'text/plain' };
+    request.post(server.url + path).send(test).end(function(err,res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
   it('valid', function (done) {
-    var test = { invitationtoken: 'enjoy', status: 200, value: 'true' };
-    request.post(server.url + path).send(test.invitationtoken).end(function(err,res) {
+    var test = { invitationtoken: 'enjoy', status: 200, value: 'true', restype:'text/plain' };
+    request.post(server.url + path).send(test).end(function(err,res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
