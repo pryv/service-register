@@ -36,7 +36,8 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_INVITATION'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -49,7 +50,8 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_HOSTING'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -62,7 +64,8 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_APPID'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -75,7 +78,8 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -88,7 +92,8 @@ describe('/user', function () {
       JValues: {'id': 'RESERVED_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -101,7 +106,8 @@ describe('/user', function () {
       JValues: {'id': 'RESERVED_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -114,7 +120,8 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_EMAIL'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -127,7 +134,8 @@ describe('/user', function () {
       JValues: {'id': 'EXISTING_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -140,7 +148,8 @@ describe('/user', function () {
       JValues: {'id': 'EXISTING_EMAIL'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -156,8 +165,9 @@ describe('/user', function () {
       }
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
-      dataValidation.jsonResponse(err.res, test, done);
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
+      dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
@@ -168,7 +178,8 @@ describe('/user', function () {
       JValues: {username: defaults.username.toLowerCase()}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -180,7 +191,8 @@ describe('/user', function () {
       JValues: {username: 'recla'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data)).end(function (err, res) {
+    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+      .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
@@ -190,25 +202,28 @@ describe('/user', function () {
     var path = '/username/check';
 
     it('reserved list', function (done) {
-      var test = {username: 'facebook', status: 200, desc: 'reserved from list', value: 'false'};
+      var test = {username: 'facebook', status: 200, desc: 'reserved from list',
+        value: 'false', restype:'text/plain'};
 
-      request.post(server.url + path).send(_.extend(defaults, test.username)).end(function (err, res) {
+      request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
 
     it('reserved pryv', function (done) {
-      var test = {username: 'pryvtoto', status: 200, desc: 'reserved for pryv', value: 'false'};
+      var test = {username: 'pryvtoto', status: 200, desc: 'reserved for pryv',
+        value: 'false', restype:'text/plain'};
 
-      request.post(server.url + path).send(_.extend(defaults, test.username)).end(function (err, res) {
+      request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
 
     it('available', function (done) {
-      var test = {username: 'asdfhgsdkfewg', status: 200, desc: 'available', value: 'true'};
+      var test = {username: 'asdfhgsdkfewg', status: 200, desc: 'available',
+        value: 'true', restype:'text/plain'};
 
-      request.post(server.url + path).send(_.extend(defaults, test.username)).end(function (err, res) {
+      request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
