@@ -1,5 +1,4 @@
 //var logger = require('winston');
-//var dump = require('../utils/dump.js');
 /**
  * Tiny middleware to monitor queries.
  */

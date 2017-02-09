@@ -423,7 +423,6 @@ function _findGhostsEmails() {
 
       if (e) {
         logger.warning('Db structure _findGhostsEmails ' + email + e);
-        //require('../utils/dump.js').inspect( { cookie: user});
       }
     });
   });
@@ -440,7 +439,6 @@ function _findGhostsServer() {
         logger.warning('Db structure _findGhostsServer ' + server +
           ' cannot find user :' + username);
         //redis.del(key);
-        // require('../utils/dump.js').inspect( { cookie: user});
       }
     });
   });

@@ -15,7 +15,6 @@ accessLib.setAccessState =
       if (error) {
         return errorCallback(messages.ei());
       }
-      //require('../utils/dump.js').inspect(accessState);
       return successHandler(accessState);
     });
   };
