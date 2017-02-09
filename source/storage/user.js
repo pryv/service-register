@@ -10,7 +10,7 @@ var db = require('../storage/database.js'),
 /**
  * @param callback function(error, json of {serversName : usage})
  */
-exports.getServers = function getServers(callback) {
+exports.getServers = function (callback) {
   var result = {};
   db.doOnKeysValuesMatching('*:server', '*',
     function (key, value) {
@@ -29,7 +29,7 @@ exports.getServers = function getServers(callback) {
  * @param serverName
  * @param callback function(error, array of users)
  */
-exports.getUsersOnServer = function getUsersOnServer(serverName, callback) {
+exports.getUsersOnServer = function (serverName, callback) {
   var result = [];
   db.doOnKeysValuesMatching('*:server', serverName,
     function (key) {
@@ -46,7 +46,7 @@ exports.getUsersOnServer = function getUsersOnServer(serverName, callback) {
  * @param dstServerName
  * @param callback function(error, number_of_changes)
  */
-exports.renameServer = function renameServer(srcServerName, dstServerName, callback) {
+exports.renameServer = function (srcServerName, dstServerName, callback) {
 
   var errors = [],
     receivedCount = 0,
@@ -83,7 +83,7 @@ exports.renameServer = function renameServer(srcServerName, dstServerName, callb
 };
 
 
-exports.getAllUsersInfos = function getAllUsersInfos(callback) {
+exports.getAllUsersInfos = function (callback) {
   var userlist = [],
     waiter = 1;
 
@@ -96,10 +96,9 @@ exports.getAllUsersInfos = function getAllUsersInfos(callback) {
 
   db.doOnKeysMatching('*:users',
     function (userkey) { // action
-
       var user = userkey.substring(0, userkey.length - 6);
-
       waiter++;
+
       this.getUserInfos(user, function (errors, userInfos) {
         userInfos.errors =  errors;
         userlist.push(userInfos);
@@ -110,8 +109,7 @@ exports.getAllUsersInfos = function getAllUsersInfos(callback) {
     });
 };
 
-
-exports.getUserInfos = function getUserInfos(username, callback) {
+function getUserInfos(username, callback) {
   var result = { username : username },
     errors = [];
 
@@ -125,7 +123,7 @@ exports.getUserInfos = function getUserInfos(username, callback) {
         } else {
           _.extend(result, user);
         }
-        stepDone(null);
+        stepDone();
       });
     },
     function (done) { // Get server location
@@ -137,15 +135,17 @@ exports.getUserInfos = function getUserInfos(username, callback) {
         } else {
           result.server = server;
         }
-        done(null);
+        done();
       });
     }
   ],
     function (error) {
+      console.log(error); // Error should be null
       if (errors.length === 0) {
         errors = null;
       }
       callback(errors, result);
 
     });
-};
+}
+exports.getUserInfos = getUserInfos;
