@@ -2,7 +2,7 @@
 var config = require('../../source/utils/config');
 var validate = require('json-schema').validate;
 var querystring = require('querystring');
-var schemas = require('../../source/model/schema.responses');
+var schemas = require('schema.responses.js');
 var request = require('superagent');
 var should = require('should');
 

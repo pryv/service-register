@@ -3,7 +3,7 @@ var config = require('../../source/utils/config');
 var server = require('../../source/server');
 
 var dataValidation = require('../support/data-validation');
-var schema = require('../../source/model/schema.responses');
+var schema = require('../support/schema.responses.js');
 
 var request = require('superagent');
 

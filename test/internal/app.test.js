@@ -1,19 +1,19 @@
-/*global describe, it*/
+///*global describe, it*/
 
 /*
  * test for generic behaviour of the app
  * TODO add unexpected error catching
  */
-
+/*
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
-var schema = require('../../source/model/schema.responses.js');
+var schema = require('../support/schema.responses.js');
 var should = require('should');
 var request = require('superagent');
 
 require('readyness/wait/mocha');
 
-/*
+
 describe('POST /init with invalid data (bodyParser test)', function () {
 
   it('invalid JSON', function (done) {
@@ -49,5 +49,5 @@ describe('GET /bug to test invalid code', function () {
     dataValidation.pathStatusSchema(tests[key]);
   }
 });
-**/
+*/
 

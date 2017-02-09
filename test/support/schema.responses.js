@@ -9,8 +9,6 @@ exports.success = {
   }
 };
 
-
-
 //route : service/inofs
 exports.serviceInfos = {
   type: 'object',
@@ -79,7 +77,6 @@ exports.userList = {
   }
 };
 
-
 //route : admin-users
 exports.serverList = {
   type: 'object',
@@ -102,7 +99,6 @@ exports.count = {
   }
 };
 
-
 //route : init
 exports.userCreated = {
   type: 'object',
@@ -117,7 +113,6 @@ exports.userCreated = {
     }
   }
 };
-
 
 //confirm : server & server : server
 exports.server = {
@@ -161,7 +156,6 @@ exports.alreadyConfirmed = {
   }
 };
 
-
 //apps
 exports.appsList = {
   type: 'object',
@@ -191,7 +185,6 @@ exports.hostings = {
     }
   }
 };
-
 
 //errors
 exports.error = {
@@ -248,8 +241,6 @@ exports.multipleErrors = {
     }
   }
 };
-
-
 
 exports.accessPOST = {
   type: 'object',
