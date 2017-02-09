@@ -19,16 +19,6 @@ var LASTEST_DB_VERSION = '0.1.1',
 
 var connectionChecked = require('readyness').waitFor('database');
 
-// Password check
-if (config.get('redis:password')) {
-  redis.auth(config.get('redis:password'), function () {
-    logger.info('Redis client authentified');
-    checkConnection();
-  });
-} else {
-  checkConnection();
-}
-
 function checkConnection() {
   // Check redis connectivity
   // Do not remove, 'wactiv.server' is used by tests
