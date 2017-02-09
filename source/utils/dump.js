@@ -1,11 +1,7 @@
 var util = require('util');
 
-
 exports.curlHttpRequest = function (httpOptions, ssl, postData) {
   var http = ssl ? 'https' : 'http';
-
-  //console.log(postData);
-
   var command = 'curl -i ';
 
   if (httpOptions.headers) {
@@ -21,8 +17,7 @@ exports.curlHttpRequest = function (httpOptions, ssl, postData) {
   return command;
 };
 
-
-exports.inspect = function inspect() {
+exports.inspect = function () {
   var line = '';
   try {
     throw new Error();
@@ -35,9 +30,7 @@ exports.inspect = function inspect() {
   }
 };
 
-exports.hexdump = function hexdump(buf, length, start, count)
-{
-
+exports.hexdump = function (buf, length, start, count) {
   var Buffer = require('buffer').Buffer;
 
   if (!Buffer.isBuffer(buf)) {
@@ -61,18 +54,18 @@ exports.hexdump = function hexdump(buf, length, start, count)
   util.print('\n');
 };
 
-exports.bin2hex = function bin2hex(s) {
-  // Converts the binary representation of data to hex  
-  // 
-  // version: 1109.2015
-  // discuss at: http://phpjs.org/functions/bin2hex
-  // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  // +   bugfixed by: Onno Marsman
-  // +   bugfixed by: Linuxworld
-  // *     example 1: bin2hex('Kev');
-  // *     returns 1: '4b6576'
-  // *     example 2: bin2hex(String.fromCharCode(0x00));
-  // *     returns 2: '00'
+// Converts the binary representation of data to hex
+//
+// version: 1109.2015
+// discuss at: http://phpjs.org/functions/bin2hex
+// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+// +   bugfixed by: Onno Marsman
+// +   bugfixed by: Linuxworld
+// *     example 1: bin2hex('Kev');
+// *     returns 1: '4b6576'
+// *     example 2: bin2hex(String.fromCharCode(0x00));
+// *     returns 2: '00'
+exports.bin2hex = function (s) {
   var i, f = 0,
     a = [];
 
