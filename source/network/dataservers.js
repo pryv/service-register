@@ -37,8 +37,6 @@ exports.hostings = function () {
 exports.getHostForHosting = function (hosting) {
   var servers = config.get('net:aaservers:' + hosting);
 
-  //require('../utils/dump').inspect({hosting: hosting, servers: servers});
-
   if (! servers || servers.length === 0) {
     return null;
   }
@@ -46,7 +44,6 @@ exports.getHostForHosting = function (hosting) {
   var i = Math.floor(Math.random() * (servers.length));
   return servers[i];
 };
-
 
 /*
 //http://catapulty.tumblr.com/post/8303749793/heroku-and-node-js-how-to-get-the-client-ip-address
