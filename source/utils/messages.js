@@ -2,8 +2,8 @@
  * provides tools to construct messages for clients.
  */
 
-var logger = require('winston');
-var mstrings = require('../public/messages-en.js');
+var logger = require('winston'),
+  mstrings = require('../public/messages-en.js');
 
 //add ids to all messages
 Object.keys(mstrings).forEach(function (key) {
@@ -31,14 +31,13 @@ function say(id, addons) {
   var content = cloneMessage(id);
   // merge addons
   if (addons) {
-
     for (var i in addons) {
       if (addons.hasOwnProperty(i)) { content[i] = addons[i]; }
     }
   }
-
   return content;
 }
+exports.say = say;
 
 /**
 // create a JSON ready error for this code
@@ -53,23 +52,26 @@ function error_data(id, extra) {
 }
  **/
 
-
 //sugar for errors
 /** internal error **/
-exports.ei = function ei(error) {
-  if (! error) { error = new Error(); }
-  if (! (error instanceof Error)) { error = new Error(error); }
+exports.ei = function (error) {
+  if (! error) {
+    error = new Error();
+  }
+  if (! (error instanceof Error)) {
+    error = new Error(error);
+  }
   logger.error('internal error : ' + error.message + '\n' +  error.stack);
   return new REGError(500, say('INTERNAL_ERROR'));
 };
 
 /** single error **/
-exports.e = function e(httpCode, id, addons) {
+exports.e = function (httpCode, id, addons) {
   return new REGError(httpCode, say(id, addons));
 };
 
 /** error with sub errors **/
-exports.ex = function ex(httpCode, id, suberrors) {
+exports.ex = function (httpCode, id, suberrors) {
   var data = cloneMessage(id);
   data.errors = [];
   for (var i = 0; i < suberrors.length ; i++) {
@@ -87,6 +89,3 @@ var REGError = exports.REGError = function (httpCode, data) {
 REGError.prototype = Object.create(Error.prototype, {
   constructor: { value: REGError }
 });
-
-
-exports.say = say;
