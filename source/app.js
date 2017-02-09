@@ -24,7 +24,6 @@ app.configure(function () {
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(require('./middleware/cross-domain'));
-  app.use(require('./middleware/debug'));
   logger.setLevels(logger.config.syslog.levels);
   // TODO: setup logger handling for uncaught exceptions
 });

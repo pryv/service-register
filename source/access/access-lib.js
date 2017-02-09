@@ -1,7 +1,6 @@
 var db = require('../storage/database.js'),
   messages = require('../utils/messages.js'),
   config = require('../utils/config'),
-  randGenerator = require('../utils/random'),
   checkAndConstraints = require('../utils/check-and-constraints.js'),
   domain = config.get('dns:domain'),
   accessLib = module.exports = {};
@@ -133,3 +132,12 @@ accessLib.testKeyAndGetValue = function testKeyAndGetValue(key, success, failed)
     success(result);
   });
 };
+
+function randGenerator(stringLength) {
+  var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+  var randomstring = '';
+  for (var i=0; i<stringLength; i++) {
+    randomstring += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return randomstring;
+}
