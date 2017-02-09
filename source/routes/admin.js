@@ -1,7 +1,6 @@
 var checkAndConstraints = require('../utils/check-and-constraints.js'),
   users = require('../storage/user.js'),
   messages = require('../utils/messages.js'),
-  tohtml = require('../utils/2html.js'),
   invitations = require('../storage/invitations.js'),
   requireRoles = require('../middleware/requireRoles');
 
@@ -70,7 +69,8 @@ module.exports = function (app) {
 
         // Convert timestamp tor readable data
         invitations.forEach(function (token) {
-          token.consumeDate = (token.consumedAt) ? new Date(parseInt(token.consumedAt)).toUTCString() : '';
+          token.consumeDate = (token.consumedAt) ?
+            new Date(parseInt(token.consumedAt)).toUTCString() : '';
           token.createdDate = new Date(parseInt(token.createdAt)).toUTCString();
         });
 
@@ -157,3 +157,32 @@ module.exports = function (app) {
   });
 
 };
+
+function tohtml(headers, infoArray) {
+  var result = '<table border="1">\n<tr>';
+  Object.keys(headers).forEach(function (key) {
+    result += '<th>' + headers[key] + '</th>';
+  });
+  result += '</tr>\n';
+
+
+  infoArray.forEach(function (line) {
+    result += '<tr>';
+    Object.keys(headers).forEach(function (key) {
+      var value = '';
+      if (line[key]) {
+        if (typeof line[key] === 'string') {
+          value = line[key];
+        } else {
+          value = JSON.stringify(line[key]);
+        }
+      }
+      result += '<td>' + value + '</td>';
+    });
+
+    result += '</tr>\n';
+  });
+
+  result += '</table>';
+  return result;
+}
