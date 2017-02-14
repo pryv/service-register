@@ -2,7 +2,6 @@
  * Tiny middleware to allow CORS (cross-domain) requests to the API.
  */
 module.exports = function (req, res, next) {
-
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method'] ||
     'GET, PUT, POST, DELETE, OPTIONS');
@@ -10,7 +9,6 @@ module.exports = function (req, res, next) {
     'Content-Type');
   res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
   res.header('Access-Control-Allow-Credentials', 'true');
-
 
   // other CORS-related headers are returned on OPTIONS requests
 

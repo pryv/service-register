@@ -32,16 +32,12 @@ module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
       roles: authorizedKeys[auth].roles
     };
 
-
-
-
     if (! access.roles.some(function (role) { return roles.indexOf(role) !== -1; })) {
       return next(new messages.REGError(403, {
         id: 'forbidden',
         message: 'Access forbidden'
       }));
     }
-    // OK
     next();
   };
 };

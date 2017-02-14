@@ -8,15 +8,14 @@ var db = require('../storage/database.js'),
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node';
 
-accessLib.setAccessState =
-  function setAccessState(key, accessState, successHandler, errorCallback) {
-    db.setAccessState(key, accessState, function (error) {
-      if (error) {
-        return errorCallback(messages.ei());
-      }
-      return successHandler(accessState);
-    });
-  };
+accessLib.setAccessState = function (key, accessState, successHandler, errorCallback) {
+  db.setAccessState(key, accessState, function (error) {
+    if (error) {
+      return errorCallback(messages.ei());
+    }
+    return successHandler(accessState);
+  });
+};
 
 accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
@@ -40,10 +39,8 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
   }
 
-  var returnURL = parameters.returnURL;
-  var oauthState = parameters.oauthState;
-
-  //--- END parameters --//
+  var returnURL = parameters.returnURL,
+    oauthState = parameters.oauthState;
 
   //-- TODO Check if app is authorized
 
@@ -116,7 +113,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 /**
  * Test the key
  */
-accessLib.testKeyAndGetValue = function testKeyAndGetValue(key, success, failed) {
+accessLib.testKeyAndGetValue = function (key, success, failed) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));
   }

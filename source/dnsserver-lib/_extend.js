@@ -39,7 +39,7 @@ Date.prototype.format = function(format) {
   });
 };
 
-try{
+try {
   Object.defineProperties(Object.prototype, {
     apply : {
       value: function(config, defaults) {
@@ -197,4 +197,4 @@ try{
       configurable: false
     }
   });
-}catch(e){}
+} catch(e){}
