@@ -8,7 +8,8 @@ var db = require('../storage/database.js'),
   _ = require('underscore');
 
 /**
- * @param callback function(error, json of {serversName : usage})
+ * Get a list of servers
+ * @param callback: function(error, result) with result of the form: {serverName : usage count}
  */
 exports.getServers = function (callback) {
   var result = {};
@@ -25,9 +26,9 @@ exports.getServers = function (callback) {
 };
 
 /**
- *
- * @param serverName
- * @param callback function(error, array of users)
+ * Get a list of users on a specific server
+ * @param serverName: the name of the server
+ * @param callback: function(error, result), result being an array of users
  */
 exports.getUsersOnServer = function (serverName, callback) {
   var result = [];
@@ -41,10 +42,10 @@ exports.getUsersOnServer = function (serverName, callback) {
 };
 
 /**
- *
- * @param srcServerName
- * @param dstServerName
- * @param callback function(error, number_of_changes)
+ * Rename a server
+ * @param srcServerName: the old server name
+ * @param dstServerName: the new server name
+ * @param callback: function(error, result), result being the count of renamed occurrences
  */
 exports.renameServer = function (srcServerName, dstServerName, callback) {
 
@@ -82,7 +83,10 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
     }, done);
 };
 
-
+/**
+ * Get a list of all user's information (see getUserInfos)
+ * @param callback: function(error, result), result being a list of information for all users
+ */
 exports.getAllUsersInfos = function (callback) {
   var userlist = [],
     waiter = 1;
@@ -109,6 +113,11 @@ exports.getAllUsersInfos = function (callback) {
     });
 };
 
+/**
+ * Get information about an user
+ * @param username: the name of requested user
+ * @param callback: function(error, result), result being an object containing user information
+ */
 function getUserInfos(username, callback) {
   var result = { username : username },
     errors = [];
