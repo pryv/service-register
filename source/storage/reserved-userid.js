@@ -12,6 +12,10 @@ load(function (error) {
   wordsLoaded();
 });
 
+/**
+ * Load up-to-date version of reserved words
+ * @param callback: function(error)
+ */
 function load(callback) {
   db.reservedWordsVersion(function (error, currentVersion) {
     if (error) {
@@ -37,10 +41,11 @@ function load(callback) {
 }
 
 /**
+ * Check if username is available by verifying the following:
  * - not a static DNS entry
  * - not starting by "pryv"
- * - not in the reserved word list ) case-insensitive
- * uid must have already been checked and cleaned by check-and-constraints.uid(..
+ * - not in the reserved word list
+ * uid must have already been checked and cleaned by check-and-constraints.uid
  */
 exports.useridIsReserved = function (userid, callback) {
   if (! userid) {
