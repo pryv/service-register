@@ -17,7 +17,7 @@ function load(callback) {
     if (error) {
       return callback(error);
     }
-    var words = require('../references/reserved-words.json');
+    var words = require('../public/reserved-words.json');
     if (currentVersion === words.version) {
       logger.info('Reserved word list version: ' + words.version + ' is up to date');
       words = null;

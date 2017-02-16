@@ -6,7 +6,7 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
   logger = require('winston'),
   encryption = require('../utils/encryption.js'),
   async = require('async'),
-  dataservers = require('../network/dataservers.js'),
+  dataservers = require('../utils/dataservers.js'),
   reservedWords = require('../storage/reserved-userid.js'),
   invitationToken = require('../storage/invitations.js');
 

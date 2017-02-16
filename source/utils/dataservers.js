@@ -1,4 +1,4 @@
-var config = require('../utils/config'),
+var config = require('config'),
   httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http',
   http = require(httpMode);
 

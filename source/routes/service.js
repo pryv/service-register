@@ -2,7 +2,7 @@ var config = require('../utils/config'),
   _ = require('underscore'),
   appsList = config.get('appList'),
   messages = require('../utils/messages.js'),
-  dataservers = require('../network/dataservers.js');
+  dataservers = require('../utils/dataservers.js');
 
 var infos = {
   version : '0.1.0',
@@ -34,7 +34,8 @@ if (config.get('service:terms')) {
 module.exports = function (app) {
 
   /**
-   * GET /service/infos: retrieve service information (version, name, terms, register/access/api url, etc...)
+   * GET /service/infos: retrieve service information
+   * (version, name, terms, register/access/api url, etc...)
    */
   app.get('/service/infos', function (req, res/*, next*/) {
     res.json(infos);

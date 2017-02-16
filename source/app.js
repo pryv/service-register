@@ -20,7 +20,7 @@ app.configure('production', function () {
 
 app.configure(function () {
   app.use(express.favicon(__dirname + '/public/favicon.ico'));
-  app.use(require('./patched-modules/customJsonBodyParser.js'));
+  app.use(require('./middleware/patchJsonBodyParser.js'));
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(require('./middleware/cross-domain'));
