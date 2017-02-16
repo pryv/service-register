@@ -1,3 +1,7 @@
+/**
+ * Extension of database.js dedicated to reserved user id
+ */
+
 var logger = require('winston'),
   db = require('../storage/database.js'),
   config = require('../utils/config');

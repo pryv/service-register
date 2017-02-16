@@ -1,3 +1,7 @@
+/**
+ * Extension of database.js dedicated to invitation tokens
+ */
+
 var messages = require('../utils/messages.js'),
   db = require('../storage/database.js'),
   _ = require('underscore'),
@@ -11,6 +15,10 @@ function dbKey(token) {
   return token + ':invitation';
 }
 
+/**
+ * Get all existing invitations
+ * @param callback: function(error,result), result being the set of invitations
+ */
 exports.getAll = function (callback) {
   var cutI = ':invitation'.length;
 
@@ -22,7 +30,11 @@ exports.getAll = function (callback) {
 };
 
 /**
- * Create N tokens
+ * Generate a set of invitation tokens
+ * @param number: the number of tokens to generate
+ * @param adminId: the id of the admin allowed to generate tokens
+ * @param description: the motivation of the tokens generation
+ * @param callback: function(error, result), result being the set of new tokens
  */
 exports.generate = function (number, adminId, description, callback) {
   var createdAt = new Date().getTime();
@@ -42,7 +54,9 @@ exports.generate = function (number, adminId, description, callback) {
 };
 
 /**
- * Check if token is valid, and return the result information i
+ * Check the validity of the invitation token
+ * @param token: the token to be validated
+ * @param callback: function(result), result being 'true' if the token is valid, false otherwise
  */
 exports.checkIfValid = function checkIfValid(token, callback) {
   if (token === 'enjoy') {
@@ -58,9 +72,11 @@ exports.checkIfValid = function checkIfValid(token, callback) {
   });
 };
 
-
 /**
- * ConsumeToken (return false if fail)
+ * Consume an invitation token
+ * @param token: the invitation token
+ * @param username: the user consuming the token
+ * @param callback: function(error)
  */
 exports.consumeToken = function (token, username, callback) {
   if (token === 'enjoy') {
