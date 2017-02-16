@@ -1,6 +1,6 @@
 var checkAndConstraints = require('../utils/check-and-constraints'),
   messages = require('../utils/messages'),
-  users = require('../storage/server'),
+  users = require('../storage/users'),
   requireRoles = require('../middleware/requireRoles'),
   db = require('../storage/database.js'),
   logger = require('winston'),
@@ -123,7 +123,12 @@ module.exports = function (app) {
           return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
         }
 
-        users.create(host, user, req, res, next);
+        users.create(host, user, function(error, result) {
+          if(error) {
+            return next(messages.ei(error));
+          }
+          res.json(result, 200);
+        });
       });
     });
   });
@@ -155,7 +160,16 @@ module.exports = function (app) {
       }));
     }
 
-    users.setEmail(req.params.username, email, res, next);
+    users.setEmail(req.params.username, email, function(error, result) {
+      if(error) {
+        if(error.code && error.message) {
+          return next(messages.e(error.code, error.message));
+        }
+        return next(messages.ei(error));
+      }
+
+      res.json(result);
+    });
   });
 };
 

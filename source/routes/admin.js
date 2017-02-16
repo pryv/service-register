@@ -1,5 +1,5 @@
 var checkAndConstraints = require('../utils/check-and-constraints.js'),
-  users = require('../storage/user.js'),
+  users = require('../storage/users.js'),
   messages = require('../utils/messages.js'),
   invitations = require('../storage/invitations.js'),
   requireRoles = require('../middleware/requireRoles');

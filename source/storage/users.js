@@ -5,7 +5,85 @@
 var db = require('../storage/database.js'),
   async = require('async'),
   exports = exports || {},
-  _ = require('underscore');
+  _ = require('underscore'),
+  logger = require('winston'),
+  config = require('../utils/config'),
+  dataservers = require('../network/dataservers.js'),
+  domain = '.' + config.get('dns:domain'),
+  invitationToken = require('./invitations.js');
+
+/**
+ * Create (register) a new user
+ * @param host: the hosting for this user
+ * @param user: the user data, a json object containing: username, password hash, language and email
+ * @param callback: function(error,result), result being a json object containing new user data
+ */
+exports.create = function create(host, user, callback) {
+
+  var request = {
+    username : user.username,
+    passwordHash : user.passwordHash,
+    language: user.language,
+    email: user.email
+  };
+
+  delete user.passwordHash; // Remove to forget the password
+  delete user.password;
+
+  dataservers.postToAdmin(host, '/register/create-user', 201, request,
+    function (error, result) {
+      if (error) {
+        logger.error('dataservers.postToAdmin: ' + error + '\n host' +
+          JSON.stringify(host) + '\n info:' + JSON.stringify(user));
+        return callback(error);
+      }
+      if (result.id) {
+        user.id = result.id;
+
+        db.setServerAndInfos(user.username, host.name, user, function (error) {
+          if (error) {
+            return callback(error);
+          }
+          invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+            if (error) {
+              return callback(error);
+            }
+            callback(null, {username: user.username, server: user.username + domain});
+          });
+        });
+      } else {
+        var err = 'findServer, invalid data from admin server: ' + JSON.stringify(result);
+        logger.error(err);
+        return callback(err);
+      }
+    });
+};
+
+/**
+ * Update the email address for an user
+ * @param username: the user
+ * @param email: the new email address
+ * @param callback: function(error,result), result being a json object containing success boolean
+ */
+exports.setEmail = function create(username, email, callback) {
+
+  db.uidExists(username, function (error, exists) {
+    if (error) {
+      return callback(error);
+    }
+
+    if (! exists) {
+      return callback({code:404, message:'UNKNOWN_USER_NAME'});
+    }
+
+    db.changeEmail(username, email, function (error) {
+      if (error) {
+        return callback(error);
+      }
+      callback(null, {success: true});
+    });
+  });
+};
 
 /**
  * Get a list of servers
