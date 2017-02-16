@@ -8,6 +8,14 @@ var db = require('../storage/database.js'),
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node';
 
+/**
+ * Update an app access state in the database
+ * @param key: the key referencing the access to be updated
+ * @param accessState: the new state of this access, which is defined by parameters like:
+ *  status (NEED_SIGNIN, ACCEPTED, REFUSED), requesting app id, requested permissions, etc.
+ * @param successHandler: callback in case of success
+ * @param errorCallback: callback in case of error
+ */
 accessLib.setAccessState = function (key, accessState, successHandler, errorCallback) {
   db.setAccessState(key, accessState, function (error) {
     if (error) {
@@ -17,6 +25,14 @@ accessLib.setAccessState = function (key, accessState, successHandler, errorCall
   });
 };
 
+/**
+ * Request and generate an app access
+ * @param parameters: parameters defining the access such as:
+ *  requesting app id, requested permissions, language code, return url, oauth or other dev options
+ * @param successHandler: callback in case of success
+ * @param errorHandler: callback in case of error
+ * @returns {*}
+ */
 accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
   // Parameters
@@ -111,7 +127,11 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 };
 
 /**
- * Test the key
+ * Check the validity of the access by checking its associated key
+ * @param key
+ * @param success
+ * @param failed
+ * @returns {*}
  */
 accessLib.testKeyAndGetValue = function (key, success, failed) {
   if (!checkAndConstraints.accesskey(key)) {
@@ -130,6 +150,11 @@ accessLib.testKeyAndGetValue = function (key, success, failed) {
   });
 };
 
+/**
+ * Local random key generator
+ * @param stringLength: the key length
+ * @returns {string}: the generated key
+ */
 function randGenerator(stringLength) {
   var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
   var randomstring = '';
