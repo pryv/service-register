@@ -17,7 +17,7 @@ load(function (error) {
 });
 
 /**
- * Load up-to-date version of reserved words
+ * Load an up-to-date version of reserved words
  * @param callback: function(error)
  */
 function load(callback) {
@@ -63,5 +63,5 @@ exports.useridIsReserved = function (userid, callback) {
   if (config.get('dns:staticDataInDomain:' + userid)) {
     return callback(null, true);
   }
-  db.reservedWordsExists(userid, callback);
+  db.reservedWordExists(userid, callback);
 };

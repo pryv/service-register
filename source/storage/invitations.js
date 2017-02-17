@@ -22,7 +22,7 @@ function dbKey(token) {
 exports.getAll = function (callback) {
   var cutI = ':invitation'.length;
 
-  db.getSetsAsArrayMatching('*:invitation', function (error, data) {
+  db.getMatchingSets('*:invitation', function (error, data) {
     callback(error, data);
   }, function (keyToClean, data) { 
     data.id = keyToClean.substring(0, keyToClean.length - cutI);
