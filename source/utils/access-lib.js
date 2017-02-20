@@ -1,7 +1,7 @@
 var db = require('../storage/database.js'),
-  messages = require('../utils/messages.js'),
-  config = require('../utils/config'),
-  checkAndConstraints = require('../utils/check-and-constraints.js'),
+  messages = require('messages.js'),
+  config = require('config'),
+  checkAndConstraints = require('check-and-constraints.js'),
   domain = config.get('dns:domain'),
   accessLib = module.exports = {};
 
