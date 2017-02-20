@@ -10,7 +10,7 @@ module.exports = function (req, res, next) {
   res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
   res.header('Access-Control-Allow-Credentials', 'true');
 
-  // other CORS-related headers are returned on OPTIONS requests
+  // Other CORS-related headers are returned on OPTIONS requests
 
   if (req.method === 'OPTIONS') {
     console.log('Cross Domain OPTIONS REQUEST: ' + req.url);

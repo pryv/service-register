@@ -1,9 +1,11 @@
 /*jshint -W098*/
 
-//may be used for user management
 var logger = require('winston');
-var messages = require('./messages');
+var messages = require('./../utils/messages');
 
+/**
+ * Error middleware, may be used for user management
+ */
 function app_errors(app) {
   app.use(function (error, req, res, next) {
     if (error instanceof messages.REGError) {
@@ -22,7 +24,7 @@ function app_errors(app) {
     res.json(err.httpCode, err.data);
   });
 
-  /**    we let this to airbrake
+  /** We let this to airbrake
   process.on('uncaughtException', function (err) {
     if (! err) {
       err = new Error();

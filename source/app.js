@@ -47,4 +47,4 @@ require('./routes/admin.js')(app);
 require('./routes/access.js')(app);
 
 //error management (evolution)
-require('./utils/app-errors.js')(app);
+require('./middleware/app-errors.js')(app);

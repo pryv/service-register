@@ -14,12 +14,20 @@ app.configure(function () {
   app.use(express.bodyParser());
 });
 
+/**
+ * Check authorization cookie for all oauth routes
+ */
 app.all('/oauth/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
 
-// Handle token grant requests
+/**
+ * Handle token granting requests
+ */
 app.all('/oauth/token', app.oauth.grant());
 
-// Show them the "do you authorise xyz app to access your content?" page
+/**
+ * GET: Handle app access authorization
+ * Pop up the "do you authorise xyz app to access your content?" message
+ */
 app.get('/oauth/authorise', function (req, res, next) {
 
   var parameters = {
@@ -48,7 +56,9 @@ app.get('/oauth/authorise', function (req, res, next) {
   });
 });
 
-// Handle authorise
+/**
+ * POST: Handle app access authorization
+ */
 app.post('/oauth/authorise', function (req, res, next) {
   if (!req.session.user) {
     return res.redirect('/login?client_id=' + req.query.client_id +
@@ -63,7 +73,9 @@ app.post('/oauth/authorise', function (req, res, next) {
   next(null, req.body.allow === 'yes', req.session.user.id, req.session.user);
 }));
 
-// Error handling
+/**
+ * Error handling
+ */
 app.use(app.oauth.errorHandler());
 
 app.listen(config.get('oauth2:port'));
