@@ -94,7 +94,3 @@ nconf.defaults({
     // apps defined in specific configs (dev/staging/production)
   }
 });
-
-
-
-//Set network aware parameters

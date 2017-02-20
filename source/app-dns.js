@@ -88,7 +88,7 @@ var serverForName = function (reqName, callback, req, res) {
   var uid;
 
   try {
-    uid = checkAndConstraints.extractRessourceFromHostname(keyName);
+    uid = checkAndConstraints.extractResourceFromHostname(keyName);
   }
   catch (err) {
     logger.info('DNS: ' + err);

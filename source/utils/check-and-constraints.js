@@ -1,21 +1,26 @@
-/**
- * Tools to perform test and minimum cleaning on inputs
- */
 var config = require('./config'),
   _ = require('underscore');
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
+// Username regular expression
 var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
 
+/**
+ * Check if a string ends with specified suffix
+ * @param suffix: the suffix to look for
+ * @returns {boolean}: 'true' if containing the suffix, 'false' otherwise
+ */
 String.prototype.endsWith = function(suffix) {
       return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
 /**
- * extract resource from hostname
+ * Extract resources such as username and domain from hostname
+ * @param hostname: the hostname containing resources
+ * @returns: a sliced string of resources
  */
-exports.extractRessourceFromHostname = function (hostname) {
+exports.extractResourceFromHostname = function (hostname) {
     var domains = config.get('dns:domains');
 
     Object.prototype.getName = function() { 
@@ -38,8 +43,15 @@ exports.extractRessourceFromHostname = function (hostname) {
     throw new Error('Domain name not recognized in hostname.');
 };
 
-// (alphanumeric between 5 an 21 chars) case-insensitive  -  authorized
-// trim the uid ..
+
+/**
+ * Set of functions to perform test and minimum cleaning on inputs
+ * These functions take a string as input, apply some filter on it (regexp)
+ * and return the processed string if it passes the tests, 'null' otherwise
+ */
+
+// Alphanumeric between 5 an 21 chars, case-insensitive  -  authorized
+// Trim the uid
 exports.uid = function (str) {
   if (! str) { return null; }
   str = _(str).trim().toLowerCase();
@@ -48,8 +60,8 @@ exports.uid = function (str) {
 };
 
 
-// (alphanumeric between 2 an 70 chars) case-insensitive  - and . authorized
-// trim the hosting ..
+// Alphanumeric between 2 an 70 chars, case-insensitive  - and . authorized
+// Trim the hosting
 exports.hosting = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
@@ -57,21 +69,21 @@ exports.hosting = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-// any chars between 6 and 99 chars, with no trailing spaces.
+// Any chars between 6 and 99 chars, with no trailing spaces.
 exports.password = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
   return (str.length > 5 && str.length < 100) ? str : null;
 };
 
-// any chars between 5 and 99 chars, with no trailing spaces.
+// Any chars between 5 and 99 chars, with no trailing spaces.
 exports.invitationToken = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
   return (str.length > 4 && str.length < 100) ? str : null;
 };
 
-// any chars between 1 and 99 chars, with no trailing spaces.
+// Any chars between 1 and 99 chars, with no trailing spaces.
 exports.referer = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
@@ -93,11 +105,6 @@ exports.challenge = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-/**
- * Not string check .. just to prevent any string from beeing used
- * @param str
- * @return {*}
- */
 exports.hostname = function (str) {
   if (! str) { return null; }
   str = _(str).trim();

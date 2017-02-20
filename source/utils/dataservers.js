@@ -2,15 +2,17 @@ var config = require('config'),
   httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http',
   http = require(httpMode);
 
-/**
- * deal with the server logic
- * - find the closest server for an IP
- * - convert
- **/
-//http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
-//https://github.com/benlowry/node-geoip-native
-
 var hostings = null;
+
+/**
+ * Get the hostings list, deal with the server logic:
+ * - find the closest server for and IP
+ * - convert
+ * @returns: the list of hostings
+ * See:
+ * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
+ * https://github.com/benlowry/node-geoip-native
+ */
 exports.hostings = function () {
   if (!hostings) {
     var aaservers = config.get('net:aaservers');
@@ -32,7 +34,9 @@ exports.hostings = function () {
 };
 
 /**
- * @param hosting
+ * Retrieve host associated with provided hosting
+ * @param hosting: the hosting
+ * @returns: the corresponding host if existing, 'null' otherwise
  */
 exports.getHostForHosting = function (hosting) {
   var servers = config.get('net:aaservers:' + hosting);
@@ -67,7 +71,14 @@ function getClientIp(req) {
 }
 */
 
-//POST request to an admin server, callback(error,json_result)
+/**
+ * POST a request to an admin server
+ * @param host: the host to which to send the request (hostname and port)
+ * @param path: the request's path
+ * @param expectedStatus: the status expected as an answer of this request
+ * @param jsonData: the JSON body of this request
+ * @param callback: function(error,result), result being the answer body of this request as JSON
+ */
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
   var httpOptions = {
