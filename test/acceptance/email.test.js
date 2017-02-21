@@ -1,7 +1,7 @@
 /*global describe,it*/
 var server = require('../../source/server'),
     validation = require('../support/data-validation'),
-    schemas = require('../../source/model/schema.responses'),
+    schemas = require('../support/schema.responses'),
     request = require('superagent');
 
 require('readyness/wait/mocha');

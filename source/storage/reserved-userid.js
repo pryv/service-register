@@ -3,7 +3,7 @@
  */
 
 var logger = require('winston'),
-  db = require('../storage/database.js'),
+  db = require('../storage/database'),
   config = require('../utils/config');
 
 // Reserved words

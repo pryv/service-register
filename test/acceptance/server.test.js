@@ -2,7 +2,7 @@
 var config = require('../../source/utils/config');
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
-var schema = require('../support/schema.responses.js');
+var schema = require('../support/schema.responses');
 var request = require('superagent');
 
 require('readyness/wait/mocha');

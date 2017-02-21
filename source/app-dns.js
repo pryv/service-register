@@ -1,9 +1,9 @@
 // dns server 
 var logger = require('winston');
-var dns = require('./dnsserver-lib/ndns-wraper.js');
+var dns = require('./dns/ndns-wraper');
 var config = require('./utils/config');
-var checkAndConstraints = require('./utils/check-and-constraints.js');
-var db = require('./storage/database.js');
+var checkAndConstraints = require('./utils/check-and-constraints');
+var db = require('./storage/database');
 
 logger['default'].transports.console.level = 'debug';
 logger['default'].transports.console.colorize = true;

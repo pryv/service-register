@@ -2,8 +2,8 @@
  * Extension of database.js dedicated to invitation tokens
  */
 
-var messages = require('../utils/messages.js'),
-  db = require('../storage/database.js'),
+var messages = require('../utils/messages'),
+  db = require('../storage/database'),
   _ = require('underscore'),
   async = require('async');
 

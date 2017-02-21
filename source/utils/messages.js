@@ -3,7 +3,7 @@
  */
 
 var logger = require('winston'),
-  mstrings = require('../public/messages-en.js');
+  mstrings = require('../public/messages-en');
 
 // Add ids to all messages
 Object.keys(mstrings).forEach(function (key) {

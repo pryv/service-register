@@ -1,9 +1,9 @@
 var express = require('express'),
   oauthserver = require('node-oauth2-server'), // Would be: 'node-oauth2-server'
-  config = require('../utils/config'),
+  config = require('../../utils/config'),
   logger = require('winston'),
   app = express(),
-  accessCommon = require('../access/access-lib.js');
+  accessCommon = require('../../utils/access-lib');
 
 app.configure(function () {
   app.oauth = oauthserver({

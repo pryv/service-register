@@ -1,7 +1,7 @@
 // check if an EMAIL exists
-var checkAndConstraints = require('../utils/check-and-constraints.js'),
-  db = require('../storage/database.js'),
-  messages = require('../utils/messages.js');
+var checkAndConstraints = require('../utils/check-and-constraints'),
+  db = require('../storage/database'),
+  messages = require('../utils/messages');
 
 /**
  * Routes to handle emails

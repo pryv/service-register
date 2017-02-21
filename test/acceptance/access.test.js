@@ -1,7 +1,7 @@
 /*global describe, it*/
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
-var schema = require('../../source/model/schema.responses');
+var schema = require('../support/schema.responses');
 var request = require('superagent');
 var async = require('async');
 

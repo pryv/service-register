@@ -1,10 +1,9 @@
 /*global describe,it*/
 var validation = require('../support/data-validation'),
-  schemas = require('../../source/model/schema.responses'),
+  schemas = require('../support/schema.responses'),
   request = require('superagent'),
   server = require('../../source/server'),
-  should = require('should'),
-  dataValidation = require('../support/data-validation');
+  should = require('should');
 
 require('readyness/wait/mocha');
 
@@ -72,7 +71,7 @@ describe('/service', function () {
       var path = '/hostings';
 
       request.get(server.url + path).end(function(err,res) {
-        dataValidation.jsonResponse(err, res, test, done);
+        validation.jsonResponse(err, res, test, done);
       });
     });
 

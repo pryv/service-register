@@ -1,7 +1,7 @@
 //LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
 // TODO: Clean these indexes!!!!!
 
-var ndns = require('./ndns.js'),
+var ndns = require('./ndns'),
   server = ndns.createServer('udp4'),
   logger = require('winston'),
   config = require('../utils/config'),

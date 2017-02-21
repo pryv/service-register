@@ -1,7 +1,7 @@
-var checkAndConstraints = require('../utils/check-and-constraints.js'),
-  users = require('../storage/users.js'),
-  messages = require('../utils/messages.js'),
-  invitations = require('../storage/invitations.js'),
+var checkAndConstraints = require('../utils/check-and-constraints'),
+  users = require('../storage/users'),
+  messages = require('../utils/messages'),
+  invitations = require('../storage/invitations'),
   requireRoles = require('../middleware/requireRoles');
 
 /**

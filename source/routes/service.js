@@ -1,8 +1,8 @@
 var config = require('../utils/config'),
   _ = require('underscore'),
   appsList = config.get('appList'),
-  messages = require('../utils/messages.js'),
-  dataservers = require('../utils/dataservers.js');
+  messages = require('../utils/messages'),
+  dataservers = require('../utils/dataservers');
 
 var infos = {
   version : '0.1.0',

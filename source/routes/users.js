@@ -2,13 +2,13 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
   messages = require('../utils/messages'),
   users = require('../storage/users'),
   requireRoles = require('../middleware/requireRoles'),
-  db = require('../storage/database.js'),
+  db = require('../storage/database'),
   logger = require('winston'),
-  encryption = require('../utils/encryption.js'),
+  encryption = require('../utils/encryption'),
   async = require('async'),
-  dataservers = require('../utils/dataservers.js'),
-  reservedWords = require('../storage/reserved-userid.js'),
-  invitationToken = require('../storage/invitations.js');
+  dataservers = require('../utils/dataservers'),
+  reservedWords = require('../storage/reserved-userid'),
+  invitationToken = require('../storage/invitations');
 
 /**
  * Routes for users

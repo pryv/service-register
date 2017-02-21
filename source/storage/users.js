@@ -2,15 +2,15 @@
  * Extension of database.js dedicated to user management
  */
 
-var db = require('../storage/database.js'),
+var db = require('../storage/database'),
   async = require('async'),
   exports = exports || {},
   _ = require('underscore'),
   logger = require('winston'),
   config = require('../utils/config'),
-  dataservers = require('../network/dataservers.js'),
+  dataservers = require('../utils/dataservers'),
   domain = '.' + config.get('dns:domain'),
-  invitationToken = require('./invitations.js');
+  invitationToken = require('./invitations');
 
 /**
  * Create (register) a new user

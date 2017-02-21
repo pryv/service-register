@@ -1,8 +1,8 @@
 var express = require('express'),
-  messages = require('../utils/messages.js'),
-  checkAndConstraints = require('../utils/check-and-constraints.js'),
-  accessCommon = require('../utils/access-lib.js'),
-  invitationToken = require('../storage/invitations.js');
+  messages = require('../utils/messages'),
+  checkAndConstraints = require('../utils/check-and-constraints'),
+  accessCommon = require('../utils/access-lib'),
+  invitationToken = require('../storage/invitations');
 
 /**
  * Routes handling applications access

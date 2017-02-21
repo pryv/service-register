@@ -2,7 +2,7 @@
 
 var server = require('../../source/server'),
   dataValidation = require('../support/data-validation'),
-  schemas = require('../support/schema.responses.js'),
+  schemas = require('../support/schema.responses'),
   request = require('superagent'),
   _ = require('lodash');
 
