@@ -27,11 +27,12 @@ module.exports = function (app) {
         return next(messages.ei());
       }
 
-      if (result) {
-        return res.redirect(aaservers_mode + '://' + result + '/?username=' + uid);
+      if(!result) {
+        return res.redirect(confirmDisplayErrorUrl + '?id=UNKNOWN_USER_NAME');
       }
 
-      return res.redirect(confirmDisplayErrorUrl + '?id=UNKNOWN_USER_NAME');
+      return res.redirect(aaservers_mode + '://' + result + '/?username=' + uid);
+
     });
   });
 
@@ -51,11 +52,12 @@ module.exports = function (app) {
         return next(messages.ei());
       }
 
-      if (result) {
-        return res.json({server: result, alias: uid + domain }, 200);
+      if(!result) {
+        return next(messages.e(404, 'UNKNOWN_USER_NAME'));
       }
 
-      return next(messages.e(404, 'UNKNOWN_USER_NAME'));
+      return res.json({server: result, alias: uid + domain }, 200);
+
     });
   });
 };
