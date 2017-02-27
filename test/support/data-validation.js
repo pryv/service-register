@@ -1,9 +1,11 @@
 /*global it*/
-var config = require('../config-test');
+var config = require('../../source/utils/config');
 var validate = require('json-schema').validate;
 var querystring = require('querystring');
-var schemas = require('../../source/model/schema.responses');
-var _s = require('underscore.string');
+var schemas = require('./schema.responses');
+var request = require('superagent');
+var should = require('should');
+
 /**
  *
  * test structure
@@ -38,77 +40,42 @@ var _s = require('underscore.string');
  */
 exports.pathStatusSchema = function pathStatusSchema(test) {
   it(test.it, function (done) {
-    var _protocol = false;
 
-    //-- Prepare the http request --//
-    if (_s.startsWith(test.url, '/')) {
-      test.url = config.get('http:register:url') + test.url;
-    }
-    if (_s.startsWith(test.url, 'http')) {
-      _protocol = _s.startsWith(test.url, 'https') ? 'https': 'http';
-    } else {
-      throw new Error('Cannot determine protocol: ' + test.url);
-    }
-
-    var urlO = require('url').parse(test.url);
-
-    var http_options = {
-      host: urlO.hostname,
-      port: urlO.port,
-      path: urlO.path,
-      method: test.method
-    };
-
-    var http = require(_protocol);
-
-
+    var url = config.get('server:url') + test.url;
     var post_data = '';
+    var req;
+
+    // POST request
     if (test.method === 'POST') {
+      req = request.post(url);
       if (test.contenttype === 'JSON') {
         post_data = JSON.stringify(test.data);
-        http_options.headers = {
-          'Content-Type': 'application/json',
-          'Content-Length': post_data.length
-        };
+        req.set('Content-Type', 'application/json');
+        req.set('Content-Length', post_data.length);
       } else if (test.contenttype === 'JSONSTRING') {
         post_data = test.data;
-        http_options.headers = {
-          'Content-Type': 'application/json',
-          'Content-Length': post_data.length
-        };
+        req.set('Content-Type', 'application/json');
+        req.set('Content-Length', post_data.length);
       } else { // JSON to STRING
         post_data = querystring.stringify(test.data);
-        http_options.headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': post_data.length
-        };
+        req.set('Content-Type', 'application/x-www-form-urlencoded');
+        req.set('Content-Length', post_data.length);
       }
+      req.send(post_data);
     }
-    //console.log(JSON.stringify(test));
-    //
-    //console.log(JSON.stringify(http_options));
+    // GET request
+    else {
+      req = request.get(url);
+    }
+    // Validate response
+    req.end(function(err, res) {
+      should.not.exists(err);
+      should.exists(res);
+      res.should.have.status(test.status);
 
-
-    //-- Do request --//
-    var req = http.request(http_options, function (res) {
-      var error_status = false;
-
-      try {
-        res.should.have.status(test.status);
-      } catch (e) {
-        error_status = e;
-      }
-
-      // process response
-      jsonResponse(res, test, done, error_status, http_options, post_data);
-
-    }).on('error', function (e) {
-      throw new Error('Got error: ' + e.message, e);
+      jsonResponse(res, test, done);
     });
-    if (test.method === 'POST') {
-      req.write(post_data);
-    }
-    req.end();
+
   });
 };
 
@@ -118,74 +85,50 @@ exports.jsonResponse = jsonResponse;
  * JSchema: jscon-schema for validation
  * JValues: expected key-value pair for content validation
  */
-function jsonResponse(res, test, callback_done, error_status, http_options, post_data) {
+function jsonResponse(err, res, test, callback_done) {
 
-  var bodyarr = [];
-  res.on('data', function (chunk) { bodyarr.push(chunk); });
-  res.on('end', function () {
+  should.not.exists(err);
+  should.exists(res);
+  res.should.have.status(test.status);
 
-    function display_error() {
-      console.log('\nREQUEST: ' + http_options.method + ' ' + http_options.host + ':' +
-          http_options.port + http_options.path);
-      console.log('HEADERS: ' + JSON.stringify(http_options.headers));
-      console.log('BODY: ' + post_data);
-      console.log('\nRESPONSE\nSTATUS: ' + res.statusCode);
-      console.log('HEADERS: ' + JSON.stringify(res.headers));
-      console.log('BODY: ');
-      console.log(bodyarr.join(''));
+  // test headers?
+  if (test.headers) {
+    validateHeadersValues(test.headers, res.headers);
+  }
+
+  if (test.restype) {
+    // also for text/plain
+    res.headers['content-type'].should.equal(test.restype);
+
+    // test constants
+    if (test.value) {
+      var body = (test.restype === 'text/plain') ? res.text : res.body;
+      body.should.equal(test.value);
     }
-    if (error_status) {
-      display_error();
-      throw error_status;
+
+  } else {// default JSON
+    /*jshint -W030 */
+    res.should.be.json;
+
+    // test schema
+    if (test.JSchema) {
+      validateJSONSchema(res.body, test.JSchema);
     }
 
-    var data = null;
-
-    try {
-      // test headers?
-      if (test.headers) {
-        validateHeadersValues(test.headers, res.headers);
-      }
-
-      if (test.restype) {
-        // also for text/plain
-        res.headers['content-type'].should.equal(test.restype);
-        data = bodyarr.join('');
-
-        // test constants
-        if (test.value) {
-          data.should.equal(test.value);
-        }
-
-      } else {// default JSON
-        /*jshint -W030 */
-        res.should.be.json;
-        data = JSON.parse(bodyarr.join(''));
-
-        // test schema
-        if (test.JSchema) {
-          validateJSONSchema(data, test.JSchema);
-        }
-
-        // test constants
-        if (test.JValues) {
-          validateJsonValues(test.JValues, data);
-        }
-
-      }
-
-      // if everything works.. then callback for result
-
-      if (test.nextStep) {
-        test.nextStep(test, data);
-      }
-
-    } catch (e) {
-      display_error();
-      throw e;
+    // test constants
+    if (test.JValues) {
+      validateJsonValues(test.JValues, res.body);
     }
-    callback_done();
-  });
+
+  }
+
+  // if everything works.. then callback for result
+
+  if (test.nextStep) {
+    test.nextStep(test, res.body);
+  }
+
+  callback_done();
 }
 
 
@@ -199,18 +142,17 @@ function validateJSONSchema(responseData, jsonSchema) {
  * helper that test the content of a JSON structure
  **/
 function validateJsonValues(tests, data_json) {
-  //console.log('\n****'); console.log(tests); console.log(data_json);
   for (var key in tests) {
     if (tests.hasOwnProperty(key)) {
-      var testa = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??
-      var dataa = data_json[key];
-      if (testa instanceof Array) {
+      var test = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??
+      var data = data_json[key];
+      if (test instanceof Array) {
         // check values as of an ordered array
-        for (var i = 0; i < testa.length; i++) {
-          validateJsonValues(testa[i], dataa[i]);
+        for (var i = 0; i < test.length; i++) {
+          validateJsonValues(test[i], data[i]);
         }
       } else {
-        testa.should.equal(dataa);
+        data.should.equal(test);
       }
     }
   }

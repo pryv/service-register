@@ -20,11 +20,10 @@ app.configure('production', function () {
 
 app.configure(function () {
   app.use(express.favicon(__dirname + '/public/favicon.ico'));
-  app.use(require('./patched-modules/customJsonBodyParser.js'));
+  app.use(require('./middleware/patchJsonBodyParser'));
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(require('./middleware/cross-domain'));
-  app.use(require('./middleware/debug'));
   logger.setLevels(logger.config.syslog.levels);
   // TODO: setup logger handling for uncaught exceptions
 });
@@ -34,25 +33,18 @@ app.configure(function () {
 require('./routes/index')(app);
 
 // service infos
-require('./routes/service.js')(app);
+require('./routes/service')(app);
 
 // public API routes
-require('./routes/email.js')(app);
-require('./routes/user.js')(app);
-
-require('./routes/server.js')(app);
-
-//access
-require('./routes/access.js')(app);
-
-require('./routes/hostings.js')(app);
-
-require('./routes/apps.js')(app);
+require('./routes/email')(app);
+require('./routes/server')(app);
 
 // private API  routes
-require('./routes/users.js')(app);
-require('./routes/admin.js')(app);
+require('./routes/users')(app);
+require('./routes/admin')(app);
 
+//access
+require('./routes/access')(app);
 
 //error management (evolution)
-require('./utils/app-errors.js')(app);
+require('./middleware/app-errors')(app);

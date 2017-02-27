@@ -1,23 +1,21 @@
-/* jshint ignore:start */
-var config = require('../utils/config');
-var logger = require('winston');
-
 const url = require('url');
-const http = require("http");
-const https = require("https");
-
-/**
- * deal with the server logic
- * - find the closest server for an IP
- * - convert
- **/
-//http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
-//https://github.com/benlowry/node-geoip-native
-
+const http = require('http');
+const https = require('https');
+const config = require('./config');
 
 var hostings = null;
+
+/**
+ * Get the hostings list, deal with the server logic:
+ * - find the closest server for and IP
+ * - convert
+ * @returns: the list of hostings
+ * See:
+ * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
+ * https://github.com/benlowry/node-geoip-native
+ */
 exports.hostings = function () {
-  if (hostings === null) {
+  if (!hostings) {
     var aaservers = config.get('net:aaservers');
     hostings = config.get('net:aahostings');
     Object.keys(hostings.regions).forEach(function (region) {    // for each region(default config)
@@ -25,32 +23,24 @@ exports.hostings = function () {
         Object.keys(hostings.regions[region].zones).forEach(function (zone) { // zones
           if (hostings.regions[region].zones[zone].hostings) {
             Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
-              hostings.regions[region].zones[zone].hostings[hosting].available = false;
-              if (aaservers[hosting] && aaservers[hosting].length > 0) {
-                hostings.regions[region].zones[zone].hostings[hosting].available = true;
-              }
+              hostings.regions[region].zones[zone].hostings[hosting].available =
+                aaservers[hosting] && aaservers[hosting].length > 0;
             });
           }
         });
       }
     });
-
   }
-
   return hostings;
 };
 
 /**
- *
- * @param hosting
- * @param callback(error,hostname)
+ * Retrieve host associated with provided hosting
+ * @param hosting: the hosting
+ * @returns: the corresponding host if existing, 'null' otherwise
  */
 exports.getHostForHosting = function (hosting) {
-
   var servers = config.get('net:aaservers:' + hosting);
-
-
-  //require('../utils/dump').inspect({hosting: hosting, servers: servers});
 
   if (! servers || servers.length === 0) {
     return null;
@@ -60,8 +50,7 @@ exports.getHostForHosting = function (hosting) {
   return servers[i];
 };
 
-
-
+/*
 //http://catapulty.tumblr.com/post/8303749793/heroku-and-node-js-how-to-get-the-client-ip-address
 function getClientIp(req) {
   var ipAddress = null;
@@ -81,10 +70,14 @@ function getClientIp(req) {
   }
   return ipAddress;
 }
+*/
 
 function getLegacyAdminClient(host, path, postData) {
   const useSSL = config.get('net:aaservers_ssl') || true;
+
+  // SIDE EFFECT
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
+
   const httpClient = useSSL ? https : http; 
 
   var httpOptions = {
@@ -139,13 +132,7 @@ function getAdminClient(host, path, postData) {
     method: 'POST',
     rejectUnauthorized: false
   };
-  
-  httpOptions.headers = {
-    'Content-Type': 'application/json',
-    'authorization': host.authorization,
-    'Content-Length': postData.length
-  };
-  
+    
   // SIDE EFFECT
   host.name = coreServer.hostname;
   
@@ -172,7 +159,6 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     var content =  '\n Request: ' + httpCall.options.method + ' ' +
       httpCall.options.host + ':' + httpCall.options.port + '' + httpCall.options.path +
       '\n Data: ' + postData;
-    // console.error(require('../utils/dump.js').curlHttpRequest(httpOptions,config.get('net:aaservers_ssl'),postData))
     return callback(reason + content, null);
   };
 
@@ -190,8 +176,8 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     });
 
   }).on('error', function (e) {
-      return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
-    });
+    return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
+  });
 
 
   req.on('socket', function (socket) {
@@ -208,4 +194,3 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
 exports.getAdminClient = getAdminClient; 
 exports.postToAdmin = postToAdmin;
-/* jshint ignore:end */

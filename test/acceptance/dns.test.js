@@ -1,5 +1,5 @@
 /*global describe, it, before*/
-var config = require('../config-dns-test');
+var config = require('../../source/utils/config');
 var exec = require('child_process').exec;
 require('../../source/app-dns');
 var _s = require('underscore.string');

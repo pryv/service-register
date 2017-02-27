@@ -10,6 +10,7 @@
     "bcrypt": "0.8.x",
     "express": "3.5.x",
     "json-schema": "0.2.x",
+    "lodash": "2.4.x",
     "nconf": "0.6.x",
     "node-oauth2-server": "~2.0.2",
     "nodemailer": "0.3.x",
@@ -22,9 +23,12 @@
     "winston": "0.6.x"
   },
   "devDependencies": {
-    "mocha": "latest",
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.16.1",
+    "eslint-plugin-flowtype": "^2.30.0",
+    "mocha": "3.0.2",
+    "rec-la": "^0.1.2",
     "should": "3.3.1",
-    "superagent": "latest",
-    "rec-la": "^0.1.2"
+    "superagent": "^0.18.0"
   }
 }

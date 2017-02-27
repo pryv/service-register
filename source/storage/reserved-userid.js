@@ -1,8 +1,12 @@
-var logger = require('winston');
-var db = require('../storage/database.js');
-var config = require('../utils/config');
+/**
+ * Extension of database.js dedicated to reserved user id
+ */
 
-//Reserved words
+var logger = require('winston'),
+  db = require('../storage/database'),
+  config = require('../utils/config');
+
+// Reserved words
 var wordsLoaded = require('readyness').waitFor('reservedWords');
 
 load(function (error) {
@@ -12,12 +16,16 @@ load(function (error) {
   wordsLoaded();
 });
 
-
+/**
+ * Load an up-to-date version of reserved words
+ * @param callback: function(error)
+ */
 function load(callback) {
-
   db.reservedWordsVersion(function (error, currentVersion) {
-    if (error) {  return callback(error); }
-    var words = require('../references/reserved-words.json');
+    if (error) {
+      return callback(error);
+    }
+    var words = require('../public/reserved-words.json');
     if (currentVersion === words.version) {
       logger.info('Reserved word list version: ' + words.version + ' is up to date');
       words = null;
@@ -25,7 +33,9 @@ function load(callback) {
     }
 
     db.reservedWordsLoad(words.version, words.list, function (error) {
-      if (error) { return callback(error); }
+      if (error) {
+        return callback(error);
+      }
       logger.info('Reserved word list updated to version ' + words.version +
         ' with ' + words.list.length + ' words');
       words = null;
@@ -35,13 +45,16 @@ function load(callback) {
 }
 
 /**
+ * Check if username is available by verifying the following:
  * - not a static DNS entry
  * - not starting by "pryv"
- * - not in the reserved word list ) case-insensitive
- * uid must have already been checked and cleaned by check-and-constraints.uid(..
+ * - not in the reserved word list
+ * uid must have already been checked and cleaned by check-and-constraints.uid
  */
 exports.useridIsReserved = function (userid, callback) {
-  if (! userid) { return null; }
+  if (! userid) {
+    return null;
+  }
   userid = userid.toLowerCase();
   if (/^(pryv)+(.*)$/.test(userid)) {
     return callback(null, true);
@@ -50,7 +63,5 @@ exports.useridIsReserved = function (userid, callback) {
   if (config.get('dns:staticDataInDomain:' + userid)) {
     return callback(null, true);
   }
-  db.reservedWordsExists(userid, callback);
-
-
+  db.reservedWordExists(userid, callback);
 };

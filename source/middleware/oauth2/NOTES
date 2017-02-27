@@ -1,0 +1,22 @@
+curl "http://localhost:9090/oauth/authorise?client_id=ifttt&"
+curl -X -v -d 'client_id=ifttt&client_secret=sadfjt125dasvhGSDdhas&grant_type=authorization_code'
+-X POST "http://localhost:9090/oauth/token"
+
+curl "http://localhost:9090/oauth/authorise?client_id=ifttt-all&response_type=code&
+redirect_uri=https://ifttt.com/channels/pryv/authorize&scope=ifttt&state=-8da2pciLMkqa4X_XdaQ4g"
+
+POST /oauth2/token HTTP/1.1
+Accept-Encoding: gzip,deflate
+host: s2.simpledata.ch:9090
+content-type: application/x-www-form-urlencoded; charset=utf-8
+content-length: 170
+Connection: keep-alive
+
+client_id=ifttt&client_secret=sadfjt125dasvhGSDdhas&
+grant_type=authorization_code&code=UhdDI7wTQWhJWGhQ&
+redirect_uri=https%3A%2F%2Fifttt.com%2Fchannels%2Fpryv%2Fauthorize
+
+curl -X POST -d "client_id=ifttt-all&client_secret=sadfjt125dasvhGSDdhas&
+grant_type=authorization_code&code=UhdDI7wTQWhJWGhQ&
+redirect_uri=https%3A%2F%2Fifttt.com%2Fchannels%2Fpryv%2Fauthorize"
+"http://localhost:9090/oauth/token"

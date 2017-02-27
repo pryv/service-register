@@ -2,6 +2,9 @@
   "redis" : {
     "password": "MyRecordedLife"
   },
+  "airbrake": {
+    "disable": true
+  },
   "auth": {
     "authorizedKeys": {
       "test-admin-key": { "roles": ["admin"] },
@@ -15,7 +18,7 @@
     "domain": "rec.la",
     "staticDataInDomain": {
       "www": {"alias": [ { "name": "local.rec.la" } ]},
-      "sw": {"alias": [ { "name": "local.rec.la" } ]},
+      "sw": {"alias": [ { "name": "sw.pryv.in" } ]},
       "reg": {"alias": [ { "name": "reglocal.rec.la" } ]}
     }
   },
@@ -30,7 +33,8 @@
   },
   "server": {
     "certsPathAndKey": "node_modules/rec-la/src/rec.la" ,
-    "port": 8443
+    "port": 8443,
+    "ssl": "false"
   },
   "net": {
     "aahostings" : {
@@ -63,6 +67,22 @@
         "port": 3443,
         "authorization": "register-test-token"
       }]
+    }
+  },
+  "appList": {
+    "test-a": {
+      "displayName": "Test app A",
+      "description": "Test app A description",
+      "iconURL": "http://placehold.it/150&text=A",
+      "appURL": "https://pryv.com",
+      "settingsPageURL": "https://api.pryv.com"
+    },
+    "test-b": {
+      "displayName": "Test app B",
+      "description": "Test app B description",
+      "iconURL": "http://placehold.it/150&text=B",
+      "appURL": "https://pryv.com",
+      "settingsPageURL": "https://api.pryv.com"
     }
   }
 }

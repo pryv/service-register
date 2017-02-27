@@ -1,17 +1,17 @@
 /**
- * provides tools to construct messages for clients.
+ * Provides tools to construct messages for clients.
  */
 
-var logger = require('winston');
-var mstrings = require('../public/messages-en.js');
+var logger = require('winston'),
+  mstrings = require('../public/messages-en');
 
-//add ids to all messages
+// Add ids to all messages
 Object.keys(mstrings).forEach(function (key) {
   mstrings[key].id = key;
 });
 
 /**
- * add also the id into the message
+ * Add also the id into the message
  */
 function cloneMessage(id) {
   var t = mstrings[id];
@@ -22,26 +22,25 @@ function cloneMessage(id) {
 }
 
 /**
- *
- * @param id  string key of the message to display (references /messages-<lang code>.js)
- * @param addons  key / value json object to be dumped with the message
- * @return {*}
+ * Construct a message to display according to message id
+ * @param id: string key of the message (public/messages-<lang code>.js)
+ * @param addons : optional key/value json object to be dumped with the message
+ * @return {*}: the generated message
  */
 function say(id, addons) {
   var content = cloneMessage(id);
   // merge addons
   if (addons) {
-
     for (var i in addons) {
       if (addons.hasOwnProperty(i)) { content[i] = addons[i]; }
     }
   }
-
   return content;
 }
+exports.say = say;
 
 /**
-// create a JSON ready error for this code
+// Create a JSON ready error for this code
 function error_data(id, extra) {
   var content = mstrings['en'][id];
   if (content == undefined) {
@@ -53,23 +52,41 @@ function error_data(id, extra) {
 }
  **/
 
-
-//sugar for errors
-/** internal error **/
-exports.ei = function ei(error) {
-  if (! error) { error = new Error(); }
-  if (! (error instanceof Error)) { error = new Error(error); }
+/**
+ * Sugar for internal error
+ * @param error: object representing the error
+ * @returns: the error to be thrown
+ */
+exports.ei = function (error) {
+  if (! error) {
+    error = new Error();
+  }
+  if (! (error instanceof Error)) {
+    error = new Error(error);
+  }
   logger.error('internal error : ' + error.message + '\n' +  error.stack);
   return new REGError(500, say('INTERNAL_ERROR'));
 };
 
-/** single error **/
-exports.e = function e(httpCode, id, addons) {
+/**
+ * Sugar for single error
+ * @param httpCode: http code for this error
+ * @param id: id of the error message
+ * @param addons: optional key/value json object to be dumped with the message
+ * @returns: the error to be thrown
+ */
+exports.e = function (httpCode, id, addons) {
   return new REGError(httpCode, say(id, addons));
 };
 
-/** error with sub errors **/
-exports.ex = function ex(httpCode, id, suberrors) {
+/**
+ * Sugar for error with sub errors
+ * @param httpCode: http code for this error
+ * @param id: id of the error message
+ * @param suberrors: array of suberrors
+ * @returns: the error to be thrown
+ */
+exports.ex = function (httpCode, id, suberrors) {
   var data = cloneMessage(id);
   data.errors = [];
   for (var i = 0; i < suberrors.length ; i++) {
@@ -78,7 +95,9 @@ exports.ex = function ex(httpCode, id, suberrors) {
   return new REGError(httpCode, data);
 };
 
-//REG ERRORS
+/**
+ * Custom object for register errors
+ */
 var REGError = exports.REGError = function (httpCode, data) {
   this.httpCode = httpCode;
   this.data = data;
@@ -87,6 +106,3 @@ var REGError = exports.REGError = function (httpCode, data) {
 REGError.prototype = Object.create(Error.prototype, {
   constructor: { value: REGError }
 });
-
-
-exports.say = say;

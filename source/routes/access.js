@@ -1,46 +1,27 @@
-//check if a UID exists
+var express = require('express'),
+  messages = require('../utils/messages'),
+  checkAndConstraints = require('../utils/check-and-constraints'),
+  accessCommon = require('../utils/access-lib'),
+  invitationToken = require('../storage/invitations');
 
-var express = express = require('express');
-var messages = require('../utils/messages.js');
-var checkAndConstraints = require('../utils/check-and-constraints.js');
+/**
+ * Routes handling applications access
+ * @param app
+ */
+module.exports = function (app) {
 
-var accessCommon = require('../access/access-lib.js');
-
-var invitationToken = require('../storage/invitations.js');
-
-
-function requestAccess(req, res, next) {
-
-  var params =  req.body;
-  params.sso = req.signedCookies.sso;
-
-  accessCommon.requestAccess(params, function (accessState) {
-
-    res.json(accessState, accessState.code);
-  }, next);
-}
-
-
-function setAccessState(res, next, key, accessState) {
-  accessCommon.setAccessState(key, accessState, function (accessState) {
-    res.json(accessState, accessState.code);
-  }, function (errorMessage) {
-    next(errorMessage);
-  });
-}
-
-function access(app) {
-
-
+  /**
+   * All access routes use cookies
+   */
   app.all('/access/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
 
   /**
-   * request an access
+   * POST /access: request an access
    */
-  app.post('/access', requestAccess);
+  app.post('/access', _requestAccess);
 
   /**
-   * access tester
+   * POST /access/invitationtoken/check: check validity of an invitation token
    */
   app.post('/access/invitationtoken/check', function (req, res) {
     invitationToken.checkIfValid(req.body.invitationtoken, function (isValid/*, error*/) {
@@ -50,7 +31,7 @@ function access(app) {
   });
 
   /**
-   * polling responder
+   * GET /access/:key: access polling with given key
    */
   app.get('/access/:key', function (req, res, next) {
     accessCommon.testKeyAndGetValue(req.params.key, function (value) {
@@ -59,12 +40,11 @@ function access(app) {
   });
 
   /**
-   * change access state
+   * POST /access/:key: update state of access polling
    */
   app.post('/access/:key', function (req, res, next) {
     var key = req.params.key;
     accessCommon.testKeyAndGetValue(key, function (/*value*/) {
-
 
       if (req.body.status === 'REFUSED') {
         var accessStateA = {
@@ -73,9 +53,9 @@ function access(app) {
           message:  req.body.message || '',
           code: 403
         };
+        _setAccessState(res, next, key, accessStateA);
 
-        setAccessState(res, next, key, accessStateA);
-      }  else if (req.body.status === 'ERROR') {
+      } else if (req.body.status === 'ERROR') {
         var accessStateB = {
           status: 'ERROR',
           id: req.body.id || 'INTERNAL_ERROR',
@@ -83,16 +63,13 @@ function access(app) {
           detail:  req.body.detail || '',
           code: 403
         };
+        _setAccessState(res, next, key, accessStateB);
 
-        setAccessState(res, next, key, accessStateB);
       } else if (req.body.status === 'ACCEPTED') {
-
         var username = checkAndConstraints.uid(req.body.username);
-
         if (! username) {
           return next(messages.e(400, 'INVALID_USER_NAME'));
         }
-
 
         if (! checkAndConstraints.appToken(username)) {
           return next(messages.e(400, 'INVALID_DATA'));
@@ -105,13 +82,26 @@ function access(app) {
           code: 200
         };
 
-        setAccessState(res, next, key, accessStateC);
+        _setAccessState(res, next, key, accessStateC);
       }
     }, next);
   });
+};
 
+function _requestAccess(req, res, next) {
+  var params =  req.body;
+  params.sso = req.signedCookies.sso;
 
+  accessCommon.requestAccess(params, function (accessState) {
+    res.json(accessState, accessState.code);
+  }, next);
 }
 
 
-module.exports = access;
+function _setAccessState(res, next, key, accessState) {
+  accessCommon.setAccessState(key, accessState, function (accessState) {
+    res.json(accessState, accessState.code);
+  }, function (errorMessage) {
+    next(errorMessage);
+  });
+}
