@@ -1,12 +1,12 @@
 /*global require*/
 var logger = require('winston'),
-  redis = require('redis').createClient(
+    config = require('../utils/config'),
+    redis = require('redis').createClient(
     config.get('redis:port'), config.get('redis:host')),
-  config = require('../utils/config'),
-  async = require('async'),
-  semver = require('semver');
+    async = require('async'),
+    semver = require('semver');
 
-var exports = exports || {}; // just for IJ to present structure
+var exports = exports || {}; // just for IJ to present structure
 
 // Redis error management
 redis.on('error', function (err) {
@@ -14,8 +14,8 @@ redis.on('error', function (err) {
 });
 
 var LASTEST_DB_VERSION = '0.1.1',
-  DBVERSION_KEY = 'dbversion',
-  dbversion = null;
+    DBVERSION_KEY = 'dbversion',
+    dbversion = null;
 
 var connectionChecked = require('readyness').waitFor('database');
 
@@ -284,9 +284,8 @@ exports.doOnKeysMatching = doOnKeysMatching;
 function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 
   var receivedCount = 0,
-    actionThrown = 0,
-    waitFor = -1,
-    errors = [];
+      waitFor = -1,
+      errors = [];
 
   var checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
@@ -309,9 +308,8 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
           logger.error('doOnKeysValuesMatching: ' + keyMask + ' ' + valueMask + ' e: ' + error,
             error);
         } else {
-          if (valueMask === '*' || valueMask === result) {
+          if (valueMask === '*' || valueMask === result) {
             action(key, result);
-            actionThrown++;
           }
         }
         receivedCount++;
