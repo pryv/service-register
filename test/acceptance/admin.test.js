@@ -1,9 +1,9 @@
 /*global describe, it*/
-var config = require('../config-test');
+var config = require('../../source/utils/config');
 var server = require('../../source/server');
 
 var dataValidation = require('../support/data-validation');
-var schema = require('../../source/model/schema.responses');
+var schema = require('../support/schema.responses');
 
 var request = require('superagent');
 
@@ -14,73 +14,111 @@ var domain = config.get('dns:domain');
 var authAdminKey = 'test-admin-key';
 var authSystemKey = 'test-system-key';
 
-
-
 describe('GET /admin/servers/:serverName/users', function () {
-  var tests = [
-    { serverName: 'a', status: 400, desc : 'invalid',
-      JSchema : schema.error, JValues: {id: 'INVALID_DATA'}},
 
-    { serverName: 'ab.cd.ef', status: 200, desc : 'empty',
-      JSchema : schema.userList, JValues: {users: []}},
+  it('invalid', function (done) {
+    var test = { serverName: 'a', status: 400, desc : 'invalid',
+      JSchema : schema.error, JValues: {id: 'INVALID_DATA'}};
+    var path = '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
-    { serverName: domain, status: 200, desc : 'good',
-      JSchema : schema.userList, JValues: {users: ['wactiv']}}
-  ];
+    request.get(server.url + path).end(function(err,res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
 
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc + ', serverName: ' + tests[key].serverName;
-    tests[key].url = '/admin/servers/' + tests[key].serverName + '/users' + '?auth=' + authAdminKey;
-    tests[key].method = 'GET';
+  it('empty', function (done) {
+    var test = { serverName: 'ab.cd.ef', status: 200, desc : 'empty',
+      JSchema : schema.userList, JValues: {users: []}};
+    var path = '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
-    dataValidation.pathStatusSchema(tests[key]);
-  }
+    request.get(server.url + path).end(function(err,res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('good', function (done) {
+    var test = { serverName: domain, status: 200, desc : 'good',
+      JSchema : schema.userList, JValues: {users: ['wactiv']}};
+    var path = '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
+
+    request.get(server.url + path).end(function(err,res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
 });
 
 describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () {
 
-  var tests = [
-    { srcServerName: 'a', dstServerName: 'ab.cd.ef', status: 400, desc : 'invalid src',
-      JSchema : schema.error, JValues: {id: 'INVALID_DATA'}},
+  it('invalid src', function (done) {
+    var test = { srcServerName: 'a', dstServerName: 'ab.cd.ef', status: 400, desc : 'invalid src',
+      JSchema : schema.error, JValues: {id: 'INVALID_DATA'}};
+    var path = '/admin/servers/' + test.srcServerName +
+      '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
-    { srcServerName: 'ab.cd.ef', dstServerName: 'a', status: 400, desc : 'invalid dst',
-      JSchema : schema.error, JValues: {id: 'INVALID_DATA'}},
+    request.get(server.url + path).end(function(err,res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
 
-    { srcServerName: 'ab.cd.ef', dstServerName: 'ab.cd.ef', status: 200, desc : 'empty',
-      JSchema : schema.count, JValues: {count: 0}},
+  it('invalid dst', function (done) {
+    var test = { srcServerName: 'ab.cd.ef', dstServerName: 'a', status: 400, desc : 'invalid dst',
+      JSchema : schema.error, JValues: {id: 'INVALID_DATA'}};
+    var path = '/admin/servers/' + test.srcServerName +
+      '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
-    { srcServerName: domain, dstServerName: 'ab.cd.ef', status: 200, desc : '1 done',
-      JSchema : schema.count, JValues: {count: 1}},
+    request.get(server.url + path).end(function(err,res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
 
-    { srcServerName: 'ab.cd.ef', dstServerName: domain, status: 200, desc : '1 done',
-      JSchema : schema.count, JValues: {count: 1}}
-  ];
+  it('empty', function (done) {
+    var test = { srcServerName: 'ab.cd.ef', dstServerName: 'ab.cd.ef', status: 200, desc : 'empty',
+      JSchema : schema.count, JValues: {count: 0}};
+    var path = '/admin/servers/' + test.srcServerName +
+      '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
 
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc + ', src: ' + tests[key].srcServerName +
-      ' dest:' + tests[key].srcServerName;
-    tests[key].url = '/admin/servers/' + tests[key].srcServerName +
-      '/rename/' + tests[key].dstServerName + '?auth=' + authSystemKey;
-    tests[key].method = 'GET';
+    request.get(server.url + path).end(function(err,res) {
+     dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
 
-    dataValidation.pathStatusSchema(tests[key]);
-  }
+  it('one done', function (done) {
+    var test = { srcServerName: domain, dstServerName: 'ab.cd.ef', status: 200, desc : '1 done',
+      JSchema : schema.count, JValues: {count: 1}};
+    var path = '/admin/servers/' + test.srcServerName +
+      '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
+
+    request.get(server.url + path).end(function(err,res) {
+    dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('other done', function (done) {
+    var test = { srcServerName: 'ab.cd.ef', dstServerName: domain, status: 200, desc : '1 done',
+      JSchema : schema.count, JValues: {count: 1}};
+    var path = '/admin/servers/' + test.srcServerName +
+      '/rename/' + test.dstServerName + '?auth=' + authSystemKey;
+
+    request.get(server.url + path).end(function(err,res) {
+       dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
 });
 
 
 describe('GET /admin/servers', function () {
-  var tests = [
-    { status: 200, desc : '1 done',
-      JSchema : schema.serverList  }
-  ];
 
-  for (var key = 0; key < tests.length; key++) { // create PATH and method
-    tests[key].it = tests[key].desc;
-    tests[key].url = '/admin/servers' + '?auth=' + authAdminKey;
-    tests[key].method = 'GET';
+  it('one done', function (done) {
+    var test = { status: 200, desc : '1 done',
+      JSchema : schema.serverList  };
+    var path = '/admin/servers' + '?auth=' + authAdminKey;
 
-    dataValidation.pathStatusSchema(tests[key]);
-  }
+    request.get(server.url + path).end(function(err,res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
 });
 
 

@@ -1,3 +1,5 @@
+// jshint ignore: start
+
 var util = require ('util');
 
 // https://github.com/Lennie/ndns/
@@ -1058,12 +1060,12 @@ function decode_bitstring (b, cpp, d, dn, eom) {
 		blen = 256;
 
 	plen = (blen + 3) / 4;
-	plen += "\\[x/]".length + (blen > 99 ? 3 : (blen > 9) ? 2 : 1);
+	plen += '\\[x/]'.length + (blen > 99 ? 3 : (blen > 9) ? 2 : 1);
 	if (dn + plen >= eom)
 		return (-1);
 
 	cp++;
-	i = d.write("\\[x", dn);
+	i = d.write('\\[x', dn);
 	if (i != 3)
 		return (-1);
 
@@ -1234,9 +1236,9 @@ function labellen (b, off) {
 
 var errno = {
 	val: {
-	"ENOENT": 2,
-	"EINVAL": 22,
-	"EMSGSIZE": 90,
+	'ENOENT': 2,
+	'EINVAL': 22,
+	'EMSGSIZE': 90
 	},
 	errno: null,
 	set: function (name) {
@@ -1246,7 +1248,7 @@ var errno = {
 	},
 	get: function () {
 		return this.errno;
-	},
+	}
 };
 exports.errno = errno;
 

@@ -9,15 +9,18 @@ var envIsDevelopment = ! process.env.NODE_ENV || process.env.NODE_ENV === 'devel
 var salt = bcrypt.genSaltSync(envIsDevelopment ? 1 : 10);
 
 /**
- * @param {String} value The value to be hashed.
- * @param {Function} callback (error, hash)
+ * Generate a hash from provided value
+ * @param value: the value to be hashed
+ * @param callback: callback (error, result), result being the generated hash
  */
 exports.hash = function(value, callback) {
   bcrypt.hash(value, salt, callback);
 };
 
 /**
- * For tests only.
+ * Synchronous hash function
+ * For tests only
+ * @param value: the value to be hashed
  */
 exports.hashSync = function(value) {
   return bcrypt.hashSync(value, salt);
@@ -27,6 +30,12 @@ exports.hashSync = function(value) {
  * @param {String} value The value to check
  * @param {String} hash The hash to check the value against
  * @param {Function} callback (error, {Boolean} result)
+ */
+/**
+ * Check if a provided value, once hashed, matches the provided hash
+ * @param value: the value to check
+ * @param hash: the hash to check match
+ * @param callback: function(err,res), res being 'true' if there is a match, 'false' otherwise
  */
 exports.compare = function(value, hash, callback) {
   bcrypt.compare(value, hash, callback);

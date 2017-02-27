@@ -1,22 +1,20 @@
-var config = require('../utils/config');
-var logger = require('winston');
-
-//-- 
-var httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http';
-var http = require(httpMode);
-
-/**
- * deal with the server logic
- * - find the closest server for an IP
- * - convert
- **/
-//http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
-//https://github.com/benlowry/node-geoip-native
-
+var config = require('./config'),
+  httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http',
+  http = require(httpMode);
 
 var hostings = null;
+
+/**
+ * Get the hostings list, deal with the server logic:
+ * - find the closest server for and IP
+ * - convert
+ * @returns: the list of hostings
+ * See:
+ * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
+ * https://github.com/benlowry/node-geoip-native
+ */
 exports.hostings = function () {
-  if (hostings === null) {
+  if (!hostings) {
     var aaservers = config.get('net:aaservers');
     hostings = config.get('net:aahostings');
     Object.keys(hostings.regions).forEach(function (region) {    // for each region(default config)
@@ -24,32 +22,24 @@ exports.hostings = function () {
         Object.keys(hostings.regions[region].zones).forEach(function (zone) { // zones
           if (hostings.regions[region].zones[zone].hostings) {
             Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
-              hostings.regions[region].zones[zone].hostings[hosting].available = false;
-              if (aaservers[hosting] && aaservers[hosting].length > 0) {
-                hostings.regions[region].zones[zone].hostings[hosting].available = true;
-              }
+              hostings.regions[region].zones[zone].hostings[hosting].available =
+                aaservers[hosting] && aaservers[hosting].length > 0;
             });
           }
         });
       }
     });
-
   }
-
   return hostings;
 };
 
 /**
- *
- * @param hosting
- * @param callback(error,hostname)
+ * Retrieve host associated with provided hosting
+ * @param hosting: the hosting
+ * @returns: the corresponding host if existing, 'null' otherwise
  */
 exports.getHostForHosting = function (hosting) {
-
   var servers = config.get('net:aaservers:' + hosting);
-
-
-  //require('../utils/dump').inspect({hosting: hosting, servers: servers});
 
   if (! servers || servers.length === 0) {
     return null;
@@ -59,8 +49,7 @@ exports.getHostForHosting = function (hosting) {
   return servers[i];
 };
 
-
-
+/*
 //http://catapulty.tumblr.com/post/8303749793/heroku-and-node-js-how-to-get-the-client-ip-address
 function getClientIp(req) {
   var ipAddress = null;
@@ -80,8 +69,16 @@ function getClientIp(req) {
   }
   return ipAddress;
 }
+*/
 
-//POST request to an admin server, callback(error,json_result)
+/**
+ * POST a request to an admin server
+ * @param host: the host to which to send the request (hostname and port)
+ * @param path: the request's path
+ * @param expectedStatus: the status expected as an answer of this request
+ * @param jsonData: the JSON body of this request
+ * @param callback: function(error,result), result being the answer body of this request as JSON
+ */
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
   var httpOptions = {
@@ -93,8 +90,6 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   };
   var postData = JSON.stringify(jsonData);
 
-  //console.log(postData);
-
   httpOptions.headers = {
     'Content-Type': 'application/json',
     'authorization': host.authorization,
@@ -105,7 +100,6 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     var content =  '\n Request: ' + httpOptions.method + ' ' +
       httpMode + '://' + httpOptions.host + ':' + httpOptions.port + '' + httpOptions.path +
       '\n Data: ' + postData;
-    // console.error(require('../utils/dump.js').curlHttpRequest(httpOptions,config.get('net:aaservers_ssl'),postData))
     return callback(reason + content, null);
   };
 
@@ -137,9 +131,6 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
   req.write(postData);
   req.end();
-
-
 }
-
 
 exports.postToAdmin = postToAdmin;

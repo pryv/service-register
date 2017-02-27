@@ -1,9 +1,9 @@
 // dns server 
 var logger = require('winston');
-var dns = require('./dnsserver-lib/ndns-warper.js');
+var dns = require('./dns/ndns-wrapper');
 var config = require('./utils/config');
-var checkAndConstraints = require('./utils/check-and-constraints.js');
-var db = require('./storage/database.js');
+var checkAndConstraints = require('./utils/check-and-constraints');
+var db = require('./storage/database');
 
 logger['default'].transports.console.level = 'debug';
 logger['default'].transports.console.colorize = true;
@@ -85,8 +85,10 @@ var serverForName = function (reqName, callback, req, res) {
   //console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
+  var uid;
+
   try {
-    var uid = checkAndConstraints.extractRessourceFromHostname(keyName);
+    uid = checkAndConstraints.extractResourceFromHostname(keyName);
   }
   catch (err) {
     logger.info('DNS: ' + err);

@@ -21,13 +21,13 @@ if (config.get('airbrake:disable') !== true) {
 logger.info('Register  server :' + config.get('http:register:url'));
 logger.info('Static  server :' + config.get('http:static:url'));
 
-
 if (config.get('server:port') > 0) {
 
   var serverOptions = {};
 
   var server = null,
       ssl = config.get('server:ssl');
+
   // HACK: config doesn't parse bools when passed from command-line
   if (ssl && ssl !== 'false') {
     serverOptions = {
@@ -47,6 +47,7 @@ if (config.get('server:port') > 0) {
     var protocol = server.key ? 'https' : 'http';
 
     server.url = protocol + '://' + address.address + ':' + address.port;
+    config.set('server:url', server.url);
 
     var readyMessage = 'Registration server v' + require('../package.json').version +
         ' [' + app.settings.env + '] listening on ' + server.url +
@@ -67,5 +68,4 @@ if (config.get('server:port') > 0) {
 }
 //start dns
 require('./app-dns');
-require('./oauth2/index.js');
-
+require('./middleware/oauth2/index');

@@ -3,7 +3,6 @@
 var nconf = require('nconf');
 var logger = require('winston');
 var fs = require('fs');
-var os = require('os');
 
 //Exports
 
@@ -17,7 +16,8 @@ nconf.argv()
   .env();
 
 //3. A file located at ..
-var configFile = fs.existsSync('local-config.json') ? 'local-config.json' : 'dev-config.json';
+var configFile =
+  fs.existsSync('dev-config.json') ? 'dev-config.json': 'localhost-config.json';
 if (typeof(nconf.get('config')) !== 'undefined') {
   configFile = nconf.get('config');
 }
@@ -35,7 +35,10 @@ nconf.file({ file: configFile});
 //Set default values
 nconf.defaults({
   dns: {
-    'defaultTTL' : 3600
+    'defaultTTL' : 3600,
+    'ip': '127.0.0.1',
+    'name': 'localhost',
+    'port': '2053'
   },
   auth: {
     authorizedKeys: {
@@ -91,7 +94,3 @@ nconf.defaults({
     // apps defined in specific configs (dev/staging/production)
   }
 });
-
-
-
-//Set network aware parameters

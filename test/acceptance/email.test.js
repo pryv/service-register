@@ -1,7 +1,7 @@
 /*global describe,it*/
 var server = require('../../source/server'),
     validation = require('../support/data-validation'),
-    schemas = require('../../source/model/schema.responses'),
+    schemas = require('../support/schema.responses'),
     request = require('superagent');
 
 require('readyness/wait/mocha');
@@ -14,16 +14,17 @@ describe('POST /email/check', function () {
     request.post(server.url + path).send({email: 'wactiv@pryv.io'}).end(function (res) {
       validation.check(res, {
         status: 200,
-        text: 'false'
+        text: 'true'
       }, done);
     });
   });
 
   it('available', function (done) {
-    request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'}).end(function (res) {
+    request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'})
+      .end(function (res) {
       validation.check(res, {
         status: 200,
-        text: 'true'
+        text: 'false'
       }, done);
     });
   });

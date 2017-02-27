@@ -1,47 +1,39 @@
 /*global require*/
-//handle the database
-var logger = require('winston');
-var redis = require('redis').createClient();
-var config = require('../utils/config');
-var async = require('async');
-var semver = require('semver');
+
+var logger = require('winston'),
+  redis = require('redis').createClient(),
+  config = require('../utils/config'),
+  async = require('async'),
+  semver = require('semver');
 
 var exports = exports || {}; // just for IJ to present structure
 
-//redis error management
+// Redis error management
 redis.on('error', function (err) {
   logger.error('Redis: ' + err.message);
 });
 
-var LASTEST_DB_VERSION = '0.1.1';
-var DBVERSION_KEY = 'dbversion';
-var dbversion = null;
+var LASTEST_DB_VERSION = '0.1.1',
+  DBVERSION_KEY = 'dbversion',
+  dbversion = null;
 
 var connectionChecked = require('readyness').waitFor('database');
 
-//PASSWORD CHECKING
-if (config.get('redis:password')) {
-  redis.auth(config.get('redis:password'), function () {
-    logger.info('Redis client authentified');
-    checkConnection();
-  });
-} else {
-  checkConnection();
-}
-
-
-
+/**
+ * Check redis database connectivity
+ */
 function checkConnection() {
-  //check redis connectivity
-  // do not remove, 'wactiv.server' is use by tests
   async.series([
-    function (nextStep) { // check db exits
+    function (nextStep) { // Check db exits
+      // Do not remove, 'wactiv.server' is used by tests
       var user = { id: 0, email: 'wactiv@pryv.io' };
-      exports.setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
+      setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
     },
-    function (nextStep) { // get db version
+    function (nextStep) { // Get db version
       redis.get(DBVERSION_KEY, function (error, result) {
-        if (error) { return nextStep(error); }
+        if (error) {
+          return nextStep(error);
+        }
         dbversion = result;
         if (! dbversion) {
           dbversion = LASTEST_DB_VERSION;
@@ -52,9 +44,11 @@ function checkConnection() {
         }
       });
     },
-    function (nextStep) { // update db to version 1
-      if (semver.lt(dbversion, LASTEST_DB_VERSION)) { return nextStep(); }
-      // convert all users to hashes
+    function (nextStep) { // Update db to version 1
+      if (semver.lt(dbversion, LASTEST_DB_VERSION)) {
+        return nextStep();
+      }
+      // Convert all users to hashes
       logger.info('updating db to version :' + LASTEST_DB_VERSION);
 
       doOnKeysValuesMatching('*:infos', '*', function (key, value) {
@@ -80,10 +74,9 @@ function checkConnection() {
         logger.error('DB not available: ', error);
         throw error;
       } else {
-        //-- check db structure
+        // Check db structure
         _findGhostsEmails();
         _findGhostsServer();
-
 
         connectionChecked('Redis');
       }
@@ -91,59 +84,35 @@ function checkConnection() {
   );
 }
 
-
 /**
- * simply map redis.set
+ * Simply map redis.set
  */
-function set(key, callback) {
+exports.set = function (key, callback) {
   redis.set(key, callback);
-}
-exports.set = set;
+};
 
 /**
- * simply map redis.get
+ * Simply map redis.get
  */
-function get(key, callback) {
+exports.get = function (key, callback) {
   redis.get(key, callback);
-}
-exports.get = get;
+};
 
 /**
- * simply map redis.hgetall
+ * Simply map redis.hgetall
  */
-exports.getSet = function getSet(key, callback) {
+function getSet(key, callback) {
   redis.hgetall(key, callback);
-};
+}
+exports.getSet = getSet;
 
 /**
- * get all Sets matching
+ * Get all sets from database matching a provided mask
+ * @param keyMask: the mask to filter sets
+ * @param done: function(error,result), result being an array of matching sets
+ * @param cleanKey: optional function to clean the resulting keys
  */
-exports.getSetsMatching = function (keyMask, done, cleanKey) {
-  redis.keys(keyMask, function (error, keys) {
-    if (error) {
-      logger.error('Redis getAllSetsMatching: ' + keyMask + ' e: ' + error, error);
-      return done(error, null);
-    }
-
-    var result = {};
-    async.times(keys.length, function (n, next) {
-
-      this.getSet(keys[n], function (error, data) {
-        if (error) { return next(error); }
-        var key = cleanKey ? cleanKey(keys[n]) : keys[n];
-        result[key] = data;
-        next(error);
-      });
-    }.bind(this), function (error) {
-      done(error, result);
-    });
-  }.bind(this));
-};
-
-/**
- * get all Sets matching
- */
-exports.getSetsAsArrayMatching = function (keyMask, done, tweak) {
+exports.getMatchingSets = function (keyMask, done, cleanKey) {
   redis.keys(keyMask, function (error, keys) {
     if (error) {
       logger.error('Redis getAllSetsMatching: ' + keyMask + ' e: ' + error, error);
@@ -151,10 +120,13 @@ exports.getSetsAsArrayMatching = function (keyMask, done, tweak) {
     }
 
     async.times(keys.length, function (n, next) {
-
       this.getSet(keys[n], function (error, data) {
-        if (error) { return next(error); }
-        if (tweak) { tweak(keys[n], data); }
+        if (error) {
+          return next(error);
+        }
+        if (cleanKey) {
+          cleanKey(keys[n], data);
+        }
         next(error, data);
       });
     }.bind(this), function (error, result) {
@@ -163,27 +135,34 @@ exports.getSetsAsArrayMatching = function (keyMask, done, tweak) {
   }.bind(this));
 };
 
-
 /**
- * simply map redis.hmset
+ * Simply map redis.hmset
  */
-exports.setSet = function setSet(key, keyMap, callback) {
+exports.setSet = function (key, keyMap, callback) {
   redis.hmset(key, keyMap, callback);
 };
 
 /**
- * simply map redis.hset
+ * Simply map redis.hset
  */
-exports.setSetValue = function setSet(keySet, key,  value, callback) {
+exports.setSetValue = function (keySet, key,  value, callback) {
   redis.hset(keySet, key,  value, callback);
 };
 
-
+/**
+ * Get database entry as JSON
+ * @param key: the key referencing the database entry
+ * @param callback: function(error,result), result being the JSON database entry
+ */
 function getJSON(key, callback) {
   redis.get(key, function (error, result) {
     var res_json = null;
-    if (error) { logger.error('Redis getJSON: ' + key + ' e: ' + error, error); }
-    if (! result) { return callback(error, res_json); }
+    if (error) {
+      logger.error('Redis getJSON: ' + key + ' e: ' + error, error);
+    }
+    if (! result) {
+      return callback(error, res_json);
+    }
     try {
       res_json = JSON.parse(result);
     } catch (e) {
@@ -194,38 +173,58 @@ function getJSON(key, callback) {
 }
 exports.getJSON = getJSON;
 
-// model
-
-function emailExists(email, callback) {
+/**
+ * Check if an email address exists in the database
+ * @param email: the email address to verify
+ * @param callback: function(error,result), result being 'true' if it exists, 'false' otherwise
+ */
+exports.emailExists = function (email, callback) {
   email = email.toLowerCase();
   redis.exists(email + ':email', function (error, result) {
-    if (error) { logger.error('Redis emailExists: ' + email + ' e: ' + error, error); }
+    if (error) {
+      logger.error('Redis emailExists: ' + email + ' e: ' + error, error);
+    }
     callback(error, result === 1); // callback anyway
   });
-}
-exports.emailExists = emailExists;
+};
 
-function uidExists(uid, callback) {
+/**
+ * Check if an user id exists in the database
+ * @param uid: the user id to verify
+ * @param callback: function(error,result), result being 'true' if it exists, 'false' otherwise
+ */
+exports.uidExists = function (uid, callback) {
   uid = uid.toLowerCase();
   redis.exists(uid + ':users', function (error, result) {
-    if (error) { logger.error('Redis to uidExists: ' + uid + ' e: ' + error, error); }
+    if (error) {
+      logger.error('Redis to uidExists: ' + uid + ' e: ' + error, error);
+    }
     callback(error, result === 1); // callback anyway
   });
-}
-exports.uidExists = uidExists;
+};
 
-//Specialized
-
-
-exports.getServer = function getServer(uid, callback) {
+/**
+ * Get the server linked with provided user id
+ * @param uid: the user id
+ * @param callback: function(error,result), result being the server name
+ */
+exports.getServer = function (uid, callback) {
   uid = uid.toLowerCase();
   redis.get(uid + ':server', function (error, result) {
-    if (error) { logger.error('Redis getServer: ' + uid + ' e: ' + error, error); }
+    if (error) {
+      logger.error('Redis getServer: ' + uid + ' e: ' + error, error);
+    }
     callback(error, result);
   });
 };
 
-exports.setServer = function setServer(uid, serverName, callback) {
+/**
+ * Update the server for provided user id
+ * @param uid: the user id
+ * @param serverName: the new server name
+ * @param callback: function(error,result), result being the new server name
+ */
+exports.setServer = function (uid, serverName, callback) {
   uid = uid.toLowerCase();
   redis.set(uid + ':server', serverName, function (error, result) {
     if (error) {
@@ -235,12 +234,11 @@ exports.setServer = function setServer(uid, serverName, callback) {
   });
 };
 
-
 /**
- * "search into keys"
- * @param keyMask  '*:...'
- * @param action function (key)
- * @param done function (error,count) called when done ..  with the count of "action" sent
+ * Search through keys in the database using a mask and apply a mapping function on them
+ * @param keyMask: the mask to filter keys
+ * @param action: mapping function to apply on resulting entries
+ * @param done: function(error,result), result being the number of entries mapped
  */
 function doOnKeysMatching(keyMask, action, done) {
 
@@ -258,19 +256,19 @@ function doOnKeysMatching(keyMask, action, done) {
 }
 exports.doOnKeysMatching = doOnKeysMatching;
 
-
 /**
- * "search into values "
- * @param keyMask
- * @param valueMask .. a string for now.. TODO a regexp
- * @param done function (error, result_count) called when done ..
+ * Search through keys and values in the database using a mask and apply a mapping function on them
+ * @param keyMask: the mask to filter keys
+ * @param valueMask: the mask to filter values TODO: with a regexp (string for now)
+ * @param action: mapping function to apply on resulting entries
+ * @param done: function(error,result), result being the number of entries mapped
  */
 function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 
-  var receivedCount = 0;
-  var actionThrown = 0;
-  var waitFor = -1;
-  var errors = [];
+  var receivedCount = 0,
+    actionThrown = 0,
+    waitFor = -1,
+    errors = [];
 
   var checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
@@ -305,104 +303,120 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 }
 exports.doOnKeysValuesMatching = doOnKeysValuesMatching;
 
-
-
-exports.getUIDFromMail = function getUIDFromMail(mail, callback) {
+/**
+ * Get user id linked with provided email address
+ * @param mail: the email address
+ * @param callback: function(error,result), result being the requested user id
+ */
+exports.getUIDFromMail = function (mail, callback) {
   mail = mail.toLowerCase();
   redis.get(mail + ':email', function (error, uid) {
-    if (error) { logger.error('Redis getServerFromMail: ' + mail + ' e: ' + error, error); }
+    if (error) {
+      logger.error('Redis getServerFromMail: ' + mail + ' e: ' + error, error);
+    }
     return callback(null, uid);
   });
 };
 
 
-/** this user will never been created for real**/
-var blackHoleUser = 'recla';
-
-exports.setServerAndInfos = function setServerAndInfos(username, server, infos, callback) {
-  // if user exists remove previous email.
-
-  if (username === blackHoleUser)  { return callback(); }
+/**
+ * Update server and information linked with provided user
+ * @param username: the name of the user
+ * @param server: the new server name
+ * @param infos: the new user information
+ * @param callback: function(error)
+ */
+function setServerAndInfos(username, server, infos, callback) {
+  // This user will never been created for real
+  if (username === 'recla')  { return callback(); }
 
   infos.registeredTimestamp =  Date.now();
 
   var  previousEmail = null;
   async.series([
-    function (serieNext) {
-      redis.hget(username + ':users', 'email', function (error2, email) {
+    function (stepDone) {
+      redis.hget(username + ':users', 'email', function (error, email) {
         previousEmail = email;
-        serieNext(error2);
+        stepDone(error);
       });
     },
-    function (serieNext) {
+    function (stepDone) {
       username = username.toLowerCase();
       var multi = redis.multi();
       multi.hmset(username + ':users', infos);
       multi.set(username + ':server', server);
-      if (previousEmail && previousEmail !== infos.email) { multi.del(previousEmail + ':email'); }
+
+      // If user exists remove previous email
+      if (previousEmail && previousEmail !== infos.email) {
+        multi.del(previousEmail + ':email');
+      }
       multi.set(infos.email + ':email', username);
       multi.exec(function (error) {
-        if (error) { logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error); }
-        serieNext(error);
+        if (error) {
+          logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error);
+        }
+        stepDone(error);
       });
     }
   ],
-  function (serieError) {
+  function (error) {
     if (callback) {
-      callback(serieError); // callback anyway
+      callback(error); // Callback anyway
     }
   });
-
-};
+}
+exports.setServerAndInfos = setServerAndInfos;
 
 /**
- *
- * @param username
- * @param email
- * @param callback function (error) error is null if successful;
+ * Update the email address linked with provided user
+ * @param username: the name of the user
+ * @param email: the new email address
+ * @param callback: function(error)
  */
-exports.changeEmail = function changeEmail(username, email, callback) {
-  // check that email does not exists
+exports.changeEmail = function (username, email, callback) {
   email = email.toLowerCase();
   username = username.toLowerCase();
-  redis.get(email + ':email', function (error1, email_username) {
-    if (error1) { return callback(error1); }
-    if (email_username === username) {
-      logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
-      return callback(null);
+
+  // Check that email does not exists
+  redis.get(email + ':email', function (error, email_username) {
+    if (error) {
+      return callback(error);
     }
 
-    if (email_username !== null) {
+    if (email_username === username) {
+      logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
+      return callback();
+    }
+
+    if (email_username) {
       return callback(new Error('Cannot set e-mail: ' + email + ' to :' + username +
         ' it\'s already used by: ' + email_username));
     }
 
-    // remove previous user e-mail
-    redis.hget(username + ':users', 'email', function (error2, previous_email) {
-      if (error2) { return callback(error2); }
+    // Remove previous user e-mail
+    redis.hget(username + ':users', 'email', function (error, previous_email) {
+      if (error) {
+        return callback(error);
+      }
 
       var multi = redis.multi();
       multi.hmset(username + ':users', 'email', email);
       multi.set(email + ':email', username);
       multi.del(previous_email + ':email');
-      multi.exec(function (error3) {
-        if (error3) {
-          logger.error('Redis changeEmail: ' + username + 'email: ' + email + ' e: ' + error3,
-            error3);
+      multi.exec(function (error) {
+        if (error) {
+          logger.error('Redis changeEmail: ' + username + 'email: ' + email + ' e: ' + error,
+            error);
         }
-        callback(error3);
+        callback(error);
       });
-
     });
   });
 };
 
-
-
-
-//------------------ db index structural checks ---//
-
-
+/**
+ * Private database index structural check for inconsistent email/user
+ */
 function _findGhostsEmails() {
   doOnKeysValuesMatching('*:email', '*', function (key, username) {
     var email = key.substring(0, key.lastIndexOf(':'));
@@ -421,86 +435,101 @@ function _findGhostsEmails() {
 
       if (e) {
         logger.warning('Db structure _findGhostsEmails ' + email + e);
-        //require('../utils/dump.js').inspect( { cookie: user});
       }
     });
   });
 }
 
+/**
+ * Private database index structural check for inconsistent server/user
+ */
 function _findGhostsServer() {
   doOnKeysValuesMatching('*:server', '*', function (key, server) {
     var username = key.substring(0, key.lastIndexOf(':'));
 
     // TODO Check that server is really known
-
     redis.hgetall(username + ':users', function (error, user) {
 
-      var e = null;
       if (! user) {
-        e = ' cannot find user :' + username;
+        logger.warning('Db structure _findGhostsServer ' + server +
+          ' cannot find user :' + username);
         //redis.del(key);
-      }
-
-      if (e) {
-        logger.warning('Db structure _findGhostsServer ' + server + e);
-        // require('../utils/dump.js').inspect( { cookie: user});
       }
     });
   });
 }
 
-
-//------------------ access management ------------//
-
-exports.setAccessState = function setAccessState(key, value, callback) {
+/**
+ * Update the state of an access in the database
+ * @param key: the database key for this access
+ * @param value: the new state of this access
+ * @param callback: function(error,result), result being the result of the database transaction
+ */
+exports.setAccessState = function (key, value, callback) {
   var multi = redis.multi();
   var dbkey = key + ':access';
   multi.set(dbkey, JSON.stringify(value));
   multi.expire(dbkey, config.get('persistence:access-ttl'));
   multi.exec(function (error, result) {
-    if (error) { logger.error('Redis setAccess: ' + key + ' ' + value + ' e: ' + error, error); }
+    if (error) {
+      logger.error('Redis setAccess: ' + key + ' ' + value + ' e: ' + error, error);
+    }
     callback(error, result); // callback anyway
   });
 };
 
-exports.getAccessState = function getAccessState(key, callback) {
+/**
+ * Get the current state of an access in the database
+ * @param key: the database key for this access
+ * @param callback: function(error,result), result being the corresponding JSON database entry
+ */
+exports.getAccessState = function (key, callback) {
   getJSON(key + ':access', callback);
 };
 
+//----------------- Reserved words --------------//
 
-//----------------- reserved words --------------//
 var RESERVED_WORDS_VERSION = 'reservedwords:version';
 var RESERVED_WORDS_LIST = 'reservedwords:list';
-exports.reservedWordsVersion = function reservedWordsVersion(callback) {
+
+/**
+ * Get the current version of the reserved words list in the database
+ * @param callback: function(error,result), result being the version
+ */
+exports.reservedWordsVersion = function (callback) {
   redis.get(RESERVED_WORDS_VERSION, function (error, version) {
     if (error) {
       logger.error('ReservedWordManagement version ' + error, error);
-      return callback(error, false);
+      return callback(error);
     }
-    return callback(false, version);
+    return callback(null, version);
   });
 };
 
-exports.reservedWordsLoad = function reservedWordsLoad(version, wordArray, callback) {
-
-
+/**
+ * Load an up-to-date version of the reserved words list in the database
+ * @param version: the new version
+ * @param wordArray: the new words list
+ * @param callback: function(error)
+ */
+exports.reservedWordsLoad = function (version, wordArray, callback) {
   async.series([
-    function (nextStep) { // delete word set version
+    function (nextStep) { // Delete word set version
       redis.del(RESERVED_WORDS_VERSION, function (error) {
         nextStep(error);
       });
     },
-    function (nextStep) { // delete word list
+    function (nextStep) { // Delete word list
       redis.del(RESERVED_WORDS_LIST, function (error) {
         nextStep(error);
       });
     },
-    function (nextStep) { // load word list
+    function (nextStep) { // Load word list
       redis.sadd(RESERVED_WORDS_LIST, wordArray, function (error) {
         nextStep(error);
       });
     },
-    function (nextStep) { // set version
+    function (nextStep) { // Set version
       redis.set(RESERVED_WORDS_VERSION, version, function (error) {
         nextStep(error);
       });
@@ -516,19 +545,22 @@ exports.reservedWordsLoad = function reservedWordsLoad(version, wordArray, callb
     });
 };
 
-exports.reservedWordsExists = function reservedWordsExists(word, callback) {
+/**
+ * Check if the reserved words list contains provided word
+ * @param word: the word to check for existence
+ * @param callback: function(error,result), result being 'true' if existing, 'false' otherwise
+ */
+exports.reservedWordExists = function (word, callback) {
   redis.sismember(RESERVED_WORDS_LIST, word, function (error, result) {
     if (error) {
       logger.error('DB reservedWordsExists ' + error, error);
-      return callback(error, false);
+      return callback(error);
     }
-    callback(false, result === 1);
-
+    callback(null, result === 1);
   });
 };
 
-
-//PASSWORD CHECKING
+// Check redis password and authenticate
 if (config.get('redis:password')) {
   redis.auth(config.get('redis:password'), function () {
     logger.info('Redis client authentified');
