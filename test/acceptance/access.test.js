@@ -1,4 +1,4 @@
-/*global describe, it*/
+/* global describe, it */
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../support/schema.responses');
@@ -25,7 +25,7 @@ describe('POST /access/invitationtoken/check', function () {
     });
   });
 
-  });
+});
 
 
 // TODO complete tests with real devID

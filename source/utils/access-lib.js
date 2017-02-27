@@ -1,9 +1,9 @@
 var db = require('../storage/database'),
-  messages = require('./messages'),
-  config = require('./config'),
-  checkAndConstraints = require('./check-and-constraints'),
-  domain = config.get('dns:domain'),
-  accessLib = module.exports = {};
+    messages = require('./messages'),
+    config = require('./config'),
+    checkAndConstraints = require('./check-and-constraints'),
+    domain = config.get('dns:domain'),
+    accessLib = module.exports = {};
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node';
@@ -56,7 +56,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   }
 
   var returnURL = parameters.returnURL,
-    oauthState = parameters.oauthState;
+      oauthState = parameters.oauthState;
 
   //-- TODO Check if app is authorized
 
@@ -74,9 +74,9 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     return errorHandler(messages.ei());
   }
 
-  var key = randGenerator.string(16),
-    pollURL = config.get('http:register:url') + '/access/' + key,
-    url = config.get('http:static:access');
+  var key = randGenerator(16),
+      pollURL = config.get('http:register:url') + '/access/' + key,
+      url = config.get('http:static:access');
 
   if (typeof parameters.localDevel !== 'undefined') {
     url = config.get('devel:static:access') + parameters.localDevel;
