@@ -1,3 +1,5 @@
+'use strict';
+
 var checkAndConstraints = require('../utils/check-and-constraints'),
     db = require('../storage/database'),
     messages = require('../utils/messages'),
