@@ -5,7 +5,7 @@
   "private": true,
   "author": "Pryv Sa",
   "scripts": {
-    "test": "node_modules/.bin/mocha test/**/*.test.js"
+    "test": "node_modules/.bin/mocha --compilers js:babel-register test/**/*.test.js"
   },
   "dependencies": {
     "airbrake": "0.3.x",
@@ -27,10 +27,14 @@
     "winston": "0.6.x"
   },
   "devDependencies": {
+    "babel-core": "^6.23.1",
     "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-register": "^6.23.0",
     "eslint": "^3.16.1",
     "eslint-plugin-flowtype": "^2.30.0",
     "flow-bin": "^0.40.0",
+    "jsdoc-babel": "^0.3.0",
     "mocha": "3.0.2",
     "rec-la": "^0.1.2",
     "should": "3.3.1",

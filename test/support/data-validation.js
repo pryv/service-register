@@ -86,9 +86,10 @@ exports.jsonResponse = jsonResponse;
  * JValues: expected key-value pair for content validation
  */
 function jsonResponse(err, res, test, callback_done) {
-
-  should.not.exists(err);
-  should.exists(res);
+  // NOTE We used to check err and res here, but really we don't want to depend
+  // on superagents definition of an error. 
+  should.exist(res);
+  
   res.should.have.status(test.status);
 
   // test headers?

@@ -4,11 +4,11 @@
 
 Array.prototype.rotate = (function() {
   var unshift = Array.prototype.unshift,
-  splice = Array.prototype.splice;
+      splice = Array.prototype.splice;
 
   return function(c) {
     var len = this.length >>> 0,
-    count = c >> 0;
+        count = c >> 0;
 
     unshift.apply(this, splice.call(this, count % len, len));
     return this;
@@ -87,8 +87,7 @@ try {
             return letter;
           }
          
-            return letter[rainbowcolors[i++ % rainbowcolors.length]];
-          
+          return letter[rainbowcolors[i++ % rainbowcolors.length]];
         });
         return exploded.join('');
       },
@@ -105,28 +104,28 @@ try {
     //styles
     'bold'      : {
       get: function() {
-        return ['\033[1m',this, '\033[22m'].join('');
+        return ['\x1B[1m',this, '\x1B[22m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'italic'    : {
       get: function() {
-        return ['\033[3m',this, '\033[23m'].join('');
+        return ['\x1B[3m',this, '\x1B[23m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'underline' : {
       get: function() {
-        return ['\033[4m',this, '\033[24m'].join('');
+        return ['\x1B[4m',this, '\x1B[24m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'inverse'   : {
       get: function() {
-        return ['\033[7m',this, '\033[27m'].join('');
+        return ['\x1B[7m',this, '\x1B[27m'].join('');
       },
       enumerable: false,
       configurable: false
@@ -134,21 +133,21 @@ try {
     //grayscale
     'white'     : {
       get: function() {
-        return ['\033[37m',this, '\033[39m'].join('');
+        return ['\x1B[37m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'grey'      : {
       get: function() {
-        return ['\033[90m',this, '\033[39m'].join('');
+        return ['\x1B[90m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'black'     : {
       get: function() {
-        return ['\033[30m',this, '\033[39m'].join('');
+        return ['\x1B[30m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
@@ -156,45 +155,47 @@ try {
     //colors
     'blue'      : {
       get: function() {
-        return ['\033[34m',this, '\033[39m'].join('');
+        return ['\x1B[34m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'cyan'      : {
       get: function() {
-        return ['\033[36m',this, '\033[39m'].join('');
+        return ['\x1B[36m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'green'     : {
       get: function() {
-        return ['\033[32m',this, '\033[39m'].join('');
+        return ['\x1B[32m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'magenta'   : {
       get: function() {
-        return ['\033[35m',this, '\033[39m'].join('');
+        return ['\x1B[35m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'red'       : {
       get: function() {
-        return ['\033[31m',this, '\033[39m'].join('');
+        return ['\x1B[31m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     },
     'yellow'    : {
       get: function() {
-        return ['\033[33m',this, '\033[39m'].join('');
+        return ['\x1B[33m',this, '\x1B[39m'].join('');
       },
       enumerable: false,
       configurable: false
     }
   });
-} catch(e){}
+} catch(e){
+  // IGNORE ALL ERRORS
+}
