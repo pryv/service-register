@@ -16,9 +16,6 @@ var path = '/server';
 
 describe('POST /:uid/server', function () {
   it('too short', function (done) {
-    var test = { status: 400, desc : 'too short ',
-      JSchema : schema.error, JValues: {'id': 'INVALID_USER_NAME' } };
-
     request.post(server.url + '/abcd/server').send({}).end((err, res) => {
       should.exist(err);
       
@@ -28,10 +25,6 @@ describe('POST /:uid/server', function () {
     });
   });
   it('unknown', function (done) {
-    var test = { uid: 'abcdefghijkl', status: 404, desc : 'unknown',
-      JSchema: schema.error,
-      JValues: {'id': 'UNKNOWN_USER_NAME' } };
-
     request.post(server.url + '/abcdefghijkl/server').send({}).end((err, res) => {
       should.exist(err);
       
