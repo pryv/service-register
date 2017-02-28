@@ -1,4 +1,5 @@
 'use strict';
+// @flow
 
 /* global describe, it */
 const request = require('superagent');
@@ -114,19 +115,16 @@ describe('/admin/users/invitations', function () {
   describe('GET ', function () {
     it('should send a list of current tokens', function (done) {
       request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey)
-      .end(function (res) {
-        dataValidation.check(res, {
-          status: 200
-        }, function (error) {
-          if (error) { done(error); }
-          res.body.should.have.property('invitations');
-          res.body.invitations.should.be.instanceOf(Array);
-          res.body.invitations.forEach(function (tokenData) {
-            tokenData.should.have.property('id');
-            tokenData.should.have.property('createdAt');
-          });
-          done();
+      .end((err, res) => {
+        dataValidation.check(res, {status: 200});
+
+        res.body.should.have.property('invitations');
+        res.body.invitations.should.be.instanceOf(Array);
+        res.body.invitations.forEach(function (tokenData) {
+          tokenData.should.have.property('id');
+          tokenData.should.have.property('createdAt');
         });
+        done(); 
       });
     });
   });
@@ -135,15 +133,12 @@ describe('/admin/users/invitations', function () {
       request.get(server.url + '/admin/users/invitations/post' +
           '?auth=' + authAdminKey +
           '&count=2&message=testx'
-        ).end(function (res) {
-          dataValidation.check(res, {
-            status: 200
-          }, function (error) {
-            if (error) { done(error); }
-            res.body.should.have.property('data');
-            res.body.data.should.be.instanceOf(Array);
-            done();
-          });
+        ).end((err, res) => {
+          dataValidation.check(res, {status: 200}); 
+
+          res.body.should.have.property('data');
+          res.body.data.should.be.instanceOf(Array);
+          done();
         });
     });
   });
