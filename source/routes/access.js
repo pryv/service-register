@@ -1,8 +1,8 @@
 var express = require('express'),
-  messages = require('../utils/messages'),
-  checkAndConstraints = require('../utils/check-and-constraints'),
-  accessCommon = require('../utils/access-lib'),
-  invitationToken = require('../storage/invitations');
+    messages = require('../utils/messages'),
+    checkAndConstraints = require('../utils/check-and-constraints'),
+    accessCommon = require('../utils/access-lib'),
+    invitationToken = require('../storage/invitations');
 
 /**
  * Routes handling applications access
@@ -30,8 +30,7 @@ module.exports = function (app) {
     });
   });
 
-  /**
-   * GET /access/:key: access polling with given key
+  /** GET /access/:key - access polling with given key
    */
   app.get('/access/:key', function (req, res, next) {
     accessCommon.testKeyAndGetValue(req.params.key, function (value) {

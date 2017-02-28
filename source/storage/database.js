@@ -1,10 +1,20 @@
-/*global require*/
+'use strict';
+
 var logger = require('winston'),
     config = require('../utils/config'),
     redis = require('redis').createClient(
     config.get('redis:port'), config.get('redis:host')),
     async = require('async'),
     semver = require('semver');
+    
+/** NodeJS callback. 
+ * 
+ * @callback nodejsCallback
+ * @param err {Object} - if not null, this is the error that occurred during the
+ *    asynchronous operation. 
+ * @param res {Object} - if not null and err is null, this is the result of the
+ *    asynchronous operation.
+ */
 
 var exports = exports || {}; // just for IJ to present structure
 
@@ -494,10 +504,11 @@ exports.setAccessState = function (key, value, callback) {
   });
 };
 
-/**
- * Get the current state of an access in the database
- * @param key: the database key for this access
- * @param callback: function(error,result), result being the corresponding JSON database entry
+/** Get the current state of an access in the database.
+ *
+ * @param key {string} - the database key for this access
+ * @param callback {nodejsCallback} - result being the corresponding JSON 
+ *    database entry
  */
 exports.getAccessState = function (key, callback) {
   getJSON(key + ':access', callback);

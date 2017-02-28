@@ -12,7 +12,7 @@ var should = require('should');
  * { it: string,  // the title of the test
  *   url: string, // fully qualified url or path (starts with /)
  *                // if path config.get('http:register:url') will be used
- *   method: POST | GET | OPTIONS | PUT | DELETE,
+ *   method: POST | GET | OPTIONS | PUT | DELETE,
  *   data: mixed, //The data to send,
  *   contenttype: JSON | JSONSTRING | STRING, // (for POST METHOD ONLY)
  *                // JSON -> JSON.stringify(will be applied) -- send JSON

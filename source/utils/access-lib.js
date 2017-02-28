@@ -1,3 +1,5 @@
+'use strict';
+
 var db = require('../storage/database'),
     messages = require('./messages'),
     config = require('./config'),
@@ -8,8 +10,8 @@ var db = require('../storage/database'),
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node';
 
-/**
- * Update an app access state in the database
+/** Update an app access state in the database.
+ * 
  * @param key: the key referencing the access to be updated
  * @param accessState: the new state of this access, which is defined by parameters like:
  *  status (NEED_SIGNIN, ACCEPTED, REFUSED), requesting app id, requested permissions, etc.
@@ -127,7 +129,8 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 };
 
 /**
- * Check the validity of the access by checking its associated key
+ * Check the validity of the access by checking its associated key.
+ * 
  * @param key
  * @param success
  * @param failed
