@@ -39,7 +39,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_INVITATION'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end((err, res) => {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -52,7 +52,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_HOSTING'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -65,7 +65,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_APPID'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -78,7 +78,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -91,7 +91,7 @@ describe('/user', function () {
       JValues: {'id': 'RESERVED_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -104,7 +104,7 @@ describe('/user', function () {
       JValues: {'id': 'RESERVED_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -117,7 +117,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_EMAIL'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -130,7 +130,7 @@ describe('/user', function () {
       JValues: {'id': 'EXISTING_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -143,7 +143,7 @@ describe('/user', function () {
       JValues: {'id': 'EXISTING_EMAIL'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -159,7 +159,7 @@ describe('/user', function () {
       }
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -171,7 +171,7 @@ describe('/user', function () {
       JValues: {username: defaults.username.toLowerCase()}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
@@ -183,7 +183,7 @@ describe('/user', function () {
       JValues: {username: 'recla'}
     };
 
-    request.post(server.url + basePath).send(_.extend(defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
       .end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
