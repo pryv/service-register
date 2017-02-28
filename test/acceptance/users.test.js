@@ -1,10 +1,14 @@
+'use strict';
+// @flow
+
 /*global describe,it,after */
 
-var server = require('../../source/server'),
-  dataValidation = require('../support/data-validation'),
-  schemas = require('../support/schema.responses'),
-  request = require('superagent'),
-  _ = require('lodash');
+const _ = require('lodash');
+const request = require('superagent');
+
+const server = require('../../source/server');
+const dataValidation = require('../support/data-validation');
+const schemas = require('../support/schema.responses');
 
 require('readyness/wait/mocha');
 
@@ -22,11 +26,10 @@ var defaults = {
 require('readyness/wait/mocha');
 
 describe('/user', function () {
-
   var basePath = '/user',
-    defaultUsername = 'wactiv',
-    defaultEmail = 'wactiv@pryv.io',
-    defaultAuth = 'test-system-key';
+      defaultUsername = 'wactiv',
+      defaultEmail = 'wactiv@pryv.io',
+      defaultAuth = 'test-system-key';
 
   it('invalid invitation', function (done) {
     var test = {
@@ -37,11 +40,10 @@ describe('/user', function () {
     };
 
     request.post(server.url + basePath).send(_.extend(defaults, test.data))
-      .end(function (err, res) {
-      dataValidation.jsonResponse(err, res, test, done);
-    });
+      .end((err, res) => {
+        dataValidation.jsonResponse(err, res, test, done);
+      });
   });
-
   it('invalid hosting', function (done) {
     var test = {
       data: {hosting: ''},
@@ -55,7 +57,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('invalid appid', function (done) {
     var test = {
       data: {appid: ''},
@@ -66,10 +67,9 @@ describe('/user', function () {
 
     request.post(server.url + basePath).send(_.extend(defaults, test.data))
       .end(function (err, res) {
-      dataValidation.jsonResponse(err, res, test, done);
-    });
+        dataValidation.jsonResponse(err, res, test, done);
+      });
   });
-
   it('invalid username', function (done) {
     var test = {
       data: {username: 'wa'},
@@ -83,7 +83,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('reserved username', function (done) {
     var test = {
       data: {username: 'pryvwa'},
@@ -97,7 +96,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('listed username', function (done) {
     var test = {
       data: {username: 'facebook'},
@@ -111,7 +109,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('invalid email', function (done) {
     var test = {
       data: {email: 'assa'},
@@ -125,7 +122,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('existing user', function (done) {
     var test = {
       data: {username: 'wactiv'},
@@ -139,7 +135,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('existing email', function (done) {
     var test = {
       data: {email: 'wactiv@pryv.io'},
@@ -153,7 +148,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('existing user and email', function (done) {
     var test = {
       data: {username: 'wactiv', email: 'wactiv@pryv.io'},
@@ -170,7 +164,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('valid random', function (done) {
     var test = {
       data: {},
@@ -183,7 +176,6 @@ describe('/user', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-
   it('valid', function (done) {
     var test = {
       data: {username: 'recla', email: 'recla@pryv.io'},

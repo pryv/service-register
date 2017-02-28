@@ -5,7 +5,7 @@
   "private": true,
   "author": "Pryv Sa",
   "scripts": {
-    "test": "node_modules/.bin/mocha --compilers js:babel-register test/**/*.test.js"
+    "test": "node_modules/.bin/mocha test/**/*.test.js"
   },
   "dependencies": {
     "airbrake": "0.3.x",
