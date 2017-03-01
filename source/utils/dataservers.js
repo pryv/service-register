@@ -1,6 +1,7 @@
-var config = require('./config'),
-  httpMode = config.get('net:aaservers_ssl') ? 'https' : 'http',
-  http = require(httpMode);
+const url = require('url');
+const http = require('http');
+const https = require('https');
+const config = require('./config');
 
 var hostings = null;
 
@@ -71,16 +72,14 @@ function getClientIp(req) {
 }
 */
 
-/**
- * POST a request to an admin server
- * @param host: the host to which to send the request (hostname and port)
- * @param path: the request's path
- * @param expectedStatus: the status expected as an answer of this request
- * @param jsonData: the JSON body of this request
- * @param callback: function(error,result), result being the answer body of this request as JSON
- */
-function postToAdmin(host, path, expectedStatus, jsonData, callback) {
+function getLegacyAdminClient(host, path, postData) {
+  const useSSL = config.get('net:aaservers_ssl') || true;
+
+  // SIDE EFFECT
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
+
+  const httpClient = useSSL ? https : http; 
+
   var httpOptions = {
     host : host.name,
     port: host.port,
@@ -88,22 +87,82 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     method: 'POST',
     rejectUnauthorized: false
   };
-  var postData = JSON.stringify(jsonData);
-
+  
   httpOptions.headers = {
     'Content-Type': 'application/json',
     'authorization': host.authorization,
     'Content-Length': postData.length
   };
+  
+  return {
+    client: httpClient, 
+    options: httpOptions,
+  };
+}
+
+/**
+ * Deals with parsing the 'base_url' field in the host object. Returns an 
+ * object that has fields 'client' and 'options' - together they will yield 
+ * the http call to make: 
+ * 
+ *    var httpCall = getAdminClient(host, path, postData); 
+ *    httpCall.client.request(httpCall.options, function() { ... })
+ *
+ * As a _side effect_, sets the `.name` field on host to the host name of the 
+ * server used for the call.  
+ */
+function getAdminClient(host, path, postData) {
+  if (host.base_url === undefined) {
+    // We used to define the path to the core server using 'base_name', 'port'
+    // and net:AAservers_domain. This function implements that as a fallback. 
+    return getLegacyAdminClient(host, path, postData);
+  }
+  
+  var coreServer = url.parse(host.base_url);
+  
+  const useSSL = (coreServer.protocol === 'https:');
+  const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
+
+  const httpClient = useSSL ? https : http; 
+  
+  var httpOptions = {
+    host : coreServer.hostname,
+    port: port,
+    path: path,
+    method: 'POST',
+    rejectUnauthorized: false
+  };
+    
+  // SIDE EFFECT
+  host.name = coreServer.hostname;
+  
+  return {
+    client: httpClient, 
+    options: httpOptions,
+  };
+}
+
+/** 
+ * POSTs a request to the core server indicated by `host`. Calls the callback
+ * which has the signature `function(error, json_result)`. 
+ * 
+ * As a _side effect_, `host.name` is set to the name of the actual host used 
+ * for this call. 
+ */
+function postToAdmin(host, path, expectedStatus, jsonData, callback) {
+  var postData = JSON.stringify(jsonData);
+  //console.log(postData);
+
+  var httpCall = getAdminClient(host, path, postData); 
 
   var onError = function (reason) {
-    var content =  '\n Request: ' + httpOptions.method + ' ' +
-      httpMode + '://' + httpOptions.host + ':' + httpOptions.port + '' + httpOptions.path +
+    var content =  '\n Request: ' + httpCall.options.method + ' ' +
+      httpCall.options.host + ':' + httpCall.options.port + '' + httpCall.options.path +
       '\n Data: ' + postData;
     return callback(reason + content, null);
   };
 
-  var req = http.request(httpOptions, function (res) {
+  var req = httpCall.client.request(httpCall.options, function (res) {
     var bodyarr = [];
 
     res.on('data', function (chunk) { bodyarr.push(chunk); });
@@ -117,8 +176,8 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     });
 
   }).on('error', function (e) {
-      return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
-    });
+    return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
+  });
 
 
   req.on('socket', function (socket) {
@@ -133,4 +192,5 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   req.end();
 }
 
+exports.getAdminClient = getAdminClient; 
 exports.postToAdmin = postToAdmin;

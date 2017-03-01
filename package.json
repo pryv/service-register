@@ -4,12 +4,17 @@
   "version": "0.1.9",
   "private": true,
   "author": "Pryv Sa",
+  "scripts": {
+    "test": "node_modules/.bin/mocha test/**/*.test.js"
+  },
   "dependencies": {
     "airbrake": "0.3.x",
     "async": "0.2.x",
     "bcrypt": "0.8.x",
     "express": "3.5.x",
+    "freelist": "^1.0.3",
     "json-schema": "0.2.x",
+    "lodash": "2.4.x",
     "nconf": "0.6.x",
     "node-oauth2-server": "~2.0.2",
     "nodemailer": "0.3.x",
@@ -19,13 +24,15 @@
     "semver": "1.1.4",
     "underscore": "1.3.x",
     "underscore.string": "2.2.x",
-    "winston": "0.6.x",
-    "lodash": "2.4.x"
+    "winston": "0.6.x"
   },
   "devDependencies": {
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.16.1",
+    "eslint-plugin-flowtype": "^2.30.0",
     "mocha": "3.0.2",
+    "rec-la": "^0.1.2",
     "should": "3.3.1",
-    "superagent": "^0.18.0",
-    "rec-la": "^0.1.2"
+    "superagent": "^0.18.0"
   }
 }

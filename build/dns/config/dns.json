@@ -1,0 +1,42 @@
+{
+  "dns": {
+    "port": 5353,
+    "name": "local.pryv.net",
+    "domain": "pryv.in",
+    "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
+    "staticDataInDomain": {
+      "www": {
+        "alias": [
+          {
+            "name": "local.pryv.in"
+          }
+        ]
+      },
+      "sw": {
+        "alias": [
+          {
+            "name": "local.pryv.in"
+          }
+        ]
+      },
+      "reg": {
+        "alias": [
+          {
+            "name": "reglocal.pryv.in"
+          }
+        ]
+      }
+    }
+  },
+  "redis": {
+    "host": "redis",
+    "port": 6379
+  },
+  "airbrake": {
+    "disable": true
+  },
+  "server": {
+    "ssl": false,
+    "port": 9000
+  }
+}

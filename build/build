@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Builds 'service-register' docker image with the version given below. 
+scripts/build_name
+
+version=$(cat build_tag)
+if [ -e release_build ]; then
+  echo "This is a release build, it will update 'latest' tags."
+fi
+
+function release {
+  local service_name=$1
+  local version=$2
+  
+  if [ -e ../release_build ]; then
+    sudo docker tag $service_name:$version $service_name:latest
+
+    # Publication to registry:
+    sudo docker tag $service_name:$version localhost:5000/$service_name:$version
+    sudo docker tag $service_name:$version localhost:5000/$service_name:latest
+    
+    sudo docker push localhost:5000/$service_name:$version
+    sudo docker push localhost:5000/$service_name:latest
+  fi
+}
+
+# Create a release.tar that contains all the code. 
+pushd ..
+tar cf build/release.tar \
+  --exclude .git \
+  --exclude node_modules \
+  --exclude build \
+  .
+popd
+
+# Build the docker image (commented out)
+echo "---------------------------- building register ------------------------------"
+pushd register
+cp ../release.tar .
+sudo docker build -f Dockerfile -t pryv/register:$version .
+release "pryv/register" $version
+popd
+
+echo "---------------------------- building dns -----------------------------------"
+pushd dns
+cp ../release.tar .
+sudo docker build -f Dockerfile -t pryv/dns:$version .
+release "pryv/dns" $version
+popd
+

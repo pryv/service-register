@@ -1,4 +1,4 @@
-/*global describe, it*/
+/* global describe, it */
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../support/schema.responses');
@@ -25,7 +25,7 @@ describe('POST /access/invitationtoken/check', function () {
     });
   });
 
-  });
+});
 
 
 // TODO complete tests with real devID
@@ -55,16 +55,14 @@ describe('POST /access', function () {
         });
       },
       function validate(stepDone) {
-        var test = {
-          url: result.poll,
-          data : {},
-          status: 201,
-          JSchema : schema.accessGET
-        };
-
-        request.get(server.url + test.url).end(function(err,res) {
-          dataValidation.jsonResponse(err, res, test, stepDone);
-        });
+        // Verify that the string has something like this: 
+        //    /access/DiM1efAaZmTi0WbH
+        const generatedUrl = result.body.poll; 
+        
+        const ending = /\/access\/\w+$/;
+        generatedUrl.should.match(ending);
+        
+        stepDone(); 
       }
     ], done);
   });

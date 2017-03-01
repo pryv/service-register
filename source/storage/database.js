@@ -1,12 +1,12 @@
 /*global require*/
-
 var logger = require('winston'),
-  redis = require('redis').createClient(),
-  config = require('../utils/config'),
-  async = require('async'),
-  semver = require('semver');
+    config = require('../utils/config'),
+    redis = require('redis').createClient(
+    config.get('redis:port'), config.get('redis:host')),
+    async = require('async'),
+    semver = require('semver');
 
-var exports = exports || {}; // just for IJ to present structure
+var exports = exports || {}; // just for IJ to present structure
 
 // Redis error management
 redis.on('error', function (err) {
@@ -14,10 +14,23 @@ redis.on('error', function (err) {
 });
 
 var LASTEST_DB_VERSION = '0.1.1',
-  DBVERSION_KEY = 'dbversion',
-  dbversion = null;
+    DBVERSION_KEY = 'dbversion',
+    dbversion = null;
 
 var connectionChecked = require('readyness').waitFor('database');
+
+//PASSWORD CHECKING
+if (config.get('redis:password')) {
+  redis.auth(config.get('redis:password'), function () {
+    logger.info('Redis client authentified');
+    checkConnection();
+  });
+} else {
+  logger.info('Redis client initialized, no authentication set.');
+  process.nextTick(function() {
+    checkConnection();
+  });
+}
 
 /**
  * Check redis database connectivity
@@ -234,11 +247,16 @@ exports.setServer = function (uid, serverName, callback) {
   });
 };
 
-/**
- * Search through keys in the database using a mask and apply a mapping function on them
- * @param keyMask: the mask to filter keys
- * @param action: mapping function to apply on resulting entries
- * @param done: function(error,result), result being the number of entries mapped
+/** Search through keys in the database using a mask and apply a mapping function 
+ * on them.
+ * 
+ * NOTE Redis documentation warns against using this in application code. 
+ *    See https://redis.io/commands/keys. We should probably deprecate this 
+ *    internally and try to get rid of it in the long run. (ksc, 5Feb17)
+ *
+ * @param keyMask {string} the mask to filter keys
+ * @param action - mapping function to apply on resulting entries
+ * @param done - function(error,result), result being the number of entries mapped
  */
 function doOnKeysMatching(keyMask, action, done) {
 
@@ -266,9 +284,8 @@ exports.doOnKeysMatching = doOnKeysMatching;
 function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 
   var receivedCount = 0,
-    actionThrown = 0,
-    waitFor = -1,
-    errors = [];
+      waitFor = -1,
+      errors = [];
 
   var checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
@@ -291,9 +308,8 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
           logger.error('doOnKeysValuesMatching: ' + keyMask + ' ' + valueMask + ' e: ' + error,
             error);
         } else {
-          if (valueMask === '*' || valueMask === result) {
+          if (valueMask === '*' || valueMask === result) {
             action(key, result);
-            actionThrown++;
           }
         }
         receivedCount++;
