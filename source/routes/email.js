@@ -1,14 +1,16 @@
+'use strict'; 
+// @flow
+
 // check if an EMAIL exists
-var checkAndConstraints = require('../utils/check-and-constraints'),
-  db = require('../storage/database'),
-  messages = require('../utils/messages');
+const checkAndConstraints = require('../utils/check-and-constraints'),
+      db = require('../storage/database'),
+      messages = require('../utils/messages');
 
 /**
  * Routes to handle emails
  * @param app
  */
-module.exports = function (app) {
-
+module.exports = function (app: any) {
   /**
    * POST /email/check/: check existence of an email
    */
