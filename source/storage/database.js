@@ -575,13 +575,3 @@ exports.reservedWordExists = function (word, callback) {
     callback(null, result === 1);
   });
 };
-
-// Check redis password and authenticate
-if (config.get('redis:password')) {
-  redis.auth(config.get('redis:password'), function () {
-    logger.info('Redis client authentified');
-    checkConnection();
-  });
-} else {
-  checkConnection();
-}
