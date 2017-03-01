@@ -23,12 +23,6 @@ String.prototype.endsWith = function(suffix) {
 exports.extractResourceFromHostname = function (hostname) {
     var domains = config.get('dns:domains');
 
-    Object.prototype.getName = function() { 
-         var funcNameRegex = /function (.{1,})\(/;
-            var results = (funcNameRegex).exec((this).constructor.toString());
-               return (results && results.length > 1) ? results[1] : '';
-    };
-
     for (var i = 0; i < domains.length; i++) {
        if ( hostname.endsWith('.' + domains[i]) ) {
         var resource = hostname.slice(0, - domains[i].length - 1 );

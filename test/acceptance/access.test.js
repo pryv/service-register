@@ -1,3 +1,5 @@
+'use strict';
+
 /* global describe, it */
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
@@ -34,7 +36,7 @@ describe('POST /access', function () {
   var path = '/access';
 
   it('valid', function (done) {
-    var test = {
+    const test = {
       data: {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: false,
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
@@ -45,7 +47,7 @@ describe('POST /access', function () {
       JSchema: schema.accessPOST
     };
 
-    var result;
+    var result = null;
 
     async.series([
       function makeRequest(stepDone) {
@@ -58,15 +60,14 @@ describe('POST /access', function () {
         // Verify that the string has something like this: 
         //    /access/DiM1efAaZmTi0WbH
         const generatedUrl = result.body.poll; 
-        
         const ending = /\/access\/\w+$/;
+
         generatedUrl.should.match(ending);
         
         stepDone(); 
       }
     ], done);
   });
-
   it('invalid', function (done) {
     var test = {
       url: '/access',

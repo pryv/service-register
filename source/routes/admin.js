@@ -1,14 +1,16 @@
-var checkAndConstraints = require('../utils/check-and-constraints'),
-  users = require('../storage/users'),
-  messages = require('../utils/messages'),
-  invitations = require('../storage/invitations'),
-  requireRoles = require('../middleware/requireRoles');
+'use strict';
+// @flow
+
+const checkAndConstraints = require('../utils/check-and-constraints'),
+      users = require('../storage/users'),
+      messages = require('../utils/messages'),
+      invitations = require('../storage/invitations'),
+      requireRoles = require('../middleware/requireRoles');
 
 /**
  * Routes for admin to manage users
  */
-module.exports = function (app) {
-
+module.exports = function (app: any) {
   // GET /admin/users: get the user list
   app.get('/admin/users', requireRoles('admin'), function (req, res/*, next*/) {
 
@@ -92,7 +94,7 @@ module.exports = function (app) {
   app.get('/admin/users/invitations/post', requireRoles('admin'), function (req, res, next){
 
     var count = parseInt(req.query.count);
-    var message = req.query.message || '';
+    var message = req.query.message || '';
 
     invitations.generate(count, req.context.access.username, message, function (error, result) {
       if (error) {
@@ -114,12 +116,10 @@ module.exports = function (app) {
 
   });
 
-  /**
-   * GET /admin/servers/:serverName/users: get the list of user for a given server
+  /** GET /admin/servers/:serverName/users - get the list of user for a given server
    */
-  app.get('/admin/servers/:serverName/users', requireRoles('admin'), function (req, res, next){
-
-    var serverName = checkAndConstraints.hostname(req.params.serverName);
+  app.get('/admin/servers/:serverName/users', requireRoles('admin'), function (req, res, next) {
+    const serverName = checkAndConstraints.hostname(req.params.serverName);
     if (! serverName) {
       return next(messages.e(400, 'INVALID_DATA', {'message': 'serverName invalid'}));
     }
@@ -137,25 +137,23 @@ module.exports = function (app) {
    */
   app.get('/admin/servers/:srcServerName/rename/:dstServerName',
     requireRoles('system'), function (req, res, next) {
-
-    var srcServerName = checkAndConstraints.hostname(req.params.srcServerName);
-    if (! srcServerName) {
-      return next(messages.e(400, 'INVALID_DATA', {'message': 'srcServerName invalid'}));
-    }
-
-    var dstServerName = checkAndConstraints.hostname(req.params.dstServerName);
-    if (! dstServerName) {
-      return next(messages.e(400, 'INVALID_DATA', {'message': 'dstServerName invalid'}));
-    }
-
-    users.renameServer(srcServerName, dstServerName, function (error, count) {
-      if (error) {
-        return next(messages.ei());
+      var srcServerName = checkAndConstraints.hostname(req.params.srcServerName);
+      if (! srcServerName) {
+        return next(messages.e(400, 'INVALID_DATA', {'message': 'srcServerName invalid'}));
       }
-      res.json({count: count});
-    });
-  });
 
+      var dstServerName = checkAndConstraints.hostname(req.params.dstServerName);
+      if (! dstServerName) {
+        return next(messages.e(400, 'INVALID_DATA', {'message': 'dstServerName invalid'}));
+      }
+
+      users.renameServer(srcServerName, dstServerName, function (error, count) {
+        if (error) {
+          return next(messages.ei());
+        }
+        res.json({count: count});
+      });
+    });
 };
 
 function tohtml(headers, infoArray) {

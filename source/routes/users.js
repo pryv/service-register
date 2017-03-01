@@ -1,14 +1,17 @@
-var checkAndConstraints = require('../utils/check-and-constraints'),
-  messages = require('../utils/messages'),
-  users = require('../storage/users'),
-  requireRoles = require('../middleware/requireRoles'),
-  db = require('../storage/database'),
-  logger = require('winston'),
-  encryption = require('../utils/encryption'),
-  async = require('async'),
-  dataservers = require('../utils/dataservers'),
-  reservedWords = require('../storage/reserved-userid'),
-  invitationToken = require('../storage/invitations');
+'use strict';
+// @flow
+
+const checkAndConstraints = require('../utils/check-and-constraints'),
+      messages = require('../utils/messages'),
+      users = require('../storage/users'),
+      requireRoles = require('../middleware/requireRoles'),
+      db = require('../storage/database'),
+      logger = require('winston'),
+      encryption = require('../utils/encryption'),
+      async = require('async'),
+      dataservers = require('../utils/dataservers'),
+      reservedWords = require('../storage/reserved-userid'),
+      invitationToken = require('../storage/invitations');
 
 /**
  * Routes for users
@@ -16,8 +19,7 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
  * REST-like structure, cf. https://trello.com/c/NVdNVqMN/53
  * @param app
  */
-module.exports = function (app) {
-
+module.exports = function (app: any) {
   /**
    * POST /user: create a new user
    */
@@ -40,7 +42,8 @@ module.exports = function (app) {
       email: checkAndConstraints.email(req.body.email),
       invitationToken: checkAndConstraints.invitationToken(req.body.invitationtoken),
       referer: checkAndConstraints.referer(req.body.referer),
-      language: checkAndConstraints.lang(req.body.languageCode) // no check
+      language: checkAndConstraints.lang(req.body.languageCode), // no check
+      passwordHash: null, // filled in by some of the methods.
     };
 
     if (! user.appid) {

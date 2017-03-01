@@ -1,3 +1,5 @@
+'use strict';
+
 const url = require('url');
 const http = require('http');
 const https = require('https');
@@ -45,6 +47,7 @@ exports.getHostForHosting = function (hosting) {
   if (! servers || servers.length === 0) {
     return null;
   }
+  
   // for now it's random
   var i = Math.floor(Math.random() * (servers.length));
   return servers[i];

@@ -1,9 +1,14 @@
-// dns server 
-var logger = require('winston');
-var dns = require('./dns/ndns-wrapper');
-var config = require('./utils/config');
-var checkAndConstraints = require('./utils/check-and-constraints');
-var db = require('./storage/database');
+'use strict';
+// @flow
+
+/** DNS Server */
+
+const logger = require('winston');
+
+const dns = require('./dns/ndns-wrapper');
+const config = require('./utils/config');
+const checkAndConstraints = require('./utils/check-and-constraints');
+const db = require('./storage/database');
 
 logger['default'].transports.console.level = 'debug';
 logger['default'].transports.console.colorize = true;
@@ -37,15 +42,12 @@ var soaData = {
   autority: baseData.autority
 };
 
-
-
 var rootData = {
   autority: baseData.autority,
   nameserver: baseData.nameserver,
   ip: config.get('dns:domain_A'),
   mail: mxData.mail
 };
-
 
 
 //static entries; matches a fully qualified names
@@ -55,9 +57,15 @@ var staticDataFull = {
 //static entries; matches 'in domains' names
 var staticDataInDomain = config.get('dns:staticDataInDomain');
 
+type dynRecord = {
+  alias: {name: string}[], 
+  nameserver?: string, 
+  autority?: string,
+};
 
 var serverForName = function (reqName, callback, req, res) {
   var nullRecord = dns.getRecords({}, reqName);
+
   //simpler request matching in lower case
   var keyName = reqName.toLowerCase();
 
@@ -114,7 +122,10 @@ var serverForName = function (reqName, callback, req, res) {
   db.getServer(uid, function (error, result) {
     //console.log('*** FOUND :'+ result);
     if (error || ! result) { return callback(req, res, nullRecord); }
-    var dyn = {'alias': [ { name: result } ] };
+
+    var dyn: dynRecord = {
+      'alias': [ { name: result } ]};
+      
     // add Authority or Nameservers
     switch (req.q[0].typeName) {
     case 'NS':
