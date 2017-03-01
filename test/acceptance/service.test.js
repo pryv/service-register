@@ -1,9 +1,13 @@
+'use strict';
+// @flow
+
 /*global describe,it*/
-var validation = require('../support/data-validation'),
-  schemas = require('../support/schema.responses'),
-  request = require('superagent'),
-  server = require('../../source/server'),
-  should = require('should');
+const should = require('should');
+
+const validation = require('../support/data-validation'),
+      schemas = require('../support/schema.responses'),
+      request = require('superagent'),
+      server = require('../../source/server');
 
 require('readyness/wait/mocha');
 
@@ -12,7 +16,7 @@ describe('/service', function () {
   describe('GET /infos', function () {
 
     it('infos', function (done) {
-      request.get(server.url + '/service/infos').end(function (res) {
+      request.get(server.url + '/service/infos').end(function (err, res) {
         validation.check(res, {
           status: 200,
           schema: schemas.serviceInfos
@@ -24,22 +28,19 @@ describe('/service', function () {
   describe('GET /apps', function () {
 
     it('appList', function (done) {
-      request.get(server.url + '/apps').end(function (res) {
+      request.get(server.url + '/apps').end(function (err, res) {
         validation.check(res, {
           status: 200,
           schema: schemas.appsList
-        }, function (error) {
-          if (error) {
-            return done(error);
-          }
-          should.exists(res.body);
-          should.exists(res.body.apps);
-
-          res.body.should.have.property('apps');
-          res.body.apps.should.be.instanceOf(Array);
-          res.body.apps.forEach(checkApp);
-          done();
         });
+      
+        should.exists(res.body);
+        should.exists(res.body.apps);
+
+        res.body.should.have.property('apps');
+        res.body.apps.should.be.instanceOf(Array);
+        res.body.apps.forEach(checkApp);
+        done();
       });
     });
   });
@@ -47,18 +48,15 @@ describe('/service', function () {
   describe('GET /apps/:appid', function () {
 
     it('valid appId', function (done) {
-      request.get(server.url + '/apps/test-a').end(function (res) {
+      request.get(server.url + '/apps/test-a').end(function (err, res) {
         validation.check(res, {
           status: 200,
           schema: schemas.appsSingle
-        }, function (error) {
-          if (error) {
-            return done(error);
-          }
-          res.body.should.have.property('app');
-          checkApp(res.body.app);
-          done();
-        });
+        }); 
+
+        res.body.should.have.property('app');
+        checkApp(res.body.app);
+        done();
       });
     });
 
