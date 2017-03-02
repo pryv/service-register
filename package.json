@@ -5,7 +5,8 @@
   "private": true,
   "author": "Pryv Sa",
   "scripts": {
-    "test": "node_modules/.bin/mocha test/**/*.test.js"
+    "test": "node_modules/.bin/mocha test/**/*.test.js", 
+    "release": "node_modules/.bin/babel source --out-dir lib --copy-files"
   },
   "dependencies": {
     "airbrake": "0.3.x",
@@ -27,6 +28,7 @@
     "winston": "0.6.x"
   },
   "devDependencies": {
+    "babel-cli": "^6.23.0",
     "babel-core": "^6.23.1",
     "babel-eslint": "^7.1.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
