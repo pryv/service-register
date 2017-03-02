@@ -18,9 +18,6 @@ run run tar -x --owner app -f \
 
 PYTHON=$(which python2.7) run yarn install --production
 
-# Copy all source code to 'lib', removing flow annotations.
-run npm run release && rm -r ./source && mv ./lib ./source
-
 # Copy the config file
 run mkdir -p $conf_dir && \
   cp /pd_build/config/register.json $conf_dir/register.json
