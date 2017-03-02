@@ -18,6 +18,10 @@ run run tar -x --owner app -f \
 
 PYTHON=$(which python2.7) run yarn install --production
 
+# Perform a release build of the source code. (-> lib)
+run npm run release
+rm -r source && mv lib source
+
 # Copy the config file
 run mkdir -p $conf_dir && \
   cp /pd_build/config/dns.json $conf_dir/dns.json

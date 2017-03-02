@@ -28,26 +28,13 @@ function release {
 
 pushd ..
 
-# Compile all source code to 'lib'. 
-npm run release
-
-# Hide the real source code
-mv source source.hidden
-mv lib source
-
 # Create a release.tar that contains all the code. 
 tar cf build/release.tar \
   --exclude .git \
   --exclude node_modules \
   --exclude build \
-  --exclude source.hidden \
   .
-  
-# Now that the tar is done, move the code back in place. 
-[[ -e source.hidden ]] && rm -r source && mv source.hidden source
-
 popd
-exit 1
 
 # Build the docker image (commented out)
 echo "---------------------------- building register ------------------------------"
