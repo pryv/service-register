@@ -1,6 +1,8 @@
 /**
  * Actually runs the server. Launch with `node server [options]`.
  */
+'use strict';
+// @flow
 
 var app = require('./app'),
     config = require('./utils/config'),
@@ -39,10 +41,14 @@ if (config.get('server:port') > 0) {
   } else {
     server =  require('http').createServer(app);
   }
-
+  
   var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
     ':' + config.get('server:port'));
   server.listen(config.get('server:port'), config.get('server:ip'), function () {
+    if (server == null) {
+      throw new Error('Assertion failure: Server is not initialized.');
+    }
+
     var address = server.address();
     var protocol = server.key ? 'https' : 'http';
 
@@ -56,11 +62,11 @@ if (config.get('server:port') > 0) {
     logger.info(readyMessage);
     appListening(readyMessage); // TODO: replace that "readyness" thing with simple event messaging
   }).on('error', function (e) {
-      if (e.code === 'EACCES') {
-        logger.error('Cannot ' + e.syscall);
-        throw (e);
-      }
-    });
+    if (e.code === 'EACCES') {
+      logger.error('Cannot ' + e.syscall);
+      throw (e);
+    }
+  });
 
   module.exports = server;
 } else {
