@@ -1,47 +1,22 @@
 //LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
-// TODO: Clean these indexes!!!!!
+'use strict';
+// @flow
 
-var ndns = require('./ndns'),
-  server = ndns.createServer('udp4'),
-  logger = require('winston'),
-  config = require('../utils/config'),
-  defaultTTL = config.get('dns:defaultTTL'),
-  UpdateConfFile;
+const ndns = require('./ndns'),
+      server = ndns.createServer('udp4'),
+      logger = require('winston'),
+      config = require('../utils/config'),
+      defaultTTL = config.get('dns:defaultTTL');
+
+var UpdateConfFile;
 
 require('./_extend.js');
-console = logger;
+const console = logger;
 
 exports.start = function(BIND_PORT,BIND_HOST,dynamic_call,done) {
   // Server launch
   UpdateConfFile = (new Date()).format('Ymd33');
 
-  //STEP 1
-  // Reuse as app-errors when dns will be an independent project
-  /**
-   process.on('uncaughtException', function (err) {
-  if (err == false || err == undefined) {
-      err = new Error();
-  }
-  logger.error('NDNS Erreur:'+ err);
-  logger.error(err.stack);
-  if(err.code){
-  	switch(err.code){
-  		case 'EADDRNOTAVAIL':
-  			console.error('\tL'adresse n'est pas disponible!');
-  			break;
-  		case 'EADDRINUSE':
-  			console.error('\tLe port est deja utilise!');
-  			break;
-  		case 'EACCES':
-  			console.error('\tVerifier vos droits!');
-  			break;
-  	}
-  	process.exit();
-  };
-});
-   **/
-
-  //STEP 2
   var sendResponse = function (req,res,rec) {
     res.setHeader(req.header);
     for (var i = 0; i < req.q.length; i++) {
@@ -117,9 +92,9 @@ var getRecords = function(data,name){
   // Check if this is a dynamic request
 
   var ret = {
-      REP : [],
-      NS  : [],
-      ADD : []
+    REP : [],
+    NS  : [],
+    ADD : []
   };
   var i=0;
   var j=0;
@@ -128,76 +103,76 @@ var getRecords = function(data,name){
     if(data.hasOwnProperty(i)) {
       j = String(data[i]).replace(/{name}/g,name);
 
-    switch(i.toLowerCase()){
-    case 'ip':
-      // IP address
-      data[i] = data[i] instanceof Array ? data[i] : [data[i]];
-      data[i].rotate(1);
-      for(var x=0; x< data[i].length;x++) {
-        ret.REP.push([name,defaultTTL, 'IN', 'A', data[i][x]]);
-      }
-      break;
-    case 'description':
-      ret.REP.push([name, defaultTTL, 'IN', 'TXT', data[i]]);
-      break;
-    case 'autority': 
-      data[i] = String(j).split(',').slice(0,2);
-      data[i] = data[i].length === 1 ? data[i].concat(data[i]) : data[i];
-      ret.REP.push([name, defaultTTL, 'IN', 'SOA'].concat(data[i])
-        .concat([UpdateConfFile,1800, 900, 604800, 86400]));
-      break;
-    case 'mail':
-      data[i] = data[i] instanceof Array ? data[i] : [data[i]];
-      var l = 0;
-      for(j = 0;j< data[i].length;j++){
-        data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : defaultTTL;
-        data[i][j].name = data[i][j].name ? data[i][j].name.replace(/{name}/g,name) : 'mail.'+name;
-        ret.REP.push([name, data[i][j].ttl, 'IN', 'MX', data[i][j].priority ||
-        (++l)*10, data[i][j].name]);
-        if(data[i][j].ip){
-          data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-          data[i][j].ip.rotate(1);
-          for(var y=0; y< data[i][j].ip.length;y++) {
-            ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[y]]);
+      switch(i.toLowerCase()){
+      case 'ip':
+        // IP address
+        data[i] = data[i] instanceof Array ? data[i] : [data[i]];
+        data[i].rotate(1);
+        for(var x=0; x< data[i].length;x++) {
+          ret.REP.push([name,defaultTTL, 'IN', 'A', data[i][x]]);
+        }
+        break;
+      case 'description':
+        ret.REP.push([name, defaultTTL, 'IN', 'TXT', data[i]]);
+        break;
+      case 'autority': 
+        data[i] = String(j).split(',').slice(0,2);
+        data[i] = data[i].length === 1 ? data[i].concat(data[i]) : data[i];
+        ret.REP.push([name, defaultTTL, 'IN', 'SOA'].concat(data[i])
+          .concat([UpdateConfFile,1800, 900, 604800, 86400]));
+        break;
+      case 'mail':
+        data[i] = data[i] instanceof Array ? data[i] : [data[i]];
+        var l = 0;
+        for(j = 0;j< data[i].length;j++){
+          data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : defaultTTL;
+          data[i][j].name = data[i][j].name ? data[i][j].name.replace(/{name}/g,name) : 'mail.'+name;
+          ret.REP.push([name, data[i][j].ttl, 'IN', 'MX', data[i][j].priority ||
+          (++l)*10, data[i][j].name]);
+          if(data[i][j].ip){
+            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
+            data[i][j].ip.rotate(1);
+            for(var y=0; y< data[i][j].ip.length;y++) {
+              ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[y]]);
+            }
           }
         }
-      }
-      break;
-    case 'nameserver':
-      for(j = 0;j< data[i].length;j++){
-        data[i][j].name = data[i][j].name ?
-          data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-        ret.NS.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
-        // removed from authority section
-        ret.REP.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
-        if(data[i][j].ip){
-          data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-          data[i][j].ip.rotate(1);
-          for(var z=0; z< data[i][j].ip.length;z++) {
-            ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[z]]);
+        break;
+      case 'nameserver':
+        for(j = 0;j< data[i].length;j++){
+          data[i][j].name = data[i][j].name ?
+            data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
+          ret.NS.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
+          // removed from authority section
+          ret.REP.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
+          if(data[i][j].ip){
+            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
+            data[i][j].ip.rotate(1);
+            for(var z=0; z< data[i][j].ip.length;z++) {
+              ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[z]]);
+            }
           }
         }
-      }
-      break;
+        break;
 
-    case 'alias':
-      data[i] = data[i] instanceof Array ? data[i] : [data[i]];
-      for(j = 0;j< data[i].length;j++){
-        data[i][j].name = data[i][j].name ?
-          data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-        ret.REP.push([name, defaultTTL, 'IN', 'CNAME' , data[i][j].name]);
+      case 'alias':
+        data[i] = data[i] instanceof Array ? data[i] : [data[i]];
+        for(j = 0;j< data[i].length;j++){
+          data[i][j].name = data[i][j].name ?
+            data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
+          ret.REP.push([name, defaultTTL, 'IN', 'CNAME' , data[i][j].name]);
 
-        if(data[i][j].ip){
-          data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-          data[i][j].ip.rotate(1);
-          for(var w=0; w< data[i][j].ip.length;w++) {
-            ret.REP.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[w]]);
+          if(data[i][j].ip){
+            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
+            data[i][j].ip.rotate(1);
+            for(var w=0; w< data[i][j].ip.length;w++) {
+              ret.REP.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[w]]);
+            }
           }
         }
+        break;
       }
-      break;
     }
-  }
   }
   return ret;
 };

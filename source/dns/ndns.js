@@ -1,5 +1,3 @@
-// jshint ignore: start
-
 var util = require ('util');
 
 // https://github.com/Lennie/ndns/
