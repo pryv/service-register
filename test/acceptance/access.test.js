@@ -1,7 +1,7 @@
 'use strict';
 
 /* global describe, it */
-var server = require('../../source/server');
+var server = require('../../lib/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../support/schema.responses');
 var request = require('superagent');

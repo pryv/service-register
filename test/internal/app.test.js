@@ -5,7 +5,7 @@
  * TODO add unexpected error catching
  */
 /*
-var server = require('../../source/server');
+var server = require('../../lib/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../support/schema.responses.js');
 var should = require('should');

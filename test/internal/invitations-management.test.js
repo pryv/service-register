@@ -5,11 +5,11 @@
  * TODO add unexpected error catching
  */
 
-require('../../source/server');
+require('../../lib/server');
 var should = require('should');
 require('readyness/wait/mocha');
 
-var invitations = require('../../source/storage/invitations');
+var invitations = require('../../lib/storage/invitations');
 
 describe('INTERNAL invitations managements', function () {
 

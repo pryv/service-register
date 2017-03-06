@@ -7,7 +7,7 @@ const should = require('should');
 const validation = require('../support/data-validation'),
       schemas = require('../support/schema.responses'),
       request = require('superagent'),
-      server = require('../../source/server');
+      server = require('../../lib/server');
 
 require('readyness/wait/mocha');
 

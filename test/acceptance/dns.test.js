@@ -6,17 +6,18 @@ const exec = require('child_process').exec;
 const _s = require('underscore.string');
 const should = require('should');
 
-const config = require('../../source/utils/config');
-var db = require('../../source/storage/database');
+const config = require('../../lib/utils/config');
+var db = require('../../lib/storage/database');
 
-require('../../source/app-dns');
+require('../../lib/app-dns');
 
 require('readyness/wait/mocha');
 
 describe('DNS', function () {
   before(function (done) {
     db.setServerAndInfos('dns-test', 'dummy.pryv.net', {}, function(error) {
-      done(error);
+      setTimeout(done, 1000);
+      // done(error);
     });
   });
 

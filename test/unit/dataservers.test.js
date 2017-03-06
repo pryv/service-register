@@ -1,4 +1,4 @@
-const dataservers = require('../../source/utils/dataservers.js');
+const dataservers = require('../../lib/utils/dataservers.js');
 
 const http = require('http');
 const https = require('https');
