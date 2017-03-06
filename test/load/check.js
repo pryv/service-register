@@ -1,5 +1,5 @@
 /*global describe,it*/
-var server = require('../../source/server');
+var server = require('../../lib/server');
 var request = require('superagent');
 var should = require('should');
 

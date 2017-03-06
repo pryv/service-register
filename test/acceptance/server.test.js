@@ -4,8 +4,8 @@
 const request = require('superagent');
 const should = require('should');
 
-const config = require('../../source/utils/config');
-const server = require('../../source/server');
+const config = require('../../lib/utils/config');
+const server = require('../../lib/server');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 

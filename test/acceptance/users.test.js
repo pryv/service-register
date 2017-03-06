@@ -6,7 +6,7 @@
 const _ = require('lodash');
 const request = require('superagent');
 
-const server = require('../../source/server');
+const server = require('../../lib/server');
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 
