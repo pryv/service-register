@@ -2,8 +2,8 @@
  * Provides tools to construct messages for clients.
  */
 
-var logger = require('winston'),
-  mstrings = require('../public/messages-en');
+const logger = require('winston'),
+      mstrings = require('../public/messages-en');
 
 // Add ids to all messages
 Object.keys(mstrings).forEach(function (key) {

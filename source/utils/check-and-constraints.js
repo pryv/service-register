@@ -1,5 +1,6 @@
-var config = require('./config'),
-  _ = require('underscore');
+const config = require('./config'),
+      _ = require('underscore');
+
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
@@ -12,7 +13,7 @@ var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
  * @returns {boolean}: 'true' if containing the suffix, 'false' otherwise
  */
 String.prototype.endsWith = function(suffix) {
-      return this.indexOf(suffix, this.length - suffix.length) !== -1;
+  return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
 /**
@@ -21,20 +22,20 @@ String.prototype.endsWith = function(suffix) {
  * @returns: a sliced string of resources
  */
 exports.extractResourceFromHostname = function (hostname) {
-    var domains = config.get('dns:domains');
+  var domains = config.get('dns:domains');
 
-    for (var i = 0; i < domains.length; i++) {
-       if ( hostname.endsWith('.' + domains[i]) ) {
-        var resource = hostname.slice(0, - domains[i].length - 1 );
-        if (checkUsername.exec(resource)) {
-            return resource;
-          }
-        else {
-            throw new Error('Username not recognized in hostname.');
-          }
-       }
+  for (var i = 0; i < domains.length; i++) {
+    if ( hostname.endswith('.' + domains[i]) ) {
+      var resource = hostname.slice(0, - domains[i].length - 1 );
+      if (checkUsername.exec(resource)) {
+        return resource;
+      }
+      else {
+        throw new Error('Username not recognized in hostname.');
+      }
     }
-    throw new Error('Domain name not recognized in hostname.');
+  }
+  throw new Error('Domain name not recognized in hostname.');
 };
 
 

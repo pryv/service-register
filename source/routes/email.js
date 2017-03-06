@@ -49,7 +49,8 @@ module.exports = function (app: any) {
 };
 
 function _checkEmail(req, res, next, raw) {
-  if (! checkAndConstraints.email(req.params.email)) {
+  const email : string = req.params.email;
+  if (! checkAndConstraints.email(email)) {
     if (raw) {
       res.header('Content-Type', 'text/plain');
       return res.send('false');
@@ -58,7 +59,7 @@ function _checkEmail(req, res, next, raw) {
     }
   }
 
-  db.emailExists(req.params.email, function (error, exists) {
+  db.emailExists(email, function (error, exists) {
     if (error) {
       return next(messages.ei());
     }
