@@ -6,6 +6,7 @@
   "author": "Pryv Sa",
   "scripts": {
     "test": "node_modules/.bin/mocha test/**/*.test.js", 
+    "watch": "babel --watch source --out-dir lib --copy-files", 
     "release": "node_modules/.bin/babel source --out-dir lib --copy-files"
   },
   "dependencies": {
