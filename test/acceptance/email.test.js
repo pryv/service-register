@@ -13,22 +13,32 @@ describe('POST /email/check', function () {
 
   var path = '/email/check/';
 
-  it('reserved', function (done) {
+  it('when trying to register reserved emails, the form cannot be sent', function (done) {
     request.post(server.url + path)
       .send({email: 'wactiv@pryv.io'})
       .end((err, res) => {
         validation.check(res, {
           status: 200,
-          text: 'true'
+          text: 'false'
         }, done);
       });
   });
-  it('available', function (done) {
-    request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'})
+  it('when trying to register invalid emails, the form cannot be sent', function (done) {
+    request.post(server.url + path)
+      .send({email: 'THISISNOEMAILADDRESS'})
       .end((err, res) => {
         validation.check(res, {
           status: 200,
           text: 'false'
+        }, done);
+      });
+  });
+  it('when the email is still free and looks good, the form should be good', function (done) {
+    request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'})
+      .end((err, res) => {
+        validation.check(res, {
+          status: 200,
+          text: 'true'
         }, done);
       });
   });

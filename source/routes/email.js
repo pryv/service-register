@@ -16,7 +16,7 @@ module.exports = function (app: any) {
   app.post('/email/check', function (req, res) {
     res.header('Content-Type', 'text/plain');
     isEmailTaken(req.body.email).then((taken) => {
-      res.send(taken ? 'true' : 'false');
+      res.send(taken ? 'false' : 'true');
     }).catch(() => {
       res.send('false');
     });
