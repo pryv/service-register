@@ -25,7 +25,7 @@ exports.extractResourceFromHostname = function (hostname) {
   var domains = config.get('dns:domains');
 
   for (var i = 0; i < domains.length; i++) {
-    if ( hostname.endswith('.' + domains[i]) ) {
+    if ( hostname.endsWith('.' + domains[i]) ) {
       var resource = hostname.slice(0, - domains[i].length - 1 );
       if (checkUsername.exec(resource)) {
         return resource;
