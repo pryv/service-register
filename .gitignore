@@ -12,4 +12,5 @@ register.iml
 service-register.iml
 newrelic_agent.log
 build/service-register/release.tar
+.idea
 lib
