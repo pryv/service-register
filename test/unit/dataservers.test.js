@@ -1,7 +1,12 @@
+'use strict';
+// @flow
+
 const dataservers = require('../../lib/utils/dataservers.js');
 
 const http = require('http');
 const https = require('https');
+const assert = require('assert');
+const should = require('should');
 
 /* global describe, it */
 describe('network/dataservers', function () {
@@ -16,14 +21,23 @@ describe('network/dataservers', function () {
     };
     
     it('should set .name as a side effect on the host structure', function() {
-      var host = {
+      var host: {
+        base_url: string, 
+        authorization: string, 
+        name?: string,
+      } = {
         base_url: 'http://foo.com:9000', 
         authorization: 'foooo', 
       }; 
       
       getAdminClient(host, '/path', 'foobar');
       
-      host.name.should.equal('foo.com'); 
+      if (host.name) {
+        should.equal(host.name, 'foo.com'); 
+      }
+      else {
+        assert(false, 'host.name was not set.');
+      }
     });
     it('should return port 80 for http urls', function() {
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar'); 
@@ -48,6 +62,14 @@ describe('network/dataservers', function () {
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar'); 
       
       given.options.host.should.equal('foo.com');
+    });
+    it('should include authorization header', function() {
+      var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar'); 
+      
+      const headers = given.options.headers;
+      headers['Content-Type'].should.equal('application/json');
+      should.exist(headers['authorization']);
+      headers['Content-Length'].should.be.above(0);
     });
     
     describe('fallback to old behaviour', function() {

@@ -136,6 +136,12 @@ function getAdminClient(host, path, postData) {
     rejectUnauthorized: false
   };
     
+  httpOptions.headers = {
+    'Content-Type': 'application/json',
+    'authorization': host.authorization,
+    'Content-Length': postData.length
+  };
+  
   // SIDE EFFECT
   host.name = coreServer.hostname;
   
