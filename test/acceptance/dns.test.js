@@ -16,8 +16,7 @@ require('readyness/wait/mocha');
 describe('DNS', function () {
   before(function (done) {
     db.setServerAndInfos('dns-test', 'dummy.pryv.net', {}, function(error) {
-      setTimeout(done, 1000);
-      // done(error);
+      done(error);
     });
   });
 
