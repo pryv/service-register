@@ -1,5 +1,5 @@
-// flow-typed signature: 37c2891add76b6fa4e6199147d5f340d
-// flow-typed version: 38a6de2c29/underscore_v1.x.x/flow_>=v0.38.x
+// flow-typed signature: cb44e896dbea437094796e72715a2163
+// flow-typed version: 2260a64511/underscore_v1.x.x/flow_>=v0.38.x
 
 // type definitions for (some of) underscore
 
@@ -131,15 +131,15 @@ declare module "underscore" {
   /**
    * Functions
    */
-  // TODO: bind
+  declare function bind(fn: Function, thisArg: any, ...partials: Array<any>): Function;
 
-  // TODO: bindAll
+  declare function bindAll(object: ?Object, ...methodNames: Array<string | [string]>): Object;
 
   declare function partial(fn: Function, ...arguments: Array<any>): Function;
 
   declare function memoize(fn: Function): Function;
 
-  // TODO: delay
+  declare function delay(fn: Function, wait?: number, ...arguments?: Array<any>): number;
 
   declare function defer(fn: Function, ...arguments: Array<any>): void;
 
