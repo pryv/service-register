@@ -38,6 +38,8 @@ open redis console on reg-gandi-fr-01
 
 Read, then execute `./scripts/setup-dev-environment.bash`. It will check for Redis in the parent folder and install it if necessary.
 
+Run `yarn install` to download the dependencies.
+
 ### Starting up Redis (Mac)
 
 `./scripts/start-database.sh` in a separate terminal tab/window.
@@ -48,6 +50,10 @@ To monitor the db:
 scripts/connect-database-client.sh
 redis 127.0.0.1:6379> monitor
 ```
+
+### Run service-register locally
+
+run `yarn run start` to start 
 
 ## Tests
 
