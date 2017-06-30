@@ -6,6 +6,9 @@ var schemas = require('./schema.responses');
 var request = require('superagent');
 var should = require('should');
 
+const chai = require('chai');
+const assert = chai.assert;
+
 /**
  *
  * test structure
@@ -71,7 +74,7 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
     req.end(function(err, res) {
       should.not.exists(err);
       should.exists(res);
-      res.should.have.status(test.status);
+      assert.equal(res.status, test.status, 'Status code must be correct');
 
       jsonResponse(res, test, done);
     });
@@ -90,7 +93,7 @@ function jsonResponse(err, res, test, callback_done) {
   // on superagents definition of an error. 
   should.exist(res);
   
-  res.should.have.status(test.status);
+  assert.equal(res.status, test.status, 'Status code must be correct');
 
   // test headers?
   if (test.headers) {

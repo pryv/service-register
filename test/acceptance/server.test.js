@@ -1,8 +1,11 @@
-'use strict';
+// @flow
 
 /* global describe, it */
 const request = require('superagent');
 const should = require('should');
+
+const chai = require('chai');
+const assert = chai.assert; 
 
 const config = require('../../lib/utils/config');
 const server = require('../../lib/server');
@@ -49,7 +52,7 @@ describe('GET /:uid/server', function () {
     request.get(server.url + '/abcd/server')
       .redirects(0)
       .end((err, res) => {
-        res.statusCode.should.equal(302);
+        assert.equal(res.statusCode, 302, 'Should have status code 302');
         res.header.location.should.match(/\/error\.html\?id=INVALID_USER_NAME$/);
         done(); 
       });
@@ -58,7 +61,7 @@ describe('GET /:uid/server', function () {
     request.get(server.url + '/abcdefghijkl/server')
       .redirects(0)
       .end((err, res) => {
-        res.statusCode.should.equal(302);
+        assert.equal(res.statusCode, 302, 'Should have status code 302');
         res.header.location.should.match(/\/error\.html\?id=UNKNOWN_USER_NAME$/);
         done(); 
       });
@@ -67,7 +70,7 @@ describe('GET /:uid/server', function () {
     request.get(server.url + '/wactiv/server')
       .redirects(0)
       .end((err, res) => {
-        res.statusCode.should.equal(302);
+        assert.equal(res.statusCode, 302, 'Should have status code 302');
         res.header.location.should.match('https://pryv.in/?username=wactiv');
         done(); 
       });
