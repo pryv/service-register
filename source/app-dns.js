@@ -1,4 +1,3 @@
-'use strict';
 // @flow
 
 /** DNS Server */
