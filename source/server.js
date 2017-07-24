@@ -1,8 +1,8 @@
-/**
- * Actually runs the server. Launch with `node server [options]`.
- */
-'use strict';
 // @flow
+
+/**
+ * Runs the server. Launch with `node server [options]`.
+ */
 
 var app = require('./app'),
     config = require('./utils/config'),
