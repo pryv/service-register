@@ -1,8 +1,10 @@
+// @flow
+
 const config = require('./config'),
       _ = require('underscore');
 
-_.str = require('underscore.string');
-_.mixin(_.str.exports());
+const _str = require('underscore.string');
+_.mixin(_str.exports());
 
 // Username regular expression
 var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
@@ -12,20 +14,21 @@ var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
  * @param suffix: the suffix to look for
  * @returns {boolean}: 'true' if containing the suffix, 'false' otherwise
  */
-String.prototype.endsWith = function(suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
+function endsWith(str: string, suffix: string) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
 };
 
 /**
- * Extract resources such as username and domain from hostname
+ * Extract resources such as username and domain from hostname.
+ * 
  * @param hostname: the hostname containing resources
  * @returns: a sliced string of resources
  */
-exports.extractResourceFromHostname = function (hostname) {
+exports.extractResourceFromHostname = function (hostname: string) {
   var domains = config.get('dns:domains');
 
   for (var i = 0; i < domains.length; i++) {
-    if ( hostname.endsWith('.' + domains[i]) ) {
+    if ( endsWith(hostname, '.' + domains[i]) ) {
       var resource = hostname.slice(0, - domains[i].length - 1 );
       if (checkUsername.exec(resource)) {
         return resource;
@@ -108,7 +111,7 @@ exports.hostname = function (str) {
 };
 
 var supportedLanguages = {en : 'English', fr: 'Français'};
-exports.lang = function (str) {
+exports.lang = function (str: string) {
   if (! str) { return 'en'; }
   return (supportedLanguages.hasOwnProperty(str)) ? str : 'en';
 };
@@ -134,7 +137,7 @@ exports.appAuthorization = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.appToken = function (str) {
+exports.appToken = function (str: string) {
   if (! str) { return null; }
   return (str.length < 256) ? str : null;
 };
@@ -146,7 +149,7 @@ exports.accesskey = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.access = function (json) {
+exports.access = function (json: string) {
   //TODO Check access structure
   return json;
 };
