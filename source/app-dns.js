@@ -63,6 +63,7 @@ type dynRecord = {
 };
 
 var serverForName = function (reqName, callback, req, res) {
+  const domains = config.get('dns:domains');
   var nullRecord = dns.getRecords({}, reqName);
 
   //simpler request matching in lower case
@@ -75,7 +76,7 @@ var serverForName = function (reqName, callback, req, res) {
 
   logger.info('DNS: ' + keyName);
  
-  if ( config.get('dns:domains').indexOf(keyName) > -1) {
+  if ( domains.indexOf(keyName) > -1) {
     switch (req.q[0].typeName) {
     case 'MX':
       return callback(req, res, dns.getRecords(mxData, reqName));
@@ -95,7 +96,7 @@ var serverForName = function (reqName, callback, req, res) {
   var uid;
 
   try {
-    uid = checkAndConstraints.extractResourceFromHostname(keyName);
+    uid = checkAndConstraints.extractResourceFromHostname(keyName, domains);
   }
   catch (err) {
     logger.info('DNS: ' + err);

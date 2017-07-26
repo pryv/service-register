@@ -16,7 +16,7 @@ var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
  */
 function endsWith(str: string, suffix: string) {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
-};
+}
 
 /**
  * Extract resources such as username and domain from hostname.
@@ -24,9 +24,9 @@ function endsWith(str: string, suffix: string) {
  * @param hostname: the hostname containing resources
  * @returns: a sliced string of resources
  */
-exports.extractResourceFromHostname = function (hostname: string) {
-  var domains = config.get('dns:domains');
-
+module.exports.extractResourceFromHostname = function (
+  hostname: string, domains: Array<string>
+): string {
   for (var i = 0; i < domains.length; i++) {
     if ( endsWith(hostname, '.' + domains[i]) ) {
       var resource = hostname.slice(0, - domains[i].length - 1 );
