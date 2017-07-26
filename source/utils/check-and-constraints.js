@@ -9,6 +9,13 @@ _.mixin(_str.exports());
 // Username regular expression
 var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
 
+// Returns true if `candidate` could be a username, which means it fulfills the
+// character level constraints we impose. 
+// 
+module.exports.isLegalUsername = function(candidate: string): boolean {
+  return checkUsername.exec(candidate);
+};
+
 /**
  * Check if a string ends with specified suffix
  * @param suffix: the suffix to look for
@@ -27,17 +34,13 @@ function endsWith(str: string, suffix: string) {
 module.exports.extractResourceFromHostname = function (
   hostname: string, domains: Array<string>
 ): string {
-  for (var i = 0; i < domains.length; i++) {
+  for (let i = 0; i < domains.length; i++) {
     if ( endsWith(hostname, '.' + domains[i]) ) {
-      var resource = hostname.slice(0, - domains[i].length - 1 );
-      if (checkUsername.exec(resource)) {
-        return resource;
-      }
-      else {
-        throw new Error('Username not recognized in hostname.');
-      }
+      const resource = hostname.slice(0, - domains[i].length - 1 );
+      return resource;
     }
   }
+  
   throw new Error('Domain name not recognized in hostname.');
 };
 
