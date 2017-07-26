@@ -1,12 +1,9 @@
-'use strict';
-// @flow
-
 /*global describe,it,after */
 
 const _ = require('lodash');
 const request = require('superagent');
 
-const server = require('../../lib/server');
+const server = require('../../source/server');
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 
