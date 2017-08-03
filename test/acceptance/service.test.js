@@ -1,13 +1,10 @@
-'use strict';
-// @flow
-
 /*global describe,it*/
 const should = require('should');
 
 const validation = require('../support/data-validation'),
       schemas = require('../support/schema.responses'),
       request = require('superagent'),
-      server = require('../../lib/server');
+      server = require('../../source/server');
 
 require('readyness/wait/mocha');
 

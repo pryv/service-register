@@ -1,11 +1,9 @@
-'use strict';
-// @flow
 
 /* global describe, it */
 const request = require('superagent');
 
-const config = require('../../lib/utils/config');
-const server = require('../../lib/server');
+const config = require('../../source/utils/config');
+const server = require('../../source/server');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 

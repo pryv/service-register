@@ -6,10 +6,10 @@ const exec = require('child_process').exec;
 const _s = require('underscore.string');
 const should = require('should');
 
-const config = require('../../lib/utils/config');
-var db = require('../../lib/storage/database');
+const config = require('../../source/utils/config');
+var db = require('../../source/storage/database');
 
-require('../../lib/app-dns');
+require('../../source/app-dns');
 
 require('readyness/wait/mocha');
 

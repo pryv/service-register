@@ -1,10 +1,10 @@
-'use strict';
 // @flow
 
 /** DNS Server */
 
 const logger = require('winston');
 
+const util = require('util');
 const dns = require('./dns/ndns-wrapper');
 const config = require('./utils/config');
 const checkAndConstraints = require('./utils/check-and-constraints');
@@ -64,6 +64,7 @@ type dynRecord = {
 };
 
 var serverForName = function (reqName, callback, req, res) {
+  const domains = config.get('dns:domains');
   var nullRecord = dns.getRecords({}, reqName);
 
   //simpler request matching in lower case
@@ -76,7 +77,7 @@ var serverForName = function (reqName, callback, req, res) {
 
   logger.info('DNS: ' + keyName);
  
-  if ( config.get('dns:domains').indexOf(keyName) > -1) {
+  if ( domains.indexOf(keyName) > -1) {
     switch (req.q[0].typeName) {
     case 'MX':
       return callback(req, res, dns.getRecords(mxData, reqName));
@@ -93,24 +94,33 @@ var serverForName = function (reqName, callback, req, res) {
   //console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
-  var uid;
+  var resourceName; 
 
   try {
-    uid = checkAndConstraints.extractResourceFromHostname(keyName);
+    resourceName = checkAndConstraints.extractResourceFromHostname(keyName, domains);
   }
   catch (err) {
-    logger.info('DNS: ' + err);
+    logger.warn('DNS: ' + err);
   }
 
-  if (! uid) {
+  if (resourceName == null) {
     logger.info('DNS: (Not in domain) ' + keyName);
     return callback(req, res, nullRecord);
   }
 
   // reserved, static records within domain
-  if (uid in staticDataInDomain) {
-    return callback(req, res, dns.getRecords(staticDataInDomain[uid], reqName));
+  if (resourceName in staticDataInDomain) {
+    const staticData = staticDataInDomain[resourceName];
+    return callback(req, res, dns.getRecords(staticData, reqName));
   }
+  
+  if (! checkAndConstraints.isLegalUsername(resourceName)) {
+    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
+    return callback(req, res, nullRecord);
+  }
+  
+  // assert: resourceName fulfills the character level constraints for a username.
+  const uid = resourceName;
 
   // 0 to 4 char length are reserved
   if (uid.length < 5) {

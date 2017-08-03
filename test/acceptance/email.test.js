@@ -3,7 +3,7 @@
 /* global describe,it */
 const request = require('superagent');
 
-const server = require('../../lib/server'),
+const server = require('../../source/server'),
       validation = require('../support/data-validation'),
       schemas = require('../support/schema.responses');
 
