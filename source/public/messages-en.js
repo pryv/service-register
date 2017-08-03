@@ -8,7 +8,7 @@ var messages = {
   'INVALID_JSON_REQUEST' : {'message' : 'Invalid Data',
     'detail' : 'The data transmited is not in a valid JSON format.'},
   'INVALID_USER_NAME' : { 'message' : 'Invalid user name',
-    'detail' : 'User name must be made of 5 to 21 alphanumeric characters (- and _ authorized).'},
+    'detail' : 'User name must be made of 5 to 21 alphanumeric characters (- authorized).'},
   'RESERVED_USER_NAME' : { 'message' : 'Reserved user name',
     'detail' : 'User name is reserved.'},
   'EXISTING_USER_NAME' : { 'message' : 'User name exists',
