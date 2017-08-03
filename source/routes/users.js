@@ -1,4 +1,3 @@
-'use strict';
 // @flow
 
 const checkAndConstraints = require('../utils/check-and-constraints'),
