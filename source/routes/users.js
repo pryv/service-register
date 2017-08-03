@@ -20,9 +20,8 @@ const checkAndConstraints = require('../utils/check-and-constraints'),
  * @param app
  */
 module.exports = function (app: any) {
-  /**
-   * POST /user: create a new user
-   */
+  // POST /user: create a new user
+  // 
   app.post('/user', function (req, res, next) {
     if (req.body === undefined) {
       logger.error('/user : How could body be empty??');
