@@ -1,4 +1,3 @@
-'use strict';
 // @flow
 
 const checkAndConstraints = require('../utils/check-and-constraints'),
@@ -23,12 +22,12 @@ module.exports = function (app: any) {
   // POST /user: create a new user
   // 
   app.post('/user', function (req, res, next) {
-    if (req.body === undefined) {
+    if (req.body == null) {
       logger.error('/user : How could body be empty??');
       return next(messages.ei());
     }
 
-    // TODO  check that it's an authorized url
+    // TODO check that it's an authorized url
     var hosting = checkAndConstraints.hosting(req.body.hosting);
     if (! hosting) {
       return next(messages.e(400, 'INVALID_HOSTING'));
@@ -95,10 +94,6 @@ module.exports = function (app: any) {
           callback(error);
         });
       },
-      function (callback) { // check host
-        callback(null);
-        //hosting.getServerForHosting(hosting); "continue here"
-      }
     ], function (error) {
 
       if (existsList.length > 0) {
