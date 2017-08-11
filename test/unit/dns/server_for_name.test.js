@@ -12,9 +12,11 @@ describe('serverForName', () => {
     const req = 'req';
     const res = 'res';
     const callback = (req, res, resolvedRecord) => {
-      console.log(resolvedRecord);
+      assert.deepEqual(resolvedRecord.REP, [ [ 'foo.bar.pryv.me', 3600, 'IN', 'A', '1.2.3.4' ] ]);
+      
       done(); 
-    }
-    serverForName('foo.bar.domain.com', callback, req, res); 
+    };
+    
+    serverForName('foo.bar.pryv.me', callback, req, res); 
   });
 });

@@ -124,7 +124,7 @@ function serverForName(
   }
   
   if (! checkAndConstraints.isLegalUsername(resourceName)) {
-    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
+    logger.warning(`DNS: ${util.inspect(resourceName)} is no legal username.`);
     return callback(req, res, nullRecord);
   }
   

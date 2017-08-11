@@ -38,6 +38,9 @@
             "name": "reglocal.pryv.in"
           }
         ]
+      }, 
+      "foo.bar": {
+        "ip": "1.2.3.4"
       }
     }
   },
