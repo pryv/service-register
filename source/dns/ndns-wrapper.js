@@ -232,3 +232,4 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
 };
 
 exports.getRecords = getRecords;
+exports._rotate = rotate; 
