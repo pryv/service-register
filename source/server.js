@@ -16,10 +16,10 @@ const ready = require('readyness');
 ready.setLogger(logger.info);
 
 class HttpsWithUrl extends https.Server {
-  url: string; 
+  url: ?string; 
 }
 class HttpWithUrl extends http.Server {
-  url: string; 
+  url: ?string; 
 }
 type ServerWithUrl = HttpsWithUrl | HttpWithUrl;
 
@@ -35,6 +35,7 @@ function produceServer(): ServerWithUrl {
   
   // NOTE The code below typecasts through any. If you modify this code, please
   //   make sure that the return value is in fact a http/https server instance. 
+  //   Also why we have type assertions just before the cast through any. 
 
   // HACK: config doesn't parse bools when passed from command-line
   if (ssl && ssl !== 'false') {
@@ -45,10 +46,12 @@ function produceServer(): ServerWithUrl {
     };
     const server = https.createServer(serverOptions, app);
     
+    (server: https.Server);
     return (server: any);
   } else {
     const server =  http.createServer(app);
     
+    (server: http.Server);
     return (server: any);
   }
 }
@@ -80,11 +83,16 @@ if (config.get('server:port') > 0) {
     var address = server.address();
     var protocol = server.key ? 'https' : 'http';
 
-    server.url = protocol + '://' + address.address + ':' + address.port;
+    const server_url = protocol + '://' + address.address + ':' + address.port;
+    
+    // Tests access 'server.url' for now. Deprecated. 
+    server.url = server_url;
+    
+    // Use this instead.
     config.set('server:url', server.url);
 
     var readyMessage = 'Registration server v' + require('../package.json').version +
-        ' [' + app.settings.env + '] listening on ' + server.url +
+        ' [' + app.settings.env + '] listening on ' + server_url +
       '\n Serving main domain: ' + config.get('dns:domain') +
       ' extras: ' + config.get('dns:domains');
     logger.info(readyMessage);
