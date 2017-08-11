@@ -8,9 +8,50 @@ var app = require('./app'),
     config = require('./utils/config'),
     fs = require('fs'),
     logger = require('winston');
+    
+const http = require('http');
+const https = require('https');
 
-var ready = require('readyness');
+const ready = require('readyness');
 ready.setLogger(logger.info);
+
+class HttpsWithUrl extends https.Server {
+  url: string; 
+}
+class HttpWithUrl extends http.Server {
+  url: string; 
+}
+type ServerWithUrl = HttpsWithUrl | HttpWithUrl;
+
+// Produces the server instance for listening to HTTP/HTTPS traffic, depending
+// on the configuration. 
+//
+// NOTE Since we depend on there being an url property in the server, we don't 
+//    return vanilla servers from this function but a subtype. Make sure
+//    the code knows about the `url`.
+//
+function produceServer(): ServerWithUrl {
+  const ssl = config.get('server:ssl');
+  
+  // NOTE The code below typecasts through any. If you modify this code, please
+  //   make sure that the return value is in fact a http/https server instance. 
+
+  // HACK: config doesn't parse bools when passed from command-line
+  if (ssl && ssl !== 'false') {
+    serverOptions = {
+      key : fs.readFileSync(config.get('server:certsPathAndKey') + '-key.pem').toString(),
+      cert : fs.readFileSync(config.get('server:certsPathAndKey') + '-cert.crt').toString(),
+      ca : fs.readFileSync(config.get('server:certsPathAndKey') + '-ca.pem').toString()
+    };
+    const server = https.createServer(serverOptions, app);
+    
+    return (server: any);
+  } else {
+    const server =  http.createServer(app);
+    
+    return (server: any);
+  }
+}
 
 
 // send crashes to Airbrake service
@@ -27,20 +68,7 @@ if (config.get('server:port') > 0) {
 
   var serverOptions = {};
 
-  var server = null,
-      ssl = config.get('server:ssl');
-
-  // HACK: config doesn't parse bools when passed from command-line
-  if (ssl && ssl !== 'false') {
-    serverOptions = {
-      key : fs.readFileSync(config.get('server:certsPathAndKey') + '-key.pem').toString(),
-      cert : fs.readFileSync(config.get('server:certsPathAndKey') + '-cert.crt').toString(),
-      ca : fs.readFileSync(config.get('server:certsPathAndKey') + '-ca.pem').toString()
-    };
-    server =  require('https').createServer(serverOptions, app);
-  } else {
-    server =  require('http').createServer(app);
-  }
+  const server = produceServer(); 
   
   var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
     ':' + config.get('server:port'));
