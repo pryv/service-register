@@ -1,5 +1,3 @@
-//LIGHTENED VERSION OF  https://github.com/badlee/fun-dns
-'use strict';
 // @flow
 
 const ndns = require('./ndns'),
@@ -13,9 +11,67 @@ var UpdateConfFile;
 require('./_extend.js');
 const console = logger;
 
-exports.start = function(BIND_PORT,BIND_HOST,dynamic_call,done) {
+function rotate<T>(ary: Array<T>, count: number = 1): Array<T> {
+  const len = ary.length;
+
+  ary.unshift(...ary.splice(count % len, len));
+  return ary;
+}
+function format(date: Date, format: string): string {
+  var fullYear = date.getFullYear();
+  if (fullYear < 1000) {
+    fullYear = fullYear + 1900;
+  }
+  var hour = date.getHours();
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var minute = date.getMinutes();
+  var seconde = date.getSeconds();
+  var reg = new RegExp('(d|m|Y|H|i|s)', 'g');
+  var replacement = {};
+  replacement.d = day < 10 ? '0' + day : day;
+  replacement.m = month < 10 ? '0' + month : month;
+  replacement.Y = fullYear;
+  replacement.H = hour < 10 ? '0' + hour : hour;
+  replacement.i = minute < 10 ? '0' + minute : minute;
+  replacement.s = seconde < 10 ? '0' + seconde : seconde;
+  return format.replace(reg, function($0) {
+    return ($0 in replacement) ? replacement[$0] : $0.slice(1,
+        $0.length - 1);
+  });
+}
+
+export type DnsRequest = ndns.Message; 
+export type DnsResponse = ndns.Message; 
+
+// This is what ndns consumes. We're not being as specific as we can be
+// eventually  here. 
+export type DnsRecord = {
+  REP: Array<DnsEntry>, 
+  NS: Array<DnsEntry>, 
+  ADD: Array<DnsEntry>, 
+};
+type DnsEntry = Array<string | number>;
+
+export type DnsData = {
+  ip?: string | Array<string>, 
+  autority?: string,
+  nameserver?: string,
+}
+
+type DnsDynamicHandler = (
+  name: string, 
+  (DnsRequest, DnsResponse, DnsRecord) => void, 
+  req: DnsRequest, res: DnsResponse
+) => void;
+
+exports.start = function(
+  BIND_PORT: string, BIND_HOST: string, 
+  dynamic_call: DnsDynamicHandler, 
+  done: () => void
+) {
   // Server launch
-  UpdateConfFile = (new Date()).format('Ymd33');
+  UpdateConfFile = format(new Date(), 'Ymd33');
 
   var sendResponse = function (req,res,rec) {
     res.setHeader(req.header);
@@ -66,7 +122,7 @@ exports.start = function(BIND_PORT,BIND_HOST,dynamic_call,done) {
 
     if (req.q.length > 0) {
       var name = req.q[0].name;
-      if (name === undefined) {
+      if (name == null) {
         console.debug('How comes DNS request was null ??');
         name = '';
       }
@@ -75,23 +131,21 @@ exports.start = function(BIND_PORT,BIND_HOST,dynamic_call,done) {
         name = '';
       }
 
-      return dynamic_call(name,sendResponse,req,res);
+      return dynamic_call(name, sendResponse, req, res);
     }
 
     // close with nothing
-    sendResponse(req,res,null);
-  }
-  );
+    sendResponse(req, res, null);
+  });
 
-  server.bind(BIND_PORT,BIND_HOST);
+  server.bind(BIND_PORT, BIND_HOST);
   done('DNS Started on '+BIND_HOST+':'+BIND_PORT);
 };
 
-
-var getRecords = function(data,name){
+var getRecords = function(data: DnsData, name: string): DnsRecord {
   // Check if this is a dynamic request
 
-  var ret = {
+  var ret: DnsRecord = {
     REP : [],
     NS  : [],
     ADD : []
@@ -99,7 +153,7 @@ var getRecords = function(data,name){
   var i=0;
   var j=0;
   var k=0;
-  for(i in data){
+  for(i in data) {
     if(data.hasOwnProperty(i)) {
       j = String(data[i]).replace(/{name}/g,name);
 
@@ -107,8 +161,8 @@ var getRecords = function(data,name){
       case 'ip':
         // IP address
         data[i] = data[i] instanceof Array ? data[i] : [data[i]];
-        data[i].rotate(1);
-        for(var x=0; x< data[i].length;x++) {
+        rotate(data[i]);
+        for(var x=0; x< data[i].length; x++) {
           ret.REP.push([name,defaultTTL, 'IN', 'A', data[i][x]]);
         }
         break;
@@ -131,7 +185,7 @@ var getRecords = function(data,name){
           (++l)*10, data[i][j].name]);
           if(data[i][j].ip){
             data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            data[i][j].ip.rotate(1);
+            rotate(data[i][j].ip, 1);
             for(var y=0; y< data[i][j].ip.length;y++) {
               ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[y]]);
             }
@@ -147,7 +201,7 @@ var getRecords = function(data,name){
           ret.REP.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
           if(data[i][j].ip){
             data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            data[i][j].ip.rotate(1);
+            rotate(data[i][j].ip);
             for(var z=0; z< data[i][j].ip.length;z++) {
               ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[z]]);
             }
@@ -164,7 +218,7 @@ var getRecords = function(data,name){
 
           if(data[i][j].ip){
             data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            data[i][j].ip.rotate(1);
+            rotate(data[i][j].ip);
             for(var w=0; w< data[i][j].ip.length;w++) {
               ret.REP.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[w]]);
             }

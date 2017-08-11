@@ -1,3 +1,5 @@
+// @flow
+
 const util = require('util');
 
 const logger = require('winston');
@@ -7,6 +9,8 @@ const db = require('../storage/database');
 const checkAndConstraints = require('../utils/check-and-constraints');
 const config = require('../utils/config');
 const dns = require('./ndns-wrapper');
+
+import type { DnsRequest, DnsResponse, DnsRecord, DnsData } from './ndns-wrapper';
 
 //static entries; matches a fully qualified names
 const staticDataFull = {
@@ -18,7 +22,7 @@ const mxData = {
 
 const baseData = {
   autority: config.get('dns:name') + ',admin.' + config.get('dns:domain'),
-  nameserver: config.get('dns:nameserver')
+  nameserver: config.get('dns:nameserver'),
 };
 const nsData = {
   nameserver: baseData.nameserver
@@ -43,6 +47,17 @@ const staticDataInDomain = config.get('dns:staticDataInDomain');
 logger['default'].transports.console.level = 'debug';
 logger['default'].transports.console.colorize = true;
 
+// logger.config.syslog.levels: 
+// 
+// { debug: 0,
+//   info: 1,
+//   notice: 2,
+//   warning: 3,
+//   error: 4,
+//   crit: 5,
+//   alert: 6,
+//   emerg: 7 }
+//
 logger.setLevels(logger.config.syslog.levels);
 
 
@@ -53,9 +68,11 @@ logger.setLevels(logger.config.syslog.levels);
 // packets
 // http://marcoceresa.com/net-dns/classes/Net/DNS/Header.html
 
-// TODO do some caching w/redis: create records only once
-
-function serverForName(reqName, callback, req, res) {
+function serverForName(
+  reqName: string, 
+  callback: (req: DnsRequest, res: DnsResponse, rec: DnsRecord) => void, 
+  req: DnsRequest, res: DnsResponse
+): void {
   const domains = config.get('dns:domains');
   var nullRecord = dns.getRecords({}, reqName);
 
@@ -92,7 +109,7 @@ function serverForName(reqName, callback, req, res) {
     resourceName = checkAndConstraints.extractResourceFromHostname(keyName, domains);
   }
   catch (err) {
-    logger.warn('DNS: ' + err);
+    logger.warning('DNS: ' + err);
   }
 
   if (resourceName == null) {
@@ -125,7 +142,7 @@ function serverForName(reqName, callback, req, res) {
     //console.log('*** FOUND :'+ result);
     if (error || ! result) { return callback(req, res, nullRecord); }
 
-    var dyn: dynRecord = {
+    var dyn: DnsData = {
       'alias': [ { name: result } ]};
       
     // add Authority or Nameservers
@@ -146,3 +163,4 @@ module.exports = {
   serverForName: serverForName, 
   logger: logger 
 };
+
