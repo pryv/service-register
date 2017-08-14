@@ -60,11 +60,6 @@ logger['default'].transports.console.colorize = true;
 //
 logger.setLevels(logger.config.syslog.levels);
 
-
-// test with http://www.dnsvalidation.com/
-// http://www.dnssniffer.com/include/report-includes.php?domain=pryv.io&advanced=
-// http://www.db.ripe.net/cgi-bin/delcheck/delcheck2.cgi
-
 // packets
 // http://marcoceresa.com/net-dns/classes/Net/DNS/Header.html
 
