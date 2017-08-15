@@ -113,7 +113,8 @@ describe('utils/dataservers', function () {
         function (nextStep) {
           dataservers.getHostForHosting(hosting, (err, res) => {
             should.not.exist(err);
-            res.should.be.equal('localhost');
+            should.exist(res);
+            res['base_name'].should.be.equal('localhost');
             nextStep();
           });
         }

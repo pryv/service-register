@@ -38,34 +38,43 @@ exports.hostings = function () {
 };
 
 /**
- * Retrieve host associated with provided hosting
+ * Select host associated with provided hosting fairly.
+ * Fairly = A new user must be created among the cores that have the least users.
  * @param hosting: the hosting
  * @returns: the corresponding host if existing, 'null' otherwise
  */
 exports.getHostForHosting = function (hosting, callback) {
-  var servers = config.get('net:aaservers:' + hosting);
+  // Get the available hosts from config file
+  const servers = config.get('net:aaservers:' + hosting);
 
+  // No host available
   if (! servers || servers.length === 0) {
     return callback();
   }
 
+  // Get the list of hosts containing users and the users count
   users.getServers((err,res) => {
     if(err) {
       return callback(err);
     }
 
-    const usedServers = Object.keys(res);
     let candidate = null;
     let min = null;
 
+    // We look through available hosts for one good candidate (small users count)
     for (const server of servers) {
       const serverName = server.base_name;
-      if(usedServers.indexOf(serverName) == -1) {
+      const serverSize = res[serverName];
+
+      // This host is empty, we will not find better candidate
+      if(!serverSize) {
         return callback(null, server);
       }
-      if(!candidate || res[serverName] < min) {
-        min = res[serverName];
-        candidate = serverName;
+
+      // This host has smaller users count, we take it as new best candidate
+      if(!candidate || serverSize < min) {
+        min = serverSize;
+        candidate = server;
       }
     }
     return callback(null, candidate);
