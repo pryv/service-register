@@ -4,6 +4,7 @@ const url = require('url');
 const http = require('http');
 const https = require('https');
 const config = require('./config');
+const users = require('../storage/users');
 
 var hostings = null;
 
@@ -41,16 +42,34 @@ exports.hostings = function () {
  * @param hosting: the hosting
  * @returns: the corresponding host if existing, 'null' otherwise
  */
-exports.getHostForHosting = function (hosting) {
+exports.getHostForHosting = function (hosting, callback) {
   var servers = config.get('net:aaservers:' + hosting);
 
   if (! servers || servers.length === 0) {
-    return null;
+    return callback();
   }
-  
-  // for now it's random
-  var i = Math.floor(Math.random() * (servers.length));
-  return servers[i];
+
+  users.getServers((err,res) => {
+    if(err) {
+      return callback(err);
+    }
+
+    const usedServers = Object.keys(res);
+    let candidate = null;
+    let min = null;
+
+    for (const server of servers) {
+      const serverName = server.base_name;
+      if(usedServers.indexOf(serverName) == -1) {
+        return callback(null, server);
+      }
+      if(!candidate || res[serverName] < min) {
+        min = res[serverName];
+        candidate = serverName;
+      }
+    }
+    return callback(null, candidate);
+  });
 };
 
 function getLegacyAdminClient(host, path, postData) {
@@ -59,7 +78,7 @@ function getLegacyAdminClient(host, path, postData) {
   // SIDE EFFECT
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
 
-  const httpClient = useSSL ? https : http; 
+  const httpClient = useSSL ? https : http;
 
   var httpOptions = {
     host : host.name,
@@ -68,44 +87,44 @@ function getLegacyAdminClient(host, path, postData) {
     method: 'POST',
     rejectUnauthorized: false
   };
-  
+
   httpOptions.headers = {
     'Content-Type': 'application/json',
     'authorization': host.authorization,
     'Content-Length': postData.length
   };
-  
+
   return {
-    client: httpClient, 
+    client: httpClient,
     options: httpOptions,
   };
 }
 
 /**
- * Deals with parsing the 'base_url' field in the host object. Returns an 
- * object that has fields 'client' and 'options' - together they will yield 
- * the http call to make: 
- * 
- *    var httpCall = getAdminClient(host, path, postData); 
+ * Deals with parsing the 'base_url' field in the host object. Returns an
+ * object that has fields 'client' and 'options' - together they will yield
+ * the http call to make:
+ *
+ *    var httpCall = getAdminClient(host, path, postData);
  *    httpCall.client.request(httpCall.options, function() { ... })
  *
- * As a _side effect_, sets the `.name` field on host to the host name of the 
- * server used for the call.  
+ * As a _side effect_, sets the `.name` field on host to the host name of the
+ * server used for the call.
  */
 function getAdminClient(host, path, postData) {
   if (host.base_url === undefined) {
     // We used to define the path to the core server using 'base_name', 'port'
-    // and net:AAservers_domain. This function implements that as a fallback. 
+    // and net:AAservers_domain. This function implements that as a fallback.
     return getLegacyAdminClient(host, path, postData);
   }
-  
+
   var coreServer = url.parse(host.base_url);
-  
+
   const useSSL = (coreServer.protocol === 'https:');
   const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
 
-  const httpClient = useSSL ? https : http; 
-  
+  const httpClient = useSSL ? https : http;
+
   var httpOptions = {
     host : coreServer.hostname,
     port: port,
@@ -113,34 +132,34 @@ function getAdminClient(host, path, postData) {
     method: 'POST',
     rejectUnauthorized: false
   };
-    
+
   httpOptions.headers = {
     'Content-Type': 'application/json',
     'authorization': host.authorization,
     'Content-Length': postData.length
   };
-  
+
   // SIDE EFFECT
   host.name = coreServer.hostname;
-  
+
   return {
-    client: httpClient, 
+    client: httpClient,
     options: httpOptions,
   };
 }
 
-/** 
+/**
  * POSTs a request to the core server indicated by `host`. Calls the callback
- * which has the signature `function(error, json_result)`. 
- * 
- * As a _side effect_, `host.name` is set to the name of the actual host used 
- * for this call. 
+ * which has the signature `function(error, json_result)`.
+ *
+ * As a _side effect_, `host.name` is set to the name of the actual host used
+ * for this call.
  */
 function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   var postData = JSON.stringify(jsonData);
   //console.log(postData);
 
-  var httpCall = getAdminClient(host, path, postData); 
+  var httpCall = getAdminClient(host, path, postData);
 
   var onError = function (reason) {
     var content =  '\n Request: ' + httpCall.options.method + ' ' +
@@ -179,5 +198,5 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   req.end();
 }
 
-exports.getAdminClient = getAdminClient; 
+exports.getAdminClient = getAdminClient;
 exports.postToAdmin = postToAdmin;
