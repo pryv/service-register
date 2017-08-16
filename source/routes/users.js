@@ -20,7 +20,7 @@ const checkAndConstraints = require('../utils/check-and-constraints'),
  */
 module.exports = function (app: any) {
   // POST /user: create a new user
-  // 
+  //
   app.post('/user', function (req, res, next) {
     if (req.body == null) {
       logger.error('/user : How could body be empty??');
@@ -115,16 +115,17 @@ module.exports = function (app: any) {
         user.passwordHash =  passwordHash;
 
         // Create user
-        var host = dataservers.getHostForHosting(hosting);
-        if (!host) {
-          return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
-        }
-
-        users.create(host, user, function(error, result) {
-          if(error) {
-            return next(messages.ei(error));
+        dataservers.getHostForHosting(hosting, (errorHost, host) => {
+          if (errorHost || !host) {
+            return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
           }
-          res.json(result, 200);
+
+          users.create(host, user, function(error, result) {
+            if(error) {
+              return next(messages.ei(error));
+            }
+            res.json(result, 200);
+          });
         });
       });
     });
