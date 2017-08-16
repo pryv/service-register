@@ -44,16 +44,16 @@ exports.hostings = function () {
  * @returns: the corresponding host if existing, 'null' otherwise
  */
 exports.getHostForHosting = function (hosting, callback) {
-  // Get the available hosts from config file
-  const servers = config.get('net:aaservers:' + hosting);
+  // Get the available hosts (from config file)
+  const availableHosts = config.get('net:aaservers:' + hosting);
 
   // No host available
-  if (! servers || servers.length === 0) {
+  if (! availableHosts || availableHosts.length === 0) {
     return callback();
   }
 
-  // Get the list of hosts containing users and the users count
-  users.getServers((err,res) => {
+  // Get the list of active hosts and the users count (from Redis)
+  users.getServers((err, servers) => {
     if(err) {
       return callback(err);
     }
@@ -62,21 +62,21 @@ exports.getHostForHosting = function (hosting, callback) {
     let min = null;
 
     // We look through available hosts for one good candidate (small users count)
-    for (const server of servers) {
-      const serverName = server.base_name;
-      const serverSize = res[serverName];
+    for (const server of availableHosts) {
+      const usersCount = servers[server.base_name];
 
       // This host is empty, we will not find better candidate
-      if(!serverSize) {
+      if(!usersCount) {
         return callback(null, server);
       }
 
       // This host has smaller users count, we take it as new best candidate
-      if(!candidate || serverSize < min) {
-        min = serverSize;
+      if(!candidate || usersCount < min) {
+        min = usersCount;
         candidate = server;
       }
     }
+
     return callback(null, candidate);
   });
 };
