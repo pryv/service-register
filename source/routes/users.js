@@ -115,18 +115,21 @@ module.exports = function (app: any) {
         user.passwordHash =  passwordHash;
 
         // Create user
-        dataservers.getHostForHosting(hosting, (errorHost, host) => {
-          if (errorHost || !host) {
-            return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
-          }
-
-          users.create(host, user, function(error, result) {
-            if(error) {
-              return next(messages.ei(error));
+        dataservers.getHostForHosting(hosting)
+          .then((host) => {
+            if(!host) {
+              return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
             }
-            res.json(result, 200);
+            users.create(host, user, function(error, result) {
+              if(error) {
+                return next(messages.ei(error));
+              }
+              res.json(result, 200);
+            });
+          })
+          .catch(() => {
+            return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
           });
-        });
       });
     });
   });

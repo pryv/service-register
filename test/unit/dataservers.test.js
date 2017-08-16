@@ -109,13 +109,11 @@ describe('utils/dataservers', function () {
         function (nextStep) {
           db.setServer('dummyUser3', 'dummy_server', nextStep);
         },
-        function (nextStep) {
-          dataservers.getHostForHosting(hosting, (err, res) => {
-            should.not.exist(err);
-            should.exist(res);
-            res['base_name'].should.be.equal('localhost');
-            nextStep();
-          });
+        async function (nextStep) {
+          const host = await dataservers.getHostForHosting(hosting);
+          should.exist(host);
+          host['base_name'].should.be.equal('localhost');
+          nextStep();
         }
       ], done
       );

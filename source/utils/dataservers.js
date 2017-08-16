@@ -43,41 +43,43 @@ exports.hostings = function () {
  * @param hosting: the hosting
  * @returns: the corresponding host if existing, 'null' otherwise
  */
-exports.getHostForHosting = function (hosting, callback) {
-  // Get the available hosts (from config file)
-  const availableHosts = config.get('net:aaservers:' + hosting);
+exports.getHostForHosting = function (hosting) {
+  return new Promise((resolve, reject) => {
+    // Get the available hosts (from config file)
+    const availableHosts = config.get('net:aaservers:' + hosting);
 
-  // No host available
-  if (! availableHosts || availableHosts.length === 0) {
-    return callback();
-  }
-
-  // Get the list of active hosts and the users count (from Redis)
-  users.getServers((err, servers) => {
-    if(err) {
-      return callback(err);
+    // No host available
+    if (! availableHosts || availableHosts.length === 0) {
+      return resolve();
     }
 
-    let candidate = null;
-    let min = null;
-
-    // We look through available hosts for one good candidate (small users count)
-    for (const server of availableHosts) {
-      const usersCount = servers[server.base_name];
-
-      // This host is empty, we will not find better candidate
-      if(!usersCount) {
-        return callback(null, server);
+    // Get the list of active hosts and the users count (from Redis)
+    users.getServers((err, servers) => {
+      if(err) {
+        return reject(err);
       }
 
-      // This host has smaller users count, we take it as new best candidate
-      if(!candidate || usersCount < min) {
-        min = usersCount;
-        candidate = server;
-      }
-    }
+      let candidate = null;
+      let min = null;
 
-    return callback(null, candidate);
+      // We look through available hosts for one good candidate (small users count)
+      for (const server of availableHosts) {
+        const usersCount = servers[server.base_name];
+
+        // This host is empty, we will not find better candidate
+        if(!usersCount) {
+          return resolve(server);
+        }
+
+        // This host has smaller users count, we take it as new best candidate
+        if(!candidate || usersCount < min) {
+          min = usersCount;
+          candidate = server;
+        }
+      }
+
+      return resolve(candidate);
+    });
   });
 };
 
