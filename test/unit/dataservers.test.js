@@ -1,7 +1,6 @@
 // @flow
 
 const dataservers = require('../../source/utils/dataservers.js');
-const users = require('../../source/storage/users');
 const db = require('../../source/storage/database');
 
 const http = require('http');
