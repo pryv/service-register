@@ -2,6 +2,7 @@
 
 const dataservers = require('../../source/utils/dataservers.js');
 const db = require('../../source/storage/database');
+const config = require('../../source/utils/config');
 
 const http = require('http');
 const https = require('https');
@@ -9,7 +10,7 @@ const assert = require('assert');
 const should = require('should');
 const async = require('async');
 
-/* global describe, it */
+/* global describe, it, before */
 describe('utils/dataservers', function () {
 
   describe('getAdminClient', function () {
@@ -96,27 +97,50 @@ describe('utils/dataservers', function () {
   });
 
   describe('getHostForHosting', function () {
-    it('should fairly select host (among emptiest) for provided hosting', function(done) {
-      const hosting = 'test.ch-ch';
+    const hosting = 'test.ch-ch';
 
+    before( done => {
       async.series([
-        function (nextStep) {
+        nextStep => {
           db.setServer('dummyUser1', 'localhost', nextStep);
         },
-        function (nextStep) {
+        nextStep => {
           db.setServer('dummyUser2', 'dummy_server', nextStep);
         },
-        function (nextStep) {
+        nextStep => {
           db.setServer('dummyUser3', 'dummy_server', nextStep);
-        },
-        async function (nextStep) {
-          const host = await dataservers.getHostForHosting(hosting);
-          should.exist(host);
-          host['base_name'].should.be.equal('localhost');
-          nextStep();
         }
       ], done
       );
+    });
+
+    it('should fairly select host (among emptiest) for provided hosting', async function() {
+      const host = await dataservers.getHostForHosting(hosting);
+      should.exist(host);
+      // Localhost was setup as containing the less users (only one)
+      host['base_name'].should.be.equal('localhost');
+    });
+
+    it('should not select full host', async function() {
+      const hostingsPath = 'net:aaservers:' + hosting;
+      let hostings = config.get(hostingsPath);
+      // Set localhost users limit as already reached
+      hostings[0].limit = 1;
+      config.set(hostingsPath, hostings);
+      const host = await dataservers.getHostForHosting(hosting);
+      should.exist(host);
+      host['base_name'].should.not.be.equal('localhost');
+    });
+
+    it('should not select unavailable host', async function() {
+      const hostingsPath = 'net:aaservers:' + hosting;
+      let hostings = config.get(hostingsPath);
+      // Set localhost to unavailable
+      hostings[0].available = false;
+      config.set(hostingsPath, hostings);
+      const host = await dataservers.getHostForHosting(hosting);
+      should.exist(host);
+      host['base_name'].should.not.be.equal('localhost');
     });
   });
 });

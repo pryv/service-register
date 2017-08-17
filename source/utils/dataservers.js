@@ -64,17 +64,25 @@ exports.getHostForHosting = function (hosting) {
 
       // We look through available hosts for one good candidate (small users count)
       for (const server of availableHosts) {
-        const usersCount = servers[server.base_name];
 
-        // This host is empty, we will not find better candidate
-        if(!usersCount) {
-          return resolve(server);
-        }
+        // Consider available servers only
+        if(server.available == null || server.available == true) {
 
-        // This host has smaller users count, we take it as new best candidate
-        if(!candidate || usersCount < min) {
-          min = usersCount;
-          candidate = server;
+          const usersCount = servers[server.base_name];
+
+          // This host is empty, we will not find better candidate
+          if(!usersCount) {
+            return resolve(server);
+          }
+
+          // Consider not full servers only
+          if(server.limit == null || usersCount < server.limit) {
+            // This host has smaller users count, we take it as new best candidate
+            if(!candidate || usersCount < min) {
+              min = usersCount;
+              candidate = server;
+            }
+          }
         }
       }
 
