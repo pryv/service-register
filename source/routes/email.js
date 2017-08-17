@@ -1,4 +1,3 @@
-'use strict'; 
 // @flow
 
 // check if an EMAIL exists
