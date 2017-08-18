@@ -120,28 +120,6 @@ describe('utils/dataservers', function () {
       // Localhost was setup as containing the less users (only one)
       host['base_name'].should.be.equal('localhost');
     });
-
-    it('should not select full host', async function() {
-      const hostingsPath = 'net:aaservers:' + hosting;
-      let hostings = config.get(hostingsPath);
-      // Set localhost users limit as already reached
-      hostings[0].limit = 1;
-      config.set(hostingsPath, hostings);
-      const host = await dataservers.getHostForHosting(hosting);
-      should.exist(host);
-      host['base_name'].should.not.be.equal('localhost');
-    });
-
-    it('should not select unavailable host', async function() {
-      const hostingsPath = 'net:aaservers:' + hosting;
-      let hostings = config.get(hostingsPath);
-      // Set localhost to unavailable
-      hostings[0].available = false;
-      config.set(hostingsPath, hostings);
-      const host = await dataservers.getHostForHosting(hosting);
-      should.exist(host);
-      host['base_name'].should.not.be.equal('localhost');
-    });
   });
 });
 
