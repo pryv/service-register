@@ -56,10 +56,14 @@ type OldServerDefinition = {|
   base_name: string, 
   port: number, 
   authorization: string, 
+  
+  name: ?string, // added later by admin calls
 |}
 type ServerDefinition = {|
   base_url: string, 
   authorization: string, 
+
+  name: ?string, // added later by admin calls
 |}
 
 /**
@@ -225,7 +229,9 @@ function getCoreForHosting(
   }
 }
 
-function getLegacyAdminClient(host, path, postData) {
+function getLegacyAdminClient(
+  host: OldServerDefinition, path: string, postData: string
+) {
   const useSSL = config.get('net:aaservers_ssl') || true;
 
   // SIDE EFFECT
@@ -238,7 +244,8 @@ function getLegacyAdminClient(host, path, postData) {
     port: host.port,
     path: path,
     method: 'POST',
-    rejectUnauthorized: false
+    rejectUnauthorized: false, 
+    headers: {}, 
   };
 
   httpOptions.headers = {
@@ -264,13 +271,21 @@ function getLegacyAdminClient(host, path, postData) {
  * As a _side effect_, sets the `.name` field on host to the host name of the
  * server used for the call.
  */
-function getAdminClient(host, path, postData) {
-  if (host.base_url == null) {
+function getAdminClient(
+  host: ServerConfig, path: string, postData: string
+) {
+  if (host.base_name != null) {
+    // HACK Is there a better way to make flow realize we're in the clear here?
+    const oldHost: OldServerDefinition = (host: any); 
+    
     // We used to define the path to the core server using 'base_name', 'port'
     // and net:AAservers_domain. This function implements that as a fallback.
-    return getLegacyAdminClient(host, path, postData);
+    return getLegacyAdminClient(oldHost, path, postData);
   }
-
+  
+  if (host.base_url == null)
+    throw new Error('AF: base_url expected to be present in ServerDefinition.');
+    
   var coreServer = url.parse(host.base_url);
 
   const useSSL = (coreServer.protocol === 'https:');
@@ -279,11 +294,12 @@ function getAdminClient(host, path, postData) {
   const httpClient = useSSL ? https : http;
 
   var httpOptions = {
-    host : coreServer.hostname,
+    host: coreServer.hostname,
     port: port,
     path: path,
     method: 'POST',
-    rejectUnauthorized: false
+    rejectUnauthorized: false, 
+    headers: {}, 
   };
 
   httpOptions.headers = {
@@ -301,6 +317,8 @@ function getAdminClient(host, path, postData) {
   };
 }
 
+type PostToAdminCallback = () => mixed; 
+
 /**
  * POSTs a request to the core server indicated by `host`. Calls the callback
  * which has the signature `function(error, json_result)`.
@@ -308,7 +326,10 @@ function getAdminClient(host, path, postData) {
  * As a _side effect_, `host.name` is set to the name of the actual host used
  * for this call.
  */
-function postToAdmin(host, path, expectedStatus, jsonData, callback) {
+function postToAdmin(
+  host: ServerConfig, path: string, expectedStatus: number, 
+  jsonData: any, callback: PostToAdminCallback, 
+) {
   var postData = JSON.stringify(jsonData);
   //console.log(postData);
 
@@ -316,12 +337,12 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
   var onError = function (reason) {
     var content =  '\n Request: ' + httpCall.options.method + ' ' +
-      httpCall.options.host + ':' + httpCall.options.port + '' + httpCall.options.path +
+      (httpCall.options.host || 'n/a') + ':' + httpCall.options.port + '' + httpCall.options.path +
       '\n Data: ' + postData;
     return callback(reason + content, null);
   };
 
-  var req = httpCall.client.request(httpCall.options, function (res) {
+  const req = httpCall.client.request(httpCall.options, function (res) {
     var bodyarr = [];
 
     res.on('data', function (chunk) { bodyarr.push(chunk); });
@@ -337,7 +358,8 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   }).on('error', function (e) {
     return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
   });
-
+  
+  req.abort();
 
   req.on('socket', function (socket) {
     socket.setTimeout(5000);
