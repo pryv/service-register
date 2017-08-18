@@ -1,4 +1,4 @@
-'use strict';
+// @flow
 
 const url = require('url');
 const http = require('http');
@@ -6,7 +6,61 @@ const https = require('https');
 const config = require('./config');
 const users = require('../storage/users');
 
-var hostings = null;
+type LocalizedNameList = {
+  [language: string]: string, 
+}
+
+type Hosting = {
+  url: string, 
+  name: string, 
+  description: string, 
+  localizedDescription: {
+    [language: string]: string, 
+  }, 
+  
+  available: ?boolean, 
+}
+
+type HostingZone = {
+  name: string, 
+  localizedName: LocalizedNameList,
+  hostings: {
+    [hostingName: string]: Hosting, 
+  }, 
+}
+
+type HostingZoneList = {
+  [key: string]: HostingZone, 
+}
+
+type HostingRegion = {
+  name: string, 
+  localizedName: LocalizedNameList,
+  zones: HostingZoneList, 
+}
+
+type HostingDefinition = {
+  regions: {
+    [regionName: string]: HostingRegion,
+  }, 
+}; 
+
+var hostings: ?HostingDefinition = null;
+
+type ServerConfiguration = {
+  [hostingName: string]: ServerList, 
+}
+type ServerList = Array<Server>; 
+type Server = OldServerDefinition | ServerDefinition; 
+type OldServerDefinition = {
+  base_name: string, 
+  port: number, 
+  authorization: string, 
+}
+type ServerDefinition = {
+  base_url: string, 
+  authorization: string, 
+}
 
 /**
  * Get the hostings list, deal with the server logic:
@@ -17,24 +71,77 @@ var hostings = null;
  * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
  * https://github.com/benlowry/node-geoip-native
  */
-exports.hostings = function () {
-  if (!hostings) {
-    var aaservers = config.get('net:aaservers');
-    hostings = config.get('net:aahostings');
-    Object.keys(hostings.regions).forEach(function (region) {    // for each region(default config)
-      if (hostings.regions[region].zones) {
-        Object.keys(hostings.regions[region].zones).forEach(function (zone) { // zones
-          if (hostings.regions[region].zones[zone].hostings) {
-            Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
-              hostings.regions[region].zones[zone].hostings[hosting].available =
-                aaservers[hosting] && aaservers[hosting].length > 0;
-            });
-          }
-        });
-      }
-    });
+exports.hostings = function (): ?HostingDefinition {
+  if (! hostings) {
+    hostings = produceHostings();
   }
   return hostings;
+  
+  function produceHostings(): ?HostingDefinition {
+    const aaservers = readConfiguredServers(); 
+    const configHostings = readConfiguredHostings();
+    
+    if (configHostings == null) return null; 
+    if (aaservers == null) return null; 
+    
+    Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
+      const region = configHostings.regions[name];
+      
+      Object.keys(region.zones).forEach((name) => { // zones
+        const zone = region.zones[name];
+        const hostings = zone.hostings; 
+        
+        Object.keys(hostings).forEach((name) => {
+          const hosting = hostings[name];
+          const servers = aaservers[name];
+          
+          hosting.available = computeAvailability(servers);
+        });
+      });
+    });
+  }
+  
+  function computeAvailability(serverList: ServerList) {
+    return serverList.length > 0;
+  }
+  
+  function readConfiguredHostings(): ?HostingDefinition {
+    const hostings = config.get('net:aahostings'); 
+    
+    if (hostings == null || hostings.regions == null) 
+      throw parseError('No net:aahostings key found in configuration'); 
+    
+    for (const name of Object.keys(hostings.regions)) {
+      const region = hostings.regions[name];
+      const zones = region.zones; 
+      
+      if (zones == null) 
+        throw parseError(`Region ${name} has no zones defined.`);
+      if (Object.keys(zones).length <= 0) 
+        throw parseError(`Region ${name} has no zones defined.`);
+        
+      // assert: Object.keys(zones).length > 0
+      for (const zoneName of Object.keys(zones)) {
+        const zone = zones[zoneName];
+        const hostings = zone.hostings; 
+        
+        if (hostings == null || Object.keys(hostings).length <= 0) 
+          throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`);
+      }
+    }
+
+    return hostings;
+  }
+  
+  function parseError(msg: string) {
+    return new Error('Configuration error: ' + msg);
+  }
+  
+  function readConfiguredServers(): ?ServerConfiguration {
+    // TODO Add a few checks for well-formedness of server configuration.
+    
+    return config.get('net:aaservers');
+  }
 };
 
 /**
