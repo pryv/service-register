@@ -77,13 +77,10 @@ exports.hostings = function (): ?HostingDefinition {
   }
   return hostings;
   
-  function produceHostings(): ?HostingDefinition {
+  function produceHostings(): HostingDefinition {
     const aaservers = readConfiguredServers(); 
     const configHostings = readConfiguredHostings();
-    
-    if (configHostings == null) return null; 
-    if (aaservers == null) return null; 
-    
+        
     Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
       const region = configHostings.regions[name];
       
@@ -99,13 +96,15 @@ exports.hostings = function (): ?HostingDefinition {
         });
       });
     });
+    
+    return configHostings;
   }
   
   function computeAvailability(serverList: ServerList) {
     return serverList.length > 0;
   }
   
-  function readConfiguredHostings(): ?HostingDefinition {
+  function readConfiguredHostings(): HostingDefinition {
     const hostings = config.get('net:aahostings'); 
     
     if (hostings == null || hostings.regions == null) 
@@ -137,7 +136,7 @@ exports.hostings = function (): ?HostingDefinition {
     return new Error('Configuration error: ' + msg);
   }
   
-  function readConfiguredServers(): ?ServerConfiguration {
+  function readConfiguredServers(): ServerConfiguration {
     // TODO Add a few checks for well-formedness of server configuration.
     
     return config.get('net:aaservers');
