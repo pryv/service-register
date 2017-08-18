@@ -71,14 +71,14 @@ exports.getHostForHosting = function (hosting) {
           const usersCount = servers[server.base_name];
 
           // This host is empty, we will not find better candidate
-          if(!usersCount) {
+          if(usersCount == null) {
             return resolve(server);
           }
 
           // Consider not full servers only
           if(server.limit == null || usersCount < server.limit) {
             // This host has smaller users count, we take it as new best candidate
-            if(!candidate || usersCount < min) {
+            if(candidate == null || usersCount < min) {
               min = usersCount;
               candidate = server;
             }
