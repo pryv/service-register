@@ -96,7 +96,7 @@ describe('utils/dataservers', function () {
     });
   });
 
-  describe('getHostForHosting', function () {
+  describe('getCoreForHosting', function () {
     const hosting = 'test.ch-ch';
 
     before( done => {
@@ -115,7 +115,7 @@ describe('utils/dataservers', function () {
     });
 
     it('should fairly select host (among emptiest) for provided hosting', function(done) {
-      dataservers.getHostForHosting(hosting, (err, host) => {
+      dataservers.getCoreForHosting(hosting, (err, host) => {
         should.not.exist(err);
         should.exist(host);
         // Localhost was setup as containing the less users (only one)

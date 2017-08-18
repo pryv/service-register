@@ -45,22 +45,22 @@ type HostingDefinition = {
   }, 
 }; 
 
-var hostings: ?HostingDefinition = null;
+var memoizedHostings: ?HostingDefinition = null;
 
 type ServerConfiguration = {
   [hostingName: string]: ServerList, 
 }
-type ServerList = Array<Server>; 
-type Server = OldServerDefinition | ServerDefinition; 
-type OldServerDefinition = {
+type ServerList = Array<ServerConfig>; 
+type ServerConfig = OldServerDefinition | ServerDefinition; 
+type OldServerDefinition = {|
   base_name: string, 
   port: number, 
   authorization: string, 
-}
-type ServerDefinition = {
+|}
+type ServerDefinition = {|
   base_url: string, 
   authorization: string, 
-}
+|}
 
 /**
  * Get the hostings list, deal with the server logic:
@@ -71,11 +71,11 @@ type ServerDefinition = {
  * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
  * https://github.com/benlowry/node-geoip-native
  */
-exports.hostings = function (): ?HostingDefinition {
-  if (! hostings) {
-    hostings = produceHostings();
+function getHostings(): ?HostingDefinition {
+  if (! memoizedHostings) {
+    memoizedHostings = produceHostings();
   }
-  return hostings;
+  return memoizedHostings;
   
   function produceHostings(): HostingDefinition {
     const aaservers = readConfiguredServers(); 
@@ -135,64 +135,95 @@ exports.hostings = function (): ?HostingDefinition {
   function parseError(msg: string) {
     return new Error('Configuration error: ' + msg);
   }
+}
+
+function readConfiguredServers(): ServerConfiguration {
+  // TODO Add a few checks for well-formedness of server configuration.
+  // 
+  // TODO Check if all servers that have base_url have a defined 'hostname'
+  //    in there. Parse the urls.
   
-  function readConfiguredServers(): ServerConfiguration {
-    // TODO Add a few checks for well-formedness of server configuration.
-    
-    return config.get('net:aaservers');
-  }
-};
+  return config.get('net:aaservers');
+}
+
+type HostForHostingCallback = () => mixed; 
 
 /**
  * Select host associated with provided hosting fairly.
  * Fairly = A new user must be created among the cores that have the least users.
- * @param hosting: the hosting
- * @returns: the corresponding host if existing, 'null' otherwise
  */
-exports.getHostForHosting = function (hosting, callback) {
+function getCoreForHosting(
+  hosting: string, callback: HostForHostingCallback
+): void {
+  const servers = readConfiguredServers(); 
   // Get the available hosts (from config file)
-  const availableHosts = config.get('net:aaservers:' + hosting);
+  const availableCores = servers[hosting];
 
   // No host available
-  if (! availableHosts || availableHosts.length === 0) {
-    return callback();
+  if (! availableCores || availableCores.length === 0) {
+    callback();
+    return;
   }
 
   // Only one host available, we return it directly to avoid users computation
-  if(availableHosts.length === 1) {
-    return callback(null, availableHosts[0]);
+  if(availableCores.length === 1) {
+    callback(null, availableCores[0]);
+    return;
   }
-
-  // Get the list of active hosts and the users count (from Redis)
-  users.getServers((err, servers) => {
-    if(err) {
-      return callback(err);
-    }
-
-    let candidate = null;
-    let min = null;
-
-    // We look through available hosts for one good candidate (small users count)
-    for (const server of availableHosts) {
-
-      const usersCount = servers[server.base_name];
-
-      // This host has 0 user, we will not find better candidate
-      if(usersCount == null) {
-        return callback(null, server);
+  
+  findBestCore(availableCores, callback);
+  
+  function findBestCore(availableCores, callback) {
+    // Get the list of active hosts and the users count (from Redis)
+    users.getServers((err, redisServers) => {
+      if(err) {
+        return callback(err);
       }
 
-      // This host has smaller users count, we take it as new best candidate
-      if(candidate == null || usersCount < min) {
-        min = usersCount;
-        candidate = server;
+      let candidate = null;
+      let min = null;
+
+      // We look through available hosts for one good candidate (small users count)
+      for (const server of availableCores) {
+        const serverName = produceRedisName(server);
+        const usersCount = redisServers[serverName];
+
+        // This host has 0 user, we will not find better candidate
+        if (usersCount == null) {
+          return callback(null, server);
+        }
+
+        // This host has smaller users count, we take it as new best candidate
+        if(candidate == null || usersCount < min) {
+          min = usersCount;
+          candidate = server;
+        }
+
       }
 
+      callback(null, candidate);
+    });
+  }
+  // Extracts the name of the core we store in redis from a given configuration
+  // entry, handling old and new format correctly. 
+  // 
+  function produceRedisName(server: ServerConfig): string {
+    if (server.base_name != null) {
+      // Legacy config entry: 
+      return server.base_name + '.' + config.get('net:AAservers_domain');
     }
-
-    return callback(null, candidate);
-  });
-};
+    
+    if (server.base_url == null) 
+      throw new Error('Unknown server configuration format.');
+    
+    const serverUrl = url.parse(server.base_url);
+    
+    if (serverUrl.hostname == null) 
+      throw new Error('AF: Hostname must not be null.');
+    
+    return serverUrl.hostname;
+  }
+}
 
 function getLegacyAdminClient(host, path, postData) {
   const useSSL = config.get('net:aaservers_ssl') || true;
@@ -234,7 +265,7 @@ function getLegacyAdminClient(host, path, postData) {
  * server used for the call.
  */
 function getAdminClient(host, path, postData) {
-  if (host.base_url === undefined) {
+  if (host.base_url == null) {
     // We used to define the path to the core server using 'base_name', 'port'
     // and net:AAservers_domain. This function implements that as a fallback.
     return getLegacyAdminClient(host, path, postData);
@@ -322,3 +353,5 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
 exports.getAdminClient = getAdminClient;
 exports.postToAdmin = postToAdmin;
+exports.getHostings = getHostings; 
+exports.getCoreForHosting = getCoreForHosting;

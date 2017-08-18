@@ -115,7 +115,7 @@ module.exports = function (app: any) {
         user.passwordHash =  passwordHash;
 
         // Create user
-        dataservers.getHostForHosting(hosting, (hostError, host) => {
+        dataservers.getCoreForHosting(hosting, (hostError, host) => {
           if(hostError) {
             return next(messages.ei(hostError));
           }
