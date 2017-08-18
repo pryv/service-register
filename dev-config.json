@@ -38,7 +38,7 @@
             "name": "reglocal.pryv.in"
           }
         ]
-      }, 
+      },
       "foo.bar": {
         "ip": "1.2.3.4"
       }
@@ -70,6 +70,11 @@
       "test.ch-ch": [
         {
           "base_name": "localhost",
+          "port": 443,
+          "authorization": "cz90{k)2{3u8q0C"
+        },
+        {
+          "base_name": "dummy_server",
           "port": 443,
           "authorization": "cz90{k)2{3u8q0C"
         }
