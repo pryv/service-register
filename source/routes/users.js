@@ -28,7 +28,7 @@ module.exports = function (app: any) {
     }
 
     // TODO check that it's an authorized url
-    var hosting = checkAndConstraints.hosting(req.body.hosting);
+    var hosting: ?string = checkAndConstraints.hosting(req.body.hosting);
     if (! hosting) {
       return next(messages.e(400, 'INVALID_HOSTING'));
     }
