@@ -51,19 +51,19 @@ type ServerConfiguration = {
   [hostingName: string]: ServerList, 
 }
 type ServerList = Array<ServerConfig>; 
-type ServerConfig = OldServerDefinition | ServerDefinition; 
-type OldServerDefinition = {|
+export type ServerConfig = OldServerDefinition | ServerDefinition; 
+export type OldServerDefinition = {|
   base_name: string, 
   port: number, 
   authorization: string, 
   
-  name: ?string, // added later by admin calls
+  name?: string, // added later by admin calls
 |}
-type ServerDefinition = {|
+export type ServerDefinition = {|
   base_url: string, 
   authorization: string, 
 
-  name: ?string, // added later by admin calls
+  name?: string, // added later by admin calls
 |}
 
 /**
@@ -150,7 +150,7 @@ function readConfiguredServers(): ServerConfiguration {
   return config.get('net:aaservers');
 }
 
-type HostForHostingCallback = () => mixed; 
+type HostForHostingCallback = (err: mixed, core: ?ServerConfig) => mixed; 
 
 /**
  * Select host associated with provided hosting fairly.
@@ -239,19 +239,17 @@ function getLegacyAdminClient(
 
   const httpClient = useSSL ? https : http;
 
-  var httpOptions = {
+  const httpOptions = {
     host : host.name,
     port: host.port,
     path: path,
     method: 'POST',
     rejectUnauthorized: false, 
-    headers: {}, 
-  };
-
-  httpOptions.headers = {
-    'Content-Type': 'application/json',
-    'authorization': host.authorization,
-    'Content-Length': postData.length
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': host.authorization,
+      'Content-Length': postData.length
+    }, 
   };
 
   return {
@@ -293,19 +291,17 @@ function getAdminClient(
 
   const httpClient = useSSL ? https : http;
 
-  var httpOptions = {
+  const httpOptions = {
     host: coreServer.hostname,
     port: port,
     path: path,
     method: 'POST',
     rejectUnauthorized: false, 
-    headers: {}, 
-  };
-
-  httpOptions.headers = {
-    'Content-Type': 'application/json',
-    'authorization': host.authorization,
-    'Content-Length': postData.length
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': host.authorization,
+      'Content-Length': postData.length
+    }, 
   };
 
   // SIDE EFFECT
@@ -317,7 +313,7 @@ function getAdminClient(
   };
 }
 
-type PostToAdminCallback = () => mixed; 
+type PostToAdminCallback = (err: mixed, res: ?Object) => mixed; 
 
 /**
  * POSTs a request to the core server indicated by `host`. Calls the callback
@@ -339,7 +335,7 @@ function postToAdmin(
     var content =  '\n Request: ' + httpCall.options.method + ' ' +
       (httpCall.options.host || 'n/a') + ':' + httpCall.options.port + '' + httpCall.options.path +
       '\n Data: ' + postData;
-    return callback(reason + content, null);
+    return callback(reason + content);
   };
 
   const req = httpCall.client.request(httpCall.options, function (res) {
