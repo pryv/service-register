@@ -3,7 +3,7 @@
 var logger = require('winston'),
     config = require('../utils/config'),
     redis = require('redis').createClient(
-    config.get('redis:port'), config.get('redis:host')),
+      config.get('redis:port'), config.get('redis:host')),
     async = require('async'),
     semver = require('semver');
     
@@ -91,20 +91,18 @@ function checkConnection() {
 
       nextStep();
     }
-  ],
-    function (error) {
-      if (error) {
-        logger.error('DB not available: ', error);
-        throw error;
-      } else {
-        // Check db structure
-        _findGhostsEmails();
-        _findGhostsServer();
+  ], function (error) {
+    if (error) {
+      logger.error('DB not available: ', error);
+      throw error;
+    } else {
+      // Check db structure
+      _findGhostsEmails();
+      _findGhostsServer();
 
-        connectionChecked('Redis');
-      }
+      connectionChecked('Redis');
     }
-  );
+  });
 }
 
 /**
@@ -561,15 +559,14 @@ exports.reservedWordsLoad = function (version, wordArray, callback) {
         nextStep(error);
       });
     }
-  ],
-    function (serieError) {
-      if (serieError) {
-        logger.error('ReservedWordManagement error ' + serieError, serieError);
-      }
-      if (callback) {
-        callback(serieError); // callback anyway
-      }
-    });
+  ], function (serieError) {
+    if (serieError) {
+      logger.error('ReservedWordManagement error ' + serieError, serieError);
+    }
+    if (callback) {
+      callback(serieError); // callback anyway
+    }
+  });
 };
 
 /**
