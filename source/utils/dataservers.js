@@ -118,9 +118,7 @@ function getHostings(): ?HostingDefinition {
       const region = hostings.regions[name];
       const zones = region.zones; 
       
-      if (zones == null) 
-        throw parseError(`Region ${name} has no zones defined.`);
-      if (Object.keys(zones).length <= 0) 
+      if (zones == null || Object.keys(zones).length <= 0) 
         throw parseError(`Region ${name} has no zones defined.`);
         
       // assert: Object.keys(zones).length > 0
