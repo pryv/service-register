@@ -56,7 +56,7 @@ module.exports.extractResourceFromHostname = function (
 exports.uid = function (str) {
   if (! str) { return null; }
   str = _(str).trim().toLowerCase();
-  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9\-]){3,100})([a-zA-Z0-9])$/;
+  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 
@@ -66,7 +66,7 @@ exports.uid = function (str) {
 exports.hosting = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
-  var filter =  /^([a-zA-Z0-9])(([a-zA-Z0-9\-\.]){2,70})([a-zA-Z0-9])$/;
+  var filter =  /^([a-zA-Z0-9])(([a-zA-Z0-9-.]){2,70})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 

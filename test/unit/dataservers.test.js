@@ -2,13 +2,14 @@
 
 const dataservers = require('../../source/utils/dataservers.js');
 const db = require('../../source/storage/database');
-const config = require('../../source/utils/config');
 
 const http = require('http');
 const https = require('https');
 const assert = require('assert');
 const should = require('should');
 const async = require('async');
+
+import type { ServerDefinition } from '../../source/utils/dataservers.js';
 
 /* global describe, it, before */
 describe('utils/dataservers', function () {
@@ -23,11 +24,7 @@ describe('utils/dataservers', function () {
     };
 
     it('should set .name as a side effect on the host structure', function() {
-      var host: {
-        base_url: string,
-        authorization: string,
-        name?: string,
-      } = {
+      const host: ServerDefinition = {
         base_url: 'http://foo.com:9000',
         authorization: 'foooo',
       };
@@ -44,34 +41,35 @@ describe('utils/dataservers', function () {
     it('should return port 80 for http urls', function() {
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
 
-      given.options.port.should.equal(80);
-      given.client.should.equal(http);
+      should(given.options.port).be.equal(80);
+      should(given.client).be.equal(http);
     });
     it('should return port 443 for https urls', function() {
       var given = getAdminClient(url('https://foo.com/'), '/path', 'foobar');
 
-      given.options.port.should.equal(443);
-      given.client.should.equal(https);
+      should(given.options.port).be.equal(443);
+      should(given.client).be.equal(https);
     });
     it('should return port 9000 for an url with custom port', function() {
       var given = getAdminClient(
         url('http://foo.com:9000/'), '/path', 'foobar');
 
-      given.options.port.should.equal(9000);
-      given.client.should.equal(http);
+      should(given.options.port).be.equal(9000);
+      should(given.client).be.equal(http);
     });
     it('should return the hostname from the base_url', function() {
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
 
-      given.options.host.should.equal('foo.com');
+      should(given.options.host).be.equal('foo.com');
     });
     it('should include authorization header', function() {
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
 
       const headers = given.options.headers;
-      headers['Content-Type'].should.equal('application/json');
+          
+      should(headers['Content-Type']).equal('application/json');
       should.exist(headers['authorization']);
-      headers['Content-Length'].should.be.above(0);
+      should(headers['Content-Length']).be.above(0);
     });
 
     describe('fallback to old behaviour', function() {
@@ -86,17 +84,17 @@ describe('utils/dataservers', function () {
 
         // 'pryv.net' is read from net:AAservers_domain. This is the current
         // default.
-        given.options.host.should.equal('stact-gandi-fr-01.pryv.net');
-        given.options.port.should.equal(443);
+        should(given.options.host).be.equal('stact-gandi-fr-01.pryv.net');
+        should(given.options.port).be.equal(443);
 
         // This is controlled by net:aaservers_ssl, but set to true in the
         // default config.
-        given.client.should.equal(https);
+        should(given.client).be.equal(https);
       });
     });
   });
 
-  describe('getHostForHosting', function () {
+  describe('getCoreForHosting', function () {
     const hosting = 'test.ch-ch';
 
     before( done => {
@@ -115,11 +113,19 @@ describe('utils/dataservers', function () {
     });
 
     it('should fairly select host (among emptiest) for provided hosting', function(done) {
-      dataservers.getHostForHosting(hosting, (err, host) => {
+      dataservers.getCoreForHosting(hosting, (err, host) => {
         should.not.exist(err);
-        should.exist(host);
+        
+        if (host == null)
+          throw new Error('AF: Should have selected a host.');
+          
+        if (host.base_name == null) 
+          throw new Error('AF: Should have an old-style host here.');
+        
+        const name = host.base_name; 
+        
         // Localhost was setup as containing the less users (only one)
-        host['base_name'].should.be.equal('localhost');
+        should(name).be.equal('localhost');
         done();
       });
     });

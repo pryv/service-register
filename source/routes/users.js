@@ -28,8 +28,8 @@ module.exports = function (app: any) {
     }
 
     // TODO check that it's an authorized url
-    var hosting = checkAndConstraints.hosting(req.body.hosting);
-    if (! hosting) {
+    const hosting: ?string = checkAndConstraints.hosting(req.body.hosting);
+    if (hosting == null) {
       return next(messages.e(400, 'INVALID_HOSTING'));
     }
 
@@ -115,7 +115,7 @@ module.exports = function (app: any) {
         user.passwordHash =  passwordHash;
 
         // Create user
-        dataservers.getHostForHosting(hosting, (hostError, host) => {
+        dataservers.getCoreForHosting(hosting, (hostError, host) => {
           if(hostError) {
             return next(messages.ei(hostError));
           }

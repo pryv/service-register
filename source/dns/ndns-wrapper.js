@@ -68,7 +68,7 @@ type DnsDynamicHandler = (
 exports.start = function(
   BIND_PORT: string, BIND_HOST: string, 
   dynamic_call: DnsDynamicHandler, 
-  done: () => void
+  done: (msg: ?string) => void
 ) {
   // Server launch
   UpdateConfFile = format(new Date(), 'Ymd33');
