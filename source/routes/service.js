@@ -77,6 +77,6 @@ module.exports = function (app) {
    * GET /hostings:  get the list of available hostings
    */
     app.get('/hostings', function (req, res) {
-      res.json(dataservers.hostings());
+      res.json(dataservers.getHostings());
     });
 };

@@ -1,4 +1,4 @@
-'use strict';
+// @flow
 
 const url = require('url');
 const http = require('http');
@@ -6,7 +6,65 @@ const https = require('https');
 const config = require('./config');
 const users = require('../storage/users');
 
-var hostings = null;
+type LocalizedNameList = {
+  [language: string]: string, 
+}
+
+type Hosting = {
+  url: string, 
+  name: string, 
+  description: string, 
+  localizedDescription: {
+    [language: string]: string, 
+  }, 
+  
+  available: ?boolean, 
+}
+
+type HostingZone = {
+  name: string, 
+  localizedName: LocalizedNameList,
+  hostings: {
+    [hostingName: string]: Hosting, 
+  }, 
+}
+
+type HostingZoneList = {
+  [key: string]: HostingZone, 
+}
+
+type HostingRegion = {
+  name: string, 
+  localizedName: LocalizedNameList,
+  zones: HostingZoneList, 
+}
+
+type HostingDefinition = {
+  regions: {
+    [regionName: string]: HostingRegion,
+  }, 
+}; 
+
+var memoizedHostings: ?HostingDefinition = null;
+
+type ServerConfiguration = {
+  [hostingName: string]: ServerList, 
+}
+type ServerList = Array<ServerConfig>; 
+export type ServerConfig = OldServerDefinition | ServerDefinition; 
+export type OldServerDefinition = {|
+  base_name: string, 
+  port: number, 
+  authorization: string, 
+  
+  name?: string, // added later by admin calls
+|}
+export type ServerDefinition = {|
+  base_url: string, 
+  authorization: string, 
+
+  name?: string, // added later by admin calls
+|}
 
 /**
  * Get the hostings list, deal with the server logic:
@@ -17,78 +75,161 @@ var hostings = null;
  * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
  * https://github.com/benlowry/node-geoip-native
  */
-exports.hostings = function () {
-  if (!hostings) {
-    var aaservers = config.get('net:aaservers');
-    hostings = config.get('net:aahostings');
-    Object.keys(hostings.regions).forEach(function (region) {    // for each region(default config)
-      if (hostings.regions[region].zones) {
-        Object.keys(hostings.regions[region].zones).forEach(function (zone) { // zones
-          if (hostings.regions[region].zones[zone].hostings) {
-            Object.keys(hostings.regions[region].zones[zone].hostings).forEach(function (hosting) {
-              hostings.regions[region].zones[zone].hostings[hosting].available =
-                aaservers[hosting] && aaservers[hosting].length > 0;
-            });
-          }
-        });
-      }
-    });
+function getHostings(): ?HostingDefinition {
+  if (! memoizedHostings) {
+    memoizedHostings = produceHostings();
   }
-  return hostings;
-};
+  return memoizedHostings;
+  
+  function produceHostings(): HostingDefinition {
+    const aaservers = readConfiguredServers(); 
+    const configHostings = readConfiguredHostings();
+        
+    Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
+      const region = configHostings.regions[name];
+      
+      Object.keys(region.zones).forEach((name) => { // zones
+        const zone = region.zones[name];
+        const hostings = zone.hostings; 
+        
+        Object.keys(hostings).forEach((name) => {
+          const hosting = hostings[name];
+          const servers = aaservers[name];
+          
+          hosting.available = computeAvailability(servers);
+        });
+      });
+    });
+    
+    return configHostings;
+  }
+  
+  function computeAvailability(serverList: ServerList) {
+    return serverList.length > 0;
+  }
+  
+  function readConfiguredHostings(): HostingDefinition {
+    const hostings = config.get('net:aahostings'); 
+    
+    if (hostings == null || hostings.regions == null) 
+      throw parseError('No net:aahostings key found in configuration'); 
+    
+    for (const name of Object.keys(hostings.regions)) {
+      const region = hostings.regions[name];
+      const zones = region.zones; 
+      
+      if (zones == null || Object.keys(zones).length <= 0) 
+        throw parseError(`Region ${name} has no zones defined.`);
+        
+      // assert: Object.keys(zones).length > 0
+      for (const zoneName of Object.keys(zones)) {
+        const zone = zones[zoneName];
+        const hostings = zone.hostings; 
+        
+        if (hostings == null || Object.keys(hostings).length <= 0) 
+          throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`);
+      }
+    }
+
+    return hostings;
+  }
+  
+  function parseError(msg: string) {
+    return new Error('Configuration error: ' + msg);
+  }
+}
+
+function readConfiguredServers(): ServerConfiguration {
+  // TODO Add a few checks for well-formedness of server configuration.
+  // 
+  // TODO Check if all servers that have base_url have a defined 'hostname'
+  //    in there. Parse the urls.
+  
+  return config.get('net:aaservers');
+}
+
+type HostForHostingCallback = (err: mixed, core: ?ServerConfig) => mixed; 
 
 /**
  * Select host associated with provided hosting fairly.
  * Fairly = A new user must be created among the cores that have the least users.
- * @param hosting: the hosting
- * @returns: the corresponding host if existing, 'null' otherwise
  */
-exports.getHostForHosting = function (hosting, callback) {
+function getCoreForHosting(
+  hosting: string, callback: HostForHostingCallback
+): void {
+  const servers = readConfiguredServers(); 
   // Get the available hosts (from config file)
-  const availableHosts = config.get('net:aaservers:' + hosting);
+  const availableCores = servers[hosting];
 
   // No host available
-  if (! availableHosts || availableHosts.length === 0) {
-    return callback();
+  if (! availableCores || availableCores.length === 0) {
+    callback();
+    return;
   }
 
   // Only one host available, we return it directly to avoid users computation
-  if(availableHosts.length === 1) {
-    return callback(null, availableHosts[0]);
+  if(availableCores.length === 1) {
+    callback(null, availableCores[0]);
+    return;
   }
-
-  // Get the list of active hosts and the users count (from Redis)
-  users.getServers((err, servers) => {
-    if(err) {
-      return callback(err);
-    }
-
-    let candidate = null;
-    let min = null;
-
-    // We look through available hosts for one good candidate (small users count)
-    for (const server of availableHosts) {
-
-      const usersCount = servers[server.base_name];
-
-      // This host has 0 user, we will not find better candidate
-      if(usersCount == null) {
-        return callback(null, server);
+  
+  findBestCore(availableCores, callback);
+  
+  function findBestCore(availableCores, callback) {
+    // Get the list of active hosts and the users count (from Redis)
+    users.getServers((err, redisServers) => {
+      if(err) {
+        return callback(err);
       }
 
-      // This host has smaller users count, we take it as new best candidate
-      if(candidate == null || usersCount < min) {
-        min = usersCount;
-        candidate = server;
+      let candidate = null;
+      let min = null;
+
+      // We look through available hosts for one good candidate (small users count)
+      for (const server of availableCores) {
+        const serverName = produceRedisName(server);
+        const usersCount = redisServers[serverName];
+
+        // This host has 0 user, we will not find better candidate
+        if (usersCount == null) {
+          return callback(null, server);
+        }
+
+        // This host has smaller users count, we take it as new best candidate
+        if(candidate == null || usersCount < min) {
+          min = usersCount;
+          candidate = server;
+        }
+
       }
 
+      callback(null, candidate);
+    });
+  }
+  // Extracts the name of the core we store in redis from a given configuration
+  // entry, handling old and new format correctly. 
+  // 
+  function produceRedisName(server: ServerConfig): string {
+    if (server.base_name != null) {
+      // Legacy config entry: 
+      return server.base_name + '.' + config.get('net:AAservers_domain');
     }
+    
+    if (server.base_url == null) 
+      throw new Error('Unknown server configuration format.');
+    
+    const serverUrl = url.parse(server.base_url);
+    
+    if (serverUrl.hostname == null) 
+      throw new Error('AF: Hostname must not be null.');
+    
+    return serverUrl.hostname;
+  }
+}
 
-    return callback(null, candidate);
-  });
-};
-
-function getLegacyAdminClient(host, path, postData) {
+function getLegacyAdminClient(
+  host: OldServerDefinition, path: string, postData: string
+) {
   const useSSL = config.get('net:aaservers_ssl') || true;
 
   // SIDE EFFECT
@@ -96,18 +237,17 @@ function getLegacyAdminClient(host, path, postData) {
 
   const httpClient = useSSL ? https : http;
 
-  var httpOptions = {
+  const httpOptions = {
     host : host.name,
     port: host.port,
     path: path,
     method: 'POST',
-    rejectUnauthorized: false
-  };
-
-  httpOptions.headers = {
-    'Content-Type': 'application/json',
-    'authorization': host.authorization,
-    'Content-Length': postData.length
+    rejectUnauthorized: false, 
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': host.authorization,
+      'Content-Length': postData.length
+    }, 
   };
 
   return {
@@ -127,13 +267,21 @@ function getLegacyAdminClient(host, path, postData) {
  * As a _side effect_, sets the `.name` field on host to the host name of the
  * server used for the call.
  */
-function getAdminClient(host, path, postData) {
-  if (host.base_url === undefined) {
+function getAdminClient(
+  host: ServerConfig, path: string, postData: string
+) {
+  if (host.base_name != null) {
+    // HACK Is there a better way to make flow realize we're in the clear here?
+    const oldHost: OldServerDefinition = (host: any); 
+    
     // We used to define the path to the core server using 'base_name', 'port'
     // and net:AAservers_domain. This function implements that as a fallback.
-    return getLegacyAdminClient(host, path, postData);
+    return getLegacyAdminClient(oldHost, path, postData);
   }
-
+  
+  if (host.base_url == null)
+    throw new Error('AF: base_url expected to be present in ServerDefinition.');
+    
   var coreServer = url.parse(host.base_url);
 
   const useSSL = (coreServer.protocol === 'https:');
@@ -141,18 +289,17 @@ function getAdminClient(host, path, postData) {
 
   const httpClient = useSSL ? https : http;
 
-  var httpOptions = {
-    host : coreServer.hostname,
+  const httpOptions = {
+    host: coreServer.hostname,
     port: port,
     path: path,
     method: 'POST',
-    rejectUnauthorized: false
-  };
-
-  httpOptions.headers = {
-    'Content-Type': 'application/json',
-    'authorization': host.authorization,
-    'Content-Length': postData.length
+    rejectUnauthorized: false, 
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': host.authorization,
+      'Content-Length': postData.length
+    }, 
   };
 
   // SIDE EFFECT
@@ -164,6 +311,8 @@ function getAdminClient(host, path, postData) {
   };
 }
 
+type PostToAdminCallback = (err: mixed, res: ?Object) => mixed; 
+
 /**
  * POSTs a request to the core server indicated by `host`. Calls the callback
  * which has the signature `function(error, json_result)`.
@@ -171,7 +320,10 @@ function getAdminClient(host, path, postData) {
  * As a _side effect_, `host.name` is set to the name of the actual host used
  * for this call.
  */
-function postToAdmin(host, path, expectedStatus, jsonData, callback) {
+function postToAdmin(
+  host: ServerConfig, path: string, expectedStatus: number, 
+  jsonData: any, callback: PostToAdminCallback, 
+) {
   var postData = JSON.stringify(jsonData);
   //console.log(postData);
 
@@ -179,12 +331,12 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
   var onError = function (reason) {
     var content =  '\n Request: ' + httpCall.options.method + ' ' +
-      httpCall.options.host + ':' + httpCall.options.port + '' + httpCall.options.path +
+      (httpCall.options.host || 'n/a') + ':' + httpCall.options.port + '' + httpCall.options.path +
       '\n Data: ' + postData;
-    return callback(reason + content, null);
+    return callback(reason + content);
   };
 
-  var req = httpCall.client.request(httpCall.options, function (res) {
+  const req = httpCall.client.request(httpCall.options, function (res) {
     var bodyarr = [];
 
     res.on('data', function (chunk) { bodyarr.push(chunk); });
@@ -200,8 +352,7 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
   }).on('error', function (e) {
     return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
   });
-
-
+  
   req.on('socket', function (socket) {
     socket.setTimeout(5000);
     socket.on('timeout', function () {
@@ -216,3 +367,5 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
 
 exports.getAdminClient = getAdminClient;
 exports.postToAdmin = postToAdmin;
+exports.getHostings = getHostings; 
+exports.getCoreForHosting = getCoreForHosting;

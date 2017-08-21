@@ -3,7 +3,7 @@
 var logger = require('winston'),
     config = require('../utils/config'),
     redis = require('redis').createClient(
-      config.get('redis:port'), config.get('redis:host')),
+      config.get('redis:port'), config.get('redis:host'), {}),
     async = require('async'),
     semver = require('semver');
     

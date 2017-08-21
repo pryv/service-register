@@ -75,7 +75,12 @@ if (config.get('server:port') > 0) {
   
   var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
     ':' + config.get('server:port'));
-  server.listen(config.get('server:port'), config.get('server:ip'), function () {
+  
+  // TODO Verify these assumptions, configuration is not controlled by us!
+  const port: number = config.get('server:port'); 
+  const ipAddress: string = config.get('server:ip');
+  const backlog = 511; 
+  server.listen(port, ipAddress, backlog, function () {
     if (server == null) {
       throw new Error('Assertion failure: Server is not initialized.');
     }
