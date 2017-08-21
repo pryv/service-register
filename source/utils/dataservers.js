@@ -355,8 +355,6 @@ function postToAdmin(
     return onError('Error ' + JSON.stringify(host) + '\n Error: ' + e.message);
   });
   
-  req.abort();
-
   req.on('socket', function (socket) {
     socket.setTimeout(5000);
     socket.on('timeout', function () {
