@@ -210,6 +210,11 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
         break;
 
       case 'alias':
+        // BUG: Multiple CNAME records for the same fully-qualified domain name
+        //   is a violation of the specs for DNS. Some versions of BIND would
+        //   allow you to do this (some only if you specified the multiple-cnames
+        //   yes option) and would round-robin load-balance between then but it's
+        //   not technically legal.
         data[i] = data[i] instanceof Array ? data[i] : [data[i]];
         for(j = 0;j< data[i].length;j++){
           data[i][j].name = data[i][j].name ?
