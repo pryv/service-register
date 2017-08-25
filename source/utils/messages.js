@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * Provides tools to construct messages for clients.
  */
@@ -15,10 +17,15 @@ Object.keys(mstrings).forEach(function (key) {
  */
 function cloneMessage(id) {
   var t = mstrings[id];
-  if (! t) {
+  if (t == null) {
     throw (new Error('Missing message code :' + id));
   }
-  return {id: t.id, message: t.message, detail: t.detail};
+  return {
+    id: t.id, 
+    message: t.message, 
+    detail: t.detail, 
+    errors: [],           // One error may have several children (causes)
+  };
 }
 
 /**
@@ -27,12 +34,13 @@ function cloneMessage(id) {
  * @param addons : optional key/value json object to be dumped with the message
  * @return {*}: the generated message
  */
-function say(id, addons) {
+function say(id: string, addons: ?Object) {
   var content = cloneMessage(id);
   // merge addons
-  if (addons) {
-    for (var i in addons) {
-      if (addons.hasOwnProperty(i)) { content[i] = addons[i]; }
+  if (addons != null) {
+    for (const i in addons) {
+      if (addons.hasOwnProperty(i)) { 
+        content[i] = addons[i]; }
     }
   }
   return content;
@@ -57,7 +65,7 @@ function error_data(id, extra) {
  * @param error: object representing the error
  * @returns: the error to be thrown
  */
-exports.ei = function (error) {
+exports.ei = function (error: mixed) {
   if (! error) {
     error = new Error();
   }
@@ -75,7 +83,7 @@ exports.ei = function (error) {
  * @param addons: optional key/value json object to be dumped with the message
  * @returns: the error to be thrown
  */
-exports.e = function (httpCode, id, addons) {
+exports.e = function (httpCode: number, id: string, addons: ?Object) {
   return new REGError(httpCode, say(id, addons));
 };
 
@@ -86,7 +94,7 @@ exports.e = function (httpCode, id, addons) {
  * @param suberrors: array of suberrors
  * @returns: the error to be thrown
  */
-exports.ex = function (httpCode, id, suberrors) {
+exports.ex = function (httpCode: number, id: string, suberrors: Array<string>) {
   var data = cloneMessage(id);
   data.errors = [];
   for (var i = 0; i < suberrors.length ; i++) {
@@ -98,7 +106,7 @@ exports.ex = function (httpCode, id, suberrors) {
 /**
  * Custom object for register errors
  */
-var REGError = exports.REGError = function (httpCode, data) {
+var REGError = exports.REGError = function (httpCode: number, data: Object) {
   this.httpCode = httpCode;
   this.data = data;
 };

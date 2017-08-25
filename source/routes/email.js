@@ -58,7 +58,7 @@ module.exports = function (app: any) {
 
     db.getUIDFromMail(req.params.email, function (error, uid) {
       if (error) {
-        return next(messages.ie());
+        return next(messages.ei());
       }
       if (! uid) {
         return next(messages.e(404, 'UNKNOWN_EMAIL'));
