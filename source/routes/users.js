@@ -119,7 +119,7 @@ module.exports = function (app: any) {
           if(hostError) {
             return next(messages.ei(hostError));
           }
-          if(!host) {
+          if (host == null) {
             return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
           }
 

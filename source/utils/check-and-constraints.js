@@ -1,7 +1,6 @@
 // @flow
 
-const config = require('./config'),
-      _ = require('underscore');
+const _ = require('underscore');
 
 const _str = require('underscore.string');
 _.mixin(_str.exports());
@@ -63,9 +62,11 @@ exports.uid = function (str) {
 
 // Alphanumeric between 2 an 70 chars, case-insensitive  - and . authorized
 // Trim the hosting
-exports.hosting = function (str) {
-  if (! str) { return null; }
-  str = _(str).trim();
+exports.hosting = function (str: ?string): ?string {
+  if (! str) return null;
+    
+  str = str.trim();
+  
   var filter =  /^([a-zA-Z0-9])(([a-zA-Z0-9-.]){2,70})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
@@ -95,7 +96,7 @@ exports.email = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
   // not perfect 
-  var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+  var filter = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
   return (filter.test(str)) ? str : null;
 };
 
@@ -109,7 +110,7 @@ exports.challenge = function (str) {
 exports.hostname = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
-  var filter = /^([a-zA-Z0-9_\.\-]{3,256})$/;
+  var filter = /^([a-zA-Z0-9_.-]{3,256})$/;
   return (filter.test(str)) ? str : null;
 };
 
