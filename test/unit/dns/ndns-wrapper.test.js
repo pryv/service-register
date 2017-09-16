@@ -1,6 +1,6 @@
 // @flow
 
-const { _rotate } = require('../../../source/dns/ndns-wrapper.js');
+const { _rotate, _onDnsRequest } = require('../../../source/dns/ndns-wrapper.js');
 
 /* global describe, it */
 
@@ -25,3 +25,17 @@ describe('_rotate', () => {
   });
 });
 
+describe('_onDnsRequest', () => {
+  it('should handle empty requests, issuing a warning', () => {
+    // Mock out dns environment, simulating the case where the 'q' (questions)
+    // array is empty.
+    
+    const dyncall = () => undefined;
+    const req = {q: []}; 
+    const res = {};
+    res.setHeader = (str) => undefined; 
+    res.send = () => undefined; 
+    
+    _onDnsRequest(dyncall, req, res);
+  });
+});

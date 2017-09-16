@@ -101,9 +101,8 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     }
 
     if (rec == null) {
-      const requestedName = req.q[0].name || "(n/a)";
+      const requestedName = req.q[0] && req.q[0].name || "(n/a)";
       logger.info(`Could not find ${requestedName} on this server; proxy list is empty`);
-      throw new Error();
       // no proxy on this server (added by Perki)
       
       // maybe some code should be sent
@@ -253,6 +252,6 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
 };
 
 exports.start = start;
-exports.onDnsRequest = onDnsRequest;
+exports._onDnsRequest = onDnsRequest;
 exports.getRecords = getRecords;
 exports._rotate = rotate; 
