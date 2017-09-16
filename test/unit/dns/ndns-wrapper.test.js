@@ -33,7 +33,7 @@ describe('_onDnsRequest', () => {
     const dyncall = () => undefined;
     const req = {q: []}; 
     const res = {};
-    res.setHeader = (str) => undefined; 
+    res.setHeader = () => undefined; 
     res.send = () => undefined; 
     
     _onDnsRequest(dyncall, req, res);
