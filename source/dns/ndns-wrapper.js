@@ -65,23 +65,46 @@ type DnsDynamicHandler = (
   req: DnsRequest, res: DnsResponse
 ) => void;
 
-exports.start = function(
-  BIND_PORT: string, BIND_HOST: string, 
-  dynamic_call: DnsDynamicHandler, 
-  done: (msg: ?string) => void
-) {
-  // Server launch
-  UpdateConfFile = format(new Date(), 'Ymd33');
+// Handles each individual DNS request - our main handler function. 
+function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
 
-  var sendResponse = function (req,res,rec) {
+  if (req.q.length > 0) {
+    const name = validateRequest(req);
+    return dynamic_call(name, sendResponse, req, res);
+  }
+
+  // close with nothing
+  return sendResponse(req, res, null);
+
+  // Validates the DNS request and handles some special cases before going
+  // further. Returns the request to handle. 
+  //
+  function validateRequest(req): string {
+    const name = req.q[0].name;
+
+    // This should be rare. If it is not, we'll need to investigate why this 
+    // happens. 
+    if (name == null) {
+      logger.warn("Received empty request, treating as if it was empty.");
+      return '';
+    }
+      
+    // Please comment on why we have this code if you know. 
+    if (name === '.') return '';
+    
+    return name; 
+  }
+  function sendResponse(req, res, rec) {
     res.setHeader(req.header);
     for (var i = 0; i < req.q.length; i++) {
       res.addQuestion(req.q[i]);
     }
 
-    if(!rec){
-      logger.info('Not found'+req.q[0].name+'on this server, and proxy list is empty');
+    if (rec == null) {
+      const requestedName = req.q[0] && req.q[0].name || "(n/a)";
+      logger.info(`Could not find ${requestedName} on this server; proxy list is empty`);
       // no proxy on this server (added by Perki)
+      
       // maybe some code should be sent
       res.setHeader(req.header);
       res.send();
@@ -101,46 +124,38 @@ exports.start = function(
     res.header.arcount = rec.ADD.length;
 
     // Add answers
-    for(var a=0;a<rec.REP.length;a++){
-      res.addRR.apply(res,rec.REP[a]);
+    for (var a = 0; a < rec.REP.length; a++) {
+      res.addRR.apply(res, rec.REP[a]);
     }
 
     // Add namespaces
-    for(var b=0;b<rec.NS.length;b++){
-      res.addRR.apply(res,rec.NS[b]);
+    for (var b = 0; b < rec.NS.length; b++) {
+      res.addRR.apply(res, rec.NS[b]);
     }
 
     // Add additional answers
-    for(var c=0;c<rec.ADD.length;c++){
-      res.addRR.apply(res,rec.ADD[c]);
+    for (var c = 0; c < rec.ADD.length; c++) {
+      res.addRR.apply(res, rec.ADD[c]);
     }
 
     res.send();
-  };
+  }
 
-  server.on('request', function(req, res) {
+}
 
-    if (req.q.length > 0) {
-      var name = req.q[0].name;
-      if (name == null) {
-        console.debug('How comes DNS request was null ??');
-        name = '';
-      }
+function start(
+  BIND_PORT: string, BIND_HOST: string, 
+  dynamic_call: DnsDynamicHandler, 
+  done: (msg: ?string) => void
+) {
+  // Server launch
+  UpdateConfFile = format(new Date(), 'Ymd33');
 
-      if (name === '.') {
-        name = '';
-      }
-
-      return dynamic_call(name, sendResponse, req, res);
-    }
-
-    // close with nothing
-    sendResponse(req, res, null);
-  });
+  server.on('request', (req, res) => onDnsRequest(dynamic_call, req, res)); 
 
   server.bind(BIND_PORT, BIND_HOST);
-  done('DNS Started on '+BIND_HOST+':'+BIND_PORT);
-};
+  return done('DNS Started on '+BIND_HOST+':'+BIND_PORT);
+}
 
 var getRecords = function(data: DnsData, name: string): DnsRecord {
   // Check if this is a dynamic request
@@ -236,5 +251,7 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
   return ret;
 };
 
+exports.start = start;
+exports._onDnsRequest = onDnsRequest;
 exports.getRecords = getRecords;
 exports._rotate = rotate; 
