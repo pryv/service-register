@@ -109,9 +109,6 @@
       }
     }
   },
-  "airbrake": {
-    "disable": true
-  },
   "appList": {
     "test-a": {
       "displayName": "Test app A",

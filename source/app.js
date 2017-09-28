@@ -1,11 +1,10 @@
 //frameworks
 var logger = require('winston');
 var express = require('express');
+const config = require('./utils/config');
 
 //Dependencies
 var app = module.exports = express();
-
-
 
 app.configure('development', function () {
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -25,9 +24,21 @@ app.configure(function () {
   app.use(express.cookieParser());
   app.use(require('./middleware/cross-domain'));
   logger.setLevels(logger.config.syslog.levels);
-  // TODO: setup logger handling for uncaught exceptions
+  activateAirbrake(app);
 });
 
+function activateAirbrake(app) {
+  if(config.get('airbrake:disable') !== true) {
+    const projectId = config.get('airbrake:projectId');
+    const key = config.get('airbrake:key');
+    if(projectId != null && key != null){
+      const airbrake = require('airbrake').createClient(projectId, key);
+      airbrake.handleExceptions();
+      app.use(app.router);
+      app.use(airbrake.expressHandler());
+    }
+  }
+}
 
 // www
 require('./routes/index')(app);
