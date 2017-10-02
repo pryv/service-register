@@ -24,21 +24,7 @@ app.configure(function () {
   app.use(express.cookieParser());
   app.use(require('./middleware/cross-domain'));
   logger.setLevels(logger.config.syslog.levels);
-  activateAirbrake(app);
 });
-
-function activateAirbrake(app) {
-  if(config.get('airbrake:disable') !== true) {
-    const projectId = config.get('airbrake:projectId');
-    const key = config.get('airbrake:key');
-    if(projectId != null && key != null){
-      const airbrake = require('airbrake').createClient(projectId, key);
-      airbrake.handleExceptions();
-      app.use(app.router);
-      app.use(airbrake.expressHandler());
-    }
-  }
-}
 
 // www
 require('./routes/index')(app);
@@ -58,4 +44,17 @@ require('./routes/admin')(app);
 require('./routes/access')(app);
 
 //error management (evolution)
+activateAirbrake(app);
 require('./middleware/app-errors')(app);
+
+function activateAirbrake(app) {
+  if(config.get('airbrake:disable') !== true) {
+    const projectId = config.get('airbrake:projectId');
+    const key = config.get('airbrake:key');
+    if(projectId != null && key != null) {
+      const airbrake = require('airbrake').createClient(projectId, key);
+      app.use(app.router);
+      app.use(airbrake.expressHandler());
+    }
+  }
+}

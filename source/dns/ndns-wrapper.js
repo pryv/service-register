@@ -67,7 +67,6 @@ type DnsDynamicHandler = (
 
 // Handles each individual DNS request - our main handler function. 
 function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
-
   if (req.q.length > 0) {
     const name = validateRequest(req);
     return dynamic_call(name, sendResponse, req, res);
@@ -143,6 +142,23 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
 
 }
 
+function onDnsRequestCatchError(... args) {
+  try {
+    onDnsRequest(... args);
+  } catch (dnsError) {
+    if(config.get('airbrake:disable') !== true) {
+      const projectId = config.get('airbrake:projectId');
+      const key = config.get('airbrake:key');
+      if(projectId != null && key != null) {
+        const airbrake = require('airbrake').createClient(projectId, key);
+        airbrake.notify(dnsError, function(err, url) {
+          if(err) throw dnsError;
+        });
+      }
+    }
+  }
+}
+
 function start(
   BIND_PORT: string, BIND_HOST: string, 
   dynamic_call: DnsDynamicHandler, 
@@ -151,7 +167,7 @@ function start(
   // Server launch
   UpdateConfFile = format(new Date(), 'Ymd33');
 
-  server.on('request', (req, res) => onDnsRequest(dynamic_call, req, res)); 
+  server.on('request', (req, res) => onDnsRequestCatchError(dynamic_call, req, res)); 
 
   server.bind(BIND_PORT, BIND_HOST);
   return done('DNS Started on '+BIND_HOST+':'+BIND_PORT);
