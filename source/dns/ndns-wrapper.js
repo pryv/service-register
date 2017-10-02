@@ -152,7 +152,8 @@ function onDnsRequestCatchError(... args) {
       if(projectId != null && key != null) {
         const airbrake = require('airbrake').createClient(projectId, key);
         airbrake.notify(dnsError, function(err, url) {
-          if(err) throw dnsError;
+          if(err) throw err;
+          throw dnsError;
         });
       }
     }
@@ -166,7 +167,6 @@ function start(
 ) {
   // Server launch
   UpdateConfFile = format(new Date(), 'Ymd33');
-
   server.on('request', (req, res) => onDnsRequestCatchError(dynamic_call, req, res)); 
 
   server.bind(BIND_PORT, BIND_HOST);
