@@ -48,6 +48,18 @@ activateAirbrake(app);
 require('./middleware/app-errors')(app);
 
 function activateAirbrake(app) {
+  /*
+  Quick guide on how to test Airbrake notifications (under logs entry):
+  1. Update configuration file with Airbrake information:
+      "airbrake": {
+       "active": true,
+       "key": "get it from pryv.airbrake.io settings",
+       "projectId": "get it from pryv.airbrake.io settings"
+     }
+  2. Throw a fake error in the code (/routes/index.js is easy to trigger):
+      throw new Error('This is a test of Airbrake notifications');
+  3. Trigger the error by running the faulty code (run a local core)
+ */
   if(config.get('airbrake:disable') !== true) {
     const projectId = config.get('airbrake:projectId');
     const key = config.get('airbrake:key');

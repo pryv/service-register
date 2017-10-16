@@ -151,12 +151,10 @@ function onDnsRequestCatchError(... args) {
       const key = config.get('airbrake:key');
       if(projectId != null && key != null) {
         const airbrake = require('airbrake').createClient(projectId, key);
-        airbrake.notify(dnsError, function(err, url) {
-          if(err) throw err;
-          throw dnsError;
-        });
+        airbrake.notify(dnsError);
       }
     }
+    throw dnsError;
   }
 }
 
