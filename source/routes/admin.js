@@ -44,7 +44,7 @@ module.exports = function (app: any) {
       });
 
       if (req.query.toHTML) {
-        return res.send(tohtml.toTable(headers, list));
+        return res.send(toHtmlTables(headers, list));
       }
 
       res.json({users: list, error: error});
@@ -80,7 +80,7 @@ module.exports = function (app: any) {
           return b.createdAt - a.createdAt;
         });
 
-        return res.send(tohtml.toTable(headers, invitations));
+        return res.send(toHtmlTables(headers, invitations));
       }
 
       res.json({invitations: invitations});
@@ -156,13 +156,12 @@ module.exports = function (app: any) {
     });
 };
 
-function tohtml(headers, infoArray) {
+function toHtmlTables(headers, infoArray) {
   var result = '<table border="1">\n<tr>';
   Object.keys(headers).forEach(function (key) {
     result += '<th>' + headers[key] + '</th>';
   });
   result += '</tr>\n';
-
 
   infoArray.forEach(function (line) {
     result += '<tr>';

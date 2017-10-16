@@ -227,7 +227,6 @@ function getUserInfos(username, callback) {
     }
   ],
     function (error) {
-      console.log(error); // Error should be null
       if (errors.length === 0) {
         errors = null;
       }

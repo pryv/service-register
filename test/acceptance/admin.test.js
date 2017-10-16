@@ -125,6 +125,20 @@ describe('/admin/users/invitations', function () {
         done(); 
       });
     });
+    it('should send a list of current tokens as html tables', function (done) {
+      request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey + '&toHTML=true')
+      .end((err, res) => {
+        dataValidation.check(res, {status: 200});
+        res.text.should.containEql('<th>Created At</th>');
+        res.text.should.containEql('<th>by</th>');
+        res.text.should.containEql('<th>description</th>');
+        res.text.should.containEql('<th>ConsumedAt</th>');
+        res.text.should.containEql('<th>ConsumedBy</th>');
+        res.text.should.containEql('<th>Token</th>');
+        res.text.should.containEql('</table>');
+        done(); 
+      });
+    });
   });
   describe('future POST ', function () {
     it('should create a list of token', function (done) {
@@ -138,6 +152,44 @@ describe('/admin/users/invitations', function () {
           res.body.data.should.be.instanceOf(Array);
           done();
         });
+    });
+  });
+});
+
+describe('/admin/users', function () {
+  describe('GET ', function () {
+    it('should get a users list', function (done) {
+      request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)
+      .end((err, res) => {
+        dataValidation.check(res, {status: 200});
+        res.body.should.have.property('users');
+        res.body.users.should.be.instanceOf(Array);
+        res.body.users.forEach(function (user) {
+          user.should.have.property('username');
+          user.should.have.property('registeredTimestamp');
+          user.should.have.property('server');
+          user.should.have.property('errors');
+          user.should.have.property('registeredDate');
+        });
+        done(); 
+      });
+    });
+    it('should get a users list as html tables', function (done) {
+      request.get(server.url + '/admin/users' + '?auth=' + authAdminKey + '&toHTML=true')
+      .end((err, res) => {
+        dataValidation.check(res, {status: 200});
+        res.text.should.containEql('<th>Registered At</th>');
+        res.text.should.containEql('<th>Username</th>');
+        res.text.should.containEql('<th>e-mail</th>');
+        res.text.should.containEql('<th>lang</th>');
+        res.text.should.containEql('<th>Server</th>');
+        res.text.should.containEql('<th>From app</th>');
+        res.text.should.containEql('<th>Referer</th>');
+        res.text.should.containEql('<th>Token</th>');
+        res.text.should.containEql('<th>Errors</th>');
+        res.text.should.containEql('</table>');
+        done(); 
+      });
     });
   });
 });
