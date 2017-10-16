@@ -32,6 +32,6 @@ module.exports = {
             "error",
             "always"
         ], 
-        "returnAssign": 'always'
+        "returnAssign": false
     }
 };
