@@ -11,7 +11,7 @@
     "release": "node_modules/.bin/babel source --out-dir lib --copy-files"
   },
   "dependencies": {
-    "airbrake": "0.3.x",
+    "airbrake": "^2.1.1",
     "async": "0.2.x",
     "bcrypt": "0.8.x",
     "express": "3.5.x",

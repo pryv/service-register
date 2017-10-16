@@ -56,13 +56,6 @@ function produceServer(): ServerWithUrl {
   }
 }
 
-
-// send crashes to Airbrake service
-if (config.get('airbrake:disable') !== true) {
-  var airbrake = require('airbrake').createClient(config.get('airbrake:key'));
-  airbrake.handleExceptions();
-}
-
 //https server
 logger.info('Register  server :' + config.get('http:register:url'));
 logger.info('Static  server :' + config.get('http:static:url'));

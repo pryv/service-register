@@ -1,11 +1,10 @@
 //frameworks
 var logger = require('winston');
 var express = require('express');
+const config = require('./utils/config');
 
 //Dependencies
 var app = module.exports = express();
-
-
 
 app.configure('development', function () {
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -25,9 +24,7 @@ app.configure(function () {
   app.use(express.cookieParser());
   app.use(require('./middleware/cross-domain'));
   logger.setLevels(logger.config.syslog.levels);
-  // TODO: setup logger handling for uncaught exceptions
 });
-
 
 // www
 require('./routes/index')(app);
@@ -47,4 +44,29 @@ require('./routes/admin')(app);
 require('./routes/access')(app);
 
 //error management (evolution)
+activateAirbrake(app);
 require('./middleware/app-errors')(app);
+
+function activateAirbrake(app) {
+  /*
+  Quick guide on how to test Airbrake notifications (under logs entry):
+  1. Update configuration file with Airbrake information:
+      "airbrake": {
+       "active": true,
+       "key": "get it from pryv.airbrake.io settings",
+       "projectId": "get it from pryv.airbrake.io settings"
+     }
+  2. Throw a fake error in the code (/routes/index.js is easy to trigger):
+      throw new Error('This is a test of Airbrake notifications');
+  3. Trigger the error by running the faulty code (run a local core)
+ */
+  if(config.get('airbrake:disable') !== true) {
+    const projectId = config.get('airbrake:projectId');
+    const key = config.get('airbrake:key');
+    if(projectId != null && key != null) {
+      const airbrake = require('airbrake').createClient(projectId, key);
+      app.use(app.router);
+      app.use(airbrake.expressHandler());
+    }
+  }
+}
