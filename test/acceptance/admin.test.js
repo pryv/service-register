@@ -136,7 +136,6 @@ describe('/admin/users/invitations', function () {
         res.text.should.containEql('<th>ConsumedBy</th>');
         res.text.should.containEql('<th>Token</th>');
         res.text.should.containEql('</table>');
-        res.text.should.containEql('<td>');
         done(); 
       });
     });
@@ -189,7 +188,6 @@ describe('/admin/users', function () {
         res.text.should.containEql('<th>Token</th>');
         res.text.should.containEql('<th>Errors</th>');
         res.text.should.containEql('</table>');
-        res.text.should.containEql('<td>');
         done(); 
       });
     });
