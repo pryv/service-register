@@ -6,65 +6,9 @@ const https = require('https');
 const config = require('./config');
 const users = require('../storage/users');
 
-type LocalizedNameList = {
-  [language: string]: string, 
-}
-
-type Hosting = {
-  url: string, 
-  name: string, 
-  description: string, 
-  localizedDescription: {
-    [language: string]: string, 
-  }, 
-  
-  available: ?boolean, 
-}
-
-type HostingZone = {
-  name: string, 
-  localizedName: LocalizedNameList,
-  hostings: {
-    [hostingName: string]: Hosting, 
-  }, 
-}
-
-type HostingZoneList = {
-  [key: string]: HostingZone, 
-}
-
-type HostingRegion = {
-  name: string, 
-  localizedName: LocalizedNameList,
-  zones: HostingZoneList, 
-}
-
-type HostingDefinition = {
-  regions: {
-    [regionName: string]: HostingRegion,
-  }, 
-}; 
+import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} from './config';
 
 var memoizedHostings: ?HostingDefinition = null;
-
-type ServerConfiguration = {
-  [hostingName: string]: ServerList, 
-}
-type ServerList = Array<ServerConfig>; 
-export type ServerConfig = OldServerDefinition | ServerDefinition; 
-export type OldServerDefinition = {|
-  base_name: string, 
-  port: number, 
-  authorization: string, 
-  
-  name?: string, // added later by admin calls
-|}
-export type ServerDefinition = {|
-  base_url: string, 
-  authorization: string, 
-
-  name?: string, // added later by admin calls
-|}
 
 /**
  * Get the hostings list, deal with the server logic:
@@ -82,8 +26,8 @@ function getHostings(): ?HostingDefinition {
   return memoizedHostings;
   
   function produceHostings(): HostingDefinition {
-    const aaservers = readConfiguredServers(); 
-    const configHostings = readConfiguredHostings();
+    const aaservers = config.get('net:aaservers');
+    const configHostings = config.get('net:aahostings');
         
     Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
       const region = configHostings.regions[name];
@@ -107,45 +51,7 @@ function getHostings(): ?HostingDefinition {
   function computeAvailability(serverList: ServerList) {
     return serverList.length > 0;
   }
-  
-  function readConfiguredHostings(): HostingDefinition {
-    const hostings = config.get('net:aahostings'); 
-    
-    if (hostings == null || hostings.regions == null) 
-      throw parseError('No net:aahostings key found in configuration'); 
-    
-    for (const name of Object.keys(hostings.regions)) {
-      const region = hostings.regions[name];
-      const zones = region.zones; 
-      
-      if (zones == null || Object.keys(zones).length <= 0) 
-        throw parseError(`Region ${name} has no zones defined.`);
-        
-      // assert: Object.keys(zones).length > 0
-      for (const zoneName of Object.keys(zones)) {
-        const zone = zones[zoneName];
-        const hostings = zone.hostings; 
-        
-        if (hostings == null || Object.keys(hostings).length <= 0) 
-          throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`);
-      }
-    }
 
-    return hostings;
-  }
-  
-  function parseError(msg: string) {
-    return new Error('Configuration error: ' + msg);
-  }
-}
-
-function readConfiguredServers(): ServerConfiguration {
-  // TODO Add a few checks for well-formedness of server configuration.
-  // 
-  // TODO Check if all servers that have base_url have a defined 'hostname'
-  //    in there. Parse the urls.
-  
-  return config.get('net:aaservers');
 }
 
 type HostForHostingCallback = (err: mixed, core: ?ServerConfig) => mixed; 
@@ -157,7 +63,7 @@ type HostForHostingCallback = (err: mixed, core: ?ServerConfig) => mixed;
 function getCoreForHosting(
   hosting: string, callback: HostForHostingCallback
 ): void {
-  const servers = readConfiguredServers(); 
+  const servers = config.get('net:aaservers');
   // Get the available hosts (from config file)
   const availableCores = servers[hosting];
 
