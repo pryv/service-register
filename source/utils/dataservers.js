@@ -26,8 +26,8 @@ function getHostings(): ?HostingDefinition {
   return memoizedHostings;
   
   function produceHostings(): HostingDefinition {
-    const aaservers = config.readConfiguredServers(); 
-    const configHostings = config.readConfiguredHostings();
+    const aaservers = config.get('net:aaservers');
+    const configHostings = config.get('net:aahostings');
         
     Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
       const region = configHostings.regions[name];
@@ -63,7 +63,7 @@ type HostForHostingCallback = (err: mixed, core: ?ServerConfig) => mixed;
 function getCoreForHosting(
   hosting: string, callback: HostForHostingCallback
 ): void {
-  const servers = config.readConfiguredServers(); 
+  const servers = config.get('net:aaservers');
   // Get the available hosts (from config file)
   const availableCores = servers[hosting];
 

@@ -160,7 +160,32 @@ export type ServerDefinition = {|
   name?: string, // added later by admin calls
 |};
 
-module.exports.readConfiguredHostings = function (): HostingDefinition {
+function validateConfiguration () {
+  // TODO Add a few checks for well-formedness of server configuration (net:aaservers).
+  // TODO Check if all servers that have base_url have a defined 'hostname' in there. Parse the urls.
+  
+  // Check the DNS MX entries (see the ttl isssue #39)
+  const mxEntries = nconf.get('dns:mail');
+  if (mxEntries == null || Object.keys(mxEntries).length <= 0) 
+    throw parseError('No MX entry found in configuration'); 
+    
+  for (const entry of Object.keys(mxEntries)) {
+    const mxEntry = mxEntries[entry];
+    const mxName = mxEntry.name;
+    if (mxName == null && typeof mxName !== 'string')
+      throw parseError('Invalid MX entry found in configuration: invalid name "' + mxName + '".'); 
+    const mxIp = mxEntry.ip;
+    if (mxIp == null && typeof mxIp !== 'string')
+      throw parseError('Invalid MX entry found in configuration: invalid ip "' + mxIp + '".'); 
+    const mxTtl = mxEntry.ttl;
+    if (mxTtl == null && typeof mxTtl !== 'number')
+      throw parseError('Invalid MX entry found in configuration: invalid ttl "' + mxTtl + '".'); 
+    const mxPriority = mxEntry.priority;
+    if (mxPriority == null && typeof mxPriority !== 'number')
+      throw parseError('Invalid MX entry found in configuration: invalid priority "' + mxPriority + '".'); 
+  }
+  
+  // Check the hosting entries
   const hostings = nconf.get('net:aahostings'); 
   
   if (hostings == null || hostings.regions == null) 
@@ -181,44 +206,6 @@ module.exports.readConfiguredHostings = function (): HostingDefinition {
       if (hostings == null || Object.keys(hostings).length <= 0) 
         throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`);
     }
-  }
-
-  return hostings;
-}
-
-module.exports.readConfiguredServers = function (): ServerConfiguration {
-  // TODO Add a few checks for well-formedness of server configuration.
-  // 
-  // TODO Check if all servers that have base_url have a defined 'hostname'
-  //    in there. Parse the urls.
-  
-  return nconf.get('net:aaservers');
-}
-
-function validateConfiguration () {
-  // For now we only check the DNS MX entries (see the ttl isssue #39)
-  // TODO: add more checks
-  // TODO: add hosting checks here?
-  // TODO: use flow to valdiate conf instead of reading + throw?
-  // TODO: only run if prod env?
-  const mxEntries = nconf.get('dns:mail');
-  if (mxEntries == null || Object.keys(mxEntries).length <= 0) 
-    throw parseError('No MX entry found in configuration'); 
-    
-  for (const entry of Object.keys(mxEntries)) {
-    const mxEntry = mxEntries[entry];
-    const mxName = mxEntry.name;
-    if (mxName == null && typeof mxName !== 'string')
-      throw parseError('Invalid MX entry found in configuration: invalid name "' + mxName + '".'); 
-    const mxIp = mxEntry.ip;
-    if (mxIp == null && typeof mxIp !== 'string')
-      throw parseError('Invalid MX entry found in configuration: invalid ip "' + mxIp + '".'); 
-    const mxTtl = mxEntry.ttl;
-    if (mxTtl == null && typeof mxTtl !== 'number')
-      throw parseError('Invalid MX entry found in configuration: invalid ttl "' + mxTtl + '".'); 
-    const mxPriority = mxEntry.priority;
-    if (mxPriority == null && typeof mxPriority !== 'number')
-      throw parseError('Invalid MX entry found in configuration: invalid priority "' + mxPriority + '".'); 
   }
 }
 
