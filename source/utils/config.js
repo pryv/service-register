@@ -166,25 +166,24 @@ function validateConfiguration () {
   
   // Check the DNS MX entries (see the ttl isssue #39)
   const mxEntries = nconf.get('dns:mail');
-  if (mxEntries == null || Object.keys(mxEntries).length <= 0) 
-    throw parseError('No MX entry found in configuration'); 
-    
-  for (const entry of Object.keys(mxEntries)) {
-    const mxEntry = mxEntries[entry];
-    const mxName = mxEntry.name;
-    if (mxName == null && typeof mxName !== 'string')
-      throw parseError('Invalid MX entry found in configuration: invalid name "' + mxName + '".'); 
-    const mxIp = mxEntry.ip;
-    if (mxIp == null && typeof mxIp !== 'string')
-      throw parseError('Invalid MX entry found in configuration: invalid ip "' + mxIp + '".'); 
-    const mxTtl = mxEntry.ttl;
-    if (mxTtl == null && typeof mxTtl !== 'number')
-      throw parseError('Invalid MX entry found in configuration: invalid ttl "' + mxTtl + '".'); 
-    const mxPriority = mxEntry.priority;
-    if (mxPriority == null && typeof mxPriority !== 'number')
-      throw parseError('Invalid MX entry found in configuration: invalid priority "' + mxPriority + '".'); 
+  if (mxEntries != null && Object.keys(mxEntries).length > 0) {
+    for (const entry of Object.keys(mxEntries)) {
+      const mxEntry = mxEntries[entry];
+      const mxName = mxEntry.name;
+      if (mxName == null && typeof mxName !== 'string')
+        throw parseError('Invalid MX entry found in configuration: invalid name "' + mxName + '".'); 
+      const mxIp = mxEntry.ip;
+      if (mxIp == null && typeof mxIp !== 'string')
+        throw parseError('Invalid MX entry found in configuration: invalid ip "' + mxIp + '".'); 
+      const mxTtl = mxEntry.ttl;
+      if (mxTtl == null && typeof mxTtl !== 'number')
+        throw parseError('Invalid MX entry found in configuration: invalid ttl "' + mxTtl + '".'); 
+      const mxPriority = mxEntry.priority;
+      if (mxPriority == null && typeof mxPriority !== 'number')
+        throw parseError('Invalid MX entry found in configuration: invalid priority "' + mxPriority + '".'); 
+    }
   }
-  
+    
   // Check the hosting entries
   const hostings = nconf.get('net:aahostings'); 
   

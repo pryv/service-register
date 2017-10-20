@@ -42,15 +42,7 @@
       "foo.bar": {
         "ip": "1.2.3.4"
       }
-    },
-    "mail": [
-      {
-      "name": "local.mail.pryv.in",
-      "ip": "0.0.0.0",
-      "ttl": 10800,
-      "priority": 10
-      }
-    ]
+    }
   },
   "http": {
     "static": {
