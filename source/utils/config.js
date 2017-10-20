@@ -171,19 +171,20 @@ function validateConfiguration () {
       const mxEntry = mxEntries[entry];
       const mxName = mxEntry.name;
       if (mxName == null && typeof mxName !== 'string')
-        throw parseError('Invalid MX entry found in configuration: invalid name "' + mxName + '".'); 
+        throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
+        + '\n Expecting a name in the form: "mymailserver.somedomain.tld".'); 
       const mxIp = mxEntry.ip;
       if (mxIp == null && typeof mxIp !== 'string')
-        throw parseError('Invalid MX entry found in configuration: invalid ip "' + mxIp + '".'); 
+        throw parseError('Invalid MX entry found: "ip" attribute invalid:' + mxIp); 
       const mxTtl = mxEntry.ttl;
       if (mxTtl == null && typeof mxTtl !== 'number')
-        throw parseError('Invalid MX entry found in configuration: invalid ttl "' + mxTtl + '".'); 
+        throw parseError('Invalid MX entry found: "ttl" attribute invalid:' + mxTtl); 
       const mxPriority = mxEntry.priority;
       if (mxPriority == null && typeof mxPriority !== 'number')
-        throw parseError('Invalid MX entry found in configuration: invalid priority "' + mxPriority + '".'); 
+        throw parseError('Invalid MX entry found: "priority" attribute invalid' + mxPriority); 
     }
   }
-    
+
   // Check the hosting entries
   const hostings = nconf.get('net:aahostings'); 
   
