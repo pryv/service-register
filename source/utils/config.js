@@ -177,14 +177,14 @@ function validateConfiguration () {
         throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
           + '\n Expecting a name in the form: "mailserver.domain.tld".'); 
       const mxIp = mxEntry.ip;
-      if(mxIp !== null) {
-        if (typeof mxIp !== 'string' || !ipRegexp.test(mxName))
-          throw parseError('Invalid MX entry found: "ip" attribute invalid:' + mxIp
+      if(mxIp != null) {
+        if (typeof mxIp !== 'string' || !ipRegexp.test(mxIp))
+          throw parseError('Invalid MX entry found: "ip" attribute invalid: ' + mxIp
             + '\n Expecting an ip in the form: "127.0.0.1".');  
       }
       const mxPriority = mxEntry.priority;
       if (mxPriority == null || typeof mxPriority !== 'number')
-        throw parseError('Invalid MX entry found: "priority" attribute invalid' + mxPriority); 
+        throw parseError('Invalid MX entry found: "priority" attribute invalid: ' + mxPriority); 
     }
   }
 
