@@ -176,9 +176,6 @@ function validateConfiguration () {
       const mxIp = mxEntry.ip;
       if (mxIp == null && typeof mxIp !== 'string')
         throw parseError('Invalid MX entry found: "ip" attribute invalid:' + mxIp); 
-      const mxTtl = mxEntry.ttl;
-      if (mxTtl == null && typeof mxTtl !== 'number')
-        throw parseError('Invalid MX entry found: "ttl" attribute invalid:' + mxTtl); 
       const mxPriority = mxEntry.priority;
       if (mxPriority == null && typeof mxPriority !== 'number')
         throw parseError('Invalid MX entry found: "priority" attribute invalid' + mxPriority); 
