@@ -38,7 +38,8 @@ nconf.defaults({
     'defaultTTL' : 3600,
     'ip': '127.0.0.1',
     'name': 'localhost',
-    'port': '2053'
+    'port': '2053',
+    'mail': []
   },
   auth: {
     authorizedKeys: {
@@ -169,25 +170,24 @@ function validateConfiguration () {
   
   // Check the DNS MX entries
   const mxEntries = nconf.get('dns:mail');
-  if (mxEntries != null) {
-    if (!Array.isArray(mxEntries)) {
-      throw parseError('Expecting an array of MX entries.'); 
+  if (mxEntries == null || !Array.isArray(mxEntries)) {
+    throw parseError('Expecting "dns:mail" to be an array (even empty) of MX entries.'); 
+  }
+  
+  for (const mxEntry of mxEntries) {
+    const mxName = mxEntry.name;
+    if (mxName == null || typeof mxName !== 'string' || !hostnameRegexp.test(mxName))
+      throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
+        + '\n Expecting a name in the form: "mailserver.domain.tld".'); 
+    const mxIp = mxEntry.ip;
+    if(mxIp != null) {
+      if (typeof mxIp !== 'string' || !ipRegexp.test(mxIp))
+        throw parseError('Invalid MX entry found: "ip" attribute invalid: ' + mxIp
+          + '\n Expecting an ip in the form: "127.0.0.1".');  
     }
-    for (const mxEntry of mxEntries) {
-      const mxName = mxEntry.name;
-      if (mxName == null || typeof mxName !== 'string' || !hostnameRegexp.test(mxName))
-        throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
-          + '\n Expecting a name in the form: "mailserver.domain.tld".'); 
-      const mxIp = mxEntry.ip;
-      if(mxIp != null) {
-        if (typeof mxIp !== 'string' || !ipRegexp.test(mxIp))
-          throw parseError('Invalid MX entry found: "ip" attribute invalid: ' + mxIp
-            + '\n Expecting an ip in the form: "127.0.0.1".');  
-      }
-      const mxPriority = mxEntry.priority;
-      if (mxPriority == null || typeof mxPriority !== 'number')
-        throw parseError('Invalid MX entry found: "priority" attribute invalid: ' + mxPriority); 
-    }
+    const mxPriority = mxEntry.priority;
+    if (mxPriority == null || typeof mxPriority !== 'number')
+      throw parseError('Invalid MX entry found: "priority" attribute invalid: ' + mxPriority); 
   }
 
   // Check the hosting entries

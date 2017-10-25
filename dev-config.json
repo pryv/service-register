@@ -14,8 +14,6 @@
     "disable": true
   },
   "dns": {
-    "mail": [
-    ],
     "name": "local.pryv.net",
     "domain": "pryv.in",
     "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
