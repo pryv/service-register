@@ -169,9 +169,11 @@ function validateConfiguration () {
   
   // Check the DNS MX entries
   const mxEntries = nconf.get('dns:mail');
-  if (mxEntries != null && Object.keys(mxEntries).length > 0) {
-    for (const entry of Object.keys(mxEntries)) {
-      const mxEntry = mxEntries[entry];
+  if (mxEntries != null) {
+    if (!Array.isArray(mxEntries)) {
+      throw parseError('Expecting an array of MX entries.'); 
+    }
+    for (const mxEntry of mxEntries) {
       const mxName = mxEntry.name;
       if (mxName == null || typeof mxName !== 'string' || !hostnameRegexp.test(mxName))
         throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
