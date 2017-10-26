@@ -38,7 +38,8 @@ nconf.defaults({
     'defaultTTL' : 3600,
     'ip': '127.0.0.1',
     'name': 'localhost',
-    'port': '2053'
+    'port': '2053',
+    'mail': []
   },
   auth: {
     authorizedKeys: {
@@ -164,29 +165,35 @@ function validateConfiguration () {
   // TODO Add a few checks for well-formedness of server configuration (net:aaservers).
   // TODO Check if all servers that have base_url have a defined 'hostname' in there. Parse the urls.
   
-  // Check the DNS MX entries (see the ttl isssue #39)
+  const ipRegexp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
+  const hostnameRegexp = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+  
+  // Check the DNS MX entries
   const mxEntries = nconf.get('dns:mail');
-  if (mxEntries != null && Object.keys(mxEntries).length > 0) {
-    for (const entry of Object.keys(mxEntries)) {
-      const mxEntry = mxEntries[entry];
-      const mxName = mxEntry.name;
-      if (mxName == null && typeof mxName !== 'string')
-        throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
-        + '\n Expecting a name in the form: "mymailserver.somedomain.tld".'); 
-      const mxIp = mxEntry.ip;
-      if (mxIp == null && typeof mxIp !== 'string')
-        throw parseError('Invalid MX entry found: "ip" attribute invalid:' + mxIp); 
-      const mxTtl = mxEntry.ttl;
-      if (mxTtl == null && typeof mxTtl !== 'number')
-        throw parseError('Invalid MX entry found: "ttl" attribute invalid:' + mxTtl); 
-      const mxPriority = mxEntry.priority;
-      if (mxPriority == null && typeof mxPriority !== 'number')
-        throw parseError('Invalid MX entry found: "priority" attribute invalid' + mxPriority); 
+  if (mxEntries == null || !Array.isArray(mxEntries)) {
+    throw parseError('Expecting "dns:mail" to be an array (even empty) of MX entries.'); 
+  }
+  
+  for (const mxEntry of mxEntries) {
+    const mxName = mxEntry.name;
+    if (mxName == null || typeof mxName !== 'string' || !hostnameRegexp.test(mxName))
+      throw parseError('Invalid MX entry found: "name" attribute invalid: ' + mxName
+        + '\n Expecting a name in the form: "mailserver.domain.tld".'); 
+    const mxIp = mxEntry.ip;
+    if(mxIp != null) {
+      if (typeof mxIp !== 'string' || !ipRegexp.test(mxIp))
+        throw parseError('Invalid MX entry found: "ip" attribute invalid: ' + mxIp
+          + '\n Expecting an ip in the form: "127.0.0.1".');  
     }
+    const mxPriority = mxEntry.priority;
+    if (mxPriority == null || typeof mxPriority !== 'number')
+      throw parseError('Invalid MX entry found: "priority" attribute invalid: ' + mxPriority); 
   }
 
   // Check the hosting entries
   const hostings = nconf.get('net:aahostings'); 
+  
+  const hosturlRegexp = /^http(s?):\/\/(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
   
   if (hostings == null || hostings.regions == null) 
     throw parseError('No net:aahostings key found in configuration'); 
@@ -205,6 +212,15 @@ function validateConfiguration () {
       
       if (hostings == null || Object.keys(hostings).length <= 0) 
         throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`);
+      
+      for (const hostingName of Object.keys(hostings)) {
+        const hosting = hostings[hostingName];
+        const hostingUrl = hosting.url;
+        
+        if(hostingUrl == null || typeof hostingUrl !== 'string' || !hosturlRegexp.test(hostingUrl))
+          throw parseError('Hosting ' + hostingName + ' has invalid url: ' + hostingUrl
+            + '\n Expecting an url in the form: "http(s)://server.domain.tld".');  
+      }
     }
   }
 }
