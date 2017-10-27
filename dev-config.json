@@ -67,6 +67,12 @@
           "authorization": "cz90{k)2{3u8q0C"
         }
       ],
+      "single": [
+        {
+          "base_url": "http://127.0.0.1:3000", 
+          "authorization": "OVERRIDE ME"
+        }
+      ],
       "test.ch-ch": [
         {
           "base_name": "localhost",
