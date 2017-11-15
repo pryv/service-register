@@ -10,15 +10,9 @@ import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} f
 
 var memoizedHostings: ?HostingDefinition = null;
 
-/**
- * Get the hostings list, deal with the server logic:
- * - find the closest server for and IP
- * - convert
- * @returns: the list of hostings
- * See:
- * http://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
- * https://github.com/benlowry/node-geoip-native
- */
+// Returns the hostings list from the configuration file. This list is immutable 
+// and memoized, so you can call this function wherever you need the list. 
+//
 function getHostings(): ?HostingDefinition {
   if (! memoizedHostings) {
     memoizedHostings = produceHostings();
