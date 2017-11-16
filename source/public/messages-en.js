@@ -11,7 +11,7 @@ var messages = {
     'detail' : 'User name must be made of 5 to 21 alphanumeric characters (- authorized).'},
   'RESERVED_USER_NAME' : { 'message' : 'Reserved user name',
     'detail' : 'User name is reserved.'},
-  'EXISTING_USER_NAME' : { 'message' : 'User name exists',
+  'EXISTING_USER_NAME' : { 'message' : 'Username already exists',
     'detail' : 'User name must be unique.'},
   'INVALID_PASSWORD' : { 'message' : 'Invalid password',
     'detail' : 'Password must be between 6 and 50 characters'},
@@ -28,9 +28,9 @@ var messages = {
     'detail' : 'hosting unknown, not active or unavailable, retry with another one'},
 
 
-  'INVALID_EMAIL' : { 'message' : 'Invalid email adress',
+  'INVALID_EMAIL' : { 'message' : 'Invalid email address',
     'detail' : 'E-mail address format not recognized'},
-  'EXISTING_EMAIL' : { 'message' : 'This e-mail is known',
+  'EXISTING_EMAIL' : { 'message' : 'E-mail already exists',
       'detail' : 'This e-mail is already assigned to a user.'},
 
   'USER_CREATED' : { 'message' : 'Registration started',
