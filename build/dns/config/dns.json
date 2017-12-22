@@ -38,5 +38,67 @@
   "server": {
     "ssl": false,
     "port": 9000
+  },
+  "auth": {
+    "authorizedKeys": {
+      "test-admin-key": { "roles": ["admin"] },
+      "test-system-key": { "roles": ["system"] }
+    }
+  },
+  "http": {
+    "static": {
+      "url": "https://sw.rec.la",
+      "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
+    },
+    "register": {
+      "url": "https://reg.rec.la"
+    }
+  },
+  "net": {
+    "aaservers": {
+      "pilot": [
+        {
+          "base_url": "http://core:9000/",
+          "authorization": "OVERRIDE ME"
+        }
+      ]
+    },
+    "aahostings": {
+      "regions": {
+        "pilot": {
+          "name": "Pilot",
+          "localizedName": { "fr": "Pilot" }, 
+          "zones": {
+            "pilot": {
+              "name": "Pilot Core", "localizedName": { "fr": "Pilot Core" }, 
+              "hostings": {
+                "pilot": {
+                  "url": "http://rec.la", 
+                  "name": "Self-Contained Pilot Core", 
+                  "description": "Local core inside the pilot deploy", 
+                  "localizedDescription": { } 
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "appList": {
+    "test-a": {
+      "displayName": "Test app A",
+      "description": "Test app A description",
+      "iconURL": "http://placehold.it/150&text=A",
+      "appURL": "https://pryv.com",
+      "settingsPageURL": "https://api.pryv.com"
+    },
+    "test-b": {
+      "displayName": "Test app B",
+      "description": "Test app B description",
+      "iconURL": "http://placehold.it/150&text=B",
+      "appURL": "https://pryv.com",
+      "settingsPageURL": "https://api.pryv.com"
+    }
   }
 }
