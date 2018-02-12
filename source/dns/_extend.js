@@ -1,42 +1,6 @@
 //maybe there is a module arround that can clear up this file
 
 try {
-  Object.defineProperties(Object.prototype, {
-    apply : {
-      value: function(config, defaults) {
-        if (defaults) {
-          this.apply(defaults);
-        }
-        if (config && typeof config === 'object') {
-          var i;
-          for (i in config) {
-            if(config.hasOwnProperty(i)) {
-              this[i] = config[i];
-            }
-          }
-        }
-        return this;
-      },
-      writable: false,
-      enumerable: false,
-      configurable: false
-    },
-    applyIf : {
-      value: function(config) {
-        var property;
-        for (property in config) {
-          if (config.hasOwnProperty(property) && !this.hasOwnProperty(property)) {
-            this[property] = config[property];
-          }
-        }
-        return this;
-      },
-      writable: false,
-      enumerable: false,
-      configurable: false
-    }
-  });
-
   Object.defineProperties(String.prototype,{
     'rainbow'      : {
       get: function() {

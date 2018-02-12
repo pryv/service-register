@@ -40,7 +40,9 @@ module.exports.extractResourceFromHostname = function (
     }
   }
   
-  throw new Error('Domain name not recognized in hostname.');
+  const message = 'Domain name not recognized in hostname.\n' +
+    `I know the following domains: ${domains.join(', ')}.`;
+  throw new Error(message);
 };
 
 

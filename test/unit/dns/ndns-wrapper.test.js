@@ -12,10 +12,10 @@ describe('_rotate', () => {
     const ary = [1, 2, 3, 4, 5, 6];
     const res = _rotate(ary); 
     
-    assert.deepEqual(res, [6, 1, 2, 3, 4, 5]);
+    assert.deepEqual(res, [2, 3, 4, 5, 6, 1]);
     
     // NOT a pure function. `this` is returned to allow chaining.
-    assert.deepEqual(ary, [6, 1, 2, 3, 4, 5]);
+    assert.deepEqual(ary, [2, 3, 4, 5, 6, 1]);
   });
   it('should rotate the array right by n positions', () => {
     const ary = [1, 2, 3, 4, 5, 6];
