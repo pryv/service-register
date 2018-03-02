@@ -97,6 +97,7 @@ var ns_rcode = enumeration({
 	'ns_r_badkey': 17,
 	'ns_r_badtime': 18,
 });
+exports.ns_rcode = ns_rcode;
 
 // BIND_UPDATE
 var ns_update_operation = enumeration({

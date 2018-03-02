@@ -1,6 +1,7 @@
 // @flow
 
 const ndns = require('./ndns'),
+      errorCodes = ndns.ns_rcode,
       server = ndns.createServer('udp4'),
       logger = require('winston'),
       config = require('../utils/config'),
@@ -84,7 +85,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warn("Received empty request, treating as if it was empty.");
+      logger.info("WARNING: Received empty request, treating as if it was empty.");
       return '';
     }
       
@@ -109,10 +110,14 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
       res.send();
       return;
     }
-
+    
+    if(req.header.rd === 1) {
+      logger.info('WARNING: Recursion requested but not available');
+      res.header.rcode = errorCodes['ns_r_refused'];
+    }
+    
     res.header.qr = 1;
-    res.header.ra = 1;
-    res.header.rd = 0;
+    res.header.ra = 0;
     res.header.aa = 1;
 
     // Answers count
