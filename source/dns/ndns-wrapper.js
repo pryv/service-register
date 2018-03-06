@@ -67,6 +67,7 @@ type DnsDynamicHandler = (
 
 // Handles each individual DNS request - our main handler function. 
 function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
+  logger.info('REQ: ', req);
   if (req.q.length > 0) {
     const name = validateRequest(req);
     return dynamic_call(name, sendResponse, req, res);
@@ -84,7 +85,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warn("Received empty request, treating as if it was empty.");
+      logger.info("Received empty request, treating as if it was empty.");
       return '';
     }
       
