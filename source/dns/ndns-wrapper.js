@@ -111,14 +111,19 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
       return;
     }
     
-    if(req.header.rd === 1) {
+    const isRecursionDemanded = (req.header.rd === 1);
+    const FLAG_RECURSION_AVAILABLE = 0;
+    const FLAG_AUTHORATIVE_ANSWER = 1;
+    const FLAG_QUESTION_RESPONSE = 1;
+    
+    if(isRecursionDemanded) {
       logger.info('WARNING: Recursion requested but not available');
       res.header.rcode = errorCodes['ns_r_refused'];
     }
     
-    res.header.qr = 1;
-    res.header.ra = 0;
-    res.header.aa = 1;
+    res.header.qr = FLAG_QUESTION_RESPONSE;
+    res.header.ra = FLAG_RECURSION_AVAILABLE;
+    res.header.aa = FLAG_AUTHORATIVE_ANSWER;
 
     // Answers count
     res.header.ancount = rec.REP.length;
