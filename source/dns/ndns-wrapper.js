@@ -67,7 +67,7 @@ type DnsDynamicHandler = (
 
 // Handles each individual DNS request - our main handler function. 
 function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
-  logger.info('REQ: ', req);
+  logger.info(JSON.stringify(req.q));
   if (req.q.length > 0) {
     const name = validateRequest(req);
     return dynamic_call(name, sendResponse, req, res);
