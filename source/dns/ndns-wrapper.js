@@ -113,12 +113,6 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     
     const FLAG_TRUE = 1;
     const FLAG_FALSE = 0;
-    const isRecursionDemanded = (req.header.rd === FLAG_TRUE);
-    
-    if(isRecursionDemanded) {
-      logger.info('WARNING: Recursion requested but not available');
-      res.header.rcode = errorCodes['ns_r_refused'];
-    }
     
     res.header.qr = FLAG_TRUE; // Question-response
     res.header.ra = FLAG_FALSE; // Recursion available
