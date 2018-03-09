@@ -1,7 +1,6 @@
 // @flow
 
 const ndns = require('./ndns'),
-      errorCodes = ndns.ns_rcode,
       server = ndns.createServer('udp4'),
       logger = require('winston'),
       config = require('../utils/config'),
