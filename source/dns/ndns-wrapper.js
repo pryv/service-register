@@ -84,7 +84,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warn("Received empty request, treating as if it was empty.");
+      logger.info("WARNING: Received empty request, treating as if it was empty.");
       return '';
     }
       
@@ -109,11 +109,13 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
       res.send();
       return;
     }
-
-    res.header.qr = 1;
-    res.header.ra = 1;
-    res.header.rd = 0;
-    res.header.aa = 1;
+    
+    const FLAG_TRUE = 1;
+    const FLAG_FALSE = 0;
+    
+    res.header.qr = FLAG_TRUE; // Question-response
+    res.header.ra = FLAG_FALSE; // Recursion available
+    res.header.aa = FLAG_TRUE; // Authorative answer
 
     // Answers count
     res.header.ancount = rec.REP.length;
