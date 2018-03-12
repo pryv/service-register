@@ -6,7 +6,7 @@
   "author": "Pryv Sa",
   "scripts": {
     "start": "./node_modules/.bin/babel-node source/server.js",
-    "test": "node_modules/.bin/mocha test/**/*.test.js",
+    "test": "node_modules/.bin/mocha -name *.test.js --recursive test/",
     "watch": "babel --watch source --out-dir lib --copy-files",
     "release": "node_modules/.bin/babel source --out-dir lib --copy-files"
   },
