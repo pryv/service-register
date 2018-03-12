@@ -68,6 +68,11 @@ type DnsDynamicHandler = (
 // Handles each individual DNS request - our main handler function. 
 function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
   
+  // Ignore DNS responses, since answering to them would represent
+  // a vulnerability that can lead to DOS attacks.
+  // DNS responses are identified thanks to the request headers:
+  //  req.header.qr === 0: this is a DNS query
+  //  req.header.qr === 1: this is a DNS response
   if(req.header!=null && req.header.qr===1) {
     return;
   }
@@ -89,7 +94,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.info("Received empty request, treating as if it was empty.");
+      logger.warning("Received empty request, treating as if it was empty.");
       return '';
     }
       
@@ -114,11 +119,13 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
       res.send();
       return;
     }
-
-    res.header.qr = 1;
-    res.header.ra = 1;
-    res.header.rd = 0;
-    res.header.aa = 1;
+    
+    const FLAG_TRUE = 1;
+    const FLAG_FALSE = 0;
+    
+    res.header.qr = FLAG_TRUE; // Indicates that it is a DNS response
+    res.header.ra = FLAG_FALSE; // Recursion available
+    res.header.aa = FLAG_TRUE; // Authorative answer
 
     // Answers count
     res.header.ancount = rec.REP.length;
