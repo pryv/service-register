@@ -33,7 +33,7 @@ app.get('/oauth/authorise', function (req, res, next) {
   var parameters = {
     sso: req.signedCookies.sso,
     requestingAppId: req.query.client_id,
-    requestedPermissions: [ {streamId : '*', level: 'manage'} ], // TODO adapt to clientId
+    requestedPermissions: [ {streamId : '*', level: 'manage'} ],
     languageCode: 'en',
     returnURL: req.query.redirect_uri + '?',
     oauthState: req.query.state

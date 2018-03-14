@@ -5,8 +5,6 @@ var should = require('should');
 
 require('readyness/wait/mocha');
 
-//TODO Data validation
-
 describe('LOAD ', function () {
   it('GET /:uid/check  10000x', function(done){
 

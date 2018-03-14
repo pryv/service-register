@@ -69,7 +69,6 @@ if (config.get('server:port') > 0) {
   var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
     ':' + config.get('server:port'));
   
-  // TODO Verify these assumptions, configuration is not controlled by us!
   const port: number = config.get('server:port'); 
   const ipAddress: string = config.get('server:ip');
   const backlog = 511; 
@@ -94,7 +93,7 @@ if (config.get('server:port') > 0) {
       '\n Serving main domain: ' + config.get('dns:domain') +
       ' extras: ' + config.get('dns:domains');
     logger.info(readyMessage);
-    appListening(readyMessage); // TODO: replace that "readyness" thing with simple event messaging
+    appListening(readyMessage);
   }).on('error', function (e) {
     if (e.code === 'EACCES') {
       logger.error('Cannot ' + e.syscall);

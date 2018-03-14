@@ -1106,9 +1106,6 @@ function encode_bitstring (src, bp, end, labelp, dst, dstp, eom) {
 					return errno.EINVAL;
 
 				blen = strtol(src, beg_blen, 10);
-				// todo:
-				// if ( char after string == ']' )
-				// return errno.EINVAL;
 			}
 
 			if (count)
@@ -1206,7 +1203,6 @@ function isspace (ch) {
 }
 
 function strtol (b, off, end, base) {
-	// todo: port from C
 	return parseInt(b.toString(off, end), base);
 }
 
@@ -1289,7 +1285,6 @@ DNSParser.prototype.reinitialize = function() {
 DNSParser.prototype.parseMessage = function () {
 	var qdcount, ancount, nscount, arcount, rrcount;
 
-	// todo: streaming parser
 	if(typeof this.onMessageBegin === 'function')
 		this.onMessageBegin ();
 
@@ -1541,8 +1536,8 @@ DNSParser.prototype.parseRRSIG = function (rrsig) {
 	this.buf.copy (signature, 0, this.parseStart, this.parseStart+len);
 
 	rrsig.signature = signature;
-	this.parseStart += len; // TODO: probably needs a check for length per algorithm ? and the loop above needs stricter checking too
-
+	this.parseStart += len;
+	
 	rrsig [0] = rrsig.typeCovered;
 	rrsig [1] = rrsig.algoritm;
 	rrsig [2] = rrsig.labels;
@@ -1644,7 +1639,7 @@ DNSParser.prototype.parseDS = function (ds) {
 	ds[3] = ds.signature;
 	ds.length = 4;
 
-	this.parseStart += len; // TODO: probably needs a check for length per algorithm ? and the loop above needs stricter checking too
+	this.parseStart += len;
 };
 
 DNSParser.prototype.parseAAAA = function () {
@@ -1885,7 +1880,6 @@ DNSWriter.prototype.startTruncate = function () {
 DNSWriter.prototype.endTruncate = function () {
 	debug('DNSWriter.prototype.endTruncate');
 
-	// todo: figure out truncate
 	this.writeStart = this.trstart;
 };
 

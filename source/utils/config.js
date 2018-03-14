@@ -162,9 +162,6 @@ export type ServerDefinition = {|
 |};
 
 function validateConfiguration () {
-  // TODO Add a few checks for well-formedness of server configuration (net:aaservers).
-  // TODO Check if all servers that have base_url have a defined 'hostname' in there. Parse the urls.
-  
   const ipRegexp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
   const hostnameRegexp = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
   

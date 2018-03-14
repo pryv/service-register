@@ -6,7 +6,6 @@ var authorizedKeys = require('../utils/config').get('auth:authorizedKeys'),
  * header or `auth` query param) for the given roles.
  * Arguments are the authorized roles (e.g. "admin", "system", etc.).
  *
- * TODO: eventually use factory methods for errors (when/if we have a proper error factory)
  */
 module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
   var roles = (arguments.length === 1 && Array.isArray(arguments[0])) ?
