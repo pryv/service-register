@@ -14,20 +14,16 @@ const checkAndConstraints = require('../utils/check-and-constraints'),
 
 /**
  * Routes for users
- * This file is meant to contain all /users routes, after routes are changed to
- * REST-like structure, cf. https://trello.com/c/NVdNVqMN/53
  * @param app
  */
 module.exports = function (app: any) {
   // POST /user: create a new user
-  //
   app.post('/user', function (req, res, next) {
     if (req.body == null) {
       logger.error('/user : How could body be empty??');
       return next(messages.ei());
     }
 
-    // TODO check that it's an authorized url
     const hosting: ?string = checkAndConstraints.hosting(req.body.hosting);
     if (hosting == null) {
       return next(messages.e(400, 'INVALID_HOSTING'));

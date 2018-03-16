@@ -181,7 +181,6 @@ exports.hostings = {
   properties: {
     regions: {
       type: 'object'
-      // TODO add references to
     }
   }
 };

@@ -285,7 +285,7 @@ exports.doOnKeysMatching = doOnKeysMatching;
 /**
  * Search through keys and values in the database using a mask and apply a mapping function on them
  * @param keyMask: the mask to filter keys
- * @param valueMask: the mask to filter values TODO: with a regexp (string for now)
+ * @param valueMask: the mask to filter values
  * @param action: mapping function to apply on resulting entries
  * @param done: function(error,result), result being the number of entries mapped
  */
@@ -471,7 +471,6 @@ function _findGhostsServer() {
   doOnKeysValuesMatching('*:server', '*', function (key, server) {
     var username = key.substring(0, key.lastIndexOf(':'));
 
-    // TODO Check that server is really known
     redis.hgetall(username + ':users', function (error, user) {
 
       if (! user) {

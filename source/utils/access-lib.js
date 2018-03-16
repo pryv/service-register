@@ -52,25 +52,13 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
 
   var lang = checkAndConstraints.lang(parameters.languageCode);
 
-  // TODO Complete Check URL validity
   if (typeof (parameters.returnURL) === 'undefined') {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
   }
 
   var returnURL = parameters.returnURL,
       oauthState = parameters.oauthState;
-
-  //-- TODO Check if app is authorized
-
-  /**
-   * appname: 'a name for the app',
-   * access: 'the required access',
-   */
-
-    // is this a returning user (look in cookies)
-    // .... do some stuff here
-
-    // step 2 .. register or log in
+      
   var error = false;
   if (error) {
     return errorHandler(messages.ei());
@@ -99,8 +87,6 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   if (oauthState) {
     url += '&oauthState=' + oauthState;
   }
-
-  //TODO add username & sessionID if possible
 
   var accessURIc = '&requestedPermissions=' +
     encodeURIComponent(JSON.stringify(requestedPermissions));

@@ -59,7 +59,6 @@ exports.useridIsReserved = function (userid, callback) {
   if (/^(pryv)+(.*)$/.test(userid)) {
     return callback(null, true);
   }
-  // TODO optimise this with some caching
   if (config.get('dns:staticDataInDomain:' + userid)) {
     return callback(null, true);
   }

@@ -89,7 +89,6 @@ module.exports = function (app: any) {
 
   /**
    * GET /admin/users/invitations/post: generate an invitation
-   * TODO the following must be handled by a POST /invitations
    */
   app.get('/admin/users/invitations/post', requireRoles('admin'), function (req, res, next){
 

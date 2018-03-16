@@ -154,6 +154,5 @@ exports.accesskey = function (str) {
 };
 
 exports.access = function (json: string) {
-  //TODO Check access structure
   return json;
 };

@@ -49,7 +49,6 @@ module.exports = function (app: any) {
 
   /**
    * GET /:email/uid: get username for a given email
-   * TODO: safety (privacy) of this call that exposes a link between an email and a user.
    */
   app.get('/:email/uid', function (req, res, next) {
     if (! checkAndConstraints.email(req.params.email)) {

@@ -2,8 +2,6 @@
 
 Pryv user registration server component.
 
-**TODO: update and cleanup this document (see that of service core as an example)**
-
 ## Usage (ubuntu)
 
 ### Install (ubuntu)
