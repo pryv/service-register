@@ -69,13 +69,13 @@ if (config.get('server:port') > 0) {
   var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
     ':' + config.get('server:port'));
   
-  const port: number = config.get('server:port'); 
-  const ipAddress: string = config.get('server:ip');
-  const backlog = 511; 
-  server.listen(port, ipAddress, backlog, function () {
-    if (server == null) {
-      throw new Error('Assertion failure: Server is not initialized.');
-    }
+  const opts = {
+    port: config.get('server:port'),
+    host: config.get('server:ip'),
+  };
+  server.listen(opts, err => {
+    if (err != null)
+      throw new Error(`AF: ${err} occurred.`);
 
     var address = server.address();
     var protocol = server.key ? 'https' : 'http';
