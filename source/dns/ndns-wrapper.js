@@ -233,20 +233,44 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
           }
         }
         break;
-      case 'nameserver':
-        for(j = 0;j< data[i].length;j++){
-          data[i][j].name = data[i][j].name ?
-            data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-          ret.NS.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
+      case 'nameserver': {
+        const value = Array.isArray(data[i]) ? 
+          data[i] : 
+          [ data[i] ];
+
+        for (j=0;j< value.length;j++) {
+          const record = value[j];
+          
+          record.name = record.name ?
+            record.name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
+
+          ret.NS.push([name, defaultTTL, 'IN', 'NS' , record.name]);
           // removed from authority section
-          ret.REP.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
-          if(data[i][j].ip){
-            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            rotate(data[i][j].ip);
-            for(var z=0; z< data[i][j].ip.length;z++) {
-              ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[z]]);
+          ret.REP.push([name, defaultTTL, 'IN', 'NS' , record.name]);
+          if(record.ip){
+            record.ip = record.ip instanceof Array ? record.ip : [record.ip];
+            rotate(record.ip);
+            for(var z=0; z< record.ip.length;z++) {
+              ret.ADD.push([record.name, defaultTTL, 'IN', 'A', record.ip[z]]);
             }
           }
+        }
+      }
+      break;
+
+      case 'certificate_authority_authorization':
+        // Allow addition of CAA records. Each entry needs to have at least an 'issuer', but can also contain a 'flag' and a 'tag.
+        const value = Array.isArray(data[i]) ?
+          data[i] :
+          [data[i]];
+
+        for (j = 0; j < value.length; j++) {
+          const record = value[j];
+          const flag = record.flag || 0;
+          const tag = record.tag || 'issue';
+          const issuer = record.issuer;
+
+          ret.REP.push([name, defaultTTL, 'IN', 'CAA', flag, tag, issuer]);
         }
         break;
 

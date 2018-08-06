@@ -395,6 +395,7 @@ var p_type_syms = {
 	255: "ANY",
 	32769: "DLV",
 	256: "ZXFR",
+	257: "CAA",
 };
 
 
@@ -2089,6 +2090,13 @@ DNSWriter.prototype.writeMX = function (mx) {
 	this.writeName(mx[1]); // exchange
 };
 
+DNSWriter.prototype.writeCAA = function (caa) {
+	this.writeUInt8(caa[0]); // flag
+	this.writeUInt8(caa[1].length);
+	this.writeString(caa[1]); // tag
+	this.writeString(caa[2]); // value
+};
+
 DNSWriter.prototype.writeAAAA = function (aaaa) {
 	if (this.truncated)
 		return;
@@ -2140,7 +2148,7 @@ DNSWriter.prototype.writeRR = function (rr) {
 		this.writeMX(rr.rdata);
 	} else if (rr.type == 16) { // txt
 		this.writeUInt8(rr.rdata[0].length);
-
+		
 		if (typeof rr.rdata[0] === 'string')
 			this.writeString(rr.rdata[0]);
 		else if (rr.rdata[0] instanceof Buffer)
@@ -2151,6 +2159,8 @@ DNSWriter.prototype.writeRR = function (rr) {
 		this.writeRRSIG(rr.rdata);
 	} else if (rr.type == 43) {
 		this.writeDS(rr.rdata);
+	} else if (rr.type == 257) { // caa
+		this.writeCAA(rr.rdata);
 	} else {
 		if (typeof rr.rdata[0] === 'string')
 			this.writeString(rr.rdata[0]);

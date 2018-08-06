@@ -23,9 +23,10 @@ const mxData = {
 const baseData = {
   autority: config.get('dns:name') + ',admin.' + config.get('dns:domain'),
   nameserver: config.get('dns:nameserver'),
+  certificate_authority_authorization: config.get('dns:certificateAuthorityAuthorization'),
 };
 const nsData = {
-  nameserver: baseData.nameserver
+  nameserver: baseData.nameserver || {}
 };
 
 const soaData = {
@@ -34,9 +35,13 @@ const soaData = {
 
 const rootData = {
   autority: baseData.autority,
-  nameserver: baseData.nameserver,
+  nameserver: baseData.nameserver || {},
   ip: config.get('dns:domain_A'),
   mail: mxData.mail
+};
+
+const caaData = {
+  certificate_authority_authorization: baseData.certificate_authority_authorization || {},
 };
 
 //static entries; matches 'in domains' names
@@ -83,6 +88,8 @@ function serverForName(
  
   if ( domains.indexOf(keyName) > -1) {
     switch (req.q[0].typeName) {
+    case 'CAA':
+      return callback(req, res, dns.getRecords(caaData, reqName));
     case 'MX':
       return callback(req, res, dns.getRecords(mxData, reqName));
     case 'NS':

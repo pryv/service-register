@@ -17,6 +17,9 @@
     "name": "local.pryv.net",
     "domain": "pryv.in",
     "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
+    "certificateAuthorityAuthorization": {
+      "issuer": "letsencrypt.org"
+    },
     "staticDataInDomain": {
       "www": {
         "alias": [

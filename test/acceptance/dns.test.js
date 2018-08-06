@@ -5,6 +5,8 @@
 const exec = require('child_process').exec;
 const _s = require('underscore.string');
 const should = require('should');
+const chai = require('chai');
+const assert = chai.assert; 
 
 const config = require('../../source/utils/config');
 var db = require('../../source/storage/database');
@@ -39,6 +41,22 @@ describe('DNS', function () {
         result.should.equal(t[0].name + '.');
       }
       done();
+    });
+  });
+
+  describe('CAA records', () => {
+    it('work', (done) => {
+      dig('CAA', config.get('dns:domain'), function (error, result) {
+        if (error) { return done(error); }
+
+        var t = config.get('dns:certificateAuthorityAuthorization');
+
+        assert.strictEqual(result[0], 0);
+        assert.strictEqual(result[1], 'issue');
+        assert.strictEqual(result[2], 'letsencrypt.org');
+
+        done();
+      });
     });
   });
   
