@@ -190,7 +190,7 @@ function validateConfiguration () {
   // Check the hosting entries
   const hostings = nconf.get('net:aahostings'); 
   
-  const hosturlRegexp = /^http(s?):\/\/(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
+  const hosturlRegexp = /^http(s?):\/\/[a-zA-Z0-9.]+$/;
   
   if (hostings == null || hostings.regions == null) 
     throw parseError('No net:aahostings key found in configuration'); 
