@@ -119,6 +119,19 @@ describe('/user', function () {
         dataValidation.jsonResponse(err, res, test, done);
       });
   });
+  it('invalid language', function (done) {
+    var test = {
+      data: {languageCode: 'abcdef'},
+      status: 400, desc: 'Invalid language',
+      JSchema: schemas.error,
+      JValues: {'id': 'INVALID_LANGUAGE'}
+    };
+
+    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+      .end(function (err, res) {
+        dataValidation.jsonResponse(err, res, test, done);
+      });
+  });
   it('existing user', function (done) {
     var test = {
       data: {username: 'wactiv'},
