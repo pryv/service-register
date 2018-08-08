@@ -114,10 +114,11 @@ exports.hostname = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-var supportedLanguages = {en : 'English', fr: 'Français'};
 exports.lang = function (str: string) {
   if (! str) { return 'en'; }
-  return (supportedLanguages.hasOwnProperty(str)) ? str : 'en';
+  if (typeof str !== 'string') { return null; }
+  if (str.length > 5) { return null; }
+  return str;
 };
 
 
