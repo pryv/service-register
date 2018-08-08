@@ -85,4 +85,21 @@ describe('POST /access', function () {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
+  it('invalid language', function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test', languageCode: 'abcdef', returnURL: false,
+        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
+        requestedPermissions: {some: 'json', data: 'to request access'}
+      },
+      contenttype: 'JSON',
+      status: 400,
+      JSchema: schema.error,
+      JValues: {'id': 'INVALID_LANGUAGE'}
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
 });

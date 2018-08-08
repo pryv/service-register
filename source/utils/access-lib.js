@@ -51,6 +51,9 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   }
 
   var lang = checkAndConstraints.lang(parameters.languageCode);
+  if (!lang) {
+    return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
+  }
 
   if (typeof (parameters.returnURL) === 'undefined') {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
