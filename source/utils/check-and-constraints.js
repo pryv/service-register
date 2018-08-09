@@ -114,8 +114,8 @@ exports.hostname = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.lang = function (str: string) {
-  if (! str) { return 'en'; }
+exports.lang = function (str: string): ?string {
+  if (str == null || str === '') { return 'en'; }
   if (typeof str !== 'string') { return null; }
   if (str.length > 5) { return null; }
   return str;

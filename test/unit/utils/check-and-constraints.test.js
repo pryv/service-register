@@ -53,8 +53,8 @@ describe('Checks And Constraints', function () {
       assert.equal(input, result);
     });
 
-    it('should return \'en\' if the input is undefined', function () {
-      const result = cac.lang(undefined);
+    it('should return \'en\' if the input is null', function () {
+      const result = cac.lang(null);
 
       assert.equal(result, 'en');
     });
@@ -70,6 +70,12 @@ describe('Checks And Constraints', function () {
 
       assert.isNull(result);
     });
+
+    it('should return null if the input is not a string', function () {
+      const result = cac.lang({});
+
+      assert.isNull(result);
+    })
   });
 });
 
