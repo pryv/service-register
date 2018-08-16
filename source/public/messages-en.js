@@ -27,6 +27,8 @@ var messages = {
   'UNAVAILABLE_HOSTING' : { 'message' : 'Hosting not available',
     'detail' : 'hosting unknown, not active or unavailable, retry with another one'},
 
+  'INVALID_LANGUAGE': { 'message' : 'Invalid language code',
+    'detail' : 'language code should be a string of 1-5 characters.' },
 
   'INVALID_EMAIL' : { 'message' : 'Invalid email address',
     'detail' : 'E-mail address format not recognized'},

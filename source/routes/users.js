@@ -55,6 +55,9 @@ module.exports = function (app: any) {
     if (! user.invitationToken) {
       return next(messages.e(400, 'INVALID_INVITATION'));
     }
+    if (user.language === null) {
+      return next(messages.e(400, 'INVALID_LANGUAGE'));
+    }
 
     var existsList = [];
     async.parallel([

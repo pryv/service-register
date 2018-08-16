@@ -44,5 +44,38 @@ describe('Checks And Constraints', function () {
       });
     }
   });
+
+  describe('#lang', function () {
+    it('should return the input as-is if it is valid', function () {
+      const input = 'abc';
+      const result = cac.lang(input);
+
+      assert.equal(input, result);
+    });
+
+    it('should return \'en\' if the input is null', function () {
+      const result = cac.lang(null);
+
+      assert.equal(result, 'en');
+    });
+
+    it('should return \'en\' if the input is the empty string', function () {
+      const result = cac.lang('');
+
+      assert.equal(result, 'en');
+    });
+
+    it('should return null if the input contains more than 5 characters', function () {
+      const result = cac.lang('abcdef');
+
+      assert.isNull(result);
+    });
+
+    it('should return null if the input is not a string', function () {
+      const result = cac.lang({});
+
+      assert.isNull(result);
+    })
+  });
 });
 

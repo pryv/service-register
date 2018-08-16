@@ -50,7 +50,10 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
       {detail: 'Missing or invalid requestedPermissions field'}));
   }
 
-  var lang = checkAndConstraints.lang(parameters.languageCode);
+  const lang = checkAndConstraints.lang(parameters.languageCode);
+  if (lang === null) {
+    return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
+  }
 
   if (typeof (parameters.returnURL) === 'undefined') {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
