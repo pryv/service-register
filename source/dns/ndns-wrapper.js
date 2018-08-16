@@ -67,6 +67,16 @@ type DnsDynamicHandler = (
 
 // Handles each individual DNS request - our main handler function. 
 function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
+  
+  // Ignore DNS responses, since answering to them would represent
+  // a vulnerability that can lead to DOS attacks.
+  // DNS responses are identified thanks to the request headers:
+  //  req.header.qr === 0: this is a DNS query
+  //  req.header.qr === 1: this is a DNS response
+  if(req.header!=null && req.header.qr===1) {
+    return;
+  }
+  
   if (req.q.length > 0) {
     const name = validateRequest(req);
     return dynamic_call(name, sendResponse, req, res);
@@ -84,7 +94,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warn("Received empty request, treating as if it was empty.");
+      logger.warning("Received empty request, treating as if it was empty.");
       return '';
     }
       
@@ -109,11 +119,13 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
       res.send();
       return;
     }
-
-    res.header.qr = 1;
-    res.header.ra = 1;
-    res.header.rd = 0;
-    res.header.aa = 1;
+    
+    const FLAG_TRUE = 1;
+    const FLAG_FALSE = 0;
+    
+    res.header.qr = FLAG_TRUE; // Indicates that it is a DNS response
+    res.header.ra = FLAG_FALSE; // Recursion available
+    res.header.aa = FLAG_TRUE; // Authorative answer
 
     // Answers count
     res.header.ancount = rec.REP.length;
@@ -221,20 +233,44 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
           }
         }
         break;
-      case 'nameserver':
-        for(j = 0;j< data[i].length;j++){
-          data[i][j].name = data[i][j].name ?
-            data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-          ret.NS.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
+      case 'nameserver': {
+        const value = Array.isArray(data[i]) ? 
+          data[i] : 
+          [ data[i] ];
+
+        for (j=0;j< value.length;j++) {
+          const record = value[j];
+          
+          record.name = record.name ?
+            record.name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
+
+          ret.NS.push([name, defaultTTL, 'IN', 'NS' , record.name]);
           // removed from authority section
-          ret.REP.push([name, defaultTTL, 'IN', 'NS' , data[i][j].name]);
-          if(data[i][j].ip){
-            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            rotate(data[i][j].ip);
-            for(var z=0; z< data[i][j].ip.length;z++) {
-              ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[z]]);
+          ret.REP.push([name, defaultTTL, 'IN', 'NS' , record.name]);
+          if(record.ip){
+            record.ip = record.ip instanceof Array ? record.ip : [record.ip];
+            rotate(record.ip);
+            for(var z=0; z< record.ip.length;z++) {
+              ret.ADD.push([record.name, defaultTTL, 'IN', 'A', record.ip[z]]);
             }
           }
+        }
+      }
+      break;
+
+      case 'certificate_authority_authorization':
+        // Allow addition of CAA records. Each entry needs to have at least an 'issuer', but can also contain a 'flag' and a 'tag.
+        const value = Array.isArray(data[i]) ?
+          data[i] :
+          [data[i]];
+
+        for (j = 0; j < value.length; j++) {
+          const record = value[j];
+          const flag = record.flag || 0;
+          const tag = record.tag || 'issue';
+          const issuer = record.issuer;
+
+          ret.REP.push([name, defaultTTL, 'IN', 'CAA', flag, tag, issuer]);
         }
         break;
 

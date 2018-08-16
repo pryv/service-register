@@ -2,7 +2,6 @@
 
 /*
  * test for generic behaviour of the app
- * TODO add unexpected error catching
  */
 
 require('../../source/server');

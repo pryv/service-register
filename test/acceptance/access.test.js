@@ -30,7 +30,6 @@ describe('POST /access/invitationtoken/check', function () {
 });
 
 
-// TODO complete tests with real devID
 describe('POST /access', function () {
 
   var path = '/access';

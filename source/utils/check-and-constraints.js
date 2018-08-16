@@ -143,7 +143,7 @@ exports.appAuthorization = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.appToken = function (str: string) {
+exports.appToken = function (str: string): ?string {
   if (! str) { return null; }
   return (str.length < 256) ? str : null;
 };
@@ -156,6 +156,5 @@ exports.accesskey = function (str) {
 };
 
 exports.access = function (json: string) {
-  //TODO Check access structure
   return json;
 };

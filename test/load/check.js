@@ -1,11 +1,15 @@
 /*global describe,it*/
+
+/*
+
+!!! This test was never run alongside the testsuite and crashes
+if reactivated => commenting it for now !!!
+
 var server = require('../../lib/server');
 var request = require('superagent');
 var should = require('should');
 
 require('readyness/wait/mocha');
-
-//TODO Data validation
 
 describe('LOAD ', function () {
   it('GET /:uid/check  10000x', function(done){
@@ -35,3 +39,4 @@ describe('LOAD ', function () {
 
 });
 
+*/

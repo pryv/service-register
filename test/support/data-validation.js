@@ -238,8 +238,4 @@ function checkJSON(response, schema) {
 function checkSchema(data, schema) {
   var validationResult = validate(data, schema);
   validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
-
-  // TODO: replace with this code when JSON validation changed to use z-schema lib
-//  validator.validate(data, schema).should.equal(true,
-//      util.inspect(validator.getLastError(), {depth: 5}));
 }

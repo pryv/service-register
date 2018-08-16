@@ -1,4 +1,7 @@
+
+
 /* global describe, it */
+
 const request = require('superagent');
 const should = require('should');
 
@@ -19,9 +22,9 @@ describe('POST /:uid/server', function () {
   it('too short', function (done) {
     request.post(server.url + '/abcd/server').send({}).end((err, res) => {
       should.exist(err);
-      
-      res.statusType.should.equal(4);
-      res.body.id.should.equal('INVALID_USER_NAME');
+
+      assert.strictEqual(res.statusType, 4);
+      assert.strictEqual(res.body.id, 'INVALID_USER_NAME');
       done(); 
     });
   });
@@ -29,8 +32,8 @@ describe('POST /:uid/server', function () {
     request.post(server.url + '/abcdefghijkl/server').send({}).end((err, res) => {
       should.exist(err);
       
-      res.statusType.should.equal(4);
-      res.body.id.should.equal('UNKNOWN_USER_NAME');
+      assert.strictEqual(res.statusType, 4);
+      assert.strictEqual(res.body.id, 'UNKNOWN_USER_NAME');
       done(); 
     });
   });

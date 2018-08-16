@@ -395,6 +395,7 @@ var p_type_syms = {
 	255: "ANY",
 	32769: "DLV",
 	256: "ZXFR",
+	257: "CAA",
 };
 
 
@@ -1106,9 +1107,6 @@ function encode_bitstring (src, bp, end, labelp, dst, dstp, eom) {
 					return errno.EINVAL;
 
 				blen = strtol(src, beg_blen, 10);
-				// todo:
-				// if ( char after string == ']' )
-				// return errno.EINVAL;
 			}
 
 			if (count)
@@ -1206,7 +1204,6 @@ function isspace (ch) {
 }
 
 function strtol (b, off, end, base) {
-	// todo: port from C
 	return parseInt(b.toString(off, end), base);
 }
 
@@ -1289,7 +1286,6 @@ DNSParser.prototype.reinitialize = function() {
 DNSParser.prototype.parseMessage = function () {
 	var qdcount, ancount, nscount, arcount, rrcount;
 
-	// todo: streaming parser
 	if(typeof this.onMessageBegin === 'function')
 		this.onMessageBegin ();
 
@@ -1541,8 +1537,8 @@ DNSParser.prototype.parseRRSIG = function (rrsig) {
 	this.buf.copy (signature, 0, this.parseStart, this.parseStart+len);
 
 	rrsig.signature = signature;
-	this.parseStart += len; // TODO: probably needs a check for length per algorithm ? and the loop above needs stricter checking too
-
+	this.parseStart += len;
+	
 	rrsig [0] = rrsig.typeCovered;
 	rrsig [1] = rrsig.algoritm;
 	rrsig [2] = rrsig.labels;
@@ -1644,7 +1640,7 @@ DNSParser.prototype.parseDS = function (ds) {
 	ds[3] = ds.signature;
 	ds.length = 4;
 
-	this.parseStart += len; // TODO: probably needs a check for length per algorithm ? and the loop above needs stricter checking too
+	this.parseStart += len;
 };
 
 DNSParser.prototype.parseAAAA = function () {
@@ -1885,7 +1881,6 @@ DNSWriter.prototype.startTruncate = function () {
 DNSWriter.prototype.endTruncate = function () {
 	debug('DNSWriter.prototype.endTruncate');
 
-	// todo: figure out truncate
 	this.writeStart = this.trstart;
 };
 
@@ -2095,6 +2090,13 @@ DNSWriter.prototype.writeMX = function (mx) {
 	this.writeName(mx[1]); // exchange
 };
 
+DNSWriter.prototype.writeCAA = function (caa) {
+	this.writeUInt8(caa[0]); // flag
+	this.writeUInt8(caa[1].length);
+	this.writeString(caa[1]); // tag
+	this.writeString(caa[2]); // value
+};
+
 DNSWriter.prototype.writeAAAA = function (aaaa) {
 	if (this.truncated)
 		return;
@@ -2146,7 +2148,7 @@ DNSWriter.prototype.writeRR = function (rr) {
 		this.writeMX(rr.rdata);
 	} else if (rr.type == 16) { // txt
 		this.writeUInt8(rr.rdata[0].length);
-
+		
 		if (typeof rr.rdata[0] === 'string')
 			this.writeString(rr.rdata[0]);
 		else if (rr.rdata[0] instanceof Buffer)
@@ -2157,6 +2159,8 @@ DNSWriter.prototype.writeRR = function (rr) {
 		this.writeRRSIG(rr.rdata);
 	} else if (rr.type == 43) {
 		this.writeDS(rr.rdata);
+	} else if (rr.type == 257) { // caa
+		this.writeCAA(rr.rdata);
 	} else {
 		if (typeof rr.rdata[0] === 'string')
 			this.writeString(rr.rdata[0]);
