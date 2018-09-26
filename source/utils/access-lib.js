@@ -45,28 +45,22 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   }
 
   var requestedPermissions = checkAndConstraints.access(parameters.requestedPermissions);
-  if (!requestedPermissions) {
+  if (requestedPermissions == null) {
     return errorHandler(messages.e(400, 'INVALID_DATA',
       {detail: 'Missing or invalid requestedPermissions field'}));
   }
 
   const lang = checkAndConstraints.lang(parameters.languageCode);
-  if (lang === null) {
+  if (lang == null) 
     return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
-  }
 
-  if (typeof (parameters.returnURL) === 'undefined') {
+  if (parameters.returnURL == null) {
     return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
   }
 
   var returnURL = parameters.returnURL,
       oauthState = parameters.oauthState;
-      
-  var error = false;
-  if (error) {
-    return errorHandler(messages.ei());
-  }
-
+  
   var key = randGenerator(16),
       pollURL = config.get('http:register:url') + '/access/' + key,
       url = config.get('http:static:access');
