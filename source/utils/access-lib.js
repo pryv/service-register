@@ -1,11 +1,11 @@
-'use strict';
+// @flow
 
-var db = require('../storage/database'),
-    messages = require('./messages'),
-    config = require('./config'),
-    checkAndConstraints = require('./check-and-constraints'),
-    domain = config.get('dns:domain'),
-    accessLib = module.exports = {};
+const db = require('../storage/database');
+const messages = require('./messages');
+const config = require('./config');
+const checkAndConstraints = require('./check-and-constraints');
+const domain = config.get('dns:domain');
+const accessLib = module.exports = {};
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node';
