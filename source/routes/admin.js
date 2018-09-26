@@ -155,7 +155,7 @@ module.exports = function (app: any) {
     });
 };
 
-function toHtmlTables(headers, infoArray) {
+function toHtmlTables(headers: {[string]: string}, infoArray) {
   var result = '<table border="1">\n<tr>';
   Object.keys(headers).forEach(function (key) {
     result += '<th>' + headers[key] + '</th>';

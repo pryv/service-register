@@ -37,9 +37,9 @@ describe('POST /access', function () {
   it('valid', function (done) {
     const test = {
       data: {
-        requestingAppId: 'reg-test', languageCode: 'en', returnURL: false,
+        requestingAppId: 'reg-test', languageCode: 'en', returnURL: '',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: {some: 'json', data: 'to request access'}
+        requestedPermissions: [{some: 'json', data: 'to request access'}]
       },
       contenttype: 'JSON',
       status: 201,
@@ -52,6 +52,7 @@ describe('POST /access', function () {
       function makeRequest(stepDone) {
         request.post(server.url + path).send(test.data).end(function (err, res) {
           result = res;
+          
           dataValidation.jsonResponse(err, res, test, stepDone);
         });
       },
@@ -74,7 +75,7 @@ describe('POST /access', function () {
       data: {
         requestingAppId: 'a', languageCode: 'en', returnURL: 'http://BlipBlop.com',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: {some: 'json', data: 'to request access'}
+        requestedPermissions: [{some: 'json', data: 'to request access'}]
       },
       contenttype: 'JSON',
       status: 400,
@@ -90,7 +91,7 @@ describe('POST /access', function () {
       data: {
         requestingAppId: 'reg-test', languageCode: 'abcdef', returnURL: false,
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: {some: 'json', data: 'to request access'}
+        requestedPermissions: [{some: 'json', data: 'to request access'}]
       },
       contenttype: 'JSON',
       status: 400,

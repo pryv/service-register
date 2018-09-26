@@ -75,7 +75,7 @@ describe('Checks And Constraints', function () {
       const result = cac.lang({});
 
       assert.isNull(result);
-    })
+    });
   });
 });
 

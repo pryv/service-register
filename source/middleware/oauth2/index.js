@@ -1,9 +1,9 @@
-var express = require('express'),
-  oauthserver = require('node-oauth2-server'), // Would be: 'node-oauth2-server'
-  config = require('../../utils/config'),
-  logger = require('winston'),
-  app = express(),
-  accessCommon = require('../../utils/access-lib');
+const express = require('express');
+const oauthserver = require('node-oauth2-server'); // Would be: 'node-oauth2-server'
+const config = require('../../utils/config');
+const logger = require('winston');
+const app = express();
+const accessCommon = require('../../utils/access-lib');
 
 app.configure(function () {
   app.oauth = oauthserver({
@@ -50,8 +50,8 @@ app.get('/oauth/authorise', function (req, res, next) {
       redirect_uri: parameters.returnURL
     });
 
-  }, function (errorMessage) { 
-    console.error('GET /oauth/authorise', errorMessage);
+  }, function (errorMessage) {
+    console.error('GET /oauth/authorise', errorMessage); // eslint-disable-line no-console
     next(errorMessage);
   });
 });
