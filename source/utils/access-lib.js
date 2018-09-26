@@ -85,7 +85,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     url += '&oauthState=' + oauthState;
   }
 
-  var accessURIc = '&requestedPermissions=' +
+  const accessURIc = '&requestedPermissions=' +
     encodeURIComponent(JSON.stringify(requestedPermissions));
 
   if ((url.length + accessURIc.length) > 2000) {
