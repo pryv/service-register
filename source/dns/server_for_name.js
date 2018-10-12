@@ -26,7 +26,7 @@ const baseData = {
   certificate_authority_authorization: config.get('dns:certificateAuthorityAuthorization'),
 };
 const nsData = {
-  nameserver: baseData.nameserver || {}
+  nameserver: baseData.nameserver || [{}]
 };
 
 const soaData = {
@@ -35,7 +35,7 @@ const soaData = {
 
 const rootData = {
   autority: baseData.autority,
-  nameserver: baseData.nameserver || {},
+  nameserver: baseData.nameserver || [{}],
   ip: config.get('dns:domain_A'),
   mail: mxData.mail
 };

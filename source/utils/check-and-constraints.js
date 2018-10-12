@@ -116,10 +116,10 @@ exports.hostname = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.lang = function (str: string): ?string {
+exports.lang = function (str: mixed): ?string {
   if (str == null || str === '') { return 'en'; }
-  if (typeof str !== 'string') { return null; }
-  if (str.length > 5) { return null; }
+  if (typeof str !== 'string') return null;
+  if (str.length > 5) return null;
   return str;
 };
 
@@ -156,6 +156,6 @@ exports.accesskey = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.access = function (json: string) {
+exports.access = function <T>(json: T): T {
   return json;
 };

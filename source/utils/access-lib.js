@@ -1,14 +1,30 @@
-'use strict';
+// @flow
 
-var db = require('../storage/database'),
-    messages = require('./messages'),
-    config = require('./config'),
-    checkAndConstraints = require('./check-and-constraints'),
-    domain = config.get('dns:domain'),
-    accessLib = module.exports = {};
+const db = require('../storage/database');
+const messages = require('./messages');
+const config = require('./config');
+const checkAndConstraints = require('./check-and-constraints');
+const domain = config.get('dns:domain');
+const accessLib = module.exports = {};
+
+type AccessState = {
+  status: 'NEED_SIGNIN',
+  code: number,
+  key: string,
+  requestingAppId: string,
+  requestedPermissions: PermissionSet,
+  url: string,
+  poll: string,
+  returnURL: string,
+  oauthState: OAuthState,
+  poll_rate_ms: number, 
+}
+type PermissionSet = Array<PermissionEntry>; 
+type OAuthState = string | null; 
+type PermissionEntry = Object; 
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
-  'Hallowed Be Thy Name, O Node';
+  'Hallowed Be Thy Name, O Node 20180926';
 
 /** Update an app access state in the database.
  * 
@@ -18,7 +34,11 @@ accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret'
  * @param successHandler: callback in case of success
  * @param errorCallback: callback in case of error
  */
-accessLib.setAccessState = function (key, accessState, successHandler, errorCallback) {
+accessLib.setAccessState = function (
+  key: string, accessState: AccessState, 
+  successHandler: (AccessState) => mixed, 
+  errorCallback: (any) => mixed, 
+) {
   db.setAccessState(key, accessState, function (error) {
     if (error) {
       return errorCallback(messages.ei());
@@ -26,6 +46,17 @@ accessLib.setAccessState = function (key, accessState, successHandler, errorCall
     return successHandler(accessState);
   });
 };
+
+type RequestAccessParameters = {
+  requestingAppId?: mixed, 
+  requestedPermissions?: mixed, 
+  languageCode?: mixed, 
+  oauthState?: mixed, 
+  localDevel?: mixed, 
+  reclaDevel?: mixed, 
+  returnURL?: mixed, 
+}
+
 
 /**
  * Request and generate an app access
@@ -35,48 +66,49 @@ accessLib.setAccessState = function (key, accessState, successHandler, errorCall
  * @param errorHandler: callback in case of error
  * @returns {*}
  */
-accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
+accessLib.requestAccess = function (
+  parameters: RequestAccessParameters, 
+  successHandler: (any) => mixed, 
+  errorHandler: (any) => mixed, 
+) {
 
   // Parameters
-  var requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
+  const requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
   if (!requestingAppId) {
     return errorHandler(messages.e(400, 'INVALID_APP_ID',
       {requestingAppId: parameters.requestingAppId}));
   }
 
-  var requestedPermissions = checkAndConstraints.access(parameters.requestedPermissions);
-  if (!requestedPermissions) {
+  // FLOW We don't currently verify the contents of the requested permissions. 
+  const requestedPermissions = checkAndConstraints.access(parameters.requestedPermissions);
+  if (requestedPermissions == null || !Array.isArray(requestedPermissions)) {
     return errorHandler(messages.e(400, 'INVALID_DATA',
       {detail: 'Missing or invalid requestedPermissions field'}));
   }
-
+  
   const lang = checkAndConstraints.lang(parameters.languageCode);
-  if (lang === null) {
+  if (lang == null) 
     return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
+
+  const returnURL = parameters.returnURL;
+  const oauthState = parameters.oauthState;
+  
+  if (! (typeof returnURL === 'string') )
+    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Missing Return Url field' }));
+
+  const key = randGenerator(16);
+  const pollURL = config.get('http:register:url') + '/access/' + key; 
+  
+  let url = config.get('http:static:access');
+
+  const localDevel = parameters.localDevel; 
+  if (typeof localDevel === 'string') {
+    url = config.get('devel:static:access') + localDevel;
   }
 
-  if (typeof (parameters.returnURL) === 'undefined') {
-    return errorHandler(messages.e(400, 'INVALID_DATA', {detail: 'Missing Return Url field'}));
-  }
-
-  var returnURL = parameters.returnURL,
-      oauthState = parameters.oauthState;
-      
-  var error = false;
-  if (error) {
-    return errorHandler(messages.ei());
-  }
-
-  var key = randGenerator(16),
-      pollURL = config.get('http:register:url') + '/access/' + key,
-      url = config.get('http:static:access');
-
-  if (typeof parameters.localDevel !== 'undefined') {
-    url = config.get('devel:static:access') + parameters.localDevel;
-  }
-
-  if (typeof parameters.reclaDevel !== 'undefined') {
-    url = 'https://sw.rec.la' + parameters.reclaDevel;
+  const reclaDevel = parameters.reclaDevel; 
+  if (typeof reclaDevel === 'string') {
+    url = 'https://sw.rec.la' + reclaDevel;
   }
 
   url = url +
@@ -87,11 +119,11 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     '&domain=' + domain +
     '&registerURL=' + encodeURIComponent(config.get('http:register:url'));
 
-  if (oauthState) {
+  if (typeof oauthState === 'string') {
     url += '&oauthState=' + oauthState;
   }
 
-  var accessURIc = '&requestedPermissions=' +
+  const accessURIc = '&requestedPermissions=' +
     encodeURIComponent(JSON.stringify(requestedPermissions));
 
   if ((url.length + accessURIc.length) > 2000) {
@@ -101,7 +133,11 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     url = url + accessURIc;
   }
 
-  var accessState = {
+  const cleanOauthState = (typeof oauthState) === 'string' ?
+    oauthState : 
+    null; 
+
+  const accessState: AccessState = {
     status: 'NEED_SIGNIN',
     code: 201,
     key: key,
@@ -110,7 +146,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     url: url,
     poll: pollURL,
     returnURL: returnURL,
-    oauthState: oauthState,
+    oauthState: cleanOauthState,
     poll_rate_ms: 1000
   };
 
@@ -125,7 +161,11 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
  * @param failed
  * @returns {*}
  */
-accessLib.testKeyAndGetValue = function (key, success, failed) {
+accessLib.testKeyAndGetValue = function (
+  key: string, 
+  success: (mixed) => mixed, 
+  failed: (any) => mixed, 
+) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));
   }

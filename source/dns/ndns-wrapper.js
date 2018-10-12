@@ -9,7 +9,6 @@ const ndns = require('./ndns'),
 var UpdateConfFile;
 
 require('./_extend.js');
-const console = logger;
 
 function rotate<T>(ary: Array<T>, count: number = 1): Array<T> {
   const len = ary.length;
@@ -56,7 +55,11 @@ type DnsEntry = Array<string | number>;
 export type DnsData = {
   ip?: string | Array<string>, 
   autority?: string,
-  nameserver?: string,
+  nameserver?: Array<NameserverEntry>,
+}
+type NameserverEntry = {
+  name?: string, 
+  ip?: string, 
 }
 
 type DnsDynamicHandler = (
@@ -94,7 +97,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warning("Received empty request, treating as if it was empty.");
+      logger.warning('Received empty request, treating as if it was empty.');
       return '';
     }
       
@@ -110,7 +113,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     }
 
     if (rec == null) {
-      const requestedName = req.q[0] && req.q[0].name || "(n/a)";
+      const requestedName = req.q[0] && req.q[0].name || '(n/a)';
       logger.info(`Could not find ${requestedName} on this server; proxy list is empty`);
       // no proxy on this server (added by Perki)
       
@@ -255,10 +258,10 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
             }
           }
         }
+        break;
       }
-      break;
 
-      case 'certificate_authority_authorization':
+      case 'certificate_authority_authorization': {
         // Allow addition of CAA records. Each entry needs to have at least an 'issuer', but can also contain a 'flag' and a 'tag.
         const value = Array.isArray(data[i]) ?
           data[i] :
@@ -273,6 +276,7 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
           ret.REP.push([name, defaultTTL, 'IN', 'CAA', flag, tag, issuer]);
         }
         break;
+      }
 
       case 'alias':
         // BUG: Multiple CNAME records for the same fully-qualified domain name
