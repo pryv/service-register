@@ -132,13 +132,12 @@ accessLib.requestAccess = function (
   
   url += '&poll=' + encodeURIComponent(pollURL);
   
-  if (typeof oauthState === 'string') {
-    url += '&oauthState=' + oauthState;
-  }
-
   const cleanOauthState = (typeof oauthState) === 'string' ?
     oauthState : 
     null; 
+
+  if (cleanOauthState != null) 
+    url += '&oauthState=' + cleanOauthState;
 
   const accessState: AccessState = {
     status: 'NEED_SIGNIN',
@@ -150,7 +149,8 @@ accessLib.requestAccess = function (
     poll: pollURL,
     returnURL: returnURL,
     oauthState: cleanOauthState,
-    poll_rate_ms: 1000
+    poll_rate_ms: 1000,
+    clientData: clientData,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
