@@ -15,7 +15,7 @@ type AccessState = {
   requestedPermissions: PermissionSet,
   url: string,
   poll: string,
-  returnURL: string,
+  returnURL: string | boolean,
   oauthState: OAuthState,
   poll_rate_ms: number, 
 }
@@ -55,6 +55,7 @@ type RequestAccessParameters = {
   localDevel?: mixed, 
   reclaDevel?: mixed, 
   returnURL?: mixed, 
+  clientData?: mixed, 
 }
 
 
@@ -71,7 +72,6 @@ accessLib.requestAccess = function (
   successHandler: (any) => mixed, 
   errorHandler: (any) => mixed, 
 ) {
-
   // Parameters
   const requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
   if (!requestingAppId) {
@@ -90,12 +90,23 @@ accessLib.requestAccess = function (
   if (lang == null) 
     return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
 
-  const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
-  
-  if (! (typeof returnURL === 'string') )
-    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Missing Return Url field' }));
+  const clientData = parameters.clientData;
 
+  const returnURLParam = parameters.returnURL;
+  
+  if (typeof returnURLParam === 'undefined')
+    return errorHandler(
+      messages.e(400, 'INVALID_DATA', { 
+        detail: 'Missing returnURL field, pass "false" to not use a return url.' }));
+  if (typeof returnURLParam !== 'string' && typeof returnURLParam !== 'boolean') 
+    return errorHandler(
+      messages.e(400, 'INVALID_DATA', {
+        detail: 'returnURL should be either a url (string) or a boolean.'
+      }));
+
+  const returnURL: string | boolean = returnURLParam;
+  
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
@@ -115,22 +126,14 @@ accessLib.requestAccess = function (
     '?lang=' + lang +
     '&key=' + key +
     '&requestingAppId=' + requestingAppId +
-    '&returnURL=' + encodeURIComponent(returnURL) +
+    '&returnURL=' + encodeURIComponent(returnURL.toString()) +
     '&domain=' + domain +
-    '&registerURL=' + encodeURIComponent(config.get('http:register:url'));
-
+    '&registerURL=' + encodeURIComponent(config.get('http:register:url')); 
+  
+  url += '&poll=' + encodeURIComponent(pollURL);
+  
   if (typeof oauthState === 'string') {
     url += '&oauthState=' + oauthState;
-  }
-
-  const accessURIc = '&requestedPermissions=' +
-    encodeURIComponent(JSON.stringify(requestedPermissions));
-
-  if ((url.length + accessURIc.length) > 2000) {
-    // URL too long
-    url = url + '&poll=' + encodeURIComponent(pollURL);
-  } else {
-    url = url + accessURIc;
   }
 
   const cleanOauthState = (typeof oauthState) === 'string' ?
