@@ -9,15 +9,17 @@ const schemas = require('../support/schema.responses');
 
 require('readyness/wait/mocha');
 
-var randomuser = 'testPFX' + Math.floor(Math.random() * (100000));
-var defaults = {
-  hosting: 'test.ch-ch',
-  appid: 'pryv-test',
-  username: randomuser,
-  email: randomuser + '@wactiv.chx', // should not be necessary
-  password: 'abcdefgh',
-  invitationtoken: 'enjoy',
-  referer: 'pryv'
+function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)) };
+function defaults() {
+  return {
+    hosting: 'test.ch-ch',
+    appid: 'pryv-test',
+    username: randomuser(),
+    email: randomuser() + '@wactiv.chx', // should not be necessary
+    password: 'abcdefgh',
+    invitationtoken: 'enjoy',
+    referer: 'pryv'
+  }
 };
 
 require('readyness/wait/mocha');
@@ -36,7 +38,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_INVITATION'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end((err, res) => {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -49,7 +51,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_HOSTING'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -62,7 +64,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_APPID'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -75,7 +77,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -88,7 +90,7 @@ describe('/user', function () {
       JValues: {'id': 'RESERVED_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -101,7 +103,7 @@ describe('/user', function () {
       JValues: {'id': 'RESERVED_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -114,7 +116,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_EMAIL'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -127,7 +129,7 @@ describe('/user', function () {
       JValues: {'id': 'INVALID_LANGUAGE'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -140,7 +142,7 @@ describe('/user', function () {
       JValues: {'id': 'EXISTING_USER_NAME'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -153,7 +155,7 @@ describe('/user', function () {
       JValues: {'id': 'EXISTING_EMAIL'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -169,47 +171,47 @@ describe('/user', function () {
       }
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
   });
   
-  describe('Undefined invitationTokens', function () {
+  describe.skip('Undefined invitationTokens', function () {
     it('should succeed when providing anything in the "invitationToken" field', function (done) {
+      const testData = _.extend({}, defaults(), {
+        invitationtoken: 'anythingAtAll'
+      });
+
       const test = {
-        data: { 
-          username: 'validusername', 
-          email: 'valid@pryv.io',
-          invitationtoken: 'anythingAtAll'
-        },
-        status: 201,
+        data: testData,
+        status: 200,
         JSchema: schemas.userCreated,
         JValues: {
-          username: 'validusername'
+          username: testData.username,
         }
       };
 
-      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+      request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
     });
 
-    it('should succeed when the "invitationTokens" field is missing', function () {
+    it('should succeed when the "invitationtoken" field is missing', function (done) {
+      testData = _.extend({}, defaults());
+      delete testData.invitationtoken;
+
       const test = {
-        data: _.extend(, {}, defaults, { 
-          username: 'validusername2', 
-          email: 'valid2@pryv.io',
-        }),
-        status: 201,
+        data: testData,
+        status: 200,
         JSchema: schemas.userCreated,
         JValues: {
-          username: 'validusername2'
+          username: testData.username,
         }
       };
 
-      delete test.data.invitationToken;
+      
 
       request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
@@ -222,39 +224,38 @@ describe('/user', function () {
     const tokens = ['first', 'second', 'third'];
 
     it('should succeed if the "invitationToken" matches one of the tokens', function (done) {
+      const testData = _.extend({}, defaults(), {
+        invitationtoken: 'second',
+      });
+
       const test = {
-        data: { 
-          username: 'validusername3', 
-          email: 'valid3@pryv.io',
-          invitationtoken: 'second'
-        },
-        status: 201,
+        data: testData,
+        status: 200,
         JSchema: schemas.userCreated,
         JValues: {
-          username: 'validusername3'
+          username: testData.username,
         }
       };
 
-      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+      request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
     });
 
     it('should fail if the "invitationToken" does not match any token', function (done) {
+      const testData = _.extend({}, defaults(), {
+        invitationtoken: 'anythingAtAll',
+      });
       const test = {
-        data: { 
-          username: 'validusername4', 
-          email: 'valid4@pryv.io',
-          invitationtoken: 'anythingAtAll'
-        },
+        data: testData,
         status: 400, 
         desc: 'Invalid invitation',
         JSchema: schemas.error,
         JValues: {'id': 'INVALID_INVITATION'}
       };
 
-      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+      request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -262,17 +263,14 @@ describe('/user', function () {
 
     it('should fail if the "invitationToken" is missing', function (done) {
       const test = {
-        data: _.extend({}, defaults, { 
-          username: 'validusername5', 
-          email: 'valid5@pryv.io',
-        }),
+        data: _.extend({}, defaults()),
         status: 400, 
         desc: 'Invalid invitation',
         JSchema: schemas.error,
         JValues: {'id': 'INVALID_INVITATION'}
       };
 
-      delete test.data.invitationToken;
+      delete test.data.invitationtoken;
 
       request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
@@ -286,10 +284,8 @@ describe('/user', function () {
 
     it('should fail for any "invitationToken"', function (done) {
       const test = {
-        data: { 
-          username: 'validusername6', 
-          email: 'valid6@pryv.io',
-          invitationToken: 'anything'
+        data: {
+          invitationtoken: 'anything',
         },
         status: 400, 
         desc: 'Invalid invitation',
@@ -297,7 +293,7 @@ describe('/user', function () {
         JValues: {'id': 'INVALID_INVITATION'}
       };
 
-      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -305,17 +301,14 @@ describe('/user', function () {
 
     it('should fail if the "invitationToken" is missing', function (done) {
       const test = {
-        data: _.extend({}, defaults, { 
-          username: 'validusername7', 
-          email: 'valid7@pryv.io',
-        }),
+        data: _.extend({}, defaults()),
         status: 400, 
         desc: 'Invalid invitation',
         JSchema: schemas.error,
         JValues: {'id': 'INVALID_INVITATION'}
       };
 
-      delete test.data.invitationToken;
+      delete test.data.invitationtoken;
 
       request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
@@ -327,9 +320,9 @@ describe('/user', function () {
     var test = {
       data: {},
       status: 200, desc: 'valid JSON GET', JSchema: schemas.userCreated,
-      JValues: {username: defaults.username.toLowerCase()}
+      JValues: {username: defaults().username.toLowerCase()}
     };
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         console.log(res.body);
         dataValidation.jsonResponse(err, res, test, done);
@@ -342,7 +335,7 @@ describe('/user', function () {
       JValues: {username: 'recla'}
     };
 
-    request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
@@ -351,6 +344,15 @@ describe('/user', function () {
 
   describe('POST /username/check', function () {
     var path = '/username/check';
+    const defaults = {
+      hosting: 'test.ch-ch',
+      appid: 'pryv-test',
+      username: randomuser(),
+      email: randomuser() + '@wactiv.chx', // should not be necessary
+      password: 'abcdefgh',
+      invitationtoken: 'enjoy',
+      referer: 'pryv'
+    };
 
     it('reserved list', function (done) {
       var test = {username: 'facebook', status: 200, desc: 'reserved from list',
