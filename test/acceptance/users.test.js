@@ -26,11 +26,12 @@ function defaults() {
 
 require('readyness/wait/mocha');
 
+const defaultUsername = 'wactiv';
+const defaultEmail = 'wactiv@pryv.io';
+const defaultAuth = 'test-system-key';
+
 describe('POST /user', function () {
-  var basePath = '/user',
-      defaultUsername = 'wactiv',
-      defaultEmail = 'wactiv@pryv.io',
-      defaultAuth = 'test-system-key';
+  const basePath = '/user';
 
   it('invalid invitation', function (done) {
     var test = {
