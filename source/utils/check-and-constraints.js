@@ -84,11 +84,7 @@ exports.password = function (str) {
 // Any chars between 5 and 99 chars, with no trailing spaces.
 exports.invitationToken = function (str) {
   if (! str) { 
-    if (config.get('invitationTokens') == null) {
-      return true;
-    } else {
-      return null;
-    }
+    return true;
   }
   str = _(str).trim();
   return (str.length > 4 && str.length < 100) ? str : null;
