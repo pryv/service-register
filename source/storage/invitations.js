@@ -61,7 +61,7 @@ exports.generate = function (number, adminId, description, callback) {
  */
 exports.checkIfValid = function checkIfValid(token, callback) {
   const invitationTokens = config.get('invitationTokens');
-  
+
   if (invitationTokens == null) {
     return callback(true);
   }
@@ -70,17 +70,16 @@ exports.checkIfValid = function checkIfValid(token, callback) {
     return callback(false);
   }
 
-  invitationTokens.forEach((invitationToken) => {
-    if (token === invitationToken) {
+  for(let i=0; i<invitationTokens.length; i++) {
+    if (token === invitationTokens[i]) {
       return callback(true);
     }
-  });
+  }
 
   db.getSet(dbKey(token), function (error, result) {
     if (error || ! result || result.consumedAt) {
       return callback(false);
     }
-
     return callback(true);
   });
 };
