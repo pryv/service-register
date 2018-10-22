@@ -24,7 +24,7 @@ function defaults() {
 
 require('readyness/wait/mocha');
 
-describe('/user', function () {
+describe('POST /user', function () {
   var basePath = '/user',
       defaultUsername = 'wactiv',
       defaultEmail = 'wactiv@pryv.io',
