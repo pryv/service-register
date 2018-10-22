@@ -230,44 +230,6 @@ describe('POST /user', function () {
           dataValidation.jsonResponse(err, res, test, done);
         });
     });
-
-    it('should still fail when the "invitationtoken" is below 5 chars', function (done) {
-      const testData = _.extend({}, defaults(), {
-        invitationtoken: 'toto'
-      });
-
-      const test = {
-        data: testData,
-        status: 400,
-        desc: 'Invalid invitation',
-        JSchema: schemas.error,
-        JValues: { 'id': 'INVALID_INVITATION' }
-      };
-
-      request.post(server.url + basePath).send(test.data)
-        .end(function (err, res) {
-          dataValidation.jsonResponse(err, res, test, done);
-        });
-    });
-
-    it('should still fail when the "invitationtoken" is above 99 chars', function (done) {
-      const testData = _.extend({}, defaults(), {
-        invitationtoken: 'a'.repeat(100)
-      });
-
-      const test = {
-        data: testData,
-        status: 400,
-        desc: 'Invalid invitation',
-        JSchema: schemas.error,
-        JValues: { 'id': 'INVALID_INVITATION' }
-      };
-
-      request.post(server.url + basePath).send(test.data)
-        .end(function (err, res) {
-          dataValidation.jsonResponse(err, res, test, done);
-        });
-    });
   });
 
   describe('Defined invitationTokens array', function () {
