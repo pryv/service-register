@@ -345,30 +345,6 @@ describe('POST /user', function () {
         });
     });
   });
-  it.skip('valid random', function (done) {
-    var test = {
-      data: {},
-      status: 200, desc: 'valid JSON GET', JSchema: schemas.userCreated,
-      JValues: {username: defaults().username.toLowerCase()}
-    };
-    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
-      .end(function (err, res) {
-        console.log(res.body);
-        dataValidation.jsonResponse(err, res, test, done);
-      });
-  });
-  it.skip('valid', function (done) {
-    var test = {
-      data: {username: 'recla', email: 'recla@pryv.io'},
-      status: 200, desc: 'valid JSON GET', JSchema: schemas.userCreated,
-      JValues: {username: 'recla'}
-    };
-
-    request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
-      .end(function (err, res) {
-        dataValidation.jsonResponse(err, res, test, done);
-      });
-  });
 
 
   describe('POST /username/check', function () {
