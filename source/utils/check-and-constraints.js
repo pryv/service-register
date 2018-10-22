@@ -87,7 +87,7 @@ exports.invitationToken = function (str) {
     if (config.get('invitationTokens') == null) {
       return true;
     } else {
-      return false;
+      return null;
     }
   }
   str = _(str).trim();
