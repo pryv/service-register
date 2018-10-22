@@ -1,6 +1,7 @@
 // @flow
 
 const _ = require('underscore');
+const config = require('./config');
 
 const _str = require('underscore.string');
 _.mixin(_str.exports());
@@ -82,7 +83,13 @@ exports.password = function (str) {
 
 // Any chars between 5 and 99 chars, with no trailing spaces.
 exports.invitationToken = function (str) {
-  if (! str) { return true; }
+  if (! str) { 
+    if (config.get('invitationTokens') == null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   str = _(str).trim();
   return (str.length > 4 && str.length < 100) ? str : null;
 };
