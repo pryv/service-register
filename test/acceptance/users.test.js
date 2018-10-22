@@ -12,7 +12,7 @@ require('readyness/wait/mocha');
 function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)) };
 function defaults() {
   return {
-    hosting: 'test.ch-ch',
+    hosting: 'local-api-server',
     appid: 'pryv-test',
     username: randomuser(),
     email: randomuser() + '@wactiv.chx', // should not be necessary
