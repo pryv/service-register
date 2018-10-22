@@ -225,14 +225,24 @@ function validateConfiguration () {
   const invitationTokens = nconf.get('invitationTokens');
   if (invitationTokens == null) {
     // ok
-  } else if (! Array.isArray(invitationTokens)) {
+  } else if (!Array.isArray(invitationTokens)) {
     throw parseError('"invitationTokens" is defined, but is not an Array');
   } else {
     invitationTokens.forEach((token, i) => {
       if (typeof token !== 'string') {
         throw parseError('invitationToken "' + token + '" at position ' + i + ' in the "invitationTokens" array is not a string.');
       }
-    })
+
+      if (token.length < 5) {
+        throw parseError('invitationToken "' + token + '" at position ' + i +
+          'in the "invitationTokens" array is less than 5 characters in length.');
+      }
+
+      if (token.length > 99) {
+        throw parseError('invitationToken "' + token + '" at position ' + i +
+          'in the "invitationTokens" array is more than 99 characters in length.');
+      }
+    });
   }
 }
 
