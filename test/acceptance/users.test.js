@@ -11,7 +11,7 @@ const schemas = require('../support/schema.responses');
 
 require('readyness/wait/mocha');
 
-function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)) };
+function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)); }
 function defaults() {
   return {
     hosting: 'local-api-server',
@@ -21,8 +21,8 @@ function defaults() {
     password: 'abcdefgh',
     invitationtoken: 'enjoy',
     referer: 'pryv'
-  }
-};
+  };
+}
 
 require('readyness/wait/mocha');
 
@@ -190,7 +190,7 @@ describe('POST /user', function () {
     
     after(function () {
       config.set('invitationTokens', defaultConfig);
-    })
+    });
 
     it('should succeed when providing anything in the "invitationToken" field', function (done) {
       const testData = _.extend({}, defaults(), {
@@ -213,7 +213,7 @@ describe('POST /user', function () {
     });
 
     it('should succeed when the "invitationtoken" field is missing', function (done) {
-      testData = _.extend({}, defaults());
+      const testData = _.extend({}, defaults());
       delete testData.invitationtoken;
 
       const test = {
@@ -280,7 +280,7 @@ describe('POST /user', function () {
 
     after(function () {
       config.set('invitationTokens', defaultConfig);
-    })
+    });
 
     it('should succeed if the "invitationToken" matches one of the tokens', function (done) {
       const testData = _.extend({}, defaults(), {
@@ -348,7 +348,7 @@ describe('POST /user', function () {
 
     after(function () {
       config.set('invitationTokens', defaultConfig);
-    })
+    });
 
     it('should fail for any "invitationToken"', function (done) {
       const test = {
