@@ -5,7 +5,8 @@
 var messages = require('../utils/messages'),
   db = require('../storage/database'),
   _ = require('underscore'),
-  async = require('async');
+  async = require('async'),
+  config = require('../utils/config');
 
 var randtoken = require('rand-token').generator({
   chars: 'a-z'
@@ -59,9 +60,21 @@ exports.generate = function (number, adminId, description, callback) {
  * @param callback: function(result), result being 'true' if the token is valid, false otherwise
  */
 exports.checkIfValid = function checkIfValid(token, callback) {
-  if (token === 'enjoy') {
+  const invitationTokens = config.get('invitationTokens');
+  
+  if (invitationTokens == null) {
     return callback(true);
   }
+
+  if (invitationTokens.length === 0) {
+    return callback(false);
+  }
+
+  invitationTokens.forEach((invitationToken) => {
+    if (token === invitationToken) {
+      return callback(true);
+    }
+  });
 
   db.getSet(dbKey(token), function (error, result) {
     if (error || ! result || result.consumedAt) {

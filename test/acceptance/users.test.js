@@ -174,6 +174,155 @@ describe('/user', function () {
         dataValidation.jsonResponse(err, res, test, done);
       });
   });
+  
+  describe('Undefined invitationTokens', function () {
+    it('should succeed when providing anything in the "invitationToken" field', function (done) {
+      const test = {
+        data: { 
+          username: 'validusername', 
+          email: 'valid@pryv.io',
+          invitationtoken: 'anythingAtAll'
+        },
+        status: 201,
+        JSchema: schemas.userCreated,
+        JValues: {
+          username: 'validusername'
+        }
+      };
+
+      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+
+    it('should succeed when the "invitationTokens" field is missing', function () {
+      const test = {
+        data: _.extend(, {}, defaults, { 
+          username: 'validusername2', 
+          email: 'valid2@pryv.io',
+        }),
+        status: 201,
+        JSchema: schemas.userCreated,
+        JValues: {
+          username: 'validusername2'
+        }
+      };
+
+      delete test.data.invitationToken;
+
+      request.post(server.url + basePath).send(test.data)
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+  });
+
+  describe('Defined invitationTokens array', function () {
+    const tokens = ['first', 'second', 'third'];
+
+    it('should succeed if the "invitationToken" matches one of the tokens', function (done) {
+      const test = {
+        data: { 
+          username: 'validusername3', 
+          email: 'valid3@pryv.io',
+          invitationtoken: 'second'
+        },
+        status: 201,
+        JSchema: schemas.userCreated,
+        JValues: {
+          username: 'validusername3'
+        }
+      };
+
+      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+
+    it('should fail if the "invitationToken" does not match any token', function (done) {
+      const test = {
+        data: { 
+          username: 'validusername4', 
+          email: 'valid4@pryv.io',
+          invitationtoken: 'anythingAtAll'
+        },
+        status: 400, 
+        desc: 'Invalid invitation',
+        JSchema: schemas.error,
+        JValues: {'id': 'INVALID_INVITATION'}
+      };
+
+      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+
+    it('should fail if the "invitationToken" is missing', function (done) {
+      const test = {
+        data: _.extend({}, defaults, { 
+          username: 'validusername5', 
+          email: 'valid5@pryv.io',
+        }),
+        status: 400, 
+        desc: 'Invalid invitation',
+        JSchema: schemas.error,
+        JValues: {'id': 'INVALID_INVITATION'}
+      };
+
+      delete test.data.invitationToken;
+
+      request.post(server.url + basePath).send(test.data)
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+  });
+
+  describe('Empty invitationTokens array', function () {
+    const invitationTokens = [];
+
+    it('should fail for any "invitationToken"', function (done) {
+      const test = {
+        data: { 
+          username: 'validusername6', 
+          email: 'valid6@pryv.io',
+          invitationToken: 'anything'
+        },
+        status: 400, 
+        desc: 'Invalid invitation',
+        JSchema: schemas.error,
+        JValues: {'id': 'INVALID_INVITATION'}
+      };
+
+      request.post(server.url + basePath).send(_.extend({}, defaults, test.data))
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+
+    it('should fail if the "invitationToken" is missing', function (done) {
+      const test = {
+        data: _.extend({}, defaults, { 
+          username: 'validusername7', 
+          email: 'valid7@pryv.io',
+        }),
+        status: 400, 
+        desc: 'Invalid invitation',
+        JSchema: schemas.error,
+        JValues: {'id': 'INVALID_INVITATION'}
+      };
+
+      delete test.data.invitationToken;
+
+      request.post(server.url + basePath).send(test.data)
+        .end(function (err, res) {
+          dataValidation.jsonResponse(err, res, test, done);
+        });
+    });
+  });
   it.skip('valid random', function (done) {
     var test = {
       data: {},
