@@ -229,7 +229,7 @@ function validateConfiguration () {
     throw parseError('"invitationTokens" is defined, but is not an Array');
   } else {
     invitationTokens.forEach((token, i) => {
-      if (typeof token !== string) {
+      if (typeof token !== 'string') {
         throw parseError('invitationToken "' + token + '" at position ' + i + ' in the "invitationTokens" array is not a string.');
       }
     })
