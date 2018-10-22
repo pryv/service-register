@@ -1,7 +1,9 @@
-/*global describe,it,after */
+/*global describe,it,before, after */
 
 const _ = require('lodash');
 const request = require('superagent');
+
+const config = require('../../source/utils/config');
 
 const server = require('../../source/server');
 const dataValidation = require('../support/data-validation');
@@ -177,7 +179,18 @@ describe('POST /user', function () {
       });
   });
   
-  describe.skip('Undefined invitationTokens', function () {
+  describe('Undefined invitationTokens', function () {
+
+    const defaultConfig = config.get('invitationTokens');
+
+    before(function () {
+      config.set('invitationTokens', null);
+    });
+    
+    after(function () {
+      config.set('invitationTokens', defaultConfig);
+    })
+
     it('should succeed when providing anything in the "invitationToken" field', function (done) {
       const testData = _.extend({}, defaults(), {
         invitationtoken: 'anythingAtAll'
@@ -211,8 +224,6 @@ describe('POST /user', function () {
         }
       };
 
-      
-
       request.post(server.url + basePath).send(test.data)
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
@@ -221,7 +232,16 @@ describe('POST /user', function () {
   });
 
   describe('Defined invitationTokens array', function () {
-    const tokens = ['first', 'second', 'third'];
+
+    const defaultConfig = config.get('invitationTokens');
+
+    before(function () {
+      config.set('invitationTokens', ['first', 'second', 'third']);
+    });
+
+    after(function () {
+      config.set('invitationTokens', defaultConfig);
+    })
 
     it('should succeed if the "invitationToken" matches one of the tokens', function (done) {
       const testData = _.extend({}, defaults(), {
@@ -280,7 +300,16 @@ describe('POST /user', function () {
   });
 
   describe('Empty invitationTokens array', function () {
-    const invitationTokens = [];
+    
+    const defaultConfig = config.get('invitationTokens');
+
+    before(function () {
+      config.set('invitationTokens', []);
+    });
+
+    after(function () {
+      config.set('invitationTokens', defaultConfig);
+    })
 
     it('should fail for any "invitationToken"', function (done) {
       const test = {
