@@ -120,7 +120,7 @@ describe('/admin/users/invitations', function () {
         res.body.invitations.should.be.instanceOf(Array);
         res.body.invitations.forEach(function (tokenData) {
           tokenData.should.have.property('id');
-          tokenData.should.have.property('createdAt');
+          
         });
         done(); 
       });

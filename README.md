@@ -55,8 +55,7 @@ run `yarn run start` to start
 
 ## Tests
 
-TODO
-
+run `yarn test` to launch the tests
 
 ## Coding conventions
 

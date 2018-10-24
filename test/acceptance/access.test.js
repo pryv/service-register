@@ -1,15 +1,27 @@
 'use strict';
 
-/* global describe, it */
+/* global describe, it, before, after */
 var server = require('../../source/server');
 var dataValidation = require('../support/data-validation');
 var schema = require('../support/schema.responses');
 var request = require('superagent');
 var async = require('async');
+const config = require('../../source/utils/config');
 
 require('readyness/wait/mocha');
 
 describe('POST /access/invitationtoken/check', function () {
+
+  let defaultConfigInvitationTokens;
+
+  before(function () {
+    defaultConfigInvitationTokens = config.get('invitationTokens');
+    config.set('invitationTokens', ['enjoy']);
+  });
+
+  after(function () {
+    config.set('invitationTokens', defaultConfigInvitationTokens);
+  });
 
   var path = '/access/invitationtoken/check/';
 
