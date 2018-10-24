@@ -34,7 +34,7 @@ module.exports = function (app: any) {
       username: checkAndConstraints.uid(req.body.username),
       password: checkAndConstraints.password(req.body.password),
       email: checkAndConstraints.email(req.body.email),
-      invitationToken: checkAndConstraints.invitationToken(req.body.invitationtoken),
+      invitationToken: req.body.invitationtoken,
       referer: checkAndConstraints.referer(req.body.referer),
       language: checkAndConstraints.lang(req.body.languageCode), // no check
       passwordHash: null, // filled in by some of the methods.
@@ -51,9 +51,6 @@ module.exports = function (app: any) {
     }
     if (! user.password) {
       return next(messages.e(400, 'INVALID_PASSWORD'));
-    }
-    if (! user.invitationToken) {
-      return next(messages.e(400, 'INVALID_INVITATION'));
     }
     if (user.language === null) {
       return next(messages.e(400, 'INVALID_LANGUAGE'));
