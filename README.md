@@ -57,9 +57,6 @@ run `yarn run start` to start
 
 run `yarn test` to launch the tests
 
-Some user creation tests `POST /user` require a local working core listening on localhost:5000
-
-
 ## Coding conventions
 
 See the [Pryv guidelines](https://pryv.github.io/guidelines/).

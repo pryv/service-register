@@ -6,6 +6,7 @@ const request = require('superagent');
 const config = require('../../source/utils/config');
 
 const server = require('../../source/server');
+require('../support/mock-core-server');
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 
@@ -14,7 +15,7 @@ require('readyness/wait/mocha');
 function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)); }
 function defaults() {
   return {
-    hosting: 'local-api-server',
+    hosting: 'mock-api-server',
     appid: 'pryv-test',
     username: randomuser(),
     email: randomuser() + '@wactiv.chx', // should not be necessary
