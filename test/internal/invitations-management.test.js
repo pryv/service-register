@@ -1,4 +1,4 @@
-/*global describe, it, before*/
+/*global describe, it, before, after*/
 
 /*
  * test for generic behaviour of the app
@@ -6,11 +6,23 @@
 
 require('../../source/server');
 var should = require('should');
+const config = require('../../source/utils/config');
 require('readyness/wait/mocha');
 
 var invitations = require('../../source/storage/invitations');
 
 describe('INTERNAL invitations managements', function () {
+
+  let defaultConfigInvitationTokens;
+
+  before(function () {
+    defaultConfigInvitationTokens = config.get('invitationTokens');
+    config.set('invitationTokens', ['enjoy']);
+  });
+
+  after(function () {
+    config.set('invitationTokens', defaultConfigInvitationTokens);
+  });
 
   describe('checkIfValid', function () {
     it('should accept enjoy', function (done) {
