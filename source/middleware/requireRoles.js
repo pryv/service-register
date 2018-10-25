@@ -12,7 +12,7 @@ module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
       arguments[0] : [].slice.call(arguments);
 
   return function (req, res, next) {
-    var auth = req.headers.authorization || req.query.auth;
+    var auth = req.headers.authorization || req.query.auth;
 
     if (! auth || ! authorizedKeys[auth]) {
       return next(new messages.REGError(401, {
