@@ -1,30 +1,31 @@
+// @flow
+
 //frameworks
 var logger = require('winston');
 var express = require('express');
 const config = require('./utils/config');
 
 //Dependencies
-var app = module.exports = express();
+const app: express$Application = module.exports = express();
 
-app.configure('development', function () {
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-  logger['default'].transports.console.level = 'debug';
-  logger['default'].transports.console.colorize = true;
-});
+// The code below will give you better error reports; don't enable this 
+// in production. Code begins here: ...
+//
+// app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+// logger['default'].transports.console.level = 'debug';
+// logger['default'].transports.console.colorize = true;
+//
+// and ends here.
 
-app.configure('production', function () {
-  logger['default'].transports.console.level = 'info';
-  app.use(express.errorHandler());
-});
+logger['default'].transports.console.level = 'info';
+app.use(express.errorHandler());
 
-app.configure(function () {
-  app.use(express.favicon(__dirname + '/public/favicon.ico'));
-  app.use(require('./middleware/patchJsonBodyParser'));
-  app.use(express.bodyParser());
-  app.use(express.cookieParser());
-  app.use(require('./middleware/cross-domain'));
-  logger.setLevels(logger.config.syslog.levels);
-});
+app.use(express.favicon(__dirname + '/public/favicon.ico'));
+app.use(require('./middleware/patchJsonBodyParser'));
+app.use(express.bodyParser());
+app.use(express.cookieParser());
+app.use(require('./middleware/cross-domain'));
+logger.setLevels(logger.config.syslog.levels);
 
 // www
 require('./routes/index')(app);

@@ -2,11 +2,11 @@
  * Extension of database.js dedicated to invitation tokens
  */
 
-var messages = require('../utils/messages'),
-  db = require('../storage/database'),
-  _ = require('underscore'),
-  async = require('async'),
-  config = require('../utils/config');
+const messages = require('../utils/messages');
+const db = require('../storage/database');
+const _ = require('lodash');
+const async = require('async');
+const config = require('../utils/config');
 
 var randtoken = require('rand-token').generator({
   chars: 'a-z'
@@ -25,7 +25,7 @@ exports.getAll = function (callback) {
 
   db.getMatchingSets('*:invitation', function (error, data) {
     callback(error, data);
-  }, function (keyToClean, data) { 
+  }, function (keyToClean, data) {
     data.id = keyToClean.substring(0, keyToClean.length - cutI);
   });
 };
@@ -77,7 +77,7 @@ exports.checkIfValid = function checkIfValid(token, callback) {
   }
 
   db.getSet(dbKey(token), function (error, result) {
-    if (error || ! result || result.consumedAt) {
+    if (error || ! result || result.consumedAt) {
       return callback(false);
     }
     return callback(true);

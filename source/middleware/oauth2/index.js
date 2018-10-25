@@ -5,14 +5,12 @@ const logger = require('winston');
 const app = express();
 const accessCommon = require('../../utils/access-lib');
 
-app.configure(function () {
-  app.oauth = oauthserver({
-    model: require('./model'),
-    grants: ['authorization_code'],
-    debug: true
-  });
-  app.use(express.bodyParser());
+app.oauth = oauthserver({
+  model: require('./model'),
+  grants: ['authorization_code'],
+  debug: true
 });
+app.use(express.bodyParser());
 
 /**
  * Check authorization cookie for all oauth routes

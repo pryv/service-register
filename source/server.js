@@ -4,24 +4,22 @@
  * Runs the server. Launch with `node server [options]`.
  */
 
+import type { Server as HttpServer } from 'http';
+
 var app = require('./app'),
     config = require('./utils/config'),
     fs = require('fs'),
     logger = require('winston');
     
 const http = require('http');
-const https = require('https');
 
 const ready = require('readyness');
 ready.setLogger(logger.info);
 
-class HttpsWithUrl extends https.Server {
-  url: ?string; 
-}
 class HttpWithUrl extends http.Server {
   url: ?string; 
 }
-type ServerWithUrl = HttpsWithUrl | HttpWithUrl;
+type ServerWithUrl = HttpWithUrl;
 
 // Produces the server instance for listening to HTTP/HTTPS traffic, depending
 // on the configuration. 
@@ -39,15 +37,7 @@ function produceServer(): ServerWithUrl {
 
   // HACK: config doesn't parse bools when passed from command-line
   if (ssl && ssl !== 'false') {
-    serverOptions = {
-      key : fs.readFileSync(config.get('server:certsPathAndKey') + '-key.pem').toString(),
-      cert : fs.readFileSync(config.get('server:certsPathAndKey') + '-cert.crt').toString(),
-      ca : fs.readFileSync(config.get('server:certsPathAndKey') + '-ca.pem').toString()
-    };
-    const server = https.createServer(serverOptions, app);
-    
-    (server: https.Server);
-    return (server: any);
+    throw new Error('SSL inside register server has been removed. Set ssl to false to continue.');
   } else {
     const server =  http.createServer(app);
     
@@ -61,9 +51,6 @@ logger.info('Register  server :' + config.get('http:register:url'));
 logger.info('Static  server :' + config.get('http:static:url'));
 
 if (config.get('server:port') > 0) {
-
-  var serverOptions = {};
-
   const server = produceServer(); 
   
   var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
