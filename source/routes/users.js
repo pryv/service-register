@@ -189,7 +189,7 @@ module.exports = function (app: express$Application) {
 // NOTE Yes. In fact, these are two functions that got tied up one in the other. 
 // 
 function _check(req: express$Request, res: express$Response, next: express$NextFunction, raw: boolean) {
-  var username = checkAndConstraints.uid(req.params.username);
+  const username = checkAndConstraints.uid(req.params.username);
 
   if (! username) {
     if (raw) {
