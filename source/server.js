@@ -4,22 +4,18 @@
  * Runs the server. Launch with `node server [options]`.
  */
 
-import type { Server as HttpServer } from 'http';
-
-var app = require('./app'),
-    config = require('./utils/config'),
-    fs = require('fs'),
-    logger = require('winston');
+const app = require('./app');
+const config = require('./utils/config');
+const logger = require('winston');
     
 const http = require('http');
 
 const ready = require('readyness');
 ready.setLogger(logger.info);
 
-class HttpWithUrl extends http.Server {
-  url: ?string; 
-}
-type ServerWithUrl = HttpWithUrl;
+type ServerWithUrl = http.Server & {
+  url: ?string,
+};
 
 // Produces the server instance for listening to HTTP/HTTPS traffic, depending
 // on the configuration. 
@@ -65,7 +61,7 @@ if (config.get('server:port') > 0) {
       throw new Error(`AF: ${err} occurred.`);
 
     var address = server.address();
-    var protocol = server.key ? 'https' : 'http';
+    var protocol = 'http';
 
     const server_url = protocol + '://' + address.address + ':' + address.port;
     
@@ -76,7 +72,7 @@ if (config.get('server:port') > 0) {
     config.set('server:url', server.url);
 
     var readyMessage = 'Registration server v' + require('../package.json').version +
-        ' [' + app.settings.env + '] listening on ' + server_url +
+        ' listening on ' + server_url +
       '\n Serving main domain: ' + config.get('dns:domain') +
       ' extras: ' + config.get('dns:domains');
     logger.info(readyMessage);
@@ -94,4 +90,3 @@ if (config.get('server:port') > 0) {
 }
 //start dns
 require('./app-dns');
-require('./middleware/oauth2/index');

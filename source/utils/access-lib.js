@@ -7,21 +7,25 @@ const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 
+import type { PermissionSet } from './check-and-constraints';
+
 type AccessState = {
-  status: 'NEED_SIGNIN',
+  status: 'NEED_SIGNIN' | 'REFUSED' | 'ERROR' | 'ACCEPTED',
   code: number,
-  key: string,
-  requestingAppId: string,
-  requestedPermissions: PermissionSet,
-  url: string,
-  poll: string,
-  returnURL: string,
-  oauthState: OAuthState,
-  poll_rate_ms: number, 
+  key?: string,
+  requestingAppId?: string,
+  requestedPermissions?: PermissionSet,
+  url?: string,
+  poll?: string,
+  returnURL?: string,
+  oauthState?: OAuthState,
+  poll_rate_ms?: number, 
+
+  // This is used by some methods to communicate a HTTP status code to the 
+  // caller. 
+  code?: number, 
 }
-type PermissionSet = Array<PermissionEntry>; 
 type OAuthState = string | null; 
-type PermissionEntry = Object; 
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node 20180926';
@@ -147,10 +151,14 @@ accessLib.requestAccess = function (
     poll: pollURL,
     returnURL: returnURL,
     oauthState: cleanOauthState,
-    poll_rate_ms: 1000
+    poll_rate_ms: 1000, 
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
+};
+
+type RedisResult = {
+  code: number, 
 };
 
 /**
@@ -163,8 +171,8 @@ accessLib.requestAccess = function (
  */
 accessLib.testKeyAndGetValue = function (
   key: string, 
-  success: (mixed) => mixed, 
-  failed: (any) => mixed, 
+  success: (RedisResult) => mixed, 
+  failed: (Error) => mixed, 
 ) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));

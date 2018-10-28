@@ -5,25 +5,25 @@ var logger = require('winston');
 var express = require('express');
 const config = require('./utils/config');
 
+const errorhandler = require('errorhandler');
+const favicon = require('serve-favicon');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+
 //Dependencies
 const app: express$Application = module.exports = express();
 
-// The code below will give you better error reports; don't enable this 
-// in production. Code begins here: ...
-//
-// app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-// logger['default'].transports.console.level = 'debug';
-// logger['default'].transports.console.colorize = true;
-//
-// and ends here.
-
 logger['default'].transports.console.level = 'info';
-app.use(express.errorHandler());
+app.use(errorhandler({ log: false }));
 
-app.use(express.favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
+
 app.use(require('./middleware/patchJsonBodyParser'));
-app.use(express.bodyParser());
-app.use(express.cookieParser());
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '10mb' }));
+
+app.use(cookieParser());
 app.use(require('./middleware/cross-domain'));
 logger.setLevels(logger.config.syslog.levels);
 
@@ -66,7 +66,6 @@ function activateAirbrake(app) {
     const key = config.get('airbrake:key');
     if(projectId != null && key != null) {
       const airbrake = require('airbrake').createClient(projectId, key);
-      app.use(app.router);
       app.use(airbrake.expressHandler());
     }
   }

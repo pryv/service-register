@@ -3,7 +3,10 @@ var messages = require('../utils/messages');
 /**
  * This patch express instance to detect if a String is not JSON
  */
-module.exports =  function(req, res, next){
+module.exports =  function(req, res, next) {
+  // DO WE NEED THIS?
+  return next(); 
+
   if (req._body) {
     return next();
   }

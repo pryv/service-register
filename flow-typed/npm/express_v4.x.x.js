@@ -1,7 +1,7 @@
 // flow-typed signature: 45384ed25d019e0595020cc30e78b80f
 // flow-typed version: d11eab7bb5/express_v4.x.x/flow_>=v0.32.x
 
-import type { Server } from 'http';
+import type { Server as HttpServer } from 'http';
 import type { Socket } from 'net';
 
 declare type express$RouterOptions = {
@@ -149,7 +149,7 @@ declare class express$Router extends express$Route {
   static (options?: express$RouterOptions): express$Router;
   use(middleware: express$Middleware): this;
   use(...middleware: Array<express$Middleware>): this;
-  use(path: express$Path|express$Path[], ...middleware: Array<express$Middleware>): this;
+  use(path: express$Path | express$Path[], ...middleware: Array<express$Middleware>): this;
   use(path: string, router: express$Router): this;
   handle(req: http$IncomingMessage, res: http$ServerResponse, next: express$NextFunction): void;
   param(
@@ -168,11 +168,11 @@ declare class express$Application extends express$Router mixins events$EventEmit
   constructor(): void;
   locals: {[name: string]: mixed};
   mountpath: string;
-  listen(port: number, hostname?: string, backlog?: number, callback?: (err?: ?Error) => mixed): ?Server;
-  listen(port: number, hostname?: string, callback?: (err?: ?Error) => mixed): ?Server;
-  listen(port: number, callback?: (err?: ?Error) => mixed): ?Server;
-  listen(path: string, callback?: (err?: ?Error) => mixed): ?Server;
-  listen(handle: Object, callback?: (err?: ?Error) => mixed): ?Server;
+  listen(port: number, hostname?: string, backlog?: number, callback?: (err?: ?Error) => mixed): ?HttpServer;
+  listen(port: number, hostname?: string, callback?: (err?: ?Error) => mixed): ?HttpServer;
+  listen(port: number, callback?: (err?: ?Error) => mixed): ?HttpServer;
+  listen(path: string, callback?: (err?: ?Error) => mixed): ?HttpServer;
+  listen(handle: Object, callback?: (err?: ?Error) => mixed): ?HttpServer;
   disable(name: string): void;
   disabled(name: string): boolean;
   enable(name: string): express$Application;
@@ -190,14 +190,14 @@ declare class express$Application extends express$Router mixins events$EventEmit
 }
 
 declare module 'express' {
-  declare export type RouterOptions = express$RouterOptions;
-  declare export type CookieOptions = express$CookieOptions;
-  declare export type Middleware = express$Middleware;
-  declare export type NextFunction = express$NextFunction;
-  declare export type RequestParams = express$RequestParams;
-  declare export type $Response = express$Response;
-  declare export type $Request = express$Request;
-  declare export type $Application = express$Application;
+  // declare export type RouterOptions = express$RouterOptions;
+  // declare export type CookieOptions = express$CookieOptions;
+  // declare export type Middleware = express$Middleware;
+  // declare export type NextFunction = express$NextFunction;
+  // declare export type RequestParams = express$RequestParams;
+  // declare export type $Response = express$Response;
+  // declare export type $Request = express$Request;
+  // declare export type $Application = express$Application;
 
   declare module.exports: {
     (): express$Application, // If you try to call like a function, it will use this signature

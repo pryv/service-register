@@ -4,7 +4,6 @@
 
 const db = require('../storage/database');
 const async = require('async');
-const exports = exports || {};
 const _ = require('lodash');
 const logger = require('winston');
 const config = require('../utils/config');

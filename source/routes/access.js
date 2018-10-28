@@ -1,19 +1,22 @@
-var express = require('express'),
-    messages = require('../utils/messages'),
-    checkAndConstraints = require('../utils/check-and-constraints'),
-    accessCommon = require('../utils/access-lib'),
-    invitationToken = require('../storage/invitations');
+// @flow
+
+const messages = require('../utils/messages');
+const checkAndConstraints = require('../utils/check-and-constraints');
+const accessCommon = require('../utils/access-lib');
+const invitationToken = require('../storage/invitations');
+
+const cookieParser = require('cookie-parser');
 
 /**
  * Routes handling applications access
  * @param app
  */
-module.exports = function (app) {
+module.exports = function (app: express$Application) {
 
   /**
    * All access routes use cookies
    */
-  app.all('/access/*', express.cookieParser(accessCommon.ssoCookieSignSecret));
+  app.all('/access/*', cookieParser(accessCommon.ssoCookieSignSecret));
 
   /**
    * POST /access: request an access
@@ -23,8 +26,11 @@ module.exports = function (app) {
   /**
    * POST /access/invitationtoken/check: check validity of an invitation token
    */
-  app.post('/access/invitationtoken/check', function (req, res) {
-    invitationToken.checkIfValid(req.body.invitationtoken, function (isValid/*, error*/) {
+  app.post('/access/invitationtoken/check', (req: express$Request, res) => {
+    // FLOW We're assuming that body will be JSON encoded.
+    const body: {[key: string]: string} = req.body; 
+
+    invitationToken.checkIfValid(body.invitationtoken, function (isValid/*, error*/) {
       res.header('Content-Type', 'text/plain');
       res.send(isValid ? 'true' : 'false');
     });
@@ -32,40 +38,43 @@ module.exports = function (app) {
 
   /** GET /access/:key - access polling with given key
    */
-  app.get('/access/:key', function (req, res, next) {
-    accessCommon.testKeyAndGetValue(req.params.key, function (value) {
-      return res.json(value, value.code);
+  app.get('/access/:key', (req: express$Request, res, next) => {
+    accessCommon.testKeyAndGetValue(req.params.key, (value) => {
+      return res.status(value.code).json(value);
     }, next);
   });
 
   /**
    * POST /access/:key: update state of access polling
    */
-  app.post('/access/:key', function (req, res, next) {
-    var key = req.params.key;
+  app.post('/access/:key', (req: express$Request, res, next) => {
+    // FLOW We're assuming that body will be JSON encoded.
+    const body: { [key: string]: ?(string | number)} = req.body; 
+
+    const key = req.params.key;
     accessCommon.testKeyAndGetValue(key, function (/*value*/) {
 
-      if (req.body.status === 'REFUSED') {
-        var accessStateA = {
+      if (body.status === 'REFUSED') {
+        const accessStateA = {
           status: 'REFUSED',
-          reasonID: req.body.reasonID || 'REASON_UNDEFINED',
-          message:  req.body.message || '',
+          reasonID: body.reasonID || 'REASON_UNDEFINED',
+          message:  body.message || '',
           code: 403
         };
         _setAccessState(res, next, key, accessStateA);
 
-      } else if (req.body.status === 'ERROR') {
-        var accessStateB = {
+      } else if (body.status === 'ERROR') {
+        const accessStateB = {
           status: 'ERROR',
-          id: req.body.id || 'INTERNAL_ERROR',
-          message:  req.body.message || '',
-          detail:  req.body.detail || '',
+          id: body.id || 'INTERNAL_ERROR',
+          message:  body.message || '',
+          detail:  body.detail || '',
           code: 403
         };
         _setAccessState(res, next, key, accessStateB);
 
-      } else if (req.body.status === 'ACCEPTED') {
-        var username = checkAndConstraints.uid(req.body.username);
+      } else if (body.status === 'ACCEPTED') {
+        var username = checkAndConstraints.uid(body.username);
         if (! username) {
           return next(messages.e(400, 'INVALID_USER_NAME'));
         }
@@ -74,10 +83,10 @@ module.exports = function (app) {
           return next(messages.e(400, 'INVALID_DATA'));
         }
 
-        var accessStateC = {
+        const accessStateC = {
           status: 'ACCEPTED',
-          username: req.body.username,
-          token: req.body.token,
+          username: body.username,
+          token: body.token,
           code: 200
         };
 
@@ -87,19 +96,21 @@ module.exports = function (app) {
   });
 };
 
-function _requestAccess(req, res, next) {
-  var params =  req.body;
-  params.sso = req.signedCookies.sso;
+function _requestAccess(req: express$Request, res, next) {
+  // FLOW We're assuming that body will be JSON encoded.
+  const body: { [key: string]: ?string } = req.body; 
 
-  accessCommon.requestAccess(params, function (accessState) {
-    res.json(accessState, accessState.code);
+  accessCommon.requestAccess(body, function (accessState) {
+    res.status(accessState.code).json(accessState);
   }, next);
 }
 
 
 function _setAccessState(res, next, key, accessState) {
   accessCommon.setAccessState(key, accessState, function (accessState) {
-    res.json(accessState, accessState.code);
+    if (accessState.code != null) res.status(accessState.code);
+
+    res.json(accessState);
   }, function (errorMessage) {
     next(errorMessage);
   });
