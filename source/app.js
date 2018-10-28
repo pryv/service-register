@@ -18,8 +18,6 @@ app.use(errorhandler({ log: false }));
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
 
-app.use(require('./middleware/patchJsonBodyParser'));
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '10mb' }));
 
