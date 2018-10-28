@@ -53,8 +53,8 @@ module.exports.extractResourceFromHostname = function (
 // Trim the uid
 exports.uid = function (str) {
   if (! str) { return null; }
-  str = _(str).trim().lowerCase();
-  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
+  str = _.trim(str).toLowerCase();
+  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 

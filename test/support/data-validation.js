@@ -106,7 +106,7 @@ function jsonResponse(err, res, test, callback_done) {
 
     // test constants
     if (test.value) {
-      var body = (test.restype === 'text/plain') ? res.text : res.body;
+      var body = (test.restype === 'text/plain; charset=utf-8') ? res.text : res.body;
       body.should.equal(test.value);
     }
 
