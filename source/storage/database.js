@@ -1,8 +1,9 @@
 // @flow
 
-const logger = require('winston');
+const bluebird = require('bluebird');
 const async = require('async');
 const semver = require('semver');
+const logger = require('winston');
 
 const config = require('../utils/config');  
 
@@ -431,6 +432,35 @@ function setServerAndInfos(
   });
 }
 exports.setServerAndInfos = setServerAndInfos;
+
+const EMAIL_FIELD = 'email';
+
+/// Deletes the user identified by `username` from redis. 
+/// 
+async function deleteUser(username: string): Promise<mixed> {
+  const saneUsername = username.toLowerCase(); 
+
+  const recordKey = ns(saneUsername, 'users');
+  const keysToDelete = [
+    recordKey, 
+    ns(saneUsername, 'server'),
+  ]; 
+
+  const currentEmail = await bluebird.fromCallback(
+    cb => redis.hget(recordKey, EMAIL_FIELD, cb));
+
+  if (currentEmail != null) keysToDelete.push(
+    ns(currentEmail, 'email'));  
+
+  // Now try to delete all of these, not stopping when one of them fails. 
+  return bluebird.fromCallback(
+    cb => redis.del(...keysToDelete, cb));
+
+  function ns(a, b): string {
+    return `${a}:${b}`;
+  }
+}
+exports.deleteUser = deleteUser;
 
 /**
  * Update the email address linked with provided user

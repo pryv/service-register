@@ -1,16 +1,18 @@
 // @flow
 
-const checkAndConstraints = require('../utils/check-and-constraints'),
-      messages = require('../utils/messages'),
-      users = require('../storage/users'),
-      requireRoles = require('../middleware/requireRoles'),
-      db = require('../storage/database'),
-      logger = require('winston'),
-      encryption = require('../utils/encryption'),
-      async = require('async'),
-      dataservers = require('../utils/dataservers'),
-      reservedWords = require('../storage/reserved-userid'),
-      invitationToken = require('../storage/invitations');
+const bluebird = require('bluebird');
+const logger = require('winston');
+const async = require('async');
+
+const checkAndConstraints = require('../utils/check-and-constraints');
+const messages = require('../utils/messages');
+const users = require('../storage/users');
+const requireRoles = require('../middleware/requireRoles');
+const db = require('../storage/database');
+const encryption = require('../utils/encryption');
+const dataservers = require('../utils/dataservers');
+const reservedWords = require('../storage/reserved-userid');
+const invitationToken = require('../storage/invitations');
 
 /**
  * Routes for users
@@ -144,13 +146,29 @@ module.exports = function (app: express$Application) {
   /// 
   app.delete('/users/:username', 
     requireRoles('system'),
-    (req: express$Request, res, next) => {
+    async (req: express$Request, res, next) => {
       try {
-        const dryRun = req.query.dryRun; 
+        let deleted = false; 
+
+        const onlyReg = req.query.onlyReg;
+        const dryRun = req.query.dryRun;
+        const username = req.params.username;
+
+        // NOTE We might permit actual deletion via this route someday. This 
+        //  will allow staying compatible. 
+        if (onlyReg !== 'true') 
+          throw produceError('NO_SUCH_FUNCTION', 
+            'This method needs onlyReg=true for now (query).');
+
+        await checkDeletion(username);
+        if (! dryRun) {
+          await performDeletion(username);
+          deleted = true; 
+        }
 
         const result = {
-          dryRun: !! dryRun, 
-          deleted: ! dryRun, 
+          dryRun: !! dryRun,
+          deleted: deleted, 
         };
         res.status(200).json({ result });
       }
@@ -250,3 +268,37 @@ function _check(req: express$Request, res: express$Response, next: express$NextF
     });
   });
 }
+
+/// Checks if the conditions are right to be able to delete a given user
+/// (identified by `username`). If this function finds any reason why the delete
+/// would not work, it throws this reason in the form of an Error (rejects the 
+/// promise).
+/// 
+async function checkDeletion(username: string): Promise<mixed> {
+  const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb)); 
+  if (! exists)
+    throw produceError('NO_SUCH_USER', `No such user ('${username}')`);
+}
+
+/// Deletes the user identified by `username` from the redis database.
+/// 
+async function performDeletion(username: string): Promise<mixed> {
+  return db.deleteUser(username);
+}
+
+type ErrorId = 'NO_SUCH_USER' | 'NO_SUCH_FUNCTION';
+
+function produceError(errorId: ErrorId, msg: string): Error {
+  const idToStatusCodeMap: {[key: ErrorId]: number} = {
+    NO_SUCH_USER: 404,
+    NO_SUCH_FUNCTION: 421,
+  };
+
+  const statusCode = idToStatusCodeMap[errorId];
+
+  return new messages.REGError(statusCode, {
+    id: errorId,
+    message: msg,
+  });
+}
+

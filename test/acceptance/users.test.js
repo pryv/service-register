@@ -2,6 +2,7 @@
 
 /*global describe, it, before, after, beforeEach */
 
+const bluebird = require('bluebird');
 const lodash = require('lodash');
 
 const dataValidation = require('../support/data-validation');
@@ -617,6 +618,7 @@ describe('User Management', () => {
     it('requires the system role', async () => {
       try {
         await request.delete(resourcePath('jsmith'))
+          .query(defaultQuery)
           .set('Authorization', 'SomethingElse'); 
       }
       catch (err) {
@@ -627,14 +629,25 @@ describe('User Management', () => {
 
       assert.fail('Request should fail.');
     });
-    it('requires `onlyReg=true` for now', () => {
+    it('requires `onlyReg=true` for now', async () => {
       // NOTE The other methods in the registries API manage the user completely,
       //  ie: also on the respective core. This method does not currently. To 
       //  remind us of this fact and to allow for evolution we introduce this 
       //  parameter. If it is missing, we're supposed to delete the user every
       //  where - right now we cannot, hence we error out. 
 
+      const query = lodash.omit(defaultQuery, ['onlyReg']);
       
+      try {
+        await request.delete(resourcePath('jsmith'))
+          .query(query)
+          .set('Authorization', systemRoleKey);
+      }
+      catch (err) {
+        return; 
+      }
+
+      assert.fail('If onlyReg=true is missing, the method should error out.');
     });
     it('checks, but doesn\'t delete if dryRun=true is given', async () => {
       const res = await request.delete(resourcePath('jsmith'))
@@ -662,7 +675,8 @@ describe('User Management', () => {
       assert.isFalse(body.result.dryRun);
       assert.isTrue(body.result.deleted);
 
-      
+      const exists = await bluebird.fromCallback(cb => db.uidExists('jsmith', cb));
+      assert.isFalse(exists);
     });
   });
   
