@@ -32,7 +32,7 @@ module.exports = function (app: express$Application) {
       return next(messages.e(400, 'INVALID_HOSTING'));
     }
 
-    var user = {
+    const user = {
       appid: checkAndConstraints.appID(body.appid),
       username: checkAndConstraints.uid(body.username),
       password: checkAndConstraints.password(body.password),
@@ -43,13 +43,16 @@ module.exports = function (app: express$Application) {
       passwordHash: null, // filled in by some of the methods.
     };
 
+    const username = user.username;
+    const email = user.email;
+
     if (! user.appid) {
       return next(messages.e(400, 'INVALID_APPID'));
     }
-    if (! user.username) {
+    if (username == null) {
       return next(messages.e(400, 'INVALID_USER_NAME'));
     }
-    if (! user.email) {
+    if (email == null) {
       return next(messages.e(400, 'INVALID_EMAIL'));
     }
     if (! user.password) {
@@ -78,7 +81,7 @@ module.exports = function (app: express$Application) {
         });
       },
       function (callback) {  // test username
-        db.uidExists(user.username, function (error, exists) {
+        db.uidExists(username, function (error, exists) {
           if (exists) {
             existsList.push('EXISTING_USER_NAME');
           }
@@ -86,7 +89,7 @@ module.exports = function (app: express$Application) {
         });
       },
       function (callback) {  // test email
-        db.emailExists(user.email, function (error, exists) {
+        db.emailExists(email, function (error, exists) {
           if (exists) {
             existsList.push('EXISTING_EMAIL');
           }
@@ -132,6 +135,27 @@ module.exports = function (app: express$Application) {
       });
     });
   });
+
+  /// DELETE /username/:username: Delete an existing user
+  /// 
+  /// If given 'onlyReg', the user is only deleted from the registry. 
+  /// If given 'dryRun', the system will check if the user can be deleted - but
+  ///   will not delete it. 
+  /// 
+  app.delete('/users/:username', 
+    requireRoles('system'),
+    (req: express$Request, res, next) => {
+      try {
+        const dryRun = req.query.dryRun; 
+
+        const result = {
+          dryRun: !! dryRun, 
+          deleted: ! dryRun, 
+        };
+        res.status(200).json({ result });
+      }
+      catch (err) { return next(err); }
+    });
 
   /**
    * POST /username/check: check the existence/validity of a given username

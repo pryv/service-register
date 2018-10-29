@@ -1,22 +1,40 @@
-'use strict';
+// @flow
 
-var logger = require('winston'),
-    config = require('../utils/config'),
-    redis = require('redis').createClient(
-      config.get('redis:port'), config.get('redis:host'), {}),
-    async = require('async'),
-    semver = require('semver');
-    
-/** NodeJS callback. 
- * 
- * @callback nodejsCallback
- * @param err {Object} - if not null, this is the error that occurred during the
- *    asynchronous operation. 
- * @param res {Object} - if not null and err is null, this is the result of the
- *    asynchronous operation.
- */
+const logger = require('winston');
+const async = require('async');
+const semver = require('semver');
 
-var exports = exports || {}; // just for IJ to present structure
+const config = require('../utils/config');  
+
+const redis = require('redis').createClient(
+  config.get('redis:port'),
+  config.get('redis:host'), {});
+
+
+type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed; 
+type Callback = GenericCallback<mixed>;
+
+type UserInformation = {
+  registeredTimestamp?: number, 
+  email: string, 
+}
+
+export type AccessState = {
+  status: 'NEED_SIGNIN' | 'REFUSED' | 'ERROR' | 'ACCEPTED',
+  // HTTP Status Code to send when polling.
+  code: number, 
+  // Poll Key
+  key?: string,
+  requestingAppId?: string,
+  requestedPermissions?: PermissionSet,
+  url?: string,
+  poll?: string,
+  returnURL?: string,
+  oauthState?: OAuthState,
+  poll_rate_ms?: number,
+}
+type OAuthState = string | null; 
+import type { PermissionSet } from '../utils/check-and-constraints';
 
 // Redis error management
 redis.on('error', function (err) {
@@ -86,7 +104,7 @@ function checkConnection() {
         }
 
       }, function (error, count) {
-        logger.info('  change ' + count + ' *:infos references');
+        logger.info('  change ' + (count || 'n/a') + ' *:infos references');
       });
 
       nextStep();
@@ -108,21 +126,21 @@ function checkConnection() {
 /**
  * Simply map redis.set
  */
-exports.set = function (key, callback) {
+exports.set = function (key: string, callback: Callback) {
   redis.set(key, callback);
 };
 
 /**
  * Simply map redis.get
  */
-exports.get = function (key, callback) {
+exports.get = function (key: string, callback: Callback) {
   redis.get(key, callback);
 };
 
 /**
  * Simply map redis.hgetall
  */
-function getSet(key, callback) {
+function getSet(key: string, callback: Callback) {
   redis.hgetall(key, callback);
 }
 exports.getSet = getSet;
@@ -133,7 +151,11 @@ exports.getSet = getSet;
  * @param done: function(error,result), result being an array of matching sets
  * @param cleanKey: optional function to clean the resulting keys
  */
-exports.getMatchingSets = function (keyMask, done, cleanKey) {
+exports.getMatchingSets = function (
+  keyMask: string, 
+  done: (error: ?Error, result: ?mixed) => mixed, 
+  cleanKey: ?((key: string, data: mixed) => mixed),
+) {
   redis.keys(keyMask, function (error, keys) {
     if (error) {
       logger.error('Redis getAllSetsMatching: ' + keyMask + ' e: ' + error, error);
@@ -159,14 +181,20 @@ exports.getMatchingSets = function (keyMask, done, cleanKey) {
 /**
  * Simply map redis.hmset
  */
-exports.setSet = function (key, keyMap, callback) {
+exports.setSet = function (
+  key: string, keyMap: {[string]: string}, 
+  callback: Callback,
+) {
   redis.hmset(key, keyMap, callback);
 };
 
 /**
  * Simply map redis.hset
  */
-exports.setSetValue = function (keySet, key,  value, callback) {
+exports.setSetValue = function (
+  keySet: string, key: string,  value: string, 
+  callback: Callback
+) {
   redis.hset(keySet, key,  value, callback);
 };
 
@@ -175,21 +203,21 @@ exports.setSetValue = function (keySet, key,  value, callback) {
  * @param key: the key referencing the database entry
  * @param callback: function(error,result), result being the JSON database entry
  */
-function getJSON(key, callback) {
+function getJSON(key: string, callback: Callback) {
   redis.get(key, function (error, result) {
-    var res_json = null;
-    if (error) {
-      logger.error('Redis getJSON: ' + key + ' e: ' + error, error);
+    if (error != null) {
+      logger.error('Redis getJSON: ' + key + ' e: ' + error.toString(), error);
+      return callback(error);
     }
-    if (! result) {
-      return callback(error, res_json);
-    }
+
+    if (result == null) return callback(null, null);
+
     try {
-      res_json = JSON.parse(result);
+      return callback(null, JSON.parse(result));
     } catch (e) {
-      error = new Error(e + ' db.getJSON:(' + key + ') string (' + result + ')is not JSON');
+      return callback(
+        new Error(e + ' db.getJSON:(' + key + ') string (' + result + ')is not JSON'));
     }
-    return callback(error, res_json);
   });
 }
 exports.getJSON = getJSON;
@@ -199,7 +227,7 @@ exports.getJSON = getJSON;
  * @param email: the email address to verify
  * @param callback: function(error,result), result being 'true' if it exists, 'false' otherwise
  */
-exports.emailExists = function (email, callback) {
+exports.emailExists = function (email: string, callback: GenericCallback<boolean>) {
   email = email.toLowerCase();
   redis.exists(email + ':email', function (error, result) {
     if (error) {
@@ -214,7 +242,7 @@ exports.emailExists = function (email, callback) {
  * @param uid: the user id to verify
  * @param callback: function(error,result), result being 'true' if it exists, 'false' otherwise
  */
-exports.uidExists = function (uid, callback) {
+exports.uidExists = function (uid: string, callback: Callback) {
   uid = uid.toLowerCase();
   redis.exists(uid + ':users', function (error, result) {
     if (error) {
@@ -229,7 +257,7 @@ exports.uidExists = function (uid, callback) {
  * @param uid: the user id
  * @param callback: function(error,result), result being the server name
  */
-exports.getServer = function (uid, callback) {
+exports.getServer = function (uid: string, callback: Callback) {
   uid = uid.toLowerCase();
   redis.get(uid + ':server', function (error, result) {
     if (error) {
@@ -245,7 +273,7 @@ exports.getServer = function (uid, callback) {
  * @param serverName: the new server name
  * @param callback: function(error,result), result being the new server name
  */
-exports.setServer = function (uid, serverName, callback) {
+exports.setServer = function (uid: string, serverName: string, callback: Callback) {
   uid = uid.toLowerCase();
   redis.set(uid + ':server', serverName, function (error, result) {
     if (error) {
@@ -266,7 +294,11 @@ exports.setServer = function (uid, serverName, callback) {
  * @param action - mapping function to apply on resulting entries
  * @param done - function(error,result), result being the number of entries mapped
  */
-function doOnKeysMatching(keyMask, action, done) {
+function doOnKeysMatching(
+  keyMask: string, 
+  action: (string) => mixed, 
+  done: GenericCallback<number>
+) {
 
   redis.keys(keyMask, function (error, replies) {
     if (error) {
@@ -289,22 +321,26 @@ exports.doOnKeysMatching = doOnKeysMatching;
  * @param action: mapping function to apply on resulting entries
  * @param done: function(error,result), result being the number of entries mapped
  */
-function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
+function doOnKeysValuesMatching(
+  keyMask: string, valueMask: string, 
+  action: (key: string, value: string) => mixed, 
+  done: ?GenericCallback<number>,
+) {
 
-  var receivedCount = 0,
-      waitFor = -1,
-      errors = [];
+  let receivedCount = 0;
+  let waitFor = -1;
+  let firstError = null; 
 
   var checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
-      if (done) {
-        done(errors.length === 0 ? null : errors, receivedCount);
+      if (done != null) {
+        done(firstError, receivedCount);
       }
     }
   };
 
   var doOnKeysMatchingDone = function (error, count) {
-    waitFor = count;
+    if (count != null) waitFor = count;
     checkDone();
   };
 
@@ -312,7 +348,8 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
     function (key) {
       redis.get(key, function (error, result) {
         if (error) {
-          errors.push(error);
+          if (firstError == null) firstError = error; 
+
           logger.error('doOnKeysValuesMatching: ' + keyMask + ' ' + valueMask + ' e: ' + error,
             error);
         } else {
@@ -332,7 +369,7 @@ exports.doOnKeysValuesMatching = doOnKeysValuesMatching;
  * @param mail: the email address
  * @param callback: function(error,result), result being the requested user id
  */
-exports.getUIDFromMail = function (mail, callback) {
+exports.getUIDFromMail = function (mail: string, callback: Callback) {
   mail = mail.toLowerCase();
   redis.get(mail + ':email', function (error, uid) {
     if (error) {
@@ -350,7 +387,11 @@ exports.getUIDFromMail = function (mail, callback) {
  * @param infos: the new user information
  * @param callback: function(error)
  */
-function setServerAndInfos(username, server, infos, callback) {
+function setServerAndInfos(
+  username: string, server: string, 
+  infos: UserInformation, 
+  callback: Callback, 
+) {
   // This user will never been created for real
   if (username === 'recla')  { return callback(); }
 
@@ -397,7 +438,10 @@ exports.setServerAndInfos = setServerAndInfos;
  * @param email: the new email address
  * @param callback: function(error)
  */
-exports.changeEmail = function (username, email, callback) {
+exports.changeEmail = function (
+  username: string, email: string, 
+  callback: Callback, 
+) {
   email = email.toLowerCase();
   username = username.toLowerCase();
 
@@ -488,14 +532,17 @@ function _findGhostsServer() {
  * @param value: the new state of this access
  * @param callback: function(error,result), result being the result of the database transaction
  */
-exports.setAccessState = function (key, value, callback) {
-  var multi = redis.multi();
-  var dbkey = key + ':access';
+exports.setAccessState = function (
+  key: string, value: AccessState, 
+  callback: Callback, 
+) {
+  const multi = redis.multi();
+  const dbkey = key + ':access';
   multi.set(dbkey, JSON.stringify(value));
   multi.expire(dbkey, config.get('persistence:access-ttl'));
   multi.exec(function (error, result) {
     if (error) {
-      logger.error('Redis setAccess: ' + key + ' ' + value + ' e: ' + error, error);
+      logger.error('Redis setAccess: ', key, value, error);
     }
     callback(error, result); // callback anyway
   });
@@ -507,8 +554,11 @@ exports.setAccessState = function (key, value, callback) {
  * @param callback {nodejsCallback} - result being the corresponding JSON 
  *    database entry
  */
-exports.getAccessState = function (key, callback) {
-  getJSON(key + ':access', callback);
+exports.getAccessState = function (key: string, callback: GenericCallback<AccessState>) {
+  // FLOW Since we access the right key, we assume that the data is correct.
+  const mixedCallback: Callback = callback; 
+  
+  getJSON(key + ':access', mixedCallback);
 };
 
 //----------------- Reserved words --------------//
@@ -520,7 +570,7 @@ var RESERVED_WORDS_LIST = 'reservedwords:list';
  * Get the current version of the reserved words list in the database
  * @param callback: function(error,result), result being the version
  */
-exports.reservedWordsVersion = function (callback) {
+exports.reservedWordsVersion = function (callback: Callback) {
   redis.get(RESERVED_WORDS_VERSION, function (error, version) {
     if (error) {
       logger.error('ReservedWordManagement version ' + error, error);
@@ -536,7 +586,10 @@ exports.reservedWordsVersion = function (callback) {
  * @param wordArray: the new words list
  * @param callback: function(error)
  */
-exports.reservedWordsLoad = function (version, wordArray, callback) {
+exports.reservedWordsLoad = function (
+  version: string, wordArray: Array<string>, 
+  callback: Callback
+) {
   async.series([
     function (nextStep) { // Delete word set version
       redis.del(RESERVED_WORDS_VERSION, function (error) {
@@ -573,7 +626,7 @@ exports.reservedWordsLoad = function (version, wordArray, callback) {
  * @param word: the word to check for existence
  * @param callback: function(error,result), result being 'true' if existing, 'false' otherwise
  */
-exports.reservedWordExists = function (word, callback) {
+exports.reservedWordExists = function (word: string, callback: GenericCallback<boolean>) {
   redis.sismember(RESERVED_WORDS_LIST, word, function (error, result) {
     if (error) {
       logger.error('DB reservedWordsExists ' + error, error);

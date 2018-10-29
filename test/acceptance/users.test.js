@@ -1,19 +1,25 @@
 // @flow
 
-/*global describe, it, before, after */
+/*global describe, it, before, after, beforeEach */
 
-const _ = require('lodash');
-const request = require('superagent');
+const lodash = require('lodash');
 
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const config = require('../../source/utils/config');
+
+const _ = require('lodash');
+const request = require('superagent');
+const chai = require('chai');
+const assert = chai.assert; 
 
 // Load and start our web server
 require('../../source/server');
 
 // Mocks out a core server.
 require('../support/mock-core-server');
+
+const db = require('../../source/storage/database');
 
 function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)); }
 function defaults() {
@@ -587,5 +593,80 @@ describe('User Management', () => {
         });
     });
   });
+
+  describe('DELETE /users/:username', () => {
+    let defaultQuery; 
+    beforeEach(() => {
+      defaultQuery = {
+        dryRun: true, 
+        onlyReg: true,
+      };
+    });
+
+    const systemRoleKey = defaultAuth;
+
+    beforeEach((done) => {
+      const userInfos = {
+        username: 'jsmith', 
+        password: 'foobar', 
+        email: 'jsmith@test.com',
+      };
+      db.setServerAndInfos('jsmith', 'server.name.at.tld', userInfos, done);
+    });
+
+    it('requires the system role', async () => {
+      try {
+        await request.delete(resourcePath('jsmith'))
+          .set('Authorization', 'SomethingElse'); 
+      }
+      catch (err) {
+        assert.strictEqual(err.status, 401);
+
+        return; 
+      }
+
+      assert.fail('Request should fail.');
+    });
+    it('requires `onlyReg=true` for now', () => {
+      // NOTE The other methods in the registries API manage the user completely,
+      //  ie: also on the respective core. This method does not currently. To 
+      //  remind us of this fact and to allow for evolution we introduce this 
+      //  parameter. If it is missing, we're supposed to delete the user every
+      //  where - right now we cannot, hence we error out. 
+
+      
+    });
+    it('checks, but doesn\'t delete if dryRun=true is given', async () => {
+      const res = await request.delete(resourcePath('jsmith'))
+        .query(defaultQuery)
+        .set('Authorization', systemRoleKey);
+
+      assert.isTrue(res.ok);
+      assert.strictEqual(res.status, 200);
+
+      const body = res.body; 
+      assert.isTrue(body.result.dryRun);
+      assert.isFalse(body.result.deleted);
+    });
+    it('deletes the user (dryRun=false, onlyReg=true)', async () => {
+      const query = lodash.omit(defaultQuery, ['dryRun']);
+
+      const res = await request.delete(resourcePath('jsmith'))
+        .query(query)
+        .set('Authorization', systemRoleKey);
+
+      assert.isTrue(res.ok);
+      assert.strictEqual(res.status, 200);
+
+      const body = res.body;
+      assert.isFalse(body.result.dryRun);
+      assert.isTrue(body.result.deleted);
+
+      
+    });
+  });
   
+  function resourcePath(username: string): string {
+    return `${serverUrl}/users/${username}`;
+  }
 });
