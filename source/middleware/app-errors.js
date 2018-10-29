@@ -10,7 +10,7 @@ function app_errors(app) {
   app.use(function (error, req, res, next) {
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
-      return res.json(error.httpCode, error.data);
+      return res.status(error.httpCode).json(error.data);
     }
 
     if (! (error instanceof Error)) {
@@ -21,7 +21,7 @@ function app_errors(app) {
       logger.error(error.stack);
     }
     var err = new messages.REGError(500, messages.say('INTERNAL_ERROR'));
-    res.json(err.httpCode, err.data);
+    res.status(err.httpCode).json(err.data);
   });
 
   /** We let this to airbrake
