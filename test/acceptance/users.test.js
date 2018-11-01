@@ -356,7 +356,6 @@ describe('User Management', () => {
     });
   });
 
-
   describe('POST /username/check', function () {
     var path = '/username/check';
     const defaults = {

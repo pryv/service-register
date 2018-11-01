@@ -79,8 +79,14 @@ accessLib.requestAccess = function (
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   
-  if (! (typeof returnURL === 'string') )
-    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Missing Return Url field' }));
+  const validReturnUrl = (
+    returnURL === false || 
+    returnURL == null || 
+    typeof returnURL === 'string');
+
+  if (! validReturnUrl)
+    return errorHandler(messages.e(400, 'INVALID_DATA', { 
+      detail: 'Missing Return Url field' }));
 
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 

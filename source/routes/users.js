@@ -150,13 +150,13 @@ module.exports = function (app: express$Application) {
       try {
         let deleted = false; 
 
-        const onlyReg = req.query.onlyReg;
-        const dryRun = req.query.dryRun;
+        const onlyReg = req.query.onlyReg === 'true';
+        const dryRun = req.query.dryRun === 'true';
         const username = req.params.username;
 
         // NOTE We might permit actual deletion via this route someday. This 
         //  will allow staying compatible. 
-        if (onlyReg !== 'true') 
+        if (! onlyReg) 
           throw produceError('NO_SUCH_FUNCTION', 
             'This method needs onlyReg=true for now (query).');
 
