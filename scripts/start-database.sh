@@ -4,4 +4,4 @@
 SCRIPT_FOLDER=$(cd $(dirname "$0"); pwd)
 cd $SCRIPT_FOLDER/..
 
-../redis-3.2.6/src/redis-server ./db/dev.conf
+./redis-2.4.18/src/redis-server ./db/dev.conf
