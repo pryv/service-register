@@ -6,6 +6,7 @@ const config = require('./config');
 const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
+const logger = require('winston');
 
 type AccessState = {
   status: 'NEED_SIGNIN',
@@ -93,8 +94,14 @@ accessLib.requestAccess = function (
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   
-  if (! (typeof returnURL === 'string') )
-    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Missing Return Url field' }));
+  if ((returnURL == null) || (typeof returnURL === 'string')) {
+    // OK
+  } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
+    // deprecated
+    logger.warning('Deprecated: received returnURL=false, this optional parameter must be a string.');
+  } else {
+    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Invalid returnURL field.' }));
+  }
 
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 

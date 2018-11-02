@@ -1,11 +1,10 @@
 'use strict';
 
 /* global describe, it, before, after */
-var server = require('../../source/server');
-var dataValidation = require('../support/data-validation');
-var schema = require('../support/schema.responses');
-var request = require('superagent');
-var async = require('async');
+const server = require('../../source/server');
+const dataValidation = require('../support/data-validation');
+const schema = require('../support/schema.responses');
+const request = require('superagent');
 const config = require('../../source/utils/config');
 
 require('readyness/wait/mocha');
@@ -44,12 +43,12 @@ describe('POST /access/invitationtoken/check', function () {
 
 describe('POST /access', function () {
 
-  var path = '/access';
+  const path = '/access';
 
   it('valid', function (done) {
     const test = {
       data: {
-        requestingAppId: 'reg-test', languageCode: 'en', returnURL: '',
+        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
         requestedPermissions: [{some: 'json', data: 'to request access'}]
       },
@@ -58,27 +57,16 @@ describe('POST /access', function () {
       JSchema: schema.accessPOST
     };
 
-    var result = null;
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      const generatedUrl = res.body.poll;
 
-    async.series([
-      function makeRequest(stepDone) {
-        request.post(server.url + path).send(test.data).end(function (err, res) {
-          result = res;
-          
-          dataValidation.jsonResponse(err, res, test, stepDone);
-        });
-      },
-      function validate(stepDone) {
-        // Verify that the string has something like this: 
-        //    /access/DiM1efAaZmTi0WbH
-        const generatedUrl = result.body.poll; 
-        const ending = /\/access\/\w+$/;
+      // Verify that the string has something like this: 
+      //    /access/DiM1efAaZmTi0WbH
+      const ending = /\/access\/\w+$/;
+      generatedUrl.should.match(ending);
 
-        generatedUrl.should.match(ending);
-        
-        stepDone(); 
-      }
-    ], done);
+      dataValidation.jsonResponse(err, res, test, done);
+    });
   });
   it('invalid', function (done) {
     var test = {
@@ -109,6 +97,66 @@ describe('POST /access', function () {
       status: 400,
       JSchema: schema.error,
       JValues: {'id': 'INVALID_LANGUAGE'}
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+  it('returnURL should accept a null', function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test', 
+        languageCode: 'en', 
+        returnURL: null,
+        requestedPermissions: [
+          { some: 'json', data: 'to request access' }
+        ]
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+  it('returnURL should accept `false`', function (done) {
+  
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        languageCode: 'en',
+        returnURL: false,
+        requestedPermissions: [
+          { some: 'json', data: 'to request access' }
+        ]
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+  it('returnURL should not accept a value which acts like false', function (done) {
+
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        languageCode: 'en',
+        returnURL: 0,
+        requestedPermissions: [
+          { some: 'json', data: 'to request access' }
+        ]
+      },
+      contenttype: 'JSON',
+      status: 400,
+      JSchema: schema.error,
+      JValues: { id: 'INVALID_DATA', detail: 'Invalid returnURL field.' },
     };
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
