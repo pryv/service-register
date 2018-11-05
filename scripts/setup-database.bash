@@ -45,7 +45,14 @@ if [[ ! -d $REDIS_BASE_FOLDER/$REDIS_NAME ]]; then
   echo ""
   cd $REDIS_BASE_FOLDER
   EXIT_CODE=0
-  curl -o "$REDIS_NAME.tar.gz" http://download.redis.io/releases/$REDIS_NAME.tar.gz
+
+  # NOTE This would be correct for newer versions of redis (> 2.6), but redis
+  #   doesn't  offer 2.4.16 for dl anymore.
+  # redis_url="http://download.redis.io/releases/${REDIS_NAME}.tar.gz"
+
+  redis_url="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/redis/${REDIS_NAME}.tar.gz"
+
+  curl -o "$REDIS_NAME.tar.gz" $redis_url
   EXIT_CODE=`expr ${EXIT_CODE} + $?`
   tar -xzf $REDIS_NAME.tar.gz
   EXIT_CODE=`expr ${EXIT_CODE} + $?`

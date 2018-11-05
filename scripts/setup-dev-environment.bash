@@ -7,23 +7,9 @@
 SCRIPT_FOLDER=$(cd $(dirname "$0"); pwd)
 cd $SCRIPT_FOLDER/..
 
-export NODE_VERSION=v0.10.23
-
-export REDIS_NAME=redis-3.2.6
-export REDIS_BASE_FOLDER=../..
+export REDIS_NAME=redis-2.4.18
+export REDIS_BASE_FOLDER=..
 export REDIS_DATA_FOLDER=${REDIS_BASE_FOLDER}/redis-data
-
-# base
-
-curl -s -L https://raw.github.com/pryv/dev-scripts/master/setup-repo-copy.js-node.bash | bash
-EXIT_CODE=$?
-if [[ ${EXIT_CODE} -ne 0 ]]; then
-  echo ""
-  echo "Error: base setup failed. Setup aborted."
-  echo ""
-  exit $((${EXIT_CODE}))
-fi
-
 # database
 
 $SCRIPT_FOLDER/setup-database.bash

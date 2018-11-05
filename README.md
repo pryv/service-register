@@ -1,68 +1,29 @@
-# Pryv registration API server
+# Synopsis
 
-Pryv user registration server component.
+Pryv Register and DNS servers.
 
-## Usage (ubuntu)
+## Usage 
 
-### Install (ubuntu)
-```
-git clone https://github.com/pryv/service-register
-cd service-register  
-apt-get install -y nodejs redis-server npm  
-npm install  
-```
+### Install
 
-### QuickRun (ubuntu)
-service redis-server start  
-redis-cli -a MyRecordedLife  # To monitor the db  
-nodejs source/server.js  
+*Prerequisites*: Yarn v1+, Node v8+
 
+Download dependencies: `yarn install`
 
-## Operations on register
+Install Redis: `yarn setup`
 
-### Deleting a user
+### How to?
 
-open redis console on reg-gandi-fr-01
+Start database: `yarn database`
 
-- hgetall <user>:users
-- del <email>:email
-- del <user>:server
-- del <user>:users
+Create distribution: `yarn release`
 
+Transpile during development: `yarn watch`
 
-## Contribute (Mac)
+Run tests: `yarn test`
 
-### Setup the dev environment (Mac)
+Run Register and DNS servers: `yarn start`
 
-Read, then execute `./scripts/setup-dev-environment.bash`. It will check for Redis in the parent folder and install it if necessary.
+## Other
 
-Run `yarn install` to download the dependencies.
-
-### Starting up Redis (Mac)
-
-`./scripts/start-database.sh` in a separate terminal tab/window.
-
-To monitor the db:
-
-```
-scripts/connect-database-client.sh
-redis 127.0.0.1:6379> monitor
-```
-
-### Run service-register locally
-
-run `yarn run start` to start 
-
-## Tests
-
-run `yarn test` to launch the tests
-
-## Coding conventions
-
-See the [Pryv guidelines](https://pryv.github.io/guidelines/).
-
-
-## Deployment (Pryv-specific)
-
-TODO
-
+Connect to the local database: `./scripts/connect-database-client.sh`

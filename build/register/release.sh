@@ -11,7 +11,7 @@ header "Install application from release.tar"
 run mkdir -p $target_dir
 run chown app $target_dir
 
-# Unpack the application and run npm install.
+# Unpack the application and run yarn install.
 cd $target_dir
 run run tar -x --owner app -f \
   /pd_build/release.tar .
@@ -19,7 +19,7 @@ run run tar -x --owner app -f \
 PYTHON=$(which python2.7) run yarn install
 
 # Perform a release build of the source code. (-> lib)
-run npm run release
+run yarn release
 rm -r source && mv lib source
 
 # Copy the config file
