@@ -24,17 +24,6 @@ Run tests: `yarn test`
 
 Run Register and DNS servers: `yarn start`
 
-## Database
+## Other
 
 Connect to the local database: `./scripts/connect-database-client.sh`
-
-### Delete user
-
-In the redis-cli, run:
-
-```
-- hgetall <user>:users
-- del <email>:email
-- del <user>:server
-- del <user>:users
-```
