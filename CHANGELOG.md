@@ -1,4 +1,13 @@
-# API change log
+# CHANGES in 1.X
+
+## 1.3.X
+
+- Removes https support. We deploy this behind a WAF or behind an nginx reverse
+  proxy, so we don't ever need the https option. Plus: Less options for security
+  = more security. 
+
+- Removes the oauth2 configuration value and the code implementing an OAuth2 
+  server. This was not used in practice; less functionality = less maintenance. 
 
 ## 1.2.X
 

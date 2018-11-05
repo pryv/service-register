@@ -1,10 +1,6 @@
 // @flow
 
-const _ = require('underscore');
-const config = require('./config');
-
-const _str = require('underscore.string');
-_.mixin(_str.exports());
+const _ = require('lodash');
 
 // Username regular expression
 var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
@@ -13,7 +9,7 @@ var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
 // character level constraints we impose. 
 // 
 module.exports.isLegalUsername = function(candidate: string): boolean {
-  return checkUsername.exec(candidate);
+  return checkUsername.exec(candidate) != null;
 };
 
 /**
@@ -57,8 +53,8 @@ module.exports.extractResourceFromHostname = function (
 // Trim the uid
 exports.uid = function (str) {
   if (! str) { return null; }
-  str = _(str).trim().toLowerCase();
-  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
+  str = _.trim(str).toLowerCase();
+  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 
@@ -150,6 +146,12 @@ exports.accesskey = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.access = function <T>(json: T): T {
+export type PermissionSet = Array<PermissionEntry>;
+export type PermissionEntry = Object; 
+
+exports.access = function (json: Object): ?PermissionSet {
+  if (json == null) return null; 
+  if (! Array.isArray(json)) return null; 
+  
   return json;
 };

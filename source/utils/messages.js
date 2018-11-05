@@ -83,7 +83,7 @@ exports.ei = function (error: mixed) {
  * @param addons: optional key/value json object to be dumped with the message
  * @returns: the error to be thrown
  */
-exports.e = function (httpCode: number, id: string, addons: ?Object) {
+exports.e = function (httpCode: number, id: string, addons: ?Object): Error {
   return new REGError(httpCode, say(id, addons));
 };
 
@@ -103,14 +103,16 @@ exports.ex = function (httpCode: number, id: string, suberrors: Array<string>) {
   return new REGError(httpCode, data);
 };
 
-/**
- * Custom object for register errors
- */
-var REGError = exports.REGError = function (httpCode: number, data: Object) {
-  this.httpCode = httpCode;
-  this.data = data;
-};
+/// Error class for all register errors. 
+/// 
+class REGError extends Error {
+  httpCode: *; 
+  data: *; 
 
-REGError.prototype = Object.create(Error.prototype, {
-  constructor: { value: REGError }
-});
+  constructor(httpCode: number, data: Object) {
+    super(); 
+    this.httpCode = httpCode;
+    this.data = data;
+  }
+}
+exports.REGError = REGError;

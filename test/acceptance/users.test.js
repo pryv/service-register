@@ -109,6 +109,8 @@ describe('POST /user', function () {
 
     request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
       .end(function (err, res) {
+        console.log(res.body);
+        
         dataValidation.jsonResponse(err, res, test, done);
       });
   });
@@ -354,7 +356,7 @@ describe('POST /username/check', function () {
 
   it('reserved list', function (done) {
     var test = {username: 'facebook', status: 200, desc: 'reserved from list',
-      value: 'false', restype:'text/plain'};
+      value: 'false', restype:'text/plain; charset=utf-8'};
 
     request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
@@ -363,7 +365,7 @@ describe('POST /username/check', function () {
 
   it('reserved pryv', function (done) {
     var test = {username: 'pryvtoto', status: 200, desc: 'reserved for pryv',
-      value: 'false', restype:'text/plain'};
+      value: 'false', restype:'text/plain; charset=utf-8'};
 
     request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
@@ -372,7 +374,7 @@ describe('POST /username/check', function () {
 
   it('available', function (done) {
     var test = {username: 'asdfhgsdkfewg', status: 200, desc: 'available',
-      value: 'true', restype:'text/plain'};
+      value: 'true', restype:'text/plain; charset=utf-8'};
 
     request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);

@@ -16,27 +16,30 @@ const checkAndConstraints = require('../utils/check-and-constraints'),
  * Routes for users
  * @param app
  */
-module.exports = function (app: any) {
+module.exports = function (app: express$Application) {
   // POST /user: create a new user
-  app.post('/user', function (req, res, next) {
+  app.post('/user', (req: express$Request, res, next) => {
+    // FLOW Assume body has this type.
+    const body: {[string]: ?(string | number | boolean)} = req.body; 
+
     if (req.body == null) {
       logger.error('/user : How could body be empty??');
       return next(messages.ei());
     }
 
-    const hosting: ?string = checkAndConstraints.hosting(req.body.hosting);
+    const hosting: ?string = checkAndConstraints.hosting(body.hosting);
     if (hosting == null) {
       return next(messages.e(400, 'INVALID_HOSTING'));
     }
 
     var user = {
-      appid: checkAndConstraints.appID(req.body.appid),
-      username: checkAndConstraints.uid(req.body.username),
-      password: checkAndConstraints.password(req.body.password),
-      email: checkAndConstraints.email(req.body.email),
-      invitationToken: req.body.invitationtoken,
-      referer: checkAndConstraints.referer(req.body.referer),
-      language: checkAndConstraints.lang(req.body.languageCode), // no check
+      appid: checkAndConstraints.appID(body.appid),
+      username: checkAndConstraints.uid(body.username),
+      password: checkAndConstraints.password(body.password),
+      email: checkAndConstraints.email(body.email),
+      invitationToken: body.invitationtoken,
+      referer: checkAndConstraints.referer(body.referer),
+      language: checkAndConstraints.lang(body.languageCode), // no check
       passwordHash: null, // filled in by some of the methods.
     };
 
@@ -123,7 +126,7 @@ module.exports = function (app: any) {
             if(creationError) {
               return next(messages.ei(creationError));
             }
-            res.json(result, 200);
+            res.status(200).json(result);
           });
         });
       });
@@ -133,45 +136,60 @@ module.exports = function (app: any) {
   /**
    * POST /username/check: check the existence/validity of a given username
    */
-  app.post('/username/check', function (req, res, next) {
-    req.params.username = req.body.username;
+  app.post('/username/check', (req: express$Request, res, next) => {
+    // FLOW Assume body has this type.
+    const body: { [string]: ?(string | number | boolean) } = req.body; 
+
+    req.params.username = body.username;
     _check(req, res, next, true);
   });
 
   /**
    * GET /:username/check_username: check the existence/validity of a given username
    */
-  app.get('/:username/check_username', function (req, res, next) {
+  app.get('/:username/check_username', (req: express$Request, res, next) => {
     _check(req, res, next, false);
   });
 
   /**
    * POST /users/:username/change-email: change the email address for a given user
    */
-  app.post('/users/:username/change-email', requireRoles('system'), function (req, res, next) {
-    var email = checkAndConstraints.email(req.body.email);
-    if (!email) {
-      return next(new messages.REGError(400, {
-        id: 'INVALID_EMAIL',
-        message: '"' + req.body.email + '" is not a valid e-mail address'
-      }));
-    }
+  app.post('/users/:username/change-email', 
+    requireRoles('system'), 
+    (req: express$Request, res, next) => {
+      // FLOW Assume body has this type.
+      const body: { [string]: ?(string | number | boolean) } = req.body; 
 
-    users.setEmail(req.params.username, email, function(error, result) {
-      if(error) {
-        if(error.code && error.message) {
-          return next(messages.e(error.code, error.message));
-        }
-        return next(messages.ei(error));
+      var email = checkAndConstraints.email(body.email);
+      if (!email) {
+        return next(new messages.REGError(400, {
+          id: 'INVALID_EMAIL',
+          message: `"${body.email}" is not a valid e-mail address`,
+        }));
       }
 
-      res.json(result);
+      users.setEmail(req.params.username, email, function(error, result) {
+        if(error) {
+          if(error.code && error.message) {
+            return next(messages.e(error.code, error.message));
+          }
+          return next(messages.ei(error));
+        }
+
+        res.json(result);
+      });
     });
-  });
 };
 
-function _check(req, res, next, raw) {
-  var username = checkAndConstraints.uid(req.params.username);
+// Checks if the username is valid. If `raw` is set to true, this will respond
+// to the request directly, sending a 'text/plain' boolean response ('true' or
+// 'false'). If `raw` is false, it will either call `next` with an error or 
+// answer using the Content-Type 'application/json'. 
+// 
+// NOTE Yes. In fact, these are two functions that got tied up one in the other. 
+// 
+function _check(req: express$Request, res: express$Response, next: express$NextFunction, raw: boolean) {
+  const username = checkAndConstraints.uid(req.params.username);
 
   if (! username) {
     if (raw) {

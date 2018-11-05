@@ -77,9 +77,6 @@ nconf.defaults({
     'aaservers_ssl': true, // set if admin / activity servers have ssl
     'aaservers': {}
   },
-  oauth2: {
-    port: 9090
-  },
   'test': {
 
   },

@@ -2,15 +2,14 @@
  * Extension of database.js dedicated to user management
  */
 
-var db = require('../storage/database'),
-  async = require('async'),
-  exports = exports || {},
-  _ = require('underscore'),
-  logger = require('winston'),
-  config = require('../utils/config'),
-  dataservers = require('../utils/dataservers'),
-  domain = '.' + config.get('dns:domain'),
-  invitationToken = require('./invitations');
+const db = require('../storage/database');
+const async = require('async');
+const _ = require('lodash');
+const logger = require('winston');
+const config = require('../utils/config');
+const dataservers = require('../utils/dataservers');
+const domain = '.' + config.get('dns:domain');
+const invitationToken = require('./invitations');
 
 /**
  * Create (register) a new user
@@ -127,10 +126,10 @@ exports.getUsersOnServer = function (serverName, callback) {
  */
 exports.renameServer = function (srcServerName, dstServerName, callback) {
 
-  var errors = [],
-    receivedCount = 0,
-    actionThrown = 0,
-    waitForDone = true;
+  const errors = [];
+  let receivedCount = 0;
+  let actionThrown = 0;
+  let waitForDone = true;
 
   var checkDone = function () {
     if ((! waitForDone) && actionThrown === receivedCount) {
@@ -166,8 +165,8 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
  * @param callback: function(error, result), result being a list of information for all users
  */
 exports.getAllUsersInfos = function (callback) {
-  var userlist = [],
-    waiter = 1;
+  const userlist = [];
+  let waiter = 1;
 
   function done() {
     waiter--;
@@ -197,8 +196,8 @@ exports.getAllUsersInfos = function (callback) {
  * @param callback: function(error, result), result being an object containing user information
  */
 function getUserInfos(username, callback) {
-  var result = { username : username },
-    errors = [];
+  const result = { username : username };
+  let errors = [];
 
   async.parallel([
     function (stepDone) { // Get user information
@@ -226,12 +225,11 @@ function getUserInfos(username, callback) {
       });
     }
   ],
-    function (error) {
+    function () {
       if (errors.length === 0) {
         errors = null;
       }
       callback(errors, result);
-
     });
 }
 exports.getUserInfos = getUserInfos;
