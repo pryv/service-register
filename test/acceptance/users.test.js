@@ -648,6 +648,20 @@ describe('User Management', () => {
 
       assert.fail('If onlyReg=true is missing, the method should error out.');
     });
+    it('fails if the user doesnt exist', async () => {
+      try {
+        await request.delete(resourcePath('somebodyelse'))
+          .query(defaultQuery)
+          .set('Authorization', systemRoleKey);
+      }
+      catch (err) {
+        assert.strictEqual(err.status, 404);
+
+        return;
+      }
+
+      assert.fail('Request should fail.');
+    });
     it('checks, but doesn\'t delete if dryRun=true is given', async () => {
       const res = await request.delete(resourcePath('jsmith'))
         .query(defaultQuery)
