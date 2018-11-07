@@ -18,7 +18,7 @@ type AccessState = {
   requestedPermissions?: PermissionSet,
   url?: string,
   poll?: string,
-  returnURL?: string,
+  returnURL?: ?string,
   oauthState?: OAuthState,
   poll_rate_ms?: number, 
 
@@ -98,11 +98,14 @@ accessLib.requestAccess = function (
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   
+  let effectiveReturnURL; 
   if ((returnURL == null) || (typeof returnURL === 'string')) {
-    // OK
+    effectiveReturnURL = returnURL;
   } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
     // deprecated
     logger.warning('Deprecated: received returnURL=false, this optional parameter must be a string.');
+
+    effectiveReturnURL = null; 
   } else {
     return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Invalid returnURL field.' }));
   }
@@ -125,8 +128,12 @@ accessLib.requestAccess = function (
   url = url +
     '?lang=' + lang +
     '&key=' + key +
-    '&requestingAppId=' + requestingAppId +
-    '&returnURL=' + encodeURIComponent(returnURL) +
+    '&requestingAppId=' + requestingAppId;
+  
+  if (effectiveReturnURL != null)
+    url += '&returnURL=' + encodeURIComponent(effectiveReturnURL);
+
+  url +=
     '&domain=' + domain +
     '&registerURL=' + encodeURIComponent(config.get('http:register:url'));
 
@@ -156,7 +163,7 @@ accessLib.requestAccess = function (
     requestedPermissions: requestedPermissions,
     url: url,
     poll: pollURL,
-    returnURL: returnURL,
+    returnURL: effectiveReturnURL,
     oauthState: cleanOauthState,
     poll_rate_ms: 1000, 
   };
