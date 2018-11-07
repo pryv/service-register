@@ -440,11 +440,6 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
-basic-auth@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/basic-auth/-/basic-auth-0.0.1.tgz#31ddb65843f6c35c6fea7beb46a987cb8ce18924"
-  integrity sha1-Md22WEP2w1xv6nvrRqmHy4zhiSQ=
-
 bcrypt-pbkdf@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz#a4301d389b6a43f9b67ff3ca11a3f6637e360e9e"
@@ -2556,13 +2551,6 @@ node-fetch@^2.1.1:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.2.0.tgz#4ee79bde909262f9775f731e3656d0db55ced5b5"
   integrity sha512-OayFWziIxiHY8bCUyLX6sTpDH8Jsbp4FfYd1j1f7vZyfgkcOnAyM4oQR16f8a0s7Gl/viMGRey8eScYk4V4EZA==
-
-node-oauth2-server@~2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/node-oauth2-server/-/node-oauth2-server-2.0.2.tgz#16027563406bb8a5c03dbb8656fc6d67a2cf5d5f"
-  integrity sha1-FgJ1Y0BruKXAPbuGVvxtZ6LPXV8=
-  dependencies:
-    basic-auth "0.0.1"
 
 node-pre-gyp@^0.10.0:
   version "0.10.3"

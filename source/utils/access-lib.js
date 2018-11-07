@@ -6,6 +6,7 @@ const config = require('./config');
 const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
+const logger = require('winston');
 
 import type { AccessState } from '../storage/database';
 
@@ -79,14 +80,14 @@ accessLib.requestAccess = function (
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   
-  const validReturnUrl = (
-    returnURL === false || 
-    returnURL == null || 
-    typeof returnURL === 'string');
-
-  if (! validReturnUrl)
-    return errorHandler(messages.e(400, 'INVALID_DATA', { 
-      detail: 'Missing Return Url field' }));
+  if ((returnURL == null) || (typeof returnURL === 'string')) {
+    // OK
+  } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
+    // deprecated
+    logger.warning('Deprecated: received returnURL=false, this optional parameter must be a string.');
+  } else {
+    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Invalid returnURL field.' }));
+  }
 
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
