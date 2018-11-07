@@ -30,7 +30,7 @@ export type AccessState = {
   requestedPermissions?: PermissionSet,
   url?: string,
   poll?: string,
-  returnURL?: string,
+  returnURL?: ?string,
   oauthState?: OAuthState,
   poll_rate_ms?: number,
 }
