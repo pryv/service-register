@@ -154,7 +154,7 @@ exports.getSet = getSet;
  */
 exports.getMatchingSets = function (
   keyMask: string, 
-  done: (error: ?Error, result: ?mixed) => mixed, 
+  done: Callback, 
   cleanKey: ?((key: string, data: mixed) => mixed),
 ) {
   redis.keys(keyMask, function (error, keys) {
