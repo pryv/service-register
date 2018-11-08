@@ -24,11 +24,6 @@ module.exports = function (app: express$Application) {
     // FLOW Assume body has this type.
     const body: {[string]: ?(string | number | boolean)} = req.body; 
 
-    if (req.body == null) {
-      logger.error('/user : How could body be empty??');
-      return next(messages.ei());
-    }
-
     const hosting: ?string = checkAndConstraints.hosting(body.hosting);
     if (hosting == null) {
       return next(messages.e(400, 'INVALID_HOSTING'));

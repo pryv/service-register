@@ -400,7 +400,7 @@ function setServerAndInfos(
 
   infos.registeredTimestamp =  Date.now();
 
-  var  previousEmail = null;
+  let previousEmail = null;
   async.series([
     function (stepDone) {
       redis.hget(username + ':users', 'email', function (error, email) {

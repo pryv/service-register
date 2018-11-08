@@ -48,7 +48,7 @@ describe('User Management', () => {
     });
   });
 
-  describe('POST /user', function () {
+  describe('POST /user (create user)', function () {
     const basePath = '/user';
 
     it('invalid hosting', function (done) {

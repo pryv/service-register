@@ -36,6 +36,20 @@ describe('Redis Database', () => {
     });    
   });
 
+  describe('setServerAndInfos', () => {
+    it('lower cases email when storing it in redis', async () => {
+      const info = { 
+        email: 'A@B.CH',
+      };
+      await bluebird.fromCallback(cb => 
+        db.setServerAndInfos('foobar', 'server', info, cb));
+      
+      assert.isTrue(
+        await redisExists('a@b.ch:email')
+      );
+    });
+  });
+
   async function redisExists(key): Promise<boolean> {
     const res = await bluebird.fromCallback(
       cb => redis.exists(key, cb));
