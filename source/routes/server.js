@@ -51,7 +51,7 @@ function discoverServerAssignations(app) {
         return next(messages.e(404, 'UNKNOWN_USER_NAME'));
       }
 
-      return res.json({server: result, alias: uid + domain }, 200);
+      return res.status(200).json({server: result, alias: uid + domain });
     });
   });
 }

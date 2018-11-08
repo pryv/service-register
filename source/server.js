@@ -71,7 +71,7 @@ if (config.get('server:port') > 0) {
     // Use this instead.
     config.set('server:url', server.url);
 
-    var readyMessage = 'Registration server v' + require('../package.json').version +
+    const readyMessage = 'Registration server v' + require('../package.json').version +
         ' listening on ' + server_url +
       '\n Serving main domain: ' + config.get('dns:domain') +
       ' extras: ' + config.get('dns:domains');
@@ -86,7 +86,7 @@ if (config.get('server:port') > 0) {
 
   module.exports = server;
 } else {
-  logger.info('** Https server is off !');
+  logger.info('** HTTP server is off !');
 }
 //start dns
 require('./app-dns');
