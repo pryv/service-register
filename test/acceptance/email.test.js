@@ -1,6 +1,7 @@
 // @flow
 
-/* global describe, it, before */
+/* global describe, it, before, beforeEach */
+
 const supertest = require('supertest');
 
 require('../../source/server');
@@ -9,7 +10,7 @@ const config = require('../../source/utils/config');
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 
-require('readyness/wait/mocha');
+require('readyness');
 
 const chai = require('chai');
 const assert = chai.assert; 
@@ -24,20 +25,24 @@ describe('POST /email/check', () => {
     request = supertest(serverUrl);
   });
 
-  it('when trying to register reserved emails, the form cannot be sent', async () => {
-    await taken('wactiv@pryv.io');
-  });
   it('when the email is still free and looks good, the form should be good', async () => {
     await free('abcd.efg_ijkl@bobby.com');
-  });
-  it('rejects emails that are already part of the user base', async () => {
-    await taken('taken@pryv.com');
   });
   it('does loose verification and errs on the side of false positive', async () => {
     await free('#!$%&’*+-/=?^_`{}|~@example.com');
 
     await free('no_at_sign_present');
     await free('THISISNOEMAILADDRESS');
+  });
+
+  describe('when taken@pryv.com is in the database', () => {
+    beforeEach(() => {
+
+    });
+
+    it('rejects emails that are already part of the user base', async () => {
+      await taken('taken@pryv.com');
+    });
   });
 
   async function taken(email) {
