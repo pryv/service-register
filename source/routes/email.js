@@ -16,7 +16,6 @@ module.exports = function (app: any) {
    * Response will be 'true' if the email is valid AND free for the taking. 
    */
   app.post('/email/check', function (req, res) {
-    res.header('Content-Type', 'text/plain');
     isEmailTaken(req.body.email).then((taken) => {
       res.send(taken ? 'false' : 'true');
     }).catch(() => {

@@ -1,47 +1,62 @@
-'use strict';
+// @flow
 
-/* global describe,it */
-const request = require('superagent');
+/* global describe, it, before */
+const supertest = require('supertest');
 
-const server = require('../../source/server'),
-      validation = require('../support/data-validation'),
-      schemas = require('../support/schema.responses');
+require('../../source/server');
+const config = require('../../source/utils/config');
+
+const validation = require('../support/data-validation');
+const schemas = require('../support/schema.responses');
 
 require('readyness/wait/mocha');
 
-describe('POST /email/check', function () {
+const chai = require('chai');
+const assert = chai.assert; 
 
-  var path = '/email/check/';
+describe('POST /email/check', () => {
+  // Obtains the server url and specialise supertest to call it. 
+  let request; 
+  before(function (done) {
+    require('readyness').doWhen(done);
+    const serverUrl = config.get('server:url');
 
-  it('when trying to register reserved emails, the form cannot be sent', function (done) {
-    request.post(server.url + path)
-      .send({email: 'wactiv@pryv.io'})
-      .end((err, res) => {
-        validation.check(res, {
-          status: 200,
-          text: 'false'
-        }, done);
-      });
+    request = supertest(serverUrl);
   });
-  it('when trying to register invalid emails, the form cannot be sent', function (done) {
-    request.post(server.url + path)
-      .send({email: 'THISISNOEMAILADDRESS'})
-      .end((err, res) => {
-        validation.check(res, {
-          status: 200,
-          text: 'false'
-        }, done);
-      });
+
+  it('when trying to register reserved emails, the form cannot be sent', async () => {
+    await taken('wactiv@pryv.io');
   });
-  it('when the email is still free and looks good, the form should be good', function (done) {
-    request.post(server.url + path).send({email: 'abcd.efg_ijkl@bobby.com'})
-      .end((err, res) => {
-        validation.check(res, {
-          status: 200,
-          text: 'true'
-        }, done);
-      });
+  it('when the email is still free and looks good, the form should be good', async () => {
+    await free('abcd.efg_ijkl@bobby.com');
   });
+  it('rejects emails that are already part of the user base', async () => {
+    await taken('taken@pryv.com');
+  });
+  it('does loose verification and errs on the side of false positive', async () => {
+    await free('#!$%&’*+-/=?^_`{}|~@example.com');
+
+    await free('no_at_sign_present');
+    await free('THISISNOEMAILADDRESS');
+  });
+
+  async function taken(email) {
+    assert.isTrue(await checkEmail(email), `Expected ${email} to be taken, but it was not.`);
+  }
+  async function free(email) {
+    assert.isFalse(await checkEmail(email), `Expected ${email} to be free, but it was not.`);
+  }
+  async function checkEmail(email: string): Promise<boolean> {
+    const res = await request
+      .post('/email/check/')
+      .send({ email: email })
+      .expect(200);
+    
+    if (res.text === 'true') return true; 
+    if (res.text === 'false') return false; 
+    
+    throw new Error('Unexpected response from /email/check.');
+  }
 });
 
 describe('GET /:email/check_email', function () {
@@ -51,7 +66,7 @@ describe('GET /:email/check_email', function () {
   }
 
   it('too short', function (done) {
-    request.get(server.url + getPath('abcd'))
+    request.get(serverUrl + getPath('abcd'))
       .end(function (err, res) {
         validation.checkError(res, {
           status: 400,
@@ -60,7 +75,7 @@ describe('GET /:email/check_email', function () {
       });
   });
   it('does not exist', function (done) {
-    request.get(server.url + getPath('abcd.efg_ijkl@bobby.com'))
+    request.get(serverUrl + getPath('abcd.efg_ijkl@bobby.com'))
       .end(function (err, res) {
         validation.check(res, {
           status: 200,
@@ -70,7 +85,7 @@ describe('GET /:email/check_email', function () {
       });
   });
   it('does exist', function (done) {
-    request.get(server.url + getPath('wactiv@pryv.io'))
+    request.get(serverUrl + getPath('wactiv@pryv.io'))
       .end(function (err, res) {
         validation.check(res, {
           status: 200,

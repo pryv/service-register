@@ -84,12 +84,27 @@ exports.referer = function (str) {
   return (str.length > 0 && str.length < 100) ? str : null;
 };
 
-exports.email = function (str) {
-  if (! str) { return null; }
-  str = _(str).trim();
-  // not perfect 
-  var filter = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  return (filter.test(str)) ? str : null;
+/// Verifies if `str` could be a user address. 
+/// 
+/// NOTE We do very little verification on the outer form of the addresses here
+///   for two reasons: 
+/// 
+///   a) Our clients might want to store a different kind of address in this 
+///     field, one that doesn't look like an email address. 
+///   b) Validating emails is hard _and_ useless: 
+///     https://hackernoon.com/the-100-correct-way-to-validate-email-addresses-7c4818f24643
+/// 
+exports.email = function (str: mixed): ?string {
+  if (typeof str !== 'string') return null; 
+
+  str = _.trim(str);
+
+  // https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address#574698
+  // 
+  // Identifies max length as 254. We add a few chars because of a) above. 
+  if (str.length > 300) return null; 
+
+  return str; 
 };
 
 exports.challenge = function (str) {
