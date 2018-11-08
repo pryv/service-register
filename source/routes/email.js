@@ -1,9 +1,9 @@
 // @flow
 
 // check if an EMAIL exists
-const checkAndConstraints = require('../utils/check-and-constraints'),
-      db = require('../storage/database'),
-      messages = require('../utils/messages');
+const checkAndConstraints = require('../utils/check-and-constraints');
+const db = require('../storage/database');
+const messages = require('../utils/messages');
 
 /**
  * Routes to handle emails
@@ -17,7 +17,8 @@ module.exports = function (app: any) {
    */
   app.post('/email/check', function (req, res) {
     isEmailTaken(req.body.email).then((taken) => {
-      res.send(taken ? 'false' : 'true');
+      const free = ! taken; 
+      res.send(free.toString());
     }).catch(() => {
       res.send('false');
     });
@@ -81,8 +82,9 @@ function isEmailTaken(email: string): Promise<boolean> {
   
   return new Promise((resolve, reject) => {
     db.emailExists(email, (err, result) => {
-      if (err) { return reject(err); }
-      if (result == null) return reject('AF: No result');
+      if (err != null) return reject(err);
+
+      if (result == null) return reject(new Error('AF: No result'));
 
       resolve(result);
     });

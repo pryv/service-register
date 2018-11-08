@@ -228,15 +228,17 @@ exports.getJSON = getJSON;
  * @param email: the email address to verify
  * @param callback: function(error,result), result being 'true' if it exists, 'false' otherwise
  */
-exports.emailExists = function (email: string, callback: GenericCallback<boolean>) {
+function emailExists(email: string, callback: GenericCallback<boolean>) {
   email = email.toLowerCase();
+  
   redis.exists(email + ':email', function (error, result) {
-    if (error) {
+    if (error != null) 
       logger.error('Redis emailExists: ' + email + ' e: ' + error, error);
-    }
-    callback(error, result === 1); // callback anyway
+
+    callback(error, result === 1);
   });
-};
+}
+exports.emailExists = emailExists; 
 
 /**
  * Check if an user id exists in the database

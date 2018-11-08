@@ -2,16 +2,15 @@
 
 /* global describe, it, before, beforeEach */
 
-const supertest = require('supertest');
-
 require('../../source/server');
 const config = require('../../source/utils/config');
 
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 
-require('readyness');
+const db = require('../../source/storage/database');
 
+const supertest = require('supertest');
 const chai = require('chai');
 const assert = chai.assert; 
 
@@ -36,8 +35,10 @@ describe('POST /email/check', () => {
   });
 
   describe('when taken@pryv.com is in the database', () => {
-    beforeEach(() => {
-
+    beforeEach((done) => {
+      db.setServerAndInfos('foobar', 'somewhere.place.com', {
+        email: 'taken@pryv.com',
+      }, done);
     });
 
     it('rejects emails that are already part of the user base', async () => {
@@ -46,10 +47,10 @@ describe('POST /email/check', () => {
   });
 
   async function taken(email) {
-    assert.isTrue(await checkEmail(email), `Expected ${email} to be taken, but it was not.`);
+    assert.isFalse(await checkEmail(email), `Expected ${email} to be taken, but it was not.`);
   }
   async function free(email) {
-    assert.isFalse(await checkEmail(email), `Expected ${email} to be free, but it was not.`);
+    assert.isTrue(await checkEmail(email), `Expected ${email} to be free, but it was not.`);
   }
   async function checkEmail(email: string): Promise<boolean> {
     const res = await request
@@ -65,13 +66,20 @@ describe('POST /email/check', () => {
 });
 
 describe('GET /:email/check_email', function () {
+  let request;
+  before(function (done) {
+    require('readyness').doWhen(done);
+    const serverUrl = config.get('server:url');
+
+    request = supertest(serverUrl);
+  });
 
   function getPath(email) {
     return '/' + email + '/check_email';
   }
 
   it('too short', function (done) {
-    request.get(serverUrl + getPath('abcd'))
+    request.get(`/abcd/check_email`)
       .end(function (err, res) {
         validation.checkError(res, {
           status: 400,
@@ -80,7 +88,7 @@ describe('GET /:email/check_email', function () {
       });
   });
   it('does not exist', function (done) {
-    request.get(serverUrl + getPath('abcd.efg_ijkl@bobby.com'))
+    request.get(`/abcd.efg_ijkl@bobby.com/check_email`)
       .end(function (err, res) {
         validation.check(res, {
           status: 200,
@@ -90,7 +98,7 @@ describe('GET /:email/check_email', function () {
       });
   });
   it('does exist', function (done) {
-    request.get(serverUrl + getPath('wactiv@pryv.io'))
+    request.get(`/wactiv@pryv.io/check_email`)
       .end(function (err, res) {
         validation.check(res, {
           status: 200,
