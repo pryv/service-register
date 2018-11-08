@@ -47,25 +47,22 @@ module.exports = function (app: any) {
     });
   });
 
-  /**
-   * GET /:email/uid: get username for a given email
-   */
+  /// GET /:email/uid: get username for a given email
+  /// 
+  /// NOTE This method is currently untested. 
+  /// 
   app.get('/:email/uid', function (req, res, next) {
-    if (! checkAndConstraints.email(req.params.email)) {
-      return next(messages.e(400, 'INVALID_EMAIL'));
-    }
+    const email = checkAndConstraints.email(req.params.email); 
+    
+    if (email == null) return next(messages.e(400, 'INVALID_EMAIL'));
 
-    db.getUIDFromMail(req.params.email, function (error, uid) {
-      if (error) {
-        return next(messages.ei());
-      }
-      if (! uid) {
-        return next(messages.e(404, 'UNKNOWN_EMAIL'));
-      }
+    db.getUIDFromMail(email, (error, uid) => {
+      if (error != null) return next(messages.ei());
+      if (uid == null) return next(messages.e(404, 'UNKNOWN_EMAIL'));
+
       return res.json({uid: uid});
     });
   });
-
 };
 
 /** Checks if the email given in `email` is taken yet. 

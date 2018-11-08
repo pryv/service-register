@@ -118,7 +118,7 @@ describe('User Management', () => {
     });
     it('invalid email', function (done) {
       var test = {
-        data: { email: 'assa' },
+        data: { email: null },
         status: 400, desc: 'Invalid email',
         JSchema: schemas.error,
         JValues: { 'id': 'INVALID_EMAIL' }
@@ -552,7 +552,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the email is invalid', function (done) {
-      request.post(serverUrl + getPath()).send({ email: 'bad@email' })
+      request.post(serverUrl + getPath()).send({ email: null })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.checkError(res, {
