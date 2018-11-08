@@ -82,7 +82,8 @@ function isEmailTaken(email: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     db.emailExists(email, (err, result) => {
       if (err) { return reject(err); }
-      
+      if (result == null) return reject('AF: No result');
+
       resolve(result);
     });
   });

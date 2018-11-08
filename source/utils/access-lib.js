@@ -8,25 +8,7 @@ const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 const logger = require('winston');
 
-import type { PermissionSet } from './check-and-constraints';
-
-type AccessState = {
-  status: 'NEED_SIGNIN' | 'REFUSED' | 'ERROR' | 'ACCEPTED',
-  code: number,
-  key?: string,
-  requestingAppId?: string,
-  requestedPermissions?: PermissionSet,
-  url?: string,
-  poll?: string,
-  returnURL?: ?string,
-  oauthState?: OAuthState,
-  poll_rate_ms?: number, 
-
-  // This is used by some methods to communicate a HTTP status code to the 
-  // caller. 
-  code?: number, 
-}
-type OAuthState = string | null; 
+import type { AccessState } from '../storage/database';
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node 20180926';
@@ -171,34 +153,20 @@ accessLib.requestAccess = function (
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
 
-type RedisResult = {
-  code: number, 
-};
-
-/**
- * Check the validity of the access by checking its associated key.
- * 
- * @param key
- * @param success
- * @param failed
- * @returns {*}
- */
+/// Check the validity of the access by checking its associated key.
+/// 
 accessLib.testKeyAndGetValue = function (
   key: string, 
-  success: (RedisResult) => mixed, 
-  failed: (Error) => mixed, 
+  success: (res: AccessState) => mixed, 
+  failed: (err: Error) => mixed, 
 ) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));
   }
 
   db.getAccessState(key, function (error, result) {
-    if (error) {
-      return failed(messages.ei(error));
-    }
-    if (!result) {
-      return failed(messages.e(400, 'INVALID_KEY'));
-    }
+    if (error != null) return failed(messages.ei(error));
+    if (result == null) return failed(messages.e(400, 'INVALID_KEY'));
 
     success(result);
   });
