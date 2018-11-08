@@ -74,21 +74,8 @@ describe('GET /:email/check_email', function () {
     request = supertest(serverUrl);
   });
 
-  function getPath(email) {
-    return '/' + email + '/check_email';
-  }
-
-  it('too short', function (done) {
-    request.get(`/abcd/check_email`)
-      .end(function (err, res) {
-        validation.checkError(res, {
-          status: 400,
-          id: 'INVALID_EMAIL'
-        }, done);
-      });
-  });
   it('does not exist', function (done) {
-    request.get(`/abcd.efg_ijkl@bobby.com/check_email`)
+    request.get('/abcd.efg_ijkl@bobby.com/check_email')
       .end(function (err, res) {
         validation.check(res, {
           status: 200,
@@ -98,7 +85,7 @@ describe('GET /:email/check_email', function () {
       });
   });
   it('does exist', function (done) {
-    request.get(`/wactiv@pryv.io/check_email`)
+    request.get('/wactiv@pryv.io/check_email')
       .end(function (err, res) {
         validation.check(res, {
           status: 200,
