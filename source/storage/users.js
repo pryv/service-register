@@ -18,10 +18,9 @@ const invitationToken = require('./invitations');
  * @param callback: function(error,result), result being a json object containing new user data
  */
 exports.create = function create(host, user, callback) {
-
-  var request = {
-    username : user.username,
-    passwordHash : user.passwordHash,
+  const request = {
+    username: user.username,
+    passwordHash: user.passwordHash,
     language: user.language,
     email: user.email
   };

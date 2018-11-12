@@ -38,12 +38,13 @@ describe('Redis Database', () => {
 
   describe('#setServerAndInfos', () => {
     describe('when given user "foobar"', () => {
+      const info = {
+        username: 'a wrong initial value',
+        email: 'A@B.CH',
+      };
+
       // Call setServerAndInfos for 'foobar' - setup a user
       beforeEach((done) => {
-        const info = {
-          email: 'A@B.CH',
-        };
-        
         db.setServerAndInfos('foobar', 'server_XYZ', info, done);
       });      
 
@@ -68,6 +69,11 @@ describe('Redis Database', () => {
           cb => redis.get('foobar:server', cb));
 
         assert.strictEqual(serverName, 'server_XYZ');
+      });
+      it('is hygienic with respect to parameters', () => {
+        // After the call to setServerAndInfos, the input attributes should 
+        // not have changed. 
+        assert.strictEqual(info.email, 'A@B.CH');
       });
     });
     it('lower cases email when storing it in redis (key)', async () => {

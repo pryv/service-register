@@ -4,6 +4,7 @@ const bluebird = require('bluebird');
 const async = require('async');
 const semver = require('semver');
 const logger = require('winston');
+const lodash = require('lodash');
 
 const config = require('../utils/config');  
 
@@ -400,20 +401,22 @@ function setServerAndInfos(
   infos: UserInformation, 
   callback: Callback, 
 ) {
+  const attrs = lodash.clone(infos);
+
   // This user will never be created for real
   if (username === 'recla') return callback();
 
   if (callback == null) 
     throw new Error('AF: Callback was null'); // assert(callback != null);
 
-  infos.registeredTimestamp =  Date.now();
+  attrs.registeredTimestamp =  Date.now();
 
   // Sanitises the user information
   username = username.toLowerCase(); 
-  infos.email = infos.email.toLowerCase(); 
+  attrs.email = attrs.email.toLowerCase(); 
   
   // Ensure that username matches itself
-  infos.username = username; 
+  attrs.username = username; 
 
   let previousEmail = null;
   async.series([
@@ -429,15 +432,15 @@ function setServerAndInfos(
     },
     function _storeUser(stepDone) {
       const multi = redis.multi();
-      multi.hmset(ns(username, 'users'), infos);
+      multi.hmset(ns(username, 'users'), attrs);
       multi.set(ns(username, 'server'), server);
 
       // If user exists remove previous email
-      if (previousEmail != null && previousEmail !== infos.email) {
+      if (previousEmail != null && previousEmail !== attrs.email) {
         multi.del(ns(previousEmail, 'email'));
       }
 
-      multi.set(ns(infos.email, 'email'), username);
+      multi.set(ns(attrs.email, 'email'), username);
       multi.exec((error) => {
         if (error != null)
           logger.error(
@@ -531,15 +534,15 @@ exports.changeEmail = function (
  */
 function _findGhostsEmails() {
   doOnKeysValuesMatching('*:email', '*', function (key, username) {
-    var email = key.substring(0, key.lastIndexOf(':'));
+    const email = key.substring(0, key.lastIndexOf(':'));
     redis.hgetall(username + ':users', function (error, user) {
 
-      var e = null;
-      if (! user) {
-        e = ' cannot find user :' + username;
+      let e;
+      if (user == null) {
+        e = ' cannot find user:' + username;
         // redis.del(key);
-      } else if (! user.email) {
-        e = ' cannot find email for :' + username;
+      } else if (user.email == null) {
+        e = ' cannot find email for:' + username;
       } else if (email !== user.email) {
         e = ' != ' + username + ':user.email -> "' + user.email + '"';
         // redis.del(key);
