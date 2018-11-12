@@ -56,6 +56,7 @@ exports.create = function create(host: HostInformation, inUser: UserInformation,
   user.username = user.username.toLowerCase(); 
   user.email = user.email.toLowerCase(); 
 
+  // Construct the request for core, including the password. 
   const request = {
     username: user.username,
     passwordHash: user.passwordHash,
@@ -63,7 +64,8 @@ exports.create = function create(host: HostInformation, inUser: UserInformation,
     email: user.email
   };
 
-  delete user.passwordHash; // Remove to forget the password
+  // Remove to forget the password
+  delete user.passwordHash; 
   delete user.password;
   
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
