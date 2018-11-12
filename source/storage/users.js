@@ -28,6 +28,9 @@ exports.create = function create(host, user, callback) {
   delete user.passwordHash; // Remove to forget the password
   delete user.password;
 
+  // BUG Let's make sure that what we store in redis matches with what we use
+  //  on core...
+  
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
       if (error) {
