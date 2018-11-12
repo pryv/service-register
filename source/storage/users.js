@@ -6,6 +6,7 @@
 
 const db = require('../storage/database');
 const async = require('async');
+const lodash = require('lodash');
 const logger = require('winston');
 const config = require('../utils/config');
 const dataservers = require('../utils/dataservers');
@@ -34,7 +35,12 @@ export type UserInformation = {
 
 type HostInformation = {
   name: string,
-}
+};
+
+type CreateResult = {
+  username: string, 
+  server: string, 
+};
 
 /**
  * Create (register) a new user
@@ -42,7 +48,14 @@ type HostInformation = {
  * @param user: the user data, a json object containing: username, password hash, language and email
  * @param callback: function(error,result), result being a json object containing new user data
  */
-exports.create = function create(host: HostInformation, user: UserInformation, callback: GenericCallback<Object>) {
+exports.create = function create(host: HostInformation, inUser: UserInformation, callback: GenericCallback<CreateResult>) {
+  const user = lodash.clone(inUser);
+
+  // We store usernames and passwords as lower case, allowing comparison 
+  // with any other lowercase string. 
+  user.username = user.username.toLowerCase(); 
+  user.email = user.email.toLowerCase(); 
+
   const request = {
     username: user.username,
     passwordHash: user.passwordHash,
@@ -52,9 +65,6 @@ exports.create = function create(host: HostInformation, user: UserInformation, c
 
   delete user.passwordHash; // Remove to forget the password
   delete user.password;
-
-  // BUG Let's make sure that what we store in redis matches with what we use
-  //  on core...
   
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
@@ -72,26 +82,25 @@ exports.create = function create(host: HostInformation, user: UserInformation, c
       if (result == null)
         return callback(new Error('Core answered empty, unknown error.'));
 
-      if (result.id != null) {
-        user.id = result.id;
-
-        db.setServerAndInfos(user.username, host.name, user, function (error) {
-          if (error) {
-            return callback(error);
-          }
-          invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
-            if (error) {
-              return callback(error);
-            }
-            callback(null, {username: user.username, server: user.username + domain});
-          });
-        });
-      } else {
+      if (result.id == null) {
         const err = 'findServer, invalid data from admin server: ' + JSON.stringify(result);
         logger.error(err);
 
         return callback(new Error(err));
       }
+
+      user.id = result.id;
+      db.setServerAndInfos(user.username, host.name, user, function (error) {
+        if (error != null) return callback(error);
+
+        invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+          if (error != null) return callback(error);
+
+          return callback(null, {
+            username: user.username, 
+            server: user.username + domain});
+        });
+      });
     });
 };
 
