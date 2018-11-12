@@ -100,7 +100,21 @@ describe('Redis Database', () => {
     });
   });
   describe('#emailExists(email, cb)', () => {
-    it('is case insensitive for email');
+    const info = {
+      username: 'a wrong initial value',
+      email: 'A@B.CH',
+    };
+
+    // Call setServerAndInfos for 'foobar' - setup a user
+    beforeEach((done) => {
+      db.setServerAndInfos('foobar', 'server_XYZ', info, done);
+    });      
+
+    it('is case insensitive for email', async () => {
+      assert.isTrue(
+        await bluebird.fromCallback(
+          cb => db.emailExists('A@B.ch', cb)));
+    });
   });
   describe('#getUIDFromMail(email, cb)', () => {
     it('is case insensitive for email');
