@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * Extension of database.js dedicated to user management
  */
@@ -11,13 +13,34 @@ const dataservers = require('../utils/dataservers');
 const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
 
+type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed;
+type Callback = GenericCallback<mixed>;
+
+export type UserInformation = {
+  id?: string, 
+
+  username: string,
+  email: string,
+  language: string, 
+
+  password: string, 
+  passwordHash: string, 
+
+  invitationToken: string, 
+  registeredTimestamp?: number,
+}
+
+type HostInformation = {
+  name: string,
+}
+
 /**
  * Create (register) a new user
  * @param host: the hosting for this user
  * @param user: the user data, a json object containing: username, password hash, language and email
  * @param callback: function(error,result), result being a json object containing new user data
  */
-exports.create = function create(host, user, callback) {
+exports.create = function create(host: HostInformation, user: UserInformation, callback: GenericCallback<Object>) {
   const request = {
     username: user.username,
     passwordHash: user.passwordHash,
@@ -33,12 +56,21 @@ exports.create = function create(host, user, callback) {
   
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
-      if (error) {
-        logger.error('dataservers.postToAdmin: ' + error + '\n host' +
-          JSON.stringify(host) + '\n info:' + JSON.stringify(user));
+      if (error != null) {
+        logger.error('dataservers.postToAdmin: ' + error.toString() + 
+          '\n host' + JSON.stringify(host) + 
+          '\n info:' + JSON.stringify(user));
+
+        if (typeof error === 'string')
+          error = new Error(error);
+
         return callback(error);
       }
-      if (result.id) {
+
+      if (result == null)
+        return callback(new Error('Core answered empty, unknown error.'));
+
+      if (result.id != null) {
         user.id = result.id;
 
         db.setServerAndInfos(user.username, host.name, user, function (error) {
@@ -53,9 +85,10 @@ exports.create = function create(host, user, callback) {
           });
         });
       } else {
-        var err = 'findServer, invalid data from admin server: ' + JSON.stringify(result);
+        const err = 'findServer, invalid data from admin server: ' + JSON.stringify(result);
         logger.error(err);
-        return callback(err);
+
+        return callback(new Error(err));
       }
     });
 };
@@ -66,7 +99,7 @@ exports.create = function create(host, user, callback) {
  * @param email: the new email address
  * @param callback: function(error,result), result being a json object containing success boolean
  */
-exports.setEmail = function create(username, email, callback) {
+exports.setEmail = function create(username: string, email: string, callback: Callback) {
 
   db.uidExists(username, function (error, exists) {
     if (error) {

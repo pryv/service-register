@@ -62,14 +62,13 @@ exports.generate = function (number, adminId, description, callback) {
 exports.checkIfValid = function checkIfValid(token, callback) {
   const invitationTokens = config.get('invitationTokens');
 
-  if (invitationTokens == null) {
-    return callback(true);
-  }
+  // No tokens defined, let everyone sign up
+  if (invitationTokens == null) return callback(true);
 
-  if (invitationTokens.length === 0) {
-    return callback(false);
-  }
+  // Tokens set to empty, let no one sign up 
+  if (invitationTokens.length === 0) return callback(false);
 
+  // Tokens are a list, accept valid ones
   for(let i=0; i<invitationTokens.length; i++) {
     if (token === invitationTokens[i]) {
       return callback(true);

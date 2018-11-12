@@ -16,12 +16,7 @@ const redis = require('redis').createClient(
 type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed; 
 type Callback = GenericCallback<mixed>;
 
-type UserInformation = {
-  username?: string, 
-  email: string, 
-  registeredTimestamp?: number, 
-  email: string, 
-}
+import type { UserInformation } from './users';
 
 export type AccessState = {
   status: 'NEED_SIGNIN' | 'REFUSED' | 'ERROR' | 'ACCEPTED',
@@ -50,7 +45,7 @@ const DBVERSION_KEY = 'dbversion';
 
 let dbversion = null;
 
-var connectionChecked = require('readyness').waitFor('database');
+const connectionChecked = require('readyness').waitFor('database');
 
 //PASSWORD CHECKING
 if (config.get('redis:password')) {
@@ -70,12 +65,7 @@ if (config.get('redis:password')) {
  */
 function checkConnection() {
   async.series([
-    function (nextStep) { // Check db exits
-      // Do not remove, 'wactiv.server' is used by tests
-      var user = { id: 0, email: 'wactiv@pryv.io', username: 'wactiv1' };
-      setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
-    },
-    function (nextStep) { // Get db version
+    function _getDatabaseVersion(nextStep) { 
       redis.get(DBVERSION_KEY, function (error, result) {
         if (error) {
           return nextStep(error);
@@ -90,7 +80,7 @@ function checkConnection() {
         }
       });
     },
-    function (nextStep) { // Update db to version 1
+    function _updateDatabaseVersion(nextStep) { // Update db to version 1
       if (semver.lt(dbversion, LASTEST_DB_VERSION)) {
         return nextStep();
       }
@@ -687,6 +677,11 @@ exports.reservedWordExists = function (word: string, callback: GenericCallback<b
   });
 };
 
-function ns(a, b: 'users' | 'server' | 'email'): string {
+
+/// Given a value (`a`) and a namespace kind (`b`): Assembles and returns the 
+/// redis namespace for accessing that value. 
+/// 
+type NamespaceKind = 'users' | 'server' | 'email';
+function ns(a: string, b: NamespaceKind): string {
   return `${a}:${b}`;
 }

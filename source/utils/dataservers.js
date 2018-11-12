@@ -211,7 +211,7 @@ function getAdminClient(
   };
 }
 
-type PostToAdminCallback = (err: mixed, res: ?Object) => mixed; 
+type PostToAdminCallback = (err: Error | string, res: ?Object) => mixed; 
 
 /**
  * POSTs a request to the core server indicated by `host`. Calls the callback

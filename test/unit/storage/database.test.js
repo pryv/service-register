@@ -129,7 +129,7 @@ describe('Redis Database', () => {
 
     it('is case insensitive for email', async () => {
       const uid = await bluebird.fromCallback(
-        cb => db.getUIDFromMail('a@B.CH', cb))
+        cb => db.getUIDFromMail('a@B.CH', cb));
 
       assert.strictEqual(uid, 'foobar');
     });
