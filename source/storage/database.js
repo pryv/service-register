@@ -481,6 +481,7 @@ exports.deleteUser = deleteUser;
 
 /**
  * Update the email address linked with provided user
+ * 
  * @param username: the name of the user
  * @param email: the new email address
  * @param callback: function(error)
@@ -493,37 +494,40 @@ exports.changeEmail = function (
   username = username.toLowerCase();
 
   // Check that email does not exists
-  redis.get(email + ':email', function (error, email_username) {
-    if (error) {
-      return callback(error);
-    }
+  redis.get(ns(email, 'email'), function (error, email_username) {
+    if (error != null) return callback(error);
 
     if (email_username === username) {
       logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
       return callback();
     }
 
-    if (email_username) {
-      return callback(new Error('Cannot set e-mail: ' + email + ' to :' + username +
-        ' it\'s already used by: ' + email_username));
+    if (email_username != null) {
+      logger.debug(`#changeEmail: Cannot set, in use: ${email}, current ${email_username}, new ${username}`);
+      return callback(
+        new Error(`Cannot set e-mail: ${email} (email is in use)`));
     }
 
-    // Remove previous user e-mail
-    redis.hget(username + ':users', 'email', function (error, previous_email) {
-      if (error) {
-        return callback(error);
-      }
+    // assert: email index says we don't currently use this email.
 
-      var multi = redis.multi();
-      multi.hmset(username + ':users', 'email', email);
-      multi.set(email + ':email', username);
-      multi.del(previous_email + ':email');
+    // Remove previous user e-mail
+    redis.hget(ns(username, 'users'), 'email', function (error, previous_email) {
+      if (error != null) return callback(error);
+
+      // BUG Race condition: If two requests enter here at the same time, the 
+      //  last one to enter will win, writing the values. The verification we
+      //  do above is not protected / linked to what follows. 
+
+      const multi = redis.multi();
+      multi.hmset(ns(username, 'users'), 'email', email);
+      multi.set(ns(email, 'email'), username);
+      multi.del(ns(previous_email, 'email'));
       multi.exec(function (error) {
-        if (error) {
-          logger.error('Redis changeEmail: ' + username + 'email: ' + email + ' e: ' + error,
-            error);
-        }
-        callback(error);
+        if (error != null) 
+          logger.error(
+            `Database#changeEmail: ${username} email: ${email} e: ${error}`, error);
+
+        return callback(error);
       });
     });
   });
