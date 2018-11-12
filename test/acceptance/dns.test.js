@@ -22,8 +22,8 @@ require('readyness/wait/mocha');
 
 describe('DNS', function () {
   before(function (done) {
-    // FLOW We're just pretending to have a user...
-    db.setServerAndInfos('dns-test', 'dummy.pryv.net', {}, function(error) {
+    const info = { email: 'foo@bar.ch' };
+    db.setServerAndInfos('dns-test', 'dummy.pryv.net', info, function(error) {
       done(error);
     });
   });

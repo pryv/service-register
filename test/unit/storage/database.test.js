@@ -36,9 +36,42 @@ describe('Redis Database', () => {
     });    
   });
 
-  describe('setServerAndInfos', () => {
-    it('lower cases email when storing it in redis', async () => {
-      const info = { 
+  describe('#setServerAndInfos', () => {
+    describe('when given user "foobar"', () => {
+      // Call setServerAndInfos for 'foobar' - setup a user
+      beforeEach((done) => {
+        const info = {
+          email: 'A@B.CH',
+        };
+        
+        db.setServerAndInfos('foobar', 'server_XYZ', info, done);
+      });      
+
+      it('stores user information', async () => {
+        assert.isTrue(
+          await redisExists('foobar:users')
+        );
+
+        const storedInfo = await bluebird.fromCallback(cb => redis.hgetall('foobar:users', cb));
+
+        assert.strictEqual(storedInfo.username, 'foobar');
+        assert.strictEqual(storedInfo.email, 'a@b.ch');
+      });
+      it('stores email index', async () => {
+        const emailIndex = await bluebird.fromCallback(
+          cb => redis.get('a@b.ch:email', cb));
+
+        assert.strictEqual(emailIndex, 'foobar');
+      });
+      it('stores server name', async () => {
+        const serverName = await bluebird.fromCallback(
+          cb => redis.get('foobar:server', cb));
+
+        assert.strictEqual(serverName, 'server_XYZ');
+      });
+    });
+    it('lower cases email when storing it in redis (key)', async () => {
+      const info = {
         email: 'A@B.CH',
       };
       await bluebird.fromCallback(cb => 
@@ -48,6 +81,26 @@ describe('Redis Database', () => {
         await redisExists('a@b.ch:email')
       );
     });
+    it('lower cases email when storing it in redis (info)', async () => {
+      const info = {
+        email: 'A@B.CH',
+      };
+      await bluebird.fromCallback(cb =>
+        db.setServerAndInfos('foobar', 'server', info, cb));
+
+      const storedInfo = await bluebird.fromCallback(
+        cb => redis.hgetall('foobar:users', cb));
+      assert.strictEqual(storedInfo.email, 'a@b.ch');
+    });
+  });
+  describe('#emailExists(email, cb)', () => {
+    it('is case insensitive for email');
+  });
+  describe('#getUIDFromMail(email, cb)', () => {
+    it('is case insensitive for email');
+  });
+  describe('#changeEmail(username, email, cb)', () => {
+    it('is case insensitive for email');
   });
 
   async function redisExists(key): Promise<boolean> {

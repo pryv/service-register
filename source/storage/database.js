@@ -16,6 +16,8 @@ type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed;
 type Callback = GenericCallback<mixed>;
 
 type UserInformation = {
+  username?: string, 
+  email: string, 
   registeredTimestamp?: number, 
   email: string, 
 }
@@ -42,9 +44,10 @@ redis.on('error', function (err) {
   logger.error('Redis: ' + err.message);
 });
 
-var LASTEST_DB_VERSION = '0.1.1',
-    DBVERSION_KEY = 'dbversion',
-    dbversion = null;
+const LASTEST_DB_VERSION = '0.1.1';
+const DBVERSION_KEY = 'dbversion';
+
+let dbversion = null;
 
 var connectionChecked = require('readyness').waitFor('database');
 
@@ -68,7 +71,7 @@ function checkConnection() {
   async.series([
     function (nextStep) { // Check db exits
       // Do not remove, 'wactiv.server' is used by tests
-      var user = { id: 0, email: 'wactiv@pryv.io' };
+      var user = { id: 0, email: 'wactiv@pryv.io', username: 'wactiv1' };
       setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
     },
     function (nextStep) { // Get db version
@@ -383,55 +386,68 @@ exports.getUIDFromMail = function (mail: string, callback: Callback) {
 };
 
 
-/**
- * Update server and information linked with provided user
- * @param username: the name of the user
- * @param server: the new server name
- * @param infos: the new user information
- * @param callback: function(error)
- */
+
+/// Update server and information linked with provided user
+/// 
+/// @param username: the name of the user
+/// @param server: the new server name
+/// @param infos: the new user information
+/// @param callback: callback(error) - No actual success value is being generated
+///   except error == null. 
+/// 
 function setServerAndInfos(
   username: string, server: string, 
   infos: UserInformation, 
   callback: Callback, 
 ) {
-  // This user will never been created for real
-  if (username === 'recla')  { return callback(); }
+  // This user will never be created for real
+  if (username === 'recla') return callback();
+
+  if (callback == null) 
+    throw new Error('AF: Callback was null'); // assert(callback != null);
 
   infos.registeredTimestamp =  Date.now();
 
+  // Sanitises the user information
+  username = username.toLowerCase(); 
+  infos.email = infos.email.toLowerCase(); 
+  
+  // Ensure that username matches itself
+  infos.username = username; 
+
   let previousEmail = null;
   async.series([
-    function (stepDone) {
-      redis.hget(username + ':users', 'email', function (error, email) {
-        previousEmail = email;
-        stepDone(error);
+    function _getPreviousEmailValue(stepDone) {
+      redis.hget(ns(username, 'users'), 'email', function (error, email) {
+        if (error != null) return stepDone(error);
+
+        if (email != null)
+          previousEmail = email.toLowerCase();
+
+        return stepDone();
       });
     },
-    function (stepDone) {
-      username = username.toLowerCase();
-      var multi = redis.multi();
-      multi.hmset(username + ':users', infos);
-      multi.set(username + ':server', server);
+    function _storeUser(stepDone) {
+      const multi = redis.multi();
+      multi.hmset(ns(username, 'users'), infos);
+      multi.set(ns(username, 'server'), server);
 
       // If user exists remove previous email
-      if (previousEmail && previousEmail !== infos.email) {
-        multi.del(previousEmail + ':email');
+      if (previousEmail != null && previousEmail !== infos.email) {
+        multi.del(ns(previousEmail, 'email'));
       }
-      multi.set(infos.email + ':email', username);
-      multi.exec(function (error) {
-        if (error) {
-          logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error);
-        }
-        stepDone(error);
+
+      multi.set(ns(infos.email, 'email'), username);
+      multi.exec((error) => {
+        if (error != null)
+          logger.error(
+            `Database#setServerAndInfos: ${username} e: ${error}`, error);
+ 
+        return stepDone(error);
       });
     }
   ],
-  function (error) {
-    if (callback) {
-      callback(error); // Callback anyway
-    }
-  });
+  callback);
 }
 exports.setServerAndInfos = setServerAndInfos;
 
@@ -457,10 +473,6 @@ async function deleteUser(username: string): Promise<mixed> {
   // Now try to delete all of these, not stopping when one of them fails. 
   return bluebird.fromCallback(
     cb => redis.del(...keysToDelete, cb));
-
-  function ns(a, b): string {
-    return `${a}:${b}`;
-  }
 }
 exports.deleteUser = deleteUser;
 
@@ -667,3 +679,7 @@ exports.reservedWordExists = function (word: string, callback: GenericCallback<b
     callback(null, result === 1);
   });
 };
+
+function ns(a, b: 'users' | 'server' | 'email'): string {
+  return `${a}:${b}`;
+}
