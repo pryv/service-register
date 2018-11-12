@@ -151,6 +151,7 @@ accessLib.requestAccess = function (
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
     clientData: clientData,
+    lang: lang,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
