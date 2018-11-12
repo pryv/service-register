@@ -1,20 +1,20 @@
-'use strict';
 // @flow
 
-const checkAndConstraints = require('../utils/check-and-constraints'),
-      users = require('../storage/users'),
-      messages = require('../utils/messages'),
-      invitations = require('../storage/invitations'),
-      requireRoles = require('../middleware/requireRoles');
+const lodash = require('lodash');
+
+const checkAndConstraints = require('../utils/check-and-constraints');
+const users = require('../storage/users');
+const messages = require('../utils/messages');
+const invitations = require('../storage/invitations');
+const requireRoles = require('../middleware/requireRoles');
 
 /**
  * Routes for admin to manage users
  */
 module.exports = function (app: any) {
   // GET /admin/users: get the user list
-  app.get('/admin/users', requireRoles('admin'), function (req, res/*, next*/) {
-
-    var headers = {
+  app.get('/admin/users', requireRoles('admin'), function (req, res, next) {
+    const headers = {
       registeredDate : 'Registered At',
       username : 'Username',
       email: 'e-mail',
@@ -27,27 +27,29 @@ module.exports = function (app: any) {
     };
 
     users.getAllUsersInfos(function (error, list) {
+      if (list == null)
+        return next(new Error('AF: Missing user list.'));
 
       // Convert timestamp tor readable data
-      list.forEach(function (user) {
-        if (! user.registeredTimestamp) {
-          user.registeredTimestamp = 0;
-          user.registeredDate = '';
-        } else {
-          user.registeredDate = new Date(parseInt(user.registeredTimestamp)).toUTCString();
-        }
-      });
+      const outputList = list
+        .map((user) => {
+          const output: Object = lodash.clone(user);
+          if (output.registeredTimestamp == null) {
+            output.registeredTimestamp = 0;
+            output.registeredDate = '';
+          } else {
+            output.registeredDate = new Date(parseInt(user.registeredTimestamp)).toUTCString();
+          }
 
-      // Sort by timestamp
-      list.sort(function (a, b) {
-        return b.registeredTimestamp - a.registeredTimestamp;
-      });
+          return output;
+        })
+        .sort((a, b) => b.registeredTimestamp - a.registeredTimestamp);
 
       if (req.query.toHTML) {
-        return res.send(toHtmlTables(headers, list));
+        return res.send(toHtmlTables(headers, outputList));
       }
 
-      res.json({users: list, error: error});
+      res.json({ users: outputList, error: error });
     });
   });
 

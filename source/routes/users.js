@@ -184,11 +184,8 @@ module.exports = function (app: express$Application) {
       }
 
       users.setEmail(req.params.username, email, function(error, result) {
-        if(error) {
-          if(error.code && error.message) {
-            return next(messages.e(error.code, error.message));
-          }
-          return next(messages.ei(error));
+        if (error != null) {
+          return next(error);
         }
 
         res.json(result);

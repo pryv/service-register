@@ -36,6 +36,7 @@ describe('POST /email/check', () => {
 
   describe('when taken@pryv.com is in the database', () => {
     beforeEach((done) => {
+      // FLOW Ignore the missing attributes in the user attr hash.
       db.setServerAndInfos('foobar', 'somewhere.place.com', {
         email: 'taken@pryv.com',
       }, done);

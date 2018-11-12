@@ -254,13 +254,15 @@ exports.uidExists = function (uid: string, callback: Callback) {
  * @param uid: the user id
  * @param callback: function(error,result), result being the server name
  */
-exports.getServer = function (uid: string, callback: Callback) {
+exports.getServer = function (uid: string, callback: GenericCallback<string>) {
   uid = uid.toLowerCase();
-  redis.get(uid + ':server', function (error, result) {
-    if (error) {
+  redis.get(ns(uid, 'server'), function (error, result: string) {
+    if (error != null) {
       logger.error('Redis getServer: ' + uid + ' e: ' + error, error);
+      return callback(error);
     }
-    callback(error, result);
+
+    return callback(null, result);
   });
 };
 

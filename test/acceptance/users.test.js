@@ -611,6 +611,8 @@ describe('User Management', () => {
         password: 'foobar', 
         email: 'jsmith@test.com',
       };
+
+      // FLOW Ignore the missing attributes in the user attr hash.
       db.setServerAndInfos('jsmith', 'server.name.at.tld', userInfos, done);
     });
 

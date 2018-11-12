@@ -6,12 +6,12 @@
 
 const db = require('../storage/database');
 const async = require('async');
-const _ = require('lodash');
 const logger = require('winston');
 const config = require('../utils/config');
 const dataservers = require('../utils/dataservers');
 const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
+const messages = require('../utils/messages');
 
 type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed;
 type Callback = GenericCallback<mixed>;
@@ -28,6 +28,8 @@ export type UserInformation = {
 
   invitationToken: string, 
   registeredTimestamp?: number,
+
+  server?: string, 
 }
 
 type HostInformation = {
@@ -106,9 +108,11 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
       return callback(error);
     }
 
-    if (! exists) {
-      return callback({code:404, message:'UNKNOWN_USER_NAME'});
-    }
+    if (! exists) 
+      return callback(new messages.REGError(404, {
+        id: 'UNKNOWN_USER_NAME',
+        message: 'No such user',
+      }));
 
     db.changeEmail(username, email, function (error) {
       if (error) {
@@ -119,12 +123,17 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
   });
 };
 
+type ServerUsageStats = {
+  [name: string]: number
+}
+
 /**
- * Get a list of servers
+ * Get a list of servers currently in use on this registry. 
+ * 
  * @param callback: function(error, result) with result of the form: {serverName : usage count}
  */
-exports.getServers = function (callback) {
-  var result = {};
+exports.getServers = function (callback: GenericCallback<ServerUsageStats>) {
+  const result: ServerUsageStats = {};
   db.doOnKeysValuesMatching('*:server', '*',
     function (key, value) {
       if (typeof(result[value]) === 'undefined') {
@@ -142,7 +151,7 @@ exports.getServers = function (callback) {
  * @param serverName: the name of the server
  * @param callback: function(error, result), result being an array of users
  */
-exports.getUsersOnServer = function (serverName, callback) {
+exports.getUsersOnServer = function (serverName: string, callback: Callback) {
   var result = [];
   db.doOnKeysValuesMatching('*:server', serverName,
     function (key) {
@@ -159,16 +168,18 @@ exports.getUsersOnServer = function (serverName, callback) {
  * @param dstServerName: the new server name
  * @param callback: function(error, result), result being the count of renamed occurrences
  */
-exports.renameServer = function (srcServerName, dstServerName, callback) {
-
+exports.renameServer = function (srcServerName: string, dstServerName: string, callback: Callback) {
   const errors = [];
   let receivedCount = 0;
   let actionThrown = 0;
   let waitForDone = true;
 
-  var checkDone = function () {
+  const checkDone = function () {
     if ((! waitForDone) && actionThrown === receivedCount) {
-      callback(errors.length > 0 ? errors : null, receivedCount);
+      if (errors.length > 0) 
+        return callback(new Error(errors.join(', ')));
+
+      return callback(null, receivedCount);
     }
   };
 
@@ -199,7 +210,7 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
  * Get a list of all user's information (see getUserInfos)
  * @param callback: function(error, result), result being a list of information for all users
  */
-exports.getAllUsersInfos = function (callback) {
+exports.getAllUsersInfos = function (callback: GenericCallback<Array<UserInformation>>) {
   const userlist = [];
   let waiter = 1;
 
@@ -212,7 +223,7 @@ exports.getAllUsersInfos = function (callback) {
 
   db.doOnKeysMatching('*:users',
     function (userkey) { // action
-      var user = userkey.substring(0, userkey.length - 6);
+      const user = userkey.substring(0, userkey.length - 6);
       waiter++;
 
       this.getUserInfos(user, function (errors, userInfos) {
@@ -230,19 +241,23 @@ exports.getAllUsersInfos = function (callback) {
  * @param username: the name of requested user
  * @param callback: function(error, result), result being an object containing user information
  */
-function getUserInfos(username, callback) {
-  const result = { username : username };
+function getUserInfos(username: string, callback: Callback) {
+  let result: UserInformation;
   let errors = [];
 
   async.parallel([
     function (stepDone) { // Get user information
       db.getSet(username + ':users', function (error, user) {
-        if (error) {
+        if (error != null) {
           errors.push({user: error});
-        } else if (! user) {
+        } else if (user == null) {
           errors.push({user: username + ':users is empty'});
         } else {
-          _.extend(result, user);
+          // BUG We have no guarantee here about the structure of `user`. It 
+          //  could look like nothing... 
+
+          // FLOW See bug above.
+          result = user; 
         }
         stepDone();
       });
@@ -260,11 +275,11 @@ function getUserInfos(username, callback) {
       });
     }
   ],
-    function () {
-      if (errors.length === 0) {
-        errors = null;
-      }
-      callback(errors, result);
-    });
+  function () {
+    if (errors.length > 0) 
+      return callback(new Error(errors.join(', ')));
+
+    return callback(null, result);
+  });
 }
 exports.getUserInfos = getUserInfos;

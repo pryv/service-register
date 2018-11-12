@@ -5,6 +5,7 @@
 const chai = require('chai');
 const assert = chai.assert; 
 const bluebird = require('bluebird');
+const lodash = require('lodash');
 
 const logger = require('winston');
 logger.setLevels(logger.config.syslog.levels);
@@ -16,13 +17,24 @@ const redis = require('redis').createClient(
   config.get('redis:port'),
   config.get('redis:host'), {});
 
+import type { UserInformation } from '../../../source/storage/users';
+
+function userFixture(attrs): UserInformation {
+  const baseAttributes = {
+    username: 'baseUserName', password: '01234',
+    language: 'de', invitationToken: 'foobar',
+  };
+
+  return lodash.merge({}, attrs, baseAttributes);
+}
+
 describe('Redis Database', () => {
   describe('#deleteUser(username)', () => {
     describe('when given a user \'jsmith\'', () => {
       beforeEach((done) => {
-        const info = {
+        const info = userFixture({
           username: 'jsmith', email: 'jsmith@foo.bar'
-        };
+        });
         db.setServerAndInfos('jsmith', 'someServer', info, done);
       });
 
@@ -38,10 +50,10 @@ describe('Redis Database', () => {
 
   describe('#setServerAndInfos', () => {
     describe('when given user "foobar"', () => {
-      const info = {
+      const info = userFixture({
         username: 'a wrong initial value',
         email: 'A@B.CH',
-      };
+      });
 
       // Call setServerAndInfos for 'foobar' - setup a user
       beforeEach((done) => {
@@ -77,9 +89,9 @@ describe('Redis Database', () => {
       });
     });
     it('lower cases email when storing it in redis (key)', async () => {
-      const info = {
+      const info = userFixture({
         email: 'A@B.CH',
-      };
+      });
       await bluebird.fromCallback(cb => 
         db.setServerAndInfos('foobar', 'server', info, cb));
       
@@ -88,9 +100,9 @@ describe('Redis Database', () => {
       );
     });
     it('lower cases email when storing it in redis (info)', async () => {
-      const info = {
+      const info = userFixture({
         email: 'A@B.CH',
-      };
+      });
       await bluebird.fromCallback(cb =>
         db.setServerAndInfos('foobar', 'server', info, cb));
 
@@ -100,10 +112,10 @@ describe('Redis Database', () => {
     });
   });
   describe('#emailExists(email, cb)', () => {
-    const info = {
+    const info = userFixture({
       username: 'a wrong initial value',
       email: 'A@B.CH',
-    };
+    });
 
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {
@@ -117,10 +129,10 @@ describe('Redis Database', () => {
     });
   });
   describe('#getUIDFromMail(email, cb)', () => {
-    const info = {
+    const info = userFixture({
       username: 'a wrong initial value',
       email: 'A@B.CH',
-    };
+    });
 
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {
@@ -135,10 +147,10 @@ describe('Redis Database', () => {
     });
   });
   describe('#changeEmail(username, email, cb)', () => {
-    const info = {
+    const info = userFixture({
       username: 'a wrong initial value',
       email: 'A@B.CH',
-    };
+    });
 
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {

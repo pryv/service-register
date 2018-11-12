@@ -23,6 +23,8 @@ require('readyness/wait/mocha');
 describe('DNS', function () {
   before(function (done) {
     const info = { email: 'foo@bar.ch' };
+
+    // FLOW Not really a full user info, but it doesn't matter here.
     db.setServerAndInfos('dns-test', 'dummy.pryv.net', info, function(error) {
       done(error);
     });
