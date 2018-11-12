@@ -88,19 +88,13 @@ function getCoreForHosting(
       // We look through available hosts for one good candidate (small users count)
       for (const server of availableCores) {
         const serverName = produceRedisName(server);
-        const usersCount = redisServers[serverName];
-
-        // This host has 0 user, we will not find better candidate
-        if (usersCount === 0) {
-          return callback(null, server);
-        }
+        const usersCount = redisServers[serverName] || 0;
 
         // This host has smaller users count, we take it as new best candidate
         if (candidate == null || min == null || usersCount < min) {
           min = usersCount;
           candidate = server;
         }
-
       }
 
       callback(null, candidate);

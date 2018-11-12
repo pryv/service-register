@@ -125,21 +125,17 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
 
 type ServerUsageStats = {
   [name: string]: number
-}
+};
 
-/**
- * Get a list of servers currently in use on this registry. 
- * 
- * @param callback: function(error, result) with result of the form: {serverName : usage count}
- */
+/// Get a list of servers currently in use on this registry. 
+/// 
+/// @param callback: function(error, result) with result of the form: {serverName : usage count}
+/// 
 exports.getServers = function (callback: GenericCallback<ServerUsageStats>) {
   const result: ServerUsageStats = {};
   db.doOnKeysValuesMatching('*:server', '*',
-    function (key, value) {
-      if (typeof(result[value]) === 'undefined') {
-        result[value] = 0;
-      }
-      result[value]++;
+    function _countUserForServer(key, serverName) {
+      result[serverName] = (result[serverName] || 0) + 1;
     },
     function (error) {
       callback(error, result);
