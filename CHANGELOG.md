@@ -2,6 +2,9 @@
 
 ## 1.3.X
 
+- Usernames and email addresses are now case insensitive. Also, we've removed 
+  limits on the email field, only imposing a length limit of 300 chars. 
+
 - Removes https support. We deploy this behind a WAF or behind an nginx reverse
   proxy, so we don't ever need the https option. Plus: Less options for security
   = more security. 
