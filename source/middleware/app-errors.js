@@ -16,11 +16,11 @@ function app_errors(app: express$Application) {
     if (! (error instanceof Error)) {
       logger.error('app_errors unknown object : ' + error);
       logger.error((new Error()).stack);
-    }  else {
+    } else {
       logger.error('app_errors : ' + error.toString());
       logger.error(error.stack);
     }
-    var err = new messages.REGError(500, messages.say('INTERNAL_ERROR'));
+    const err = new messages.REGError(500, messages.say('INTERNAL_ERROR'));
     res.status(err.httpCode).json(err.data);
   });
 }

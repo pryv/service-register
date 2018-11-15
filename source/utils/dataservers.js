@@ -78,9 +78,9 @@ function getCoreForHosting(
   function findBestCore(availableCores, callback) {
     // Get the list of active hosts and the users count (from Redis)
     users.getServers((err, redisServers) => {
-      if(err) {
-        return callback(err);
-      }
+      if (err != null) return callback(err);
+      if (redisServers == null) 
+        return callback(new Error('AF: Expected server usage stats'));
 
       let candidate = null;
       let min = null;
@@ -88,19 +88,13 @@ function getCoreForHosting(
       // We look through available hosts for one good candidate (small users count)
       for (const server of availableCores) {
         const serverName = produceRedisName(server);
-        const usersCount = redisServers[serverName];
-
-        // This host has 0 user, we will not find better candidate
-        if (usersCount == null) {
-          return callback(null, server);
-        }
+        const usersCount = redisServers[serverName] || 0;
 
         // This host has smaller users count, we take it as new best candidate
-        if(candidate == null || usersCount < min) {
+        if (candidate == null || min == null || usersCount < min) {
           min = usersCount;
           candidate = server;
         }
-
       }
 
       callback(null, candidate);
@@ -211,7 +205,7 @@ function getAdminClient(
   };
 }
 
-type PostToAdminCallback = (err: mixed, res: ?Object) => mixed; 
+type PostToAdminCallback = (err: ?(Error | string), res: ?Object) => mixed; 
 
 /**
  * POSTs a request to the core server indicated by `host`. Calls the callback

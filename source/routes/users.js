@@ -1,7 +1,6 @@
 // @flow
 
 const bluebird = require('bluebird');
-const logger = require('winston');
 const async = require('async');
 
 const checkAndConstraints = require('../utils/check-and-constraints');
@@ -24,65 +23,44 @@ module.exports = function (app: express$Application) {
     // FLOW Assume body has this type.
     const body: {[string]: ?(string | number | boolean)} = req.body; 
 
-    if (req.body == null) {
-      logger.error('/user : How could body be empty??');
-      return next(messages.ei());
-    }
-
     const hosting: ?string = checkAndConstraints.hosting(body.hosting);
     if (hosting == null) {
       return next(messages.e(400, 'INVALID_HOSTING'));
     }
 
-    const user = {
-      appid: checkAndConstraints.appID(body.appid),
-      username: checkAndConstraints.uid(body.username),
-      password: checkAndConstraints.password(body.password),
-      email: checkAndConstraints.email(body.email),
-      invitationToken: body.invitationtoken,
-      referer: checkAndConstraints.referer(body.referer),
-      language: checkAndConstraints.lang(body.languageCode), // no check
-      passwordHash: null, // filled in by some of the methods.
-    };
+    const appID = checkAndConstraints.appID(body.appid);
+    const username = checkAndConstraints.uid(body.username);
+    const password = checkAndConstraints.password(body.password);
+    const email = checkAndConstraints.email(body.email);
+    const givenInvitationToken = body.invitationtoken;
+    const referer = checkAndConstraints.referer(body.referer);
+    const language = checkAndConstraints.lang(body.languageCode);
 
-    const username = user.username;
-    const email = user.email;
+    if (appID == null)      return next(messages.e(400, 'INVALID_APPID'));
+    if (username == null)   return next(messages.e(400, 'INVALID_USER_NAME'));
+    if (email == null)      return next(messages.e(400, 'INVALID_EMAIL'));
+    if (password == null)   return next(messages.e(400, 'INVALID_PASSWORD'));
+    if (language == null)  return next(messages.e(400, 'INVALID_LANGUAGE'));
 
-    if (! user.appid) {
-      return next(messages.e(400, 'INVALID_APPID'));
-    }
-    if (username == null) {
-      return next(messages.e(400, 'INVALID_USER_NAME'));
-    }
-    if (email == null) {
-      return next(messages.e(400, 'INVALID_EMAIL'));
-    }
-    if (! user.password) {
-      return next(messages.e(400, 'INVALID_PASSWORD'));
-    }
-    if (user.language === null) {
-      return next(messages.e(400, 'INVALID_LANGUAGE'));
-    }
-
-    var existsList = [];
+    const existsList = [];
     async.parallel([
-      function (callback) {  // test username
-        invitationToken.checkIfValid(user.invitationToken, function (valid, error) {
+      function _isInvitationTokenValid(callback) {
+        invitationToken.checkIfValid(givenInvitationToken, function (valid, error) {
           if (! valid) {
             existsList.push('INVALID_INVITATION');
           }
           callback(error);
         });
       },
-      function (callback) {  // test username
-        reservedWords.useridIsReserved(user.username, function (error, reserved) {
+      function _isUserIdReserved(callback) {
+        reservedWords.useridIsReserved(username, function (error, reserved) {
           if (reserved) {
             existsList.push('RESERVED_USER_NAME');
           }
           callback(error);
         });
       },
-      function (callback) {  // test username
+      function _doesUidAlreadyExist(callback) {
         db.uidExists(username, function (error, exists) {
           if (exists) {
             existsList.push('EXISTING_USER_NAME');
@@ -90,7 +68,7 @@ module.exports = function (app: express$Application) {
           callback(error);
         });
       },
-      function (callback) {  // test email
+      function _doesEmailAlreadyExist(callback) {  // test email
         db.emailExists(email, function (error, exists) {
           if (exists) {
             existsList.push('EXISTING_EMAIL');
@@ -101,33 +79,28 @@ module.exports = function (app: express$Application) {
     ], function (error) {
 
       if (existsList.length > 0) {
-        if (existsList.length === 1) {
+        if (existsList.length === 1) 
           return next(messages.e(400, existsList[0]));
-        }
+        
         return next(messages.ex(400, 'INVALID_DATA', existsList));
       }
 
-      if (error) {
-        return next(messages.ei(error));
-      }
+      if (error != null) return next(messages.ei(error));
 
-      encryption.hash(user.password, function (errorEncryt, passwordHash) {
-        if (errorEncryt) {
-          return next(messages.ei(errorEncryt));
-        }
-
-        user.passwordHash =  passwordHash;
+      encryption.hash(password, function (errorEncryt, passwordHash) {
+        if (errorEncryt != null) return next(messages.ei(errorEncryt));
 
         // Create user
         dataservers.getCoreForHosting(hosting, (hostError, host) => {
-          if(hostError) {
-            return next(messages.ei(hostError));
-          }
-          if (host == null) {
-            return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
-          }
+          if (hostError != null) return next(messages.ei(hostError));
+          if (host == null) return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
 
-          users.create(host, user, function(creationError, result) {
+          const userAttrs = {
+            username: username, email: email, language: language, 
+            password: password, passwordHash: passwordHash, 
+            invitationToken: givenInvitationToken, referer: referer, 
+          };
+          users.create(host, userAttrs, function(creationError, result) {
             if(creationError) {
               return next(messages.ei(creationError));
             }
@@ -211,11 +184,8 @@ module.exports = function (app: express$Application) {
       }
 
       users.setEmail(req.params.username, email, function(error, result) {
-        if(error) {
-          if(error.code && error.message) {
-            return next(messages.e(error.code, error.message));
-          }
-          return next(messages.ei(error));
+        if (error != null) {
+          return next(error);
         }
 
         res.json(result);
@@ -301,4 +271,3 @@ function produceError(errorId: ErrorId, msg: string): Error {
     message: msg,
   });
 }
-

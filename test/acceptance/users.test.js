@@ -48,7 +48,7 @@ describe('User Management', () => {
     });
   });
 
-  describe('POST /user', function () {
+  describe('POST /user (create user)', function () {
     const basePath = '/user';
 
     it('invalid hosting', function (done) {
@@ -118,7 +118,7 @@ describe('User Management', () => {
     });
     it('invalid email', function (done) {
       var test = {
-        data: { email: 'assa' },
+        data: { email: null },
         status: 400, desc: 'Invalid email',
         JSchema: schemas.error,
         JValues: { 'id': 'INVALID_EMAIL' }
@@ -552,7 +552,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the email is invalid', function (done) {
-      request.post(serverUrl + getPath()).send({ email: 'bad@email' })
+      request.post(serverUrl + getPath()).send({ email: null })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.checkError(res, {
@@ -611,6 +611,8 @@ describe('User Management', () => {
         password: 'foobar', 
         email: 'jsmith@test.com',
       };
+
+      // FLOW Ignore the missing attributes in the user attr hash.
       db.setServerAndInfos('jsmith', 'server.name.at.tld', userInfos, done);
     });
 

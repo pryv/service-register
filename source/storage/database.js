@@ -4,6 +4,7 @@ const bluebird = require('bluebird');
 const async = require('async');
 const semver = require('semver');
 const logger = require('winston');
+const lodash = require('lodash');
 
 const config = require('../utils/config');  
 
@@ -15,10 +16,7 @@ const redis = require('redis').createClient(
 type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed; 
 type Callback = GenericCallback<mixed>;
 
-type UserInformation = {
-  registeredTimestamp?: number, 
-  email: string, 
-}
+import type { UserInformation } from './users';
 
 export type AccessState = {
   status: 'NEED_SIGNIN' | 'REFUSED' | 'ERROR' | 'ACCEPTED',
@@ -42,11 +40,12 @@ redis.on('error', function (err) {
   logger.error('Redis: ' + err.message);
 });
 
-var LASTEST_DB_VERSION = '0.1.1',
-    DBVERSION_KEY = 'dbversion',
-    dbversion = null;
+const LASTEST_DB_VERSION = '0.1.1';
+const DBVERSION_KEY = 'dbversion';
 
-var connectionChecked = require('readyness').waitFor('database');
+let dbversion = null;
+
+const connectionChecked = require('readyness').waitFor('database');
 
 //PASSWORD CHECKING
 if (config.get('redis:password')) {
@@ -66,12 +65,16 @@ if (config.get('redis:password')) {
  */
 function checkConnection() {
   async.series([
-    function (nextStep) { // Check db exits
+    function _addWactivFixtureToDatabase(nextStep) { // Check db exits
       // Do not remove, 'wactiv.server' is used by tests
-      var user = { id: 0, email: 'wactiv@pryv.io' };
+
+      // NOTE Eventually, we will want to move the 'wactiv' user to a proper
+      //  test fixture - and not have it here in production anymore. 
+
+      const user = { id: 0, email: 'wactiv@pryv.io', username: 'wactiv1' };
       setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
     },
-    function (nextStep) { // Get db version
+    function _getDatabaseVersion(nextStep) { 
       redis.get(DBVERSION_KEY, function (error, result) {
         if (error) {
           return nextStep(error);
@@ -86,7 +89,7 @@ function checkConnection() {
         }
       });
     },
-    function (nextStep) { // Update db to version 1
+    function _updateDatabaseVersion(nextStep) { // Update db to version 1
       if (semver.lt(dbversion, LASTEST_DB_VERSION)) {
         return nextStep();
       }
@@ -228,15 +231,17 @@ exports.getJSON = getJSON;
  * @param email: the email address to verify
  * @param callback: function(error,result), result being 'true' if it exists, 'false' otherwise
  */
-exports.emailExists = function (email: string, callback: GenericCallback<boolean>) {
+function emailExists(email: string, callback: GenericCallback<boolean>) {
   email = email.toLowerCase();
+  
   redis.exists(email + ':email', function (error, result) {
-    if (error) {
+    if (error != null) 
       logger.error('Redis emailExists: ' + email + ' e: ' + error, error);
-    }
-    callback(error, result === 1); // callback anyway
+
+    callback(error, result === 1);
   });
-};
+}
+exports.emailExists = emailExists; 
 
 /**
  * Check if an user id exists in the database
@@ -258,13 +263,15 @@ exports.uidExists = function (uid: string, callback: Callback) {
  * @param uid: the user id
  * @param callback: function(error,result), result being the server name
  */
-exports.getServer = function (uid: string, callback: Callback) {
+exports.getServer = function (uid: string, callback: GenericCallback<string>) {
   uid = uid.toLowerCase();
-  redis.get(uid + ':server', function (error, result) {
-    if (error) {
+  redis.get(ns(uid, 'server'), function (error, result: string) {
+    if (error != null) {
       logger.error('Redis getServer: ' + uid + ' e: ' + error, error);
+      return callback(error);
     }
-    callback(error, result);
+
+    return callback(null, result);
   });
 };
 
@@ -381,55 +388,70 @@ exports.getUIDFromMail = function (mail: string, callback: Callback) {
 };
 
 
-/**
- * Update server and information linked with provided user
- * @param username: the name of the user
- * @param server: the new server name
- * @param infos: the new user information
- * @param callback: function(error)
- */
+
+/// Update server and information linked with provided user
+/// 
+/// @param username: the name of the user
+/// @param server: the new server name
+/// @param infos: the new user information
+/// @param callback: callback(error) - No actual success value is being generated
+///   except error == null. 
+/// 
 function setServerAndInfos(
   username: string, server: string, 
   infos: UserInformation, 
   callback: Callback, 
 ) {
-  // This user will never been created for real
-  if (username === 'recla')  { return callback(); }
+  const attrs = lodash.clone(infos);
 
-  infos.registeredTimestamp =  Date.now();
+  // This user will never be created for real
+  if (username === 'recla') return callback();
 
-  var  previousEmail = null;
+  if (callback == null) 
+    throw new Error('AF: Callback was null'); // assert(callback != null);
+
+  attrs.registeredTimestamp =  Date.now();
+
+  // Sanitises the user information
+  username = username.toLowerCase(); 
+  attrs.email = attrs.email.toLowerCase(); 
+  
+  // Ensure that username matches itself
+  attrs.username = username; 
+
+  let previousEmail = null;
   async.series([
-    function (stepDone) {
-      redis.hget(username + ':users', 'email', function (error, email) {
-        previousEmail = email;
-        stepDone(error);
+    function _getPreviousEmailValue(stepDone) {
+      redis.hget(ns(username, 'users'), 'email', function (error, email) {
+        if (error != null) return stepDone(error);
+
+        if (email != null)
+          previousEmail = email.toLowerCase();
+
+        return stepDone();
       });
     },
-    function (stepDone) {
-      username = username.toLowerCase();
-      var multi = redis.multi();
-      multi.hmset(username + ':users', infos);
-      multi.set(username + ':server', server);
+    function _storeUser(stepDone) {
+      const multi = redis.multi();
+      multi.hmset(ns(username, 'users'), attrs);
+      multi.set(ns(username, 'server'), server);
 
       // If user exists remove previous email
-      if (previousEmail && previousEmail !== infos.email) {
-        multi.del(previousEmail + ':email');
+      if (previousEmail != null && previousEmail !== attrs.email) {
+        multi.del(ns(previousEmail, 'email'));
       }
-      multi.set(infos.email + ':email', username);
-      multi.exec(function (error) {
-        if (error) {
-          logger.error('Redis setServerAndInfos: ' + username + ' e: ' + error, error);
-        }
-        stepDone(error);
+
+      multi.set(ns(attrs.email, 'email'), username);
+      multi.exec((error) => {
+        if (error != null)
+          logger.error(
+            `Database#setServerAndInfos: ${username} e: ${error}`, error);
+ 
+        return stepDone(error);
       });
     }
   ],
-  function (error) {
-    if (callback) {
-      callback(error); // Callback anyway
-    }
-  });
+  callback);
 }
 exports.setServerAndInfos = setServerAndInfos;
 
@@ -455,15 +477,12 @@ async function deleteUser(username: string): Promise<mixed> {
   // Now try to delete all of these, not stopping when one of them fails. 
   return bluebird.fromCallback(
     cb => redis.del(...keysToDelete, cb));
-
-  function ns(a, b): string {
-    return `${a}:${b}`;
-  }
 }
 exports.deleteUser = deleteUser;
 
 /**
  * Update the email address linked with provided user
+ * 
  * @param username: the name of the user
  * @param email: the new email address
  * @param callback: function(error)
@@ -476,37 +495,40 @@ exports.changeEmail = function (
   username = username.toLowerCase();
 
   // Check that email does not exists
-  redis.get(email + ':email', function (error, email_username) {
-    if (error) {
-      return callback(error);
-    }
+  redis.get(ns(email, 'email'), function (error, email_username) {
+    if (error != null) return callback(error);
 
     if (email_username === username) {
       logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
       return callback();
     }
 
-    if (email_username) {
-      return callback(new Error('Cannot set e-mail: ' + email + ' to :' + username +
-        ' it\'s already used by: ' + email_username));
+    if (email_username != null) {
+      logger.debug(`#changeEmail: Cannot set, in use: ${email}, current ${email_username}, new ${username}`);
+      return callback(
+        new Error(`Cannot set e-mail: ${email} (email is in use)`));
     }
 
-    // Remove previous user e-mail
-    redis.hget(username + ':users', 'email', function (error, previous_email) {
-      if (error) {
-        return callback(error);
-      }
+    // assert: email index says we don't currently use this email.
 
-      var multi = redis.multi();
-      multi.hmset(username + ':users', 'email', email);
-      multi.set(email + ':email', username);
-      multi.del(previous_email + ':email');
+    // Remove previous user e-mail
+    redis.hget(ns(username, 'users'), 'email', function (error, previous_email) {
+      if (error != null) return callback(error);
+
+      // BUG Race condition: If two requests enter here at the same time, the 
+      //  last one to enter will win, writing the values. The verification we
+      //  do above is not protected / linked to what follows. 
+
+      const multi = redis.multi();
+      multi.hmset(ns(username, 'users'), 'email', email);
+      multi.set(ns(email, 'email'), username);
+      multi.del(ns(previous_email, 'email'));
       multi.exec(function (error) {
-        if (error) {
-          logger.error('Redis changeEmail: ' + username + 'email: ' + email + ' e: ' + error,
-            error);
-        }
-        callback(error);
+        if (error != null) 
+          logger.error(
+            `Database#changeEmail: ${username} email: ${email} e: ${error}`, error);
+
+        return callback(error);
       });
     });
   });
@@ -517,15 +539,15 @@ exports.changeEmail = function (
  */
 function _findGhostsEmails() {
   doOnKeysValuesMatching('*:email', '*', function (key, username) {
-    var email = key.substring(0, key.lastIndexOf(':'));
+    const email = key.substring(0, key.lastIndexOf(':'));
     redis.hgetall(username + ':users', function (error, user) {
 
-      var e = null;
-      if (! user) {
-        e = ' cannot find user :' + username;
+      let e;
+      if (user == null) {
+        e = ' cannot find user:' + username;
         // redis.del(key);
-      } else if (! user.email) {
-        e = ' cannot find email for :' + username;
+      } else if (user.email == null) {
+        e = ' cannot find email for:' + username;
       } else if (email !== user.email) {
         e = ' != ' + username + ':user.email -> "' + user.email + '"';
         // redis.del(key);
@@ -665,3 +687,12 @@ exports.reservedWordExists = function (word: string, callback: GenericCallback<b
     callback(null, result === 1);
   });
 };
+
+
+/// Given a value (`a`) and a namespace kind (`b`): Assembles and returns the 
+/// redis namespace for accessing that value. 
+/// 
+type NamespaceKind = 'users' | 'server' | 'email';
+function ns(a: string, b: NamespaceKind): string {
+  return `${a}:${b}`;
+}
