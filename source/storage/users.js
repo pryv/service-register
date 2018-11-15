@@ -51,8 +51,8 @@ type CreateResult = {
 exports.create = function create(host: HostInformation, inUser: UserInformation, callback: GenericCallback<CreateResult>) {
   const user = lodash.clone(inUser);
 
-  // We store usernames and passwords as lower case, allowing comparison 
-  // with any other lowercase string. 
+  // We store usernames and emails as lower case, allowing comparison with any
+  // other lowercase string.
   user.username = user.username.toLowerCase(); 
   user.email = user.email.toLowerCase(); 
 
