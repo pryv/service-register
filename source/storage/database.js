@@ -65,6 +65,15 @@ if (config.get('redis:password')) {
  */
 function checkConnection() {
   async.series([
+    function _addWactivFixtureToDatabase(nextStep) { // Check db exits
+      // Do not remove, 'wactiv.server' is used by tests
+
+      // NOTE Eventually, we will want to move the 'wactiv' user to a proper
+      //  test fixture - and not have it here in production anymore. 
+
+      const user = { id: 0, email: 'wactiv@pryv.io', username: 'wactiv1' };
+      setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
+    },
     function _getDatabaseVersion(nextStep) { 
       redis.get(DBVERSION_KEY, function (error, result) {
         if (error) {
