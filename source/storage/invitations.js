@@ -2,10 +2,11 @@
  * Extension of database.js dedicated to invitation tokens
  */
 
-var messages = require('../utils/messages'),
-  db = require('../storage/database'),
-  _ = require('underscore'),
-  async = require('async');
+const messages = require('../utils/messages');
+const db = require('../storage/database');
+const _ = require('lodash');
+const async = require('async');
+const config = require('../utils/config');
 
 var randtoken = require('rand-token').generator({
   chars: 'a-z'
@@ -24,7 +25,7 @@ exports.getAll = function (callback) {
 
   db.getMatchingSets('*:invitation', function (error, data) {
     callback(error, data);
-  }, function (keyToClean, data) { 
+  }, function (keyToClean, data) {
     data.id = keyToClean.substring(0, keyToClean.length - cutI);
   });
 };
@@ -59,15 +60,26 @@ exports.generate = function (number, adminId, description, callback) {
  * @param callback: function(result), result being 'true' if the token is valid, false otherwise
  */
 exports.checkIfValid = function checkIfValid(token, callback) {
-  if (token === 'enjoy') {
+  const invitationTokens = config.get('invitationTokens');
+
+  if (invitationTokens == null) {
     return callback(true);
   }
 
+  if (invitationTokens.length === 0) {
+    return callback(false);
+  }
+
+  for(let i=0; i<invitationTokens.length; i++) {
+    if (token === invitationTokens[i]) {
+      return callback(true);
+    }
+  }
+
   db.getSet(dbKey(token), function (error, result) {
-    if (error || ! result || result.consumedAt) {
+    if (error || ! result || result.consumedAt) {
       return callback(false);
     }
-
     return callback(true);
   });
 };

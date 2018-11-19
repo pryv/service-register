@@ -1,5 +1,5 @@
 /**
- * Tiny middleware to allow CORS (cross-domain) requests to the API.
+ * Tiny middleware to allow ALL CORS (cross-domain) requests to the API.
  */
 module.exports = function (req, res, next) {
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -13,7 +13,7 @@ module.exports = function (req, res, next) {
   // Other CORS-related headers are returned on OPTIONS requests
 
   if (req.method === 'OPTIONS') {
-    console.log('Cross Domain OPTIONS REQUEST: ' + req.url);
+    console.log('Cross Domain OPTIONS REQUEST: ' + req.url); // eslint-disable-line no-console
     res.send(200);
   } else {
     next();

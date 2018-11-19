@@ -1,9 +1,6 @@
 // @flow
 
-const _ = require('underscore');
-
-const _str = require('underscore.string');
-_.mixin(_str.exports());
+const _ = require('lodash');
 
 // Username regular expression
 var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
@@ -12,7 +9,7 @@ var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
 // character level constraints we impose. 
 // 
 module.exports.isLegalUsername = function(candidate: string): boolean {
-  return checkUsername.exec(candidate);
+  return checkUsername.exec(candidate) != null;
 };
 
 /**
@@ -54,10 +51,10 @@ module.exports.extractResourceFromHostname = function (
 
 // Alphanumeric between 5 an 21 chars, case-insensitive  -  authorized
 // Trim the uid
-exports.uid = function (str) {
+exports.uid = function (str: string): ?string {
   if (! str) { return null; }
-  str = _(str).trim().toLowerCase();
-  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
+  str = _.trim(str).toLowerCase();
+  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 
@@ -78,13 +75,6 @@ exports.password = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
   return (str.length > 5 && str.length < 100) ? str : null;
-};
-
-// Any chars between 5 and 99 chars, with no trailing spaces.
-exports.invitationToken = function (str) {
-  if (! str) { return null; }
-  str = _(str).trim();
-  return (str.length > 4 && str.length < 100) ? str : null;
 };
 
 // Any chars between 1 and 99 chars, with no trailing spaces.
@@ -156,6 +146,12 @@ exports.accesskey = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.access = function <T>(json: T): T {
+export type PermissionSet = Array<PermissionEntry>;
+export type PermissionEntry = Object; 
+
+exports.access = function (json: Object): ?PermissionSet {
+  if (json == null) return null; 
+  if (! Array.isArray(json)) return null; 
+  
   return json;
 };

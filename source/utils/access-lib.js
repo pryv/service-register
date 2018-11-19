@@ -6,22 +6,9 @@ const config = require('./config');
 const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
+const logger = require('winston');
 
-type AccessState = {
-  status: 'NEED_SIGNIN',
-  code: number,
-  key: string,
-  requestingAppId: string,
-  requestedPermissions: PermissionSet,
-  url: string,
-  poll: string,
-  returnURL: string | boolean,
-  oauthState: OAuthState,
-  poll_rate_ms: number, 
-}
-type PermissionSet = Array<PermissionEntry>; 
-type OAuthState = string | null; 
-type PermissionEntry = Object; 
+import type { AccessState } from '../storage/database';
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
   'Hallowed Be Thy Name, O Node 20180926';
@@ -90,23 +77,22 @@ accessLib.requestAccess = function (
   if (lang == null) 
     return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
 
+  const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   const clientData = parameters.clientData;
 
-  const returnURLParam = parameters.returnURL;
-  
-  if (typeof returnURLParam === 'undefined')
-    return errorHandler(
-      messages.e(400, 'INVALID_DATA', { 
-        detail: 'Missing returnURL field, pass "false" to not use a return url.' }));
-  if (typeof returnURLParam !== 'string' && typeof returnURLParam !== 'boolean') 
-    return errorHandler(
-      messages.e(400, 'INVALID_DATA', {
-        detail: 'returnURL should be either a url (string) or a boolean.'
-      }));
+  let effectiveReturnURL; 
+  if ((returnURL == null) || (typeof returnURL === 'string')) {
+    effectiveReturnURL = returnURL;
+  } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
+    // deprecated
+    logger.warning('Deprecated: received returnURL=false, this optional parameter must be a string.');
 
-  const returnURL: string | boolean = returnURLParam;
-  
+    effectiveReturnURL = null; 
+  } else {
+    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Invalid returnURL field.' }));
+  }
+
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
@@ -125,8 +111,12 @@ accessLib.requestAccess = function (
   url = url +
     '?lang=' + lang +
     '&key=' + key +
-    '&requestingAppId=' + requestingAppId +
-    '&returnURL=' + encodeURIComponent(returnURL.toString()) +
+    '&requestingAppId=' + requestingAppId;
+  
+  if (effectiveReturnURL != null)
+    url += '&returnURL=' + encodeURIComponent(effectiveReturnURL);
+
+  url +=
     '&domain=' + domain +
     '&registerURL=' + encodeURIComponent(config.get('http:register:url')); 
   
@@ -147,7 +137,7 @@ accessLib.requestAccess = function (
     requestedPermissions: requestedPermissions,
     url: url,
     poll: pollURL,
-    returnURL: returnURL,
+    returnURL: effectiveReturnURL,
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
     clientData: clientData,
@@ -157,30 +147,20 @@ accessLib.requestAccess = function (
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
 
-/**
- * Check the validity of the access by checking its associated key.
- * 
- * @param key
- * @param success
- * @param failed
- * @returns {*}
- */
+/// Check the validity of the access by checking its associated key.
+/// 
 accessLib.testKeyAndGetValue = function (
   key: string, 
-  success: (mixed) => mixed, 
-  failed: (any) => mixed, 
+  success: (res: AccessState) => mixed, 
+  failed: (err: Error) => mixed, 
 ) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));
   }
 
   db.getAccessState(key, function (error, result) {
-    if (error) {
-      return failed(messages.ei(error));
-    }
-    if (!result) {
-      return failed(messages.e(400, 'INVALID_KEY'));
-    }
+    if (error != null) return failed(messages.ei(error));
+    if (result == null) return failed(messages.e(400, 'INVALID_KEY'));
 
     success(result);
   });

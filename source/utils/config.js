@@ -77,9 +77,6 @@ nconf.defaults({
     'aaservers_ssl': true, // set if admin / activity servers have ssl
     'aaservers': {}
   },
-  oauth2: {
-    port: 9090
-  },
   'test': {
 
   },
@@ -93,7 +90,8 @@ nconf.defaults({
   },
   appList: {
     // apps defined in specific configs (dev/staging/production)
-  }
+  },
+  invitationTokens: undefined,
 });
 
 // Check the validity of the configuration
@@ -219,6 +217,29 @@ function validateConfiguration () {
             + '\n Expecting an url in the form: "http(s)://server.domain.tld".');  
       }
     }
+  }
+
+  const invitationTokens = nconf.get('invitationTokens');
+  if (invitationTokens == null) {
+    // ok
+  } else if (!Array.isArray(invitationTokens)) {
+    throw parseError('"invitationTokens" is defined, but is not an Array');
+  } else {
+    invitationTokens.forEach((token, i) => {
+      if (typeof token !== 'string') {
+        throw parseError('invitationToken "' + token + '" at position ' + i + ' in the "invitationTokens" array is not a string.');
+      }
+
+      if (token.length < 5) {
+        throw parseError('invitationToken "' + token + '" at position ' + i +
+          'in the "invitationTokens" array is less than 5 characters in length.');
+      }
+
+      if (token.length > 99) {
+        throw parseError('invitationToken "' + token + '" at position ' + i +
+          'in the "invitationTokens" array is more than 99 characters in length.');
+      }
+    });
   }
 }
 

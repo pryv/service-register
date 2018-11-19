@@ -1,10 +1,13 @@
-'use strict';
 // @flow
 
 /* global describe, it, before */
+
+const lodash = require('lodash');
+
 const exec = require('child_process').exec;
-const _s = require('underscore.string');
+
 const should = require('should');
+
 const chai = require('chai');
 const assert = chai.assert; 
 
@@ -19,6 +22,7 @@ require('readyness/wait/mocha');
 
 describe('DNS', function () {
   before(function (done) {
+    // FLOW We're just pretending to have a user...
     db.setServerAndInfos('dns-test', 'dummy.pryv.net', {}, function(error) {
       done(error);
     });
@@ -26,7 +30,7 @@ describe('DNS', function () {
 
   it('username with "-" should be valid', function (done) {
     dig('CNAME', 'dns-test.' + config.get('dns:domain'), function (error, result) {
-      result.should.equal('dummy.pryv.net' + '.');
+      assert.strictEqual(result, 'dummy.pryv.net.');
       done();
     });
   });
@@ -38,7 +42,7 @@ describe('DNS', function () {
 
       should.exist(result);
       if (result) {
-        result.should.equal(t[0].name + '.');
+        assert.strictEqual(result, t[0].name + '.');
       }
       done();
     });
@@ -123,7 +127,7 @@ function dig(dns_class, name, result) {
     ' ' + dns_class + ' ' + name;
   
   exec(cmd, function callback(error, stdout, stderr) {
-    stdout = _s.trim(stdout, ' \n');
+    stdout = lodash.trim(stdout, ' \n');
     if (stderr && stderr !== '') { throw new Error(stderr + ' | running ' + cmd); }
   
     if ((! stdout) || (stdout === ''))  {

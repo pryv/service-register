@@ -63,6 +63,18 @@
   },
   "net": {
     "aaservers": {
+      "mock-api-server": [
+        {
+          "base_url": "http://localhost:5000/",
+          "authorization": "cz90{k)2{3u8q0C"
+        }
+      ],
+      "local-api-server": [
+        {
+          "base_url": "http://localhost:5000/",
+          "authorization": "cz90{k)2{3u8q0C"
+        }
+      ],
       "exoscale.ch-ch": [
         {
           "base_name": "stact-exoscale-ch-01",
@@ -107,9 +119,13 @@
                   "url": "http://www.exoscale.ch",
                   "name": "Exoscale",
                   "description": "Swiss quality",
-                  "localizedDescription": {
-
-                  }
+                  "localizedDescription": {}
+                },
+                "local-api-server": {
+                  "url": "http://www.exoscale.ch",
+                  "name": "Exoscale",
+                  "description": "Swiss quality",
+                  "localizedDescription": {}
                 }
               }
             }
@@ -133,5 +149,6 @@
       "appURL": "https://pryv.com",
       "settingsPageURL": "https://api.pryv.com"
     }
-  }
+  },
+  "invitationTokens": null
 }
