@@ -42,6 +42,7 @@ type RequestAccessParameters = {
   localDevel?: mixed, 
   reclaDevel?: mixed, 
   returnURL?: mixed, 
+  clientData?: mixed, 
 }
 
 
@@ -58,7 +59,6 @@ accessLib.requestAccess = function (
   successHandler: (any) => mixed, 
   errorHandler: (any) => mixed, 
 ) {
-
   // Parameters
   const requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
   if (!requestingAppId) {
@@ -79,7 +79,8 @@ accessLib.requestAccess = function (
 
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
-  
+  const clientData = parameters.clientData;
+
   let effectiveReturnURL; 
   if ((returnURL == null) || (typeof returnURL === 'string')) {
     effectiveReturnURL = returnURL;
@@ -117,25 +118,16 @@ accessLib.requestAccess = function (
 
   url +=
     '&domain=' + domain +
-    '&registerURL=' + encodeURIComponent(config.get('http:register:url'));
-
-  if (typeof oauthState === 'string') {
-    url += '&oauthState=' + oauthState;
-  }
-
-  const accessURIc = '&requestedPermissions=' +
-    encodeURIComponent(JSON.stringify(requestedPermissions));
-
-  if ((url.length + accessURIc.length) > 2000) {
-    // URL too long
-    url = url + '&poll=' + encodeURIComponent(pollURL);
-  } else {
-    url = url + accessURIc;
-  }
-
+    '&registerURL=' + encodeURIComponent(config.get('http:register:url')); 
+  
+  url += '&poll=' + encodeURIComponent(pollURL);
+  
   const cleanOauthState = (typeof oauthState) === 'string' ?
     oauthState : 
     null; 
+
+  if (cleanOauthState != null) 
+    url += '&oauthState=' + cleanOauthState;
 
   const accessState: AccessState = {
     status: 'NEED_SIGNIN',
@@ -147,7 +139,9 @@ accessLib.requestAccess = function (
     poll: pollURL,
     returnURL: effectiveReturnURL,
     oauthState: cleanOauthState,
-    poll_rate_ms: 1000, 
+    poll_rate_ms: 1000,
+    clientData: clientData,
+    lang: lang,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
