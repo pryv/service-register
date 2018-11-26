@@ -1,3 +1,5 @@
+// @flow
+
 //Dependencies
 
 const nconf = require('nconf');
@@ -136,28 +138,28 @@ export type HostingDefinition = {
   }, 
 }; 
 
-type ServerConfiguration = {
-  [hostingName: string]: ServerList, 
-};
+// type ServerConfiguration = {
+//   [hostingName: string]: ServerList, 
+// };
 
 export type ServerList = Array<ServerConfig>;
 
 export type ServerConfig = OldServerDefinition | ServerDefinition;
 
-export type OldServerDefinition = {|
+export type OldServerDefinition = {
   base_name: string, 
   port: number, 
   authorization: string, 
   
-  name?: string, // added later by admin calls
-|};
+  name: string,
+};
 
-export type ServerDefinition = {|
+export type ServerDefinition = {
   base_url: string, 
   authorization: string, 
 
-  name?: string, // added later by admin calls
-|};
+  name: string,
+};
 
 function validateConfiguration () {
   const ipRegexp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
@@ -165,7 +167,7 @@ function validateConfiguration () {
   
   // Check the DNS MX entries
   const mxEntries = nconf.get('dns:mail');
-  if (mxEntries == null || !Array.isArray(mxEntries)) {
+  if (mxEntries == null || !Array.isArray(mxEntries)) {
     throw parseError('Expecting "dns:mail" to be an array (even empty) of MX entries.'); 
   }
   
