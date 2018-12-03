@@ -104,12 +104,12 @@ function getCoreForHosting(
   // entry, handling old and new format correctly. 
   // 
   function produceRedisName(server: ServerConfig): string {
-    if (server.base_name != null) {
+    if (typeof server.base_name === 'string') {
       // Legacy config entry: 
       return server.base_name + '.' + config.get('net:AAservers_domain');
     }
     
-    if (server.base_url == null) 
+    if (typeof server.base_url !== 'string') 
       throw new Error('Unknown server configuration format.');
     
     const serverUrl = url.parse(server.base_url);
@@ -173,10 +173,10 @@ function getAdminClient(
     return getLegacyAdminClient(oldHost, path, postData);
   }
   
-  if (host.base_url == null)
+  if (typeof host.base_url !== 'string')
     throw new Error('AF: base_url expected to be present in ServerDefinition.');
     
-  var coreServer = url.parse(host.base_url);
+  const coreServer = url.parse(host.base_url);
 
   const useSSL = (coreServer.protocol === 'https:');
   const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
@@ -197,7 +197,8 @@ function getAdminClient(
   };
 
   // SIDE EFFECT
-  host.name = coreServer.hostname;
+  if (coreServer.hostname != null)
+    host.name = coreServer.hostname;
 
   return {
     client: httpClient,

@@ -33,9 +33,7 @@ export type UserInformation = {
   server?: string, 
 }
 
-type HostInformation = {
-  name: string,
-};
+import type ServerConfig from '../utils/config';
 
 type CreateResult = {
   username: string, 
@@ -44,11 +42,12 @@ type CreateResult = {
 
 /**
  * Create (register) a new user
- * @param host: the hosting for this user
- * @param user: the user data, a json object containing: username, password hash, language and email
- * @param callback: function(error,result), result being a json object containing new user data
+ * 
+ * @param host the hosting for this user
+ * @param user the user data, a json object containing: username, password hash, language and email
+ * @param callback function(error,result), result being a json object containing new user data
  */
-exports.create = function create(host: HostInformation, inUser: UserInformation, callback: GenericCallback<CreateResult>) {
+exports.create = function create(host: ServerConfig, inUser: UserInformation, callback: GenericCallback<CreateResult>) {
   const user = lodash.clone(inUser);
 
   // We store usernames and emails as lower case, allowing comparison with any

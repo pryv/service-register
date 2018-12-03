@@ -72,6 +72,7 @@ function checkConnection() {
       //  test fixture - and not have it here in production anymore. 
 
       const user = { id: 0, email: 'wactiv@pryv.io', username: 'wactiv1' };
+      // FLOW deprecated code; disregard for type checks. 
       setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
     },
     function _getDatabaseVersion(nextStep) { 
