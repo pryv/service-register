@@ -49,24 +49,24 @@ module.exports.extractResourceFromHostname = function (
  * and return the processed string if it passes the tests, 'null' otherwise
  */
 
-// Alphanumeric between 5 an 21 chars, case-insensitive  -  authorized
+// Alphanumeric between 5 and 21 chars, case-insensitive  -  authorized
 // Trim the uid
 exports.uid = function (str: string): ?string {
   if (! str) { return null; }
   str = _.trim(str).toLowerCase();
-  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,100})([a-zA-Z0-9])$/;
+  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,19})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 
 
-// Alphanumeric between 2 an 70 chars, case-insensitive  - and . authorized
+// Alphanumeric between 4 and 70 chars, case-insensitive  - and . authorized
 // Trim the hosting
 exports.hosting = function (str: ?string): ?string {
   if (! str) return null;
     
   str = str.trim();
   
-  var filter =  /^([a-zA-Z0-9])(([a-zA-Z0-9-.]){2,70})([a-zA-Z0-9])$/;
+  var filter =  /^([a-zA-Z0-9])(([a-zA-Z0-9-.]){2,68})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 

@@ -14,21 +14,21 @@ var messages = {
   'EXISTING_USER_NAME' : { 'message' : 'Username already exists',
     'detail' : 'User name must be unique.'},
   'INVALID_PASSWORD' : { 'message' : 'Invalid password',
-    'detail' : 'Password must be between 6 and 50 characters'},
+    'detail' : 'Password must be between 6 and 99 characters.'},
 
   'INVALID_APPID' : { 'message' : 'Invalid app id',
     'detail' : 'App id is not recognized'},
   'INVALID_INVITATION' : { 'message' : 'Invalid invitation token',
     'detail' : 'Request one from pryv'},
 
-  'INVALID_HOSTING' : { 'message' : 'Invalid hosting request',
-    'detail' : 'hosting value is invalid'},
+  'INVALID_HOSTING' : { 'message' : 'Invalid hosting',
+    'detail' : 'Hosting value must be made of 4 and 70 alphanumeric characters (- and . authorized).'},
 
   'UNAVAILABLE_HOSTING' : { 'message' : 'Hosting not available',
-    'detail' : 'hosting unknown, not active or unavailable, retry with another one'},
+    'detail' : 'Hosting unknown, not active or unavailable, retry with another one'},
 
   'INVALID_LANGUAGE': { 'message' : 'Invalid language code',
-    'detail' : 'language code should be a string of 1-5 characters.' },
+    'detail' : 'Language code should be a string of 1-5 characters.' },
 
   'INVALID_EMAIL' : { 'message' : 'Invalid email address',
     'detail' : 'E-mail address format not recognized'},
