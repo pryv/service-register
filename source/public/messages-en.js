@@ -22,7 +22,7 @@ var messages = {
     'detail' : 'Request one from pryv'},
 
   'INVALID_HOSTING' : { 'message' : 'Invalid hosting',
-    'detail' : 'Hosting value must be made of 4 and 70 alphanumeric characters (- and . authorized).'},
+    'detail' : 'Hosting value must be made of 4 to 70 alphanumeric characters (- and . authorized).'},
 
   'UNAVAILABLE_HOSTING' : { 'message' : 'Hosting not available',
     'detail' : 'Hosting unknown, not active or unavailable, retry with another one'},
