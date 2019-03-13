@@ -282,10 +282,7 @@ function getUserInfos(username: string, callback: Callback) {
     }
   ],
   function () {
-    if (errors.length > 0) 
-      return callback(new Error(errors.join(', ')));
-
-    return callback(null, result);
+    return callback(errors, result);
   });
 }
 exports.getUserInfos = getUserInfos;
