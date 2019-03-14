@@ -49,12 +49,12 @@ module.exports.extractResourceFromHostname = function (
  * and return the processed string if it passes the tests, 'null' otherwise
  */
 
-// Alphanumeric between 5 and 21 chars, case-insensitive  -  authorized
+// Alphanumeric between 5 and 23 chars, case-insensitive  -  authorized
 // Trim the uid
 exports.uid = function (str: string): ?string {
   if (! str) { return null; }
   str = _.trim(str).toLowerCase();
-  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,19})([a-zA-Z0-9])$/;
+  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-]){3,21})([a-zA-Z0-9])$/;
   return (filter.test(str)) ? str : null;
 };
 
