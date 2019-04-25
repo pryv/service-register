@@ -21,34 +21,80 @@ require('../../source/app-dns');
 require('readyness/wait/mocha');
 
 describe('DNS', function () {
-  before(function (done) {
-    const info = { email: 'foo@bar.ch' };
 
-    // FLOW Not really a full user info, but it doesn't matter here.
-    db.setServerAndInfos('dns-test', 'dummy.pryv.net', info, function(error) {
-      done(error);
+  const domain = config.get('dns:domain');
+
+  describe('users', () => {
+
+    before(function (done) {
+      const info = { email: 'foo@bar.ch' };
+
+      // FLOW Not really a full user info, but it doesn't matter here.
+      db.setServerAndInfos('dns-test', 'dummy.pryv.net', info, function (error) {
+        done(error);
+      });
+    });
+
+    it('username with "-" should be valid', function (done) {
+      dig('CNAME', 'dns-test.' + config.get('dns:domain'), function (error, result) {
+        assert.strictEqual(result, 'dummy.pryv.net.');
+        done();
+      });
+    });
+
+  });
+
+  describe('staticDataInDomain', () => {
+
+    const staticDataInDomain = config.get('dns:staticDataInDomain');
+
+    describe('TXT records', () => {
+
+      it('multiple records', (done) => {
+
+        const key = '_acme-challenge';
+        const value = staticDataInDomain[key].description[0];
+        
+        dig('TXT', key + '.' + domain, (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          assert.strictEqual(res, '"' + value + '"');
+          done();
+        });
+      });
+
+      it('should accept the previous TXT format', (done) => {
+
+        const key = 'previous-format';
+        const value = staticDataInDomain[key].description;
+
+        dig('TXT', key + '.' + domain, (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          assert.strictEqual(res, '"' + value + '"');
+          done();
+        });
+      });
+
+    });
+
+    it('A ' + config.get('dns:domain'), function (done) {
+      dig('CNAME', 'sw.' + domain, function (error, result) {
+        if (error) { return done(error); }
+
+        var t = config.get('dns:staticDataInDomain:sw:alias');
+
+        should.exist(result);
+        if (result) {
+          assert.strictEqual(result, t[0].name + '.');
+        }
+        done();
+      });
     });
   });
 
-  it('username with "-" should be valid', function (done) {
-    dig('CNAME', 'dns-test.' + config.get('dns:domain'), function (error, result) {
-      assert.strictEqual(result, 'dummy.pryv.net.');
-      done();
-    });
-  });
-  it('A ' + config.get('dns:domain'), function (done) {
-    dig('CNAME', 'sw.' + config.get('dns:domain'), function (error, result) {
-      if (error) { return done(error); }
-      
-      var t = config.get('dns:staticDataInDomain:sw:alias');
-
-      should.exist(result);
-      if (result) {
-        assert.strictEqual(result, t[0].name + '.');
-      }
-      done();
-    });
-  });
 
   describe('CAA records', () => {
     it('work', (done) => {
@@ -57,6 +103,44 @@ describe('DNS', function () {
 
         assert.strictEqual(result, '0 issue "letsencrypt.org"');
 
+        done();
+      });
+    });
+  });
+
+  describe('root TXT record', () => {
+
+    const domain = config.get('dns:domain');
+    const root_TXT_records = config.get('dns:rootTXT');
+
+    it('works for a single entry', (done) => {
+      dig('TXT', domain, (err, res) => {
+        if (err) {
+          return done(err);
+        }
+        const firstResponse = res.split('\n')[0];
+        assert.strictEqual(firstResponse, '"' + root_TXT_records.description[0] + '"');
+        done();
+      });
+    });
+
+    it('works for multiple entries', (done) => {
+
+      dig('TXT', domain, (err, res) => {
+        if (err) {
+          return done(err);
+        }
+        const responseArray = res.split('\n');
+        root_TXT_records.description.forEach((txtRecord) => {
+          let found = false;
+          responseArray.forEach((response) => {
+            
+            if ('"' + txtRecord + '"' === response) {
+              found = true;
+            }
+          });
+          assert.isTrue(found);
+        });
         done();
       });
     });

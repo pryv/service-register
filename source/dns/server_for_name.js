@@ -37,7 +37,8 @@ const rootData = {
   autority: baseData.autority,
   nameserver: baseData.nameserver || [{}],
   ip: config.get('dns:domain_A'),
-  mail: mxData.mail
+  mail: mxData.mail,
+  txt: config.get('dns:rootTXT'),
 };
 
 const caaData = {
@@ -97,6 +98,8 @@ function serverForName(
     case 'SOA':
     case 'DNSKEY':
       return callback(req, res, dns.getRecords(soaData, reqName));
+    case 'TXT':
+      return callback(req, res, dns.getRecords(rootData.txt, reqName));
     default:
       return callback(req, res, dns.getRecords(rootData, reqName));
     }

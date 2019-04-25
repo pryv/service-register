@@ -211,7 +211,15 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
         }
         break;
       case 'description':
-        ret.REP.push([name, defaultTTL, 'IN', 'TXT', data[i]]);
+        
+        // handle old format where description is a string
+        if (data[i].constructor !== Array) {
+          data[i] = [ data[i] ];
+        }
+
+        for (let y = 0; y < data[i].length; y++) {
+          ret.REP.push([name, defaultTTL, 'IN', 'TXT', data[i][y]]);
+        }
         break;
       case 'autority': 
         data[i] = String(j).split(',').slice(0,2);

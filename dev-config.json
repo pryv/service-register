@@ -20,6 +20,13 @@
     "certificateAuthorityAuthorization": {
       "issuer": "letsencrypt.org"
     },
+    "rootTXT": {
+      "description": [
+        "google-site-verification=abc",
+        "v=spf1 include:some.domain include:_spf.other.domain include:spf.another.domain ~all"
+      ]
+    }
+    ,
     "staticDataInDomain": {
       "www": {
         "alias": [
@@ -44,6 +51,14 @@
       },
       "foo.bar": {
         "ip": "1.2.3.4"
+      },
+      "_acme-challenge": {
+        "description": [
+          "2oi3h4i2b34pn21puin1p2i"
+        ]
+      },
+      "previous-format": {
+        "description": "hello-past-versions"
       }
     }
   },
