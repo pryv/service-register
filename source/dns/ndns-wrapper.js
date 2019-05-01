@@ -289,7 +289,7 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
         //   allow you to do this (some only if you specified the multiple-cnames
         //   yes option) and would round-robin load-balance between then but it's
         //   not technically legal.
-        cnameRecords = data[i] instanceof Array ? data[i] : [data[i]];
+        const cnameRecords = data[i] instanceof Array ? data[i] : [data[i]];
         for(j = 0;j< cnameRecords.length;j++){
           cnameRecords[j].name = cnameRecords[j].name ?
             cnameRecords[j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
