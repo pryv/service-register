@@ -54,7 +54,8 @@
       },
       "_acme-challenge": {
         "description": [
-          "2oi3h4i2b34pn21puin1p2i"
+          "firstValue",
+          "secondValue"
         ]
       },
       "previous-format": {

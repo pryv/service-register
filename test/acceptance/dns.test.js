@@ -53,13 +53,21 @@ describe('DNS', function () {
       it('multiple records', (done) => {
 
         const key = '_acme-challenge';
-        const value = staticDataInDomain[key].description[0];
+        const values = staticDataInDomain[key].description;
         
         dig('TXT', key + '.' + domain, (err, res) => {
           if (err) {
             return done(err);
           }
-          assert.strictEqual(res, '"' + value + '"');
+          const resValues = res.split('\n');
+
+          values.forEach((v) => {
+            let found = false;
+            resValues.forEach((rv) => {
+              if ('"' + v + '"' === rv) found = true;
+            });
+            assert.isTrue(found);
+          })
           done();
         });
       });
