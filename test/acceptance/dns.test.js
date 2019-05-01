@@ -121,17 +121,6 @@ describe('DNS', function () {
     const domain = config.get('dns:domain');
     const root_TXT_records = config.get('dns:rootTXT');
 
-    it('works for a single entry', (done) => {
-      dig('TXT', domain, (err, res) => {
-        if (err) {
-          return done(err);
-        }
-        const firstResponse = res.split('\n')[0];
-        assert.strictEqual(firstResponse, '"' + root_TXT_records.description[0] + '"');
-        done();
-      });
-    });
-
     it('works for multiple entries', (done) => {
 
       dig('TXT', domain, (err, res) => {
