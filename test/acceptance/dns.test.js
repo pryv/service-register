@@ -72,7 +72,7 @@ describe('DNS', function () {
         });
       });
 
-      it('should accept the previous TXT format', (done) => {
+      it('should accept a single entry (old previous TXT format)', (done) => {
 
         const key = 'previous-format';
         const value = staticDataInDomain[key].description;
