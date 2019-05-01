@@ -202,55 +202,54 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
       j = String(data[i]).replace(/{name}/g,name);
 
       switch(i.toLowerCase()){
-      case 'ip':
+      case 'ip': {
         // IP address
-        data[i] = data[i] instanceof Array ? data[i] : [data[i]];
-        rotate(data[i]);
-        for(var x=0; x< data[i].length; x++) {
-          ret.REP.push([name,defaultTTL, 'IN', 'A', data[i][x]]);
+        const ipAdresses = data[i] instanceof Array ? data[i] : [data[i]];
+        rotate(ipAdresses);
+        for (var x = 0; x < ipAdresses.length; x++) {
+          ret.REP.push([name, defaultTTL, 'IN', 'A', ipAdresses[x]]);
         }
         break;
-      case 'description':
-        
+      }
+      case 'description': {
         // handle old format where description is a string
-        if (data[i].constructor !== Array) {
-          data[i] = [ data[i] ];
-        }
+        const txtRecords = data[i] instanceof Array ? data[i] : [data[i]];
 
-        for (let y = 0; y < data[i].length; y++) {
-          ret.REP.push([name, defaultTTL, 'IN', 'TXT', data[i][y]]);
+        for (let y = 0; y < txtRecords.length; y++) {
+          ret.REP.push([name, defaultTTL, 'IN', 'TXT', txtRecords[y]]);
         }
         break;
-      case 'autority': 
-        data[i] = String(j).split(',').slice(0,2);
-        data[i] = data[i].length === 1 ? data[i].concat(data[i]) : data[i];
-        ret.REP.push([name, defaultTTL, 'IN', 'SOA'].concat(data[i])
-          .concat([UpdateConfFile,1800, 900, 604800, 86400]));
+      }
+      case 'autority': {
+        let authority = String(j).split(',').slice(0, 2);
+        authority = authority.length === 1 ? authority.concat(authority) : authority;
+        ret.REP.push([name, defaultTTL, 'IN', 'SOA'].concat(authority)
+          .concat([UpdateConfFile, 1800, 900, 604800, 86400]));
         break;
-      case 'mail':
-        data[i] = data[i] instanceof Array ? data[i] : [data[i]];
+      }
+      case 'mail': {
+        const mxRecords = data[i] instanceof Array ? data[i] : [data[i]];
         var l = 0;
-        for(j = 0;j< data[i].length;j++){
-          data[i][j].ttl = data[i][j].ttl ? data[i][j].ttl : defaultTTL;
-          data[i][j].name = data[i][j].name ? data[i][j].name.replace(/{name}/g,name) : 'mail.'+name;
-          ret.REP.push([name, data[i][j].ttl, 'IN', 'MX', data[i][j].priority ||
-          (++l)*10, data[i][j].name]);
-          if(data[i][j].ip){
-            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            rotate(data[i][j].ip, 1);
-            for(var y=0; y< data[i][j].ip.length;y++) {
-              ret.ADD.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[y]]);
+        for (j = 0; j < mxRecords.length; j++) {
+          mxRecords[j].ttl = mxRecords[j].ttl ? mxRecords[j].ttl : defaultTTL;
+          mxRecords[j].name = mxRecords[j].name ? mxRecords[j].name.replace(/{name}/g, name) : 'mail.' + name;
+          ret.REP.push([name, mxRecords[j].ttl, 'IN', 'MX', mxRecords[j].priority ||
+            (++l) * 10, mxRecords[j].name]);
+          if (mxRecords[j].ip) {
+            mxRecords[j].ip = mxRecords[j].ip instanceof Array ? mxRecords[j].ip : [mxRecords[j].ip];
+            rotate(mxRecords[j].ip, 1);
+            for (var y = 0; y < mxRecords[j].ip.length; y++) {
+              ret.ADD.push([mxRecords[j].name, defaultTTL, 'IN', 'A', mxRecords[j].ip[y]]);
             }
           }
         }
         break;
+      }
       case 'nameserver': {
-        const value = Array.isArray(data[i]) ? 
-          data[i] : 
-          [ data[i] ];
+        const nameServers = data[i] instanceof Array ? data[i] : [data[i]];
 
-        for (j=0;j< value.length;j++) {
-          const record = value[j];
+        for (j=0;j< nameServers.length;j++) {
+          const record = nameServers[j];
           
           record.name = record.name ?
             record.name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
@@ -271,12 +270,10 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
 
       case 'certificate_authority_authorization': {
         // Allow addition of CAA records. Each entry needs to have at least an 'issuer', but can also contain a 'flag' and a 'tag.
-        const value = Array.isArray(data[i]) ?
-          data[i] :
-          [data[i]];
+        const caRecords = data[i] instanceof Array ? data[i] : [data[i]];
 
-        for (j = 0; j < value.length; j++) {
-          const record = value[j];
+        for (j = 0; j < caRecords.length; j++) {
+          const record = caRecords[j];
           const flag = record.flag || 0;
           const tag = record.tag || 'issue';
           const issuer = record.issuer;
@@ -292,17 +289,17 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
         //   allow you to do this (some only if you specified the multiple-cnames
         //   yes option) and would round-robin load-balance between then but it's
         //   not technically legal.
-        data[i] = data[i] instanceof Array ? data[i] : [data[i]];
-        for(j = 0;j< data[i].length;j++){
-          data[i][j].name = data[i][j].name ?
-            data[i][j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
-          ret.REP.push([name, defaultTTL, 'IN', 'CNAME' , data[i][j].name]);
+        cnameRecords = data[i] instanceof Array ? data[i] : [data[i]];
+        for(j = 0;j< cnameRecords.length;j++){
+          cnameRecords[j].name = cnameRecords[j].name ?
+            cnameRecords[j].name.replace(/{name}/g,name) : 'ns'+(++k)+'.'+name;
+          ret.REP.push([name, defaultTTL, 'IN', 'CNAME' , cnameRecords[j].name]);
 
-          if(data[i][j].ip){
-            data[i][j].ip = data[i][j].ip instanceof Array ? data[i][j].ip : [data[i][j].ip];
-            rotate(data[i][j].ip);
-            for(var w=0; w< data[i][j].ip.length;w++) {
-              ret.REP.push([data[i][j].name, defaultTTL, 'IN', 'A', data[i][j].ip[w]]);
+          if(cnameRecords[j].ip){
+            cnameRecords[j].ip = cnameRecords[j].ip instanceof Array ? cnameRecords[j].ip : [cnameRecords[j].ip];
+            rotate(cnameRecords[j].ip);
+            for(var w=0; w< cnameRecords[j].ip.length;w++) {
+              ret.REP.push([cnameRecords[j].name, defaultTTL, 'IN', 'A', cnameRecords[j].ip[w]]);
             }
           }
         }
