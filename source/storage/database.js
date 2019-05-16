@@ -378,7 +378,7 @@ exports.doOnKeysValuesMatching = doOnKeysValuesMatching;
  * @param mail: the email address
  * @param callback: function(error,result), result being the requested user id
  */
-exports.getUIDFromMail = function (mail: string, callback: Callback) {
+exports.getUIDFromMail = function (mail: string, callback: GenericCallback<string>) {
   mail = mail.toLowerCase();
   redis.get(mail + ':email', function (error, uid) {
     if (error) {

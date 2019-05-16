@@ -97,3 +97,50 @@ describe('GET /:email/check_email', function () {
   });
 });
 
+describe('GET /:email/username', () => {
+  // Obtains the server url and specialise supertest to call it. 
+  let request; 
+  before(function (done) {
+    require('readyness').doWhen(done);
+    const serverUrl = config.get('server:url');
+
+    request = supertest(serverUrl);
+  });
+
+  it('throws an error when the provided email has invalid format', async () => {
+    await getUsername('x'.repeat(1000), false, 400);
+  });
+  it('throws an error when the provided email is not registered', async () => {
+    await getUsername('idonotexist@unexisting.com', false, 404);
+  });
+  describe('when existinguser@pryv.com is in the database', () => {
+    const username = 'existinguser';
+    const email = username + '@pryv.com';
+
+    beforeEach((done) => {
+      // FLOW Ignore the missing attributes in the user attr hash.
+      db.setServerAndInfos(username, 'somewhere.place.com', {
+        email: email,
+      }, done);
+    });
+
+    it('returns the username corresponding to the provided email', async () => {
+      assert.equal(await getUsername(email, false, 200), username);
+    });
+
+    it('is backward-compatible with the old endpoint (/:email/uid)', async () => {
+      assert.equal(await getUsername(email, true, 200), username);
+    });
+  });
+
+  async function getUsername(email: string, oldEndpoint: boolean, expectedStatus: number): Promise<string> {
+    let endpoint = `/${email}/`;
+    endpoint += oldEndpoint ? 'uid' : 'username';
+    const res = await request
+      .get(endpoint)
+      .send({ email: email })
+      .expect(expectedStatus);
+
+    return oldEndpoint ? res.body.uid: res.body.username;
+  }
+});
