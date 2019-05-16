@@ -74,8 +74,8 @@ module.exports = function (app: any) {
 /** Convert given email to corresponding username. 
  * 
  * @param email {string} email to convert
- * @throws {Error} if the string doesn't look like an email address. 
- * @return {Promise<string>} resolves the username if the email is valid in use.
+ * @throws {Error} if email has invalid format or not in use. 
+ * @return {Promise<string>} resolves the corresponding username if the email is valid and in use.
  */
 function getUsernameFromEmail(email: string): Promise<string> {
   if (checkAndConstraints.email(email) == null) {
