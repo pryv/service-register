@@ -96,7 +96,7 @@ describe('Email', function () {
   describe('GET /:email/username', () => {
 
     it('throws an error when the provided email has invalid format', async () => {
-      await getUsername('x'.repeat(1000), false, 400);
+      await getUsername('x'.repeat(301), false, 400);
     });
     it('throws an error when the provided email is not registered', async () => {
       await getUsername('idonotexist@unexisting.com', false, 404);
