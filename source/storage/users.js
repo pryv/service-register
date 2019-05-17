@@ -233,7 +233,9 @@ exports.getAllUsersInfos = function (callback: GenericCallback<Array<UserInforma
       waiter++;
 
       this.getUserInfos(user, function (errors, userInfos) {
-        userInfos.errors =  errors;
+        if (errors != null && errors.length > 0) {
+          userInfos.errors =  errors;
+        }
         userlist.push(userInfos);
         done();
       });
