@@ -99,13 +99,8 @@ describe('GET /:email/check_email', function () {
 
 describe('GET /:email/username', () => {
   // Obtains the server url and specialise supertest to call it. 
-  let request; 
-  before(function (done) {
-    require('readyness').doWhen(done);
-    const serverUrl = config.get('server:url');
-
-    request = supertest(serverUrl);
-  });
+  const serverUrl = config.get('server:url');
+  const request = supertest(serverUrl);
 
   it('throws an error when the provided email has invalid format', async () => {
     await getUsername('x'.repeat(1000), false, 400);
