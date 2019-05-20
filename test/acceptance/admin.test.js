@@ -168,7 +168,6 @@ describe('/admin/users', function () {
           user.should.have.property('username');
           user.should.have.property('registeredTimestamp');
           user.should.have.property('server');
-          user.should.have.property('errors');
           user.should.have.property('registeredDate');
         });
         done(); 

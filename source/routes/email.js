@@ -49,21 +49,48 @@ module.exports = function (app: any) {
 
   /// GET /:email/uid: get username for a given email
   /// 
-  /// NOTE This method is currently untested. 
+  /// NOTE: We keep this method for backward compatibility
+  ///       but encourage the use of GET /:email/username instead
   /// 
   app.get('/:email/uid', function (req, res, next) {
-    const email = checkAndConstraints.email(req.params.email); 
-    
-    if (email == null) return next(messages.e(400, 'INVALID_EMAIL'));
+    getUsernameFromEmail(req.params.email).then((username) => {
+      return res.json({uid: username});
+    }).catch((err) => {
+      return next(err);
+    });
+  });
 
-    db.getUIDFromMail(email, (error, uid) => {
-      if (error != null) return next(messages.ei());
-      if (uid == null) return next(messages.e(404, 'UNKNOWN_EMAIL'));
-
-      return res.json({uid: uid});
+  /// GET /:email/username: get username for a given email
+  ///
+  app.get('/:email/username', function (req, res, next) {
+    getUsernameFromEmail(req.params.email).then((username) => {
+      return res.json({username: username});
+    }).catch((err) => {
+      return next(err);
     });
   });
 };
+
+/** Convert given email to corresponding username. 
+ * 
+ * @param email {string} email to convert
+ * @throws {Error} if email has invalid format or not in use. 
+ * @return {Promise<string>} resolves the corresponding username if the email is valid and in use.
+ */
+function getUsernameFromEmail(email: string): Promise<string> {
+  if (checkAndConstraints.email(email) == null) {
+    return Promise.reject(messages.e(400, 'INVALID_EMAIL'));
+  }
+
+  return new Promise((resolve, reject) => {
+    db.getUIDFromMail(email, (error, username) => {
+      if (error != null) return reject(messages.ei());
+      if (username == null) return reject(messages.e(404, 'UNKNOWN_EMAIL'));
+
+      resolve(username);
+    });
+  });
+}
 
 /** Checks if the email given in `email` is taken yet. 
  * 
