@@ -7,6 +7,7 @@ const logger = require('winston');
 const lodash = require('lodash');
 
 const config = require('../utils/config');  
+const messages = require('../utils/messages');
 
 const redis = require('redis').createClient(
   config.get('redis:port'),
@@ -506,8 +507,10 @@ exports.changeEmail = function (
 
     if (email_username != null) {
       logger.debug(`#changeEmail: Cannot set, in use: ${email}, current ${email_username}, new ${username}`);
-      return callback(
-        new Error(`Cannot set e-mail: ${email} (email is in use)`));
+      return callback(new messages.REGError(400, {
+        id: 'DUPLICATE_EMAIL',
+        message: `Cannot set e-mail: ${email} (email is in use)`,
+      }));
     }
 
     // assert: email index says we don't currently use this email.
