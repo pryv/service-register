@@ -553,6 +553,17 @@ describe('User Management', () => {
           }, done);
         });
     });
+    it('must accept changing a user\'s email by the same one', function (done) {
+      request.post(serverUrl + getPath()).send({ email: defaultEmail })
+        .set('Authorization', defaultAuth)
+        .end((err, res) => {
+          dataValidation.check(res, {
+            status: 200,
+            schema: schemas.success,
+            body: { success: true }
+          }, done);
+        });
+    });
     it('must return an error if the username is unknown', function (done) {
       request.post(serverUrl + getPath('baduser')).send({ email: 'toto@pryv.io' })
         .set('Authorization', defaultAuth)
