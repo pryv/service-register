@@ -525,6 +525,18 @@ describe('User Management', () => {
   });
 
   describe('POST /users/:username/change-email', function () {
+    beforeEach(async () => {
+      const users = [
+        { username: defaultUsername, email: defaultEmail},
+        { username: 'otherUser', email: 'otherEmail'}
+      ];
+
+      users.forEach(async (user) => {
+        await bluebird.fromCallback((cb) => 
+          // FLOW Ignore the missing attributes in the user attr hash.
+          db.setServerAndInfos(user.username, 'server.name.at.tld', user, cb));
+      });
+    });
 
     function getPath(username) {
       return '/users/' + (username || defaultUsername) + '/change-email';
@@ -532,6 +544,17 @@ describe('User Management', () => {
 
     it('must change the username\'s email', function (done) {
       request.post(serverUrl + getPath()).send({ email: 'toto@pryv.io' })
+        .set('Authorization', defaultAuth)
+        .end((err, res) => {
+          dataValidation.check(res, {
+            status: 200,
+            schema: schemas.success,
+            body: { success: true }
+          }, done);
+        });
+    });
+    it('must accept changing a user\'s email by the same one', function (done) {
+      request.post(serverUrl + getPath()).send({ email: defaultEmail })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.check(res, {
@@ -561,6 +584,16 @@ describe('User Management', () => {
           }, done);
         });
     });
+    it('must return an error if the email is taken', function (done) {
+      request.post(serverUrl + getPath('otherUser')).send({ email: defaultEmail })
+        .set('Authorization', defaultAuth)
+        .end((err, res) => {
+          dataValidation.checkError(res, {
+            status: 400,
+            id: 'DUPLICATE_EMAIL'
+          }, done);
+        });
+    });
     it('must return an error if the request auth key is missing or unknown', function (done) {
       request.post(serverUrl + getPath()).send({ email: 'toto@pryv.io' })
         .end((err, res) => {
@@ -577,18 +610,6 @@ describe('User Management', () => {
           dataValidation.checkError(res, {
             status: 403,
             'id': 'forbidden'
-          }, done);
-        });
-    });
-
-    after(function (done) {
-      // reset test user (could be optimized by directly calling into the DB)
-      request.post(serverUrl + getPath()).send({ email: defaultEmail })
-        .set('Authorization', defaultAuth)
-        .end((err, res) => {
-          dataValidation.check(res, {
-            status: 200,
-            schema: schemas.success
           }, done);
         });
     });
