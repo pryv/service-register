@@ -9,10 +9,13 @@ exports.success = {
   }
 };
 
-//route : service/inofs
+//route : service/infos
 exports.serviceInfos = {
   type: 'object',
   properties: {
+    serial : {
+      type: 'string',
+    },
     version : {
       type: 'string',
       required: true
@@ -39,6 +42,9 @@ exports.serviceInfos = {
       type: 'string'
     },
     terms: {
+      type: 'string'
+    },
+    event_types: {
       type: 'string'
     }
   }

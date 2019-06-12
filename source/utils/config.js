@@ -43,6 +43,14 @@ nconf.defaults({
     'port': '2053',
     'mail': []
   },
+  service: {
+    "name": "My Pryv Lab",
+    "support": "http://pryv.com/helpdesk",
+    "terms": "http://pryv.com/pryv-lab-terms-of-use/"
+  },
+  eventTypes: {
+    "sourceURL": "http://api.pryv.com/event-types/flat.json"
+  },
   auth: {
     authorizedKeys: {
 

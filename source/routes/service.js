@@ -6,25 +6,22 @@ const dataservers = require('../utils/dataservers');
 
 var infos = {
   version : '0.1.0',
-  register : config.get('http:register:url'),
+  serial : '2019061301',
   access: 'https://access.' + config.get('dns:domain') + '/access',
   api: 'https://{username}.' +  config.get('dns:domain') + '/'
 };
 
-if (config.get('service:name')) {
-  infos.name = config.get('service:name');
-}
+setConfig(infos, 'register', 'http:register:url');
+setConfig(infos, 'name', 'service:name');
+setConfig(infos, 'home', 'http:static:url');
+setConfig(infos, 'support', 'service:support');
+setConfig(infos, 'terms', 'service:terms');
+setConfig(infos, 'event-types', 'eventTypes:sourceURL');
 
-if (config.get('http:static:url')) {
-  infos.home = config.get('http:static:url');
-}
-
-if (config.get('service:support')) {
-  infos.support = config.get('service:support');
-}
-
-if (config.get('service:terms')) {
-  infos.terms = config.get('service:terms');
+function setConfig(infos, memberName, configPath) {
+  const value = config.get(configPath);
+  if(value)
+    infos[memberName] = value;
 }
 
 /**

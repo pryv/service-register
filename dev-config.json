@@ -5,6 +5,14 @@
       "test-system-key": { "roles": ["system"] }
     }
   },
+  "service": {
+    "name": "My Pryv Lab Dev",
+    "support": "http://pryv.com/helpdesk",
+    "terms": "http://pryv.com/pryv-lab-terms-of-use/"
+  },
+  "eventTypes": {
+    "sourceURL": "http://api.pryv.com/event-types/flat.json"
+  },
   "redis": {
     "password": "MyRecordedLife",
     "port": 6379,
