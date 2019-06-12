@@ -11,14 +11,14 @@ var infos = {
   api: 'https://{username}.' +  config.get('dns:domain') + '/'
 };
 
-setConfig(infos, 'register', 'http:register:url');
-setConfig(infos, 'name', 'service:name');
-setConfig(infos, 'home', 'http:static:url');
-setConfig(infos, 'support', 'service:support');
-setConfig(infos, 'terms', 'service:terms');
-setConfig(infos, 'event-types', 'eventTypes:sourceURL');
+setConfig('register', 'http:register:url');
+setConfig('name', 'service:name');
+setConfig('home', 'http:static:url');
+setConfig('support', 'service:support');
+setConfig('terms', 'service:terms');
+setConfig('event-types', 'eventTypes:sourceURL');
 
-function setConfig(infos, memberName, configPath) {
+function setConfig(memberName, configPath) {
   const value = config.get(configPath);
   if(value)
     infos[memberName] = value;
