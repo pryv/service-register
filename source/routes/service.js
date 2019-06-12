@@ -5,12 +5,11 @@ const messages = require('../utils/messages');
 const dataservers = require('../utils/dataservers');
 
 var infos = {
-  version : '0.1.0',
-  serial : '2019061301',
   access: 'https://access.' + config.get('dns:domain') + '/access',
   api: 'https://{username}.' +  config.get('dns:domain') + '/'
 };
 
+setConfig('serial', 'serial');
 setConfig('register', 'http:register:url');
 setConfig('name', 'service:name');
 setConfig('home', 'http:static:url');

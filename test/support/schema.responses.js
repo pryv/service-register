@@ -16,10 +16,6 @@ exports.serviceInfos = {
     serial : {
       type: 'string',
     },
-    version : {
-      type: 'string',
-      required: true
-    },
     register: {
       type: 'string',
       required: true

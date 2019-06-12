@@ -36,6 +36,7 @@ nconf.file({ file: configFile});
 
 //Set default values
 nconf.defaults({
+  serial: '2019061301',
   dns: {
     'defaultTTL' : 3600,
     'ip': '127.0.0.1',
@@ -45,11 +46,11 @@ nconf.defaults({
   },
   service: {
     "name": "My Pryv Lab",
-    "support": "http://pryv.com/helpdesk",
-    "terms": "http://pryv.com/pryv-lab-terms-of-use/"
+    "support": "https://pryv.com/helpdesk",
+    "terms": "https://pryv.com/pryv-lab-terms-of-use/"
   },
   eventTypes: {
-    "sourceURL": "http://api.pryv.com/event-types/flat.json"
+    "sourceURL": "https://api.pryv.com/event-types/flat.json"
   },
   auth: {
     authorizedKeys: {

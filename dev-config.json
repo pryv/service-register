@@ -1,4 +1,5 @@
 {
+  "serial": "2019061301",
   "auth": {
     "authorizedKeys": {
       "test-admin-key": { "roles": ["admin"] },
@@ -11,7 +12,7 @@
     "terms": "http://pryv.com/pryv-lab-terms-of-use/"
   },
   "eventTypes": {
-    "sourceURL": "http://api.pryv.com/event-types/flat.json"
+    "sourceURL": "https://api.pryv.com/event-types/flat.json"
   },
   "redis": {
     "password": "MyRecordedLife",
