@@ -2436,8 +2436,7 @@ exports.Server = Server;
 
 Server.prototype._Parser = parsers.alloc();
 
-exports.createServer = function() {
-	var type = 'udp4';
+exports.createServer = function(type) {
 	var requestListener = null;
 
 	if(typeof arguments[0] === 'string') {

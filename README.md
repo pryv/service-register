@@ -4,6 +4,10 @@ Pryv Register and DNS servers.
 
 ## Usage 
 
+### Configuration 
+
+To enable UDP6 add `ip6` value to the configuration 
+
 ### Install
 
 *Prerequisites*: Yarn v1+, Node v8+

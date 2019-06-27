@@ -20,6 +20,8 @@
     "certificateAuthorityAuthorization": {
       "issuer": "letsencrypt.org"
     },
+    "ip": "127.0.0.1",
+    "ip6": "::1",
     "rootTXT": {
       "description": [
         "google-site-verification=abc",

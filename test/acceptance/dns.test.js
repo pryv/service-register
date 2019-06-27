@@ -101,6 +101,20 @@ describe('DNS', function () {
         done();
       });
     });
+
+    it('UDP6 A ' + config.get('dns:domain'), function (done) {
+      dig('CNAME', 'sw.' + domain, function (error, result) {
+        if (error) { return done(error); }
+
+        var t = config.get('dns:staticDataInDomain:sw:alias');
+
+        should.exist(result);
+        if (result) {
+          assert.strictEqual(result, t[0].name + '.');
+        }
+        done();
+      }, true);
+    });
   });
 
 
@@ -205,8 +219,10 @@ describe('DNS', function () {
  * @param name - the domain to search
  * @param result - function (error, result) 
  */
-function dig(dns_class, name, result) {
-  var cmd = 'dig +short @' + config.get('dns:ip') + ' -p ' + config.get('dns:port') +
+function dig(dns_class, name, result, useIPv6) {
+  var type = useIPv6 ? ' -6 ' : ' -4 '
+  var host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip')
+  var cmd = 'dig +short @' + host + ' ' + type + ' -p ' + config.get('dns:port') +
     ' ' + dns_class + ' ' + name;
   
   exec(cmd, function callback(error, stdout, stderr) {

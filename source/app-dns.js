@@ -11,5 +11,7 @@ var ready = require('readyness');
 ready.setLogger(logger.info);
 
 var readyListening = ready.waitFor('app_dns:listening');
-dns.start(config.get('dns:port'), config.get('dns:ip'), serverForName, readyListening);
-
+dns.start('udp4', config.get('dns:port'), config.get('dns:ip'), serverForName, readyListening);
+if (config.get('dns:ip6')) {
+  dns.start('udp6', config.get('dns:port'), config.get('dns:ip6'), serverForName, readyListening);
+}
