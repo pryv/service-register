@@ -18,8 +18,7 @@ describe('Email', function () {
 
   // Obtains the server url and specialise supertest to call it. 
   let request; 
-  before(function (done) {
-    require('readyness').doWhen(done);
+  before(function () {
     const serverUrl = config.get('server:url');
 
     request = supertest(serverUrl);
