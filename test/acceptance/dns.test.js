@@ -106,7 +106,7 @@ describe('DNS', function () {
       dig('CNAME', 'sw.' + domain, function (error, result) {
         if (error) { return done(error); }
 
-        var t = config.get('dns:staticDataInDomain:sw:alias');
+        const t = config.get('dns:staticDataInDomain:sw:alias');
 
         should.exist(result);
         if (result) {
@@ -220,9 +220,9 @@ describe('DNS', function () {
  * @param result - function (error, result) 
  */
 function dig(dns_class, name, result, useIPv6) {
-  var type = useIPv6 ? ' -6 ' : ' -4 '
-  var host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip')
-  var cmd = 'dig +short @' + host + ' ' + type + ' -p ' + config.get('dns:port') +
+  const type = useIPv6 ? ' -6 ' : ' -4 ';
+  const host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip');
+  const cmd = 'dig +short @' + host + ' ' + type + ' -p ' + config.get('dns:port') +
     ' ' + dns_class + ' ' + name;
   
   exec(cmd, function callback(error, stdout, stderr) {
