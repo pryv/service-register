@@ -17,7 +17,20 @@ describe('/service', function () {
         validation.check(res, {
           status: 200,
           schema: schemas.serviceInfos
-        }, done);
+        });
+
+        res.should.have.property('body');
+        res.body.should.have.property('serial');
+        res.body.should.have.property('register');
+        res.body.should.have.property('access');
+        res.body.should.have.property('api');
+        res.body.should.have.property('name');
+        res.body.should.have.property('home');
+        res.body.should.have.property('support');
+        res.body.should.have.property('terms');
+        res.body.should.have.property('event-types');
+
+        done();
       });
     });
   });
