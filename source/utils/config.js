@@ -52,9 +52,6 @@ nconf.defaults({
   eventTypes: {
     "sourceURL": "https://api.pryv.com/event-types/flat.json"
   },
-  data: {
-
-  },
   auth: {
     authorizedKeys: {
 

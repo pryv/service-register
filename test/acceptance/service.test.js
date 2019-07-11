@@ -29,7 +29,6 @@ describe('/service', function () {
         res.body.should.have.property('support');
         res.body.should.have.property('terms');
         res.body.should.have.property('event-types');
-        res.body.should.have.property('data');
 
         done();
       });
