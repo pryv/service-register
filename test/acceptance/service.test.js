@@ -10,13 +10,13 @@ require('readyness/wait/mocha');
 
 describe('/service', function () {
 
-  describe('GET /infos', function () {
+  describe('GET /info', function () {
 
-    it('infos', function (done) {
-      request.get(server.url + '/service/infos').end(function (err, res) {
+    it('info', function (done) {
+      request.get(server.url + '/service/info').end(function (err, res) {
         validation.check(res, {
           status: 200,
-          schema: schemas.serviceInfos
+          schema: schemas.serviceInfo
         });
 
         res.should.have.property('body');

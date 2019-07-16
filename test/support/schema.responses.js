@@ -9,8 +9,8 @@ exports.success = {
   }
 };
 
-//route : service/infos
-exports.serviceInfos = {
+//route : service/info
+exports.serviceInfo = {
   type: 'object',
   properties: {
     serial : {

@@ -4,7 +4,7 @@ const appsList = config.get('appList');
 const messages = require('../utils/messages');
 const dataservers = require('../utils/dataservers');
 
-var infos = {
+const info = {
   access: 'https://access.' + config.get('dns:domain') + '/access',
   api: 'https://{username}.' +  config.get('dns:domain') + '/'
 };
@@ -21,7 +21,7 @@ setConfig('data', 'data');
 function setConfig(memberName, configPath) {
   const value = config.get(configPath);
   if(value)
-    infos[memberName] = value;
+    info[memberName] = value;
 }
 
 /**
@@ -31,11 +31,14 @@ function setConfig(memberName, configPath) {
 module.exports = function (app) {
 
   /**
-   * GET /service/infos: retrieve service information
+   * GET /service/info: retrieve service information
    * (version, name, terms, register/access/api url, etc...)
    */
-  app.get('/service/infos', function (req, res/*, next*/) {
-    res.json(infos);
+  app.get('/service/info', function (req, res) {
+    res.json(info);
+  });
+  app.get('/service/infos', function (req, res) {
+    res.json(info);
   });
 
   /**
