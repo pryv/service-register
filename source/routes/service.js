@@ -36,6 +36,9 @@ module.exports = function (app) {
   app.get('/service/info', function (req, res) {
     res.json(info);
   });
+
+  // Old route, we keep it for backward compatibility
+  // but we should remove it
   app.get('/service/infos', function (req, res) {
     res.json(info);
   });
