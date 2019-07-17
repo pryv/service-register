@@ -4,27 +4,23 @@ const appsList = config.get('appList');
 const messages = require('../utils/messages');
 const dataservers = require('../utils/dataservers');
 
-var infos = {
-  version : '0.1.0',
-  register : config.get('http:register:url'),
+const info = {
   access: 'https://access.' + config.get('dns:domain') + '/access',
   api: 'https://{username}.' +  config.get('dns:domain') + '/'
 };
 
-if (config.get('service:name')) {
-  infos.name = config.get('service:name');
-}
+setConfig('serial', 'serial');
+setConfig('register', 'http:register:url');
+setConfig('name', 'service:name');
+setConfig('home', 'http:static:url');
+setConfig('support', 'service:support');
+setConfig('terms', 'service:terms');
+setConfig('event-types', 'eventTypes:sourceURL');
 
-if (config.get('http:static:url')) {
-  infos.home = config.get('http:static:url');
-}
-
-if (config.get('service:support')) {
-  infos.support = config.get('service:support');
-}
-
-if (config.get('service:terms')) {
-  infos.terms = config.get('service:terms');
+function setConfig(memberName, configPath) {
+  const value = config.get(configPath);
+  if(value)
+    info[memberName] = value;
 }
 
 /**
@@ -34,11 +30,17 @@ if (config.get('service:terms')) {
 module.exports = function (app) {
 
   /**
-   * GET /service/infos: retrieve service information
+   * GET /service/info: retrieve service information
    * (version, name, terms, register/access/api url, etc...)
    */
-  app.get('/service/infos', function (req, res/*, next*/) {
-    res.json(infos);
+  app.get('/service/info', function (req, res) {
+    res.json(info);
+  });
+
+  // Old route, we keep it for backward compatibility
+  // but we should remove it
+  app.get('/service/infos', function (req, res) {
+    res.json(info);
   });
 
   /**

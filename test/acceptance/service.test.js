@@ -10,14 +10,27 @@ require('readyness/wait/mocha');
 
 describe('/service', function () {
 
-  describe('GET /infos', function () {
+  describe('GET /info', function () {
 
-    it('infos', function (done) {
-      request.get(server.url + '/service/infos').end(function (err, res) {
+    it('info', function (done) {
+      request.get(server.url + '/service/info').end(function (err, res) {
         validation.check(res, {
           status: 200,
-          schema: schemas.serviceInfos
-        }, done);
+          schema: schemas.serviceInfo
+        });
+
+        res.should.have.property('body');
+        res.body.should.have.property('serial');
+        res.body.should.have.property('register');
+        res.body.should.have.property('access');
+        res.body.should.have.property('api');
+        res.body.should.have.property('name');
+        res.body.should.have.property('home');
+        res.body.should.have.property('support');
+        res.body.should.have.property('terms');
+        res.body.should.have.property('event-types');
+
+        done();
       });
     });
   });

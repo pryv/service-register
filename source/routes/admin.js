@@ -27,6 +27,9 @@ module.exports = function (app: any) {
     };
 
     users.getAllUsersInfos(function (error, list) {
+      if (error != null)
+        return next(error);
+
       if (list == null)
         return next(new Error('AF: Missing user list.'));
 
@@ -49,7 +52,7 @@ module.exports = function (app: any) {
         return res.send(toHtmlTables(headers, outputList));
       }
 
-      res.json({ users: outputList, error: error });
+      res.json({ users: outputList });
     });
   });
 
