@@ -9,9 +9,6 @@
     "host": "redis",
     "port": 6379
   },
-  "airbrake": {
-    "disable": true
-  },
   "http": {
     "static": {
       "url": "https://sw.rec.la",

@@ -8,7 +8,7 @@
       "mailKey": "CORE_MAIL_KEY"
     },
     "register": {
-      "adminAccessKey": "REGISTER_SYSTEM_KEY_1"
+      "adminAccessKey": "test-admin-key"
     }
   }
 }
