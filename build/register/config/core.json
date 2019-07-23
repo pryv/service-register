@@ -18,8 +18,7 @@
   },
   "auth": {
     "sessionMaxAge": 1209600000,
-    "passwordResetRequestMaxAge": 3600000,
-    "passwordResetPath": "/access/reset-password.html"
+    "passwordResetRequestMaxAge": 3600000
   },
   "services": {
     "email": {
@@ -29,8 +28,7 @@
       },
       "welcomeTemplate": "welcome-email",
       "resetPasswordTemplate": "reset-password",
-      "method": "microservice",
-      "path": "/sendmail/"
+      "method": "microservice"
     }
   },
   "updates": {

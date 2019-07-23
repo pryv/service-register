@@ -9,6 +9,20 @@ describe('GET /conf/core', function () {
   const coreConf = {coreValue1: 1, coreValue2: 2, coreValue3: 3};
 
   before(function () {
+    config.set('mainConf', {
+      domain: 'rec.la',
+      secrets: {
+        core: {
+          adminAccessKey: 'CORE_ADMIN_KEY',
+          ssoCookieSignSecret: 'OVERRIDE_ME',
+          filesReadTokenSecret: 'OVERRIDE_ME',
+          mailKey: 'CORE_MAIL_KEY'
+        },
+        register: {
+          adminAccessKey: 'test-admin-key'
+        }
+      }
+    });
     config.set('coreConf', coreConf);
   });
 

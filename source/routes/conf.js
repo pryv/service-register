@@ -12,15 +12,26 @@ module.exports = function (app: any) {
     const mainConf = config.get('mainConf');
     const domain = mainConf.domain;
     const secrets = mainConf.secrets;
-    coreConf.auth.adminAccessKey = secrets.core.adminAccessKey;
+
+    coreConf.auth = Object.assign({}, coreConf.auth, {
+      adminAccessKey: secrets.core.adminAccessKey,
+      ssoCookieSignSecret: secrets.core.ssoCookieSignSecret,
+      filesReadTokenSecret: secrets.core.filesReadTokenSecret,
+      passwordResetPageURL: `https://sw.${domain}/access/reset-password.html`
+    });
+
     coreConf.auth.trustedApps += `, *@https://*.${domain}*`;
-    coreConf.auth.ssoCookieSignSecret = secrets.core.ssoCookieSignSecret;
-    coreConf.auth.filesReadTokenSecret = secrets.core.filesReadTokenSecret;
-    coreConf.auth.passwordResetPageURL = `https://sw.${domain}${coreConf.auth.passwordResetPath}`;
-    coreConf.services.register.url = `https://reg.${domain}`;
-    coreConf.services.register.key = secrets.register.adminAccessKey;
-    coreConf.services.email.url = `https://mail.${domain}${coreConf.services.email.path}`;
-    coreConf.services.email.key = secrets.core.mailKey;
+
+    coreConf.services = Object.assign({}, coreConf.services, {
+      register: {
+        url: `https://reg.${domain}`,
+        key: secrets.register.adminAccessKey
+      },
+      email: {
+        url: `https://mail.${domain}/sendmail/`,
+        key: secrets.core.mailKey
+      }
+    });
 
     res.json(coreConf);
   });
