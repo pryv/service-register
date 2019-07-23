@@ -34,6 +34,10 @@ if (fs.existsSync(configFile)) {
 
 nconf.file({ file: configFile});
 
+if (typeof(nconf.get('core')) !== 'undefined') {
+  nconf.add('coreConf', { type: 'file', file: nconf.get('core') });
+}
+
 //Set default values
 nconf.defaults({
   serial: '2019061301',
