@@ -53,12 +53,12 @@ nconf.defaults({
     'mail': []
   },
   service: {
-    "name": "My Pryv Lab",
-    "support": "https://pryv.com/helpdesk",
-    "terms": "https://pryv.com/pryv-lab-terms-of-use/"
+    'name': 'My Pryv Lab',
+    'support': 'https://pryv.com/helpdesk',
+    'terms': 'https://pryv.com/pryv-lab-terms-of-use/'
   },
   eventTypes: {
-    "sourceURL": "https://api.pryv.com/event-types/flat.json"
+    'sourceURL': 'https://api.pryv.com/event-types/flat.json'
   },
   auth: {
     authorizedKeys: {
