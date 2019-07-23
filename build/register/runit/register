@@ -6,5 +6,5 @@ cd /app/bin/
 
 export NODE_ENV=production
 export NODE_PATH=/app/bin/
-exec chpst -u app /usr/bin/node source/server.js --config /app/conf/register.json --core /app/conf/core.json
+exec chpst -u app /usr/bin/node source/server.js --config /app/conf/register.json --main /app/conf/main.json --core /app/conf/core.json
 

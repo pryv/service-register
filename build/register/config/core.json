@@ -17,20 +17,11 @@
     "sourceURL": "https://pryv.github.io/event-types/flat.json"
   },
   "auth": {
-    "adminAccessKey": "CORE_SYSTEM_KEY",
-    "trustedApps": "*@https://*.DOMAIN*, *@http://pryv.github.io*, *@https://*.rec.la*",
     "sessionMaxAge": 1209600000,
-    "ssoCookieDomain": ".DOMAIN",
-    "ssoCookieSignSecret": "OVERRIDE_ME",
-    "filesReadTokenSecret": "OVERRIDE_ME",
     "passwordResetRequestMaxAge": 3600000,
-    "passwordResetPageURL": "https://sw.DOMAIN/access/reset-password.html"
+    "passwordResetPath": "/access/reset-password.html"
   },
   "services": {
-    "register": {
-      "url": "https://reg.DOMAIN",
-      "key": "REGISTER_SYSTEM_KEY_1"
-    },
     "email": {
       "enabled": {
         "welcome": false,
@@ -39,8 +30,7 @@
       "welcomeTemplate": "welcome-email",
       "resetPasswordTemplate": "reset-password",
       "method": "microservice",
-      "url": "https://mail.DOMAIN/sendmail/",
-      "key": "CORE_MAIL_KEY"
+      "path": "/sendmail/"
     }
   },
   "updates": {

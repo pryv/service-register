@@ -34,6 +34,10 @@ if (fs.existsSync(configFile)) {
 
 nconf.file({ file: configFile});
 
+if (typeof(nconf.get('main')) !== 'undefined') {
+  nconf.add('mainConf', { type: 'file', file: nconf.get('main') });
+}
+
 if (typeof(nconf.get('core')) !== 'undefined') {
   nconf.add('coreConf', { type: 'file', file: nconf.get('core') });
 }
