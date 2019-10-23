@@ -106,7 +106,6 @@ accessLib.requestAccess = function (
   }
   const domain = config.get('hostnameOrIP'); // TODO juste ? ou je check l'url du path ?
   if(extractDomain(authUrl).localeCompare(extractDomain(domain)) !== 0) {
-    console.log("FAIL ! authurl = "+authUrl + " ( "+extractDomain(authUrl)+" ) / domain = "+domain + " ( " +extractDomain(domain) + " )");
     return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+authUrl }));
   }
 
