@@ -189,7 +189,7 @@ describe('POST /access', function () {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
         requestedPermissions: [{some: 'json', data: 'to request access'}],
-        authUrl : 'https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html'
+        authUrl : 'https://local.rec.la:2443/access/v0/access.html'
       },
       contenttype: 'JSON',
       status: 201,
@@ -208,7 +208,7 @@ describe('POST /access', function () {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
         requestedPermissions: [{some: 'json', data: 'to request access'}],
-        authUrl : 'https://google.ch/access/SDK-VERSION-NUM/access.html'
+        authUrl : 'https://google.ch/access/v0/access.html'
       },
       contenttype: 'JSON',
       status: 201,

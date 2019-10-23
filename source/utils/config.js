@@ -56,7 +56,7 @@ nconf.defaults({
     authorizedKeys: {
 
     },
-    authUrl : 'rec.la'
+    authUrl : 'https://sw.pryv.io:2443/access/v0/access.html'
   },
   'languages': {
     'default' : 'en',
