@@ -6,6 +6,7 @@ const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 const request = require('superagent');
 const config = require('../../source/utils/config');
+const assert = require('chai').assert;
 
 require('readyness/wait/mocha');
 
@@ -161,6 +162,69 @@ describe('POST /access', function () {
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('should validate an access without custom auth URL', function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
+        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
+        requestedPermissions: [{some: 'json', data: 'to request access'}]
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNull(err);
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('should validate an access with a custom auth URL on the same domain', function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
+        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
+        requestedPermissions: [{some: 'json', data: 'to request access'}],
+        authUrl : 'https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html'
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNull(err);
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('should not validate an access with a custom auth URL on another domain', function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
+        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
+        requestedPermissions: [{some: 'json', data: 'to request access'}],
+        authUrl : 'https://google.ch/access/SDK-VERSION-NUM/access.html'
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNotNull(err);
+      assert.isNotNull(err.status);
+      assert.isNotNull(err.response);
+      assert.isNotNull(err.response.body);
+      assert.isNotNull(err.response.body.id); // TODO y'a plus propre que la cascade ?
+      err.status.should.eql(400);
+      err.response.body.id.should.eql("INVALID_AUTH_URL");
+
+      done();
     });
   });
 });

@@ -97,6 +97,18 @@ accessLib.requestAccess = function (
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
   let url = config.get('http:static:access');
+  let authUrl;
+  if(parameters.authUrl) {
+    authUrl = parameters.authUrl;
+  }
+  else {
+    authUrl = url; // TODO juste ?
+  }
+  const domain = config.get('hostnameOrIP'); // TODO juste ? ou je check l'url du path ?
+  if(extractDomain(authUrl).localeCompare(extractDomain(domain)) !== 0) {
+    console.log("FAIL ! authurl = "+authUrl + " ( "+extractDomain(authUrl)+" ) / domain = "+domain + " ( " +extractDomain(domain) + " )");
+    return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+authUrl }));
+  }
 
   const localDevel = parameters.localDevel; 
   if (typeof localDevel === 'string') {
@@ -142,10 +154,25 @@ accessLib.requestAccess = function (
     poll_rate_ms: 1000,
     clientData: clientData,
     lang: lang,
+    authUrl: authUrl
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
+
+function extractDomain(url: string): string{
+  const baseRegex = new RegExp("(https?://)*[^/:]+");
+  const domainRegex = new RegExp('[^\.\/]+\.[^\.:]+$', 'g');
+  if(!baseRegex.test(url)) {
+    return "";
+  }
+  let res: string = url.match(baseRegex)[0];
+  if(!domainRegex.test(res)) {
+    return "";
+  }
+  res = res.match(domainRegex)[0];
+  return res;
+}
 
 /// Check the validity of the access by checking its associated key.
 /// 

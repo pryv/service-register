@@ -55,7 +55,8 @@ nconf.defaults({
   auth: {
     authorizedKeys: {
 
-    }
+    },
+    authUrl : 'rec.la'
   },
   'languages': {
     'default' : 'en',

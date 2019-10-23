@@ -1,5 +1,6 @@
 {
   "serial": "2019061301",
+  "hostnameOrIP": "rec.la",
   "auth": {
     "authorizedKeys": {
       "test-admin-key": { "roles": ["admin"] },
