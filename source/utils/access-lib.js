@@ -7,6 +7,7 @@ const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 const logger = require('winston');
+const { URL } = require('url');
 
 import type { AccessState } from '../storage/database';
 
@@ -96,17 +97,15 @@ accessLib.requestAccess = function (
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
-  let url = config.get('http:static:access');
-  let authUrl;
+  let url;
   if(parameters.authUrl) {
-    authUrl = parameters.authUrl;
+    url = parameters.authUrl;
+    if((new URL(url)).hostname.indexOf(domain) <= 0) {
+      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+  }
   }
   else {
-    authUrl = url; // TODO juste ?
-  }
-  const domain = config.get('hostnameOrIP'); // TODO juste ? ou je check l'url du path ?
-  if(extractDomain(authUrl).localeCompare(extractDomain(domain)) !== 0) {
-    return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+authUrl }));
+    url = config.get('http:static:access');
   }
 
   const localDevel = parameters.localDevel; 
@@ -152,26 +151,11 @@ accessLib.requestAccess = function (
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
     clientData: clientData,
-    lang: lang,
-    authUrl: authUrl
+    lang: lang
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
-
-function extractDomain(url: string): string{
-  const baseRegex = new RegExp("(https?://)*[^/:]+");
-  const domainRegex = new RegExp('[^\.\/]+\.[^\.:]+$', 'g');
-  if(!baseRegex.test(url)) {
-    return "";
-  }
-  let res: string = url.match(baseRegex)[0];
-  if(!domainRegex.test(res)) {
-    return "";
-  }
-  res = res.match(domainRegex)[0];
-  return res;
-}
 
 /// Check the validity of the access by checking its associated key.
 /// 

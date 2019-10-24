@@ -7,6 +7,8 @@ const schema = require('../support/schema.responses');
 const request = require('superagent');
 const config = require('../../source/utils/config');
 const assert = require('chai').assert;
+const faker = require('faker');
+faker.locale = 'en';
 
 require('readyness/wait/mocha');
 
@@ -168,9 +170,8 @@ describe('POST /access', function () {
   it('should validate an access without custom auth URL', function (done) {
     const test = {
       data: {
-        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
-        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: [{some: 'json', data: 'to request access'}]
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.fake("{{internet.domainWord}}"), level: "contribute", defaultName: faker.fake("{{internet.domainWord}}")}],
       },
       contenttype: 'JSON',
       status: 201,
@@ -184,12 +185,17 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a custom auth URL on the same domain', function (done) {
+    const fakeProtocole = faker.fake("{{internet.protocol}}");
+    const fakeSubdomain = faker.fake("{{internet.domainWord}}");
+    const fakePort = faker.fake("{{random.number}}") % 10000;
+    const fakePath = faker.fake("{{internet.domainWord}}");
+    const authUrl = fakeProtocole+'://'+fakeSubdomain+'.'+config.get('dns:domain')+':'+fakePort+'/'+fakePath;
+
     const test = {
       data: {
-        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
-        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: [{some: 'json', data: 'to request access'}],
-        authUrl : 'https://local.rec.la:2443/access/v0/access.html'
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.fake("{{internet.domainWord}}"), level: "contribute", defaultName: faker.fake("{{internet.domainWord}}")}],
+        authUrl : authUrl
       },
       contenttype: 'JSON',
       status: 201,
@@ -198,17 +204,21 @@ describe('POST /access', function () {
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
       assert.isNull(err);
+      assert.isNotNull(res);
+      assert.isNotNull(res.body);
+      assert.isNotNull(res.body.url);
+      res.body.url.should.startWith(test.data.authUrl);
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
   it('should not validate an access with a custom auth URL on another domain', function (done) {
+    const authUrl = faker.fake("{{internet.url}}");
     const test = {
       data: {
-        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
-        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: [{some: 'json', data: 'to request access'}],
-        authUrl : 'https://google.ch/access/v0/access.html'
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.fake("{{internet.domainWord}}"), level: "contribute", defaultName: faker.fake("{{internet.domainWord}}")}],
+        authUrl : authUrl
       },
       contenttype: 'JSON',
       status: 201,
@@ -220,9 +230,11 @@ describe('POST /access', function () {
       assert.isNotNull(err.status);
       assert.isNotNull(err.response);
       assert.isNotNull(err.response.body);
-      assert.isNotNull(err.response.body.id); // TODO y'a plus propre que la cascade ?
+      assert.isNotNull(err.response.body.id);
+      assert.isNotNull(err.response.body.detail);
       err.status.should.eql(400);
       err.response.body.id.should.eql("INVALID_AUTH_URL");
+      err.response.body.detail.should.include(test.data.authUrl);
 
       done();
     });
