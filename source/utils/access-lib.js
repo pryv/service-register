@@ -100,7 +100,7 @@ accessLib.requestAccess = function (
   let url;
   if(parameters.authUrl) {
     url = parameters.authUrl;
-    if((new URL(url)).hostname.indexOf(domain) <= 0) {
+    if(!isAuthDomainTrusted(url)) {
       return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
   }
   }
@@ -156,6 +156,18 @@ accessLib.requestAccess = function (
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
+
+function isAuthDomainTrusted(url: string) {
+  const hostname = new URL(url).hostname;
+  const trustedApps = config.get('dns:trustedApps');
+  for(let i = 0; i < trustedApps.length; i++) {
+    const domain = trustedApps[i];
+    if(hostname.indexOf(domain) >= 0) {
+      return true;
+    }
+  };
+  return false;
+}
 
 /// Check the validity of the access by checking its associated key.
 /// 

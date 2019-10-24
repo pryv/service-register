@@ -27,6 +27,7 @@
     "name": "local.pryv.net",
     "domain": "pryv.in",
     "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
+    "trustedApps": ["pryv.io","pryv.me", "pryv.li", "pryv.in", "rec.la"],
     "certificateAuthorityAuthorization": {
       "issuer": "letsencrypt.org"
     },
