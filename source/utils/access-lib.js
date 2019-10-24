@@ -102,7 +102,7 @@ accessLib.requestAccess = function (
     url = parameters.authUrl;
     if(!isAuthDomainTrusted(url)) {
       return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
-  }
+    }
   }
   else {
     url = config.get('http:static:access');
