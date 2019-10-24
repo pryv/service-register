@@ -26,7 +26,6 @@
     "name": "local.pryv.net",
     "domain": "pryv.in",
     "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
-    "trustedApps": ["pryv.io","pryv.me", "pryv.li", "pryv.in", "rec.la"],
     "certificateAuthorityAuthorization": {
       "issuer": "letsencrypt.org"
     },
@@ -80,7 +79,8 @@
     },
     "register": {
       "url": "https://reglocal.pryv.in:8443"
-    }
+    },
+    "trustedDomains": ["pryv.io","pryv.me", "pryv.li", "pryv.in", "rec.la"]
   },
   "server": {
     "certsPathAndKey": "node_modules/rec-la/src/rec.la",

@@ -171,7 +171,7 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.fake("{{internet.domainWord}}"), level: "contribute", defaultName: faker.fake("{{internet.domainWord}}")}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
       },
       contenttype: 'JSON',
       status: 201,
@@ -185,16 +185,19 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a custom auth URL on the same domain', function (done) {
-    const fakeProtocole = faker.fake("{{internet.protocol}}");
-    const fakeSubdomain = faker.fake("{{internet.domainWord}}");
-    const fakePort = faker.fake("{{random.number}}") % 10000;
-    const fakePath = faker.fake("{{internet.domainWord}}");
-    const authUrl = fakeProtocole+'://'+fakeSubdomain+'.'+config.get('dns:domain')+':'+fakePort+'/'+fakePath;
+    const fakeProtocol = faker.internet.protocol();
+    const fakeSubdomain = faker.internet.domainWord();
+    const fakePort = faker.random.number() % 10000;
+    const fakePath = faker.internet.domainWord();
+    const trustedDomains = config.get('http:trustedDomains');
+    assert.isArray(trustedDomains);
+    const trustedDomain = trustedDomains[Math.floor(Math.random() * Math.floor(trustedDomains.length))];
+    const authUrl = fakeProtocol+'://'+fakeSubdomain+'.'+trustedDomain+':'+fakePort+'/'+fakePath;
 
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.fake("{{internet.domainWord}}"), level: "contribute", defaultName: faker.fake("{{internet.domainWord}}")}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
       },
       contenttype: 'JSON',
@@ -213,11 +216,39 @@ describe('POST /access', function () {
   });
 
   it('should not validate an access with a custom auth URL on another domain', function (done) {
-    const authUrl = faker.fake("{{internet.url}}");
+    const authUrl = faker.internet.url();
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.fake("{{internet.domainWord}}"), level: "contribute", defaultName: faker.fake("{{internet.domainWord}}")}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        authUrl : authUrl
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNotNull(err);
+      assert.isNotNull(err.status);
+      assert.isNotNull(err.response);
+      assert.isNotNull(err.response.body);
+      assert.isNotNull(err.response.body.id);
+      assert.isNotNull(err.response.body.detail);
+      err.status.should.eql(400);
+      err.response.body.id.should.eql("UNTRUSTED_AUTH_URL");
+      err.response.body.detail.should.include(test.data.authUrl);
+
+      done();
+    });
+  });
+  
+  it('should not validate an access with an invalid custom auth URL', function (done) {
+    const authUrl = faker.random.number(); // Really invalid url...
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
       },
       contenttype: 'JSON',

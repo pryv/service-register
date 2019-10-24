@@ -54,8 +54,10 @@ var messages = {
       'detail' : ''},
   'INVALID_APP_ID' : { 'message' : 'Invalid app ID',
         'detail' : ''},
-  'INVALID_AUTH_URL' : { 'message' : 'Authentication URL should be on the same domain',
-  'detail' : ''}
+  'UNTRUSTED_AUTH_URL' : { 'message' : 'Authentication URL should be on the same domain',
+      'detail' : ''},
+  'INVALID_AUTH_URL' : { 'message' : 'Authentication URL is invalid',
+      'detail' : ''}
 };
 
 if (module && module.exports) {

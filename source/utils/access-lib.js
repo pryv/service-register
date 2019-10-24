@@ -97,14 +97,16 @@ accessLib.requestAccess = function (
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
-  let url;
+  let url: string;
   if(parameters.authUrl) {
     url = parameters.authUrl;
-    if(!isAuthDomainTrusted(url)) {
+    if(!isAuthURLValid(url)) {
       return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
     }
-  }
-  else {
+    if(!isAuthDomainTrusted(url)) {
+      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+    }
+  } else {
     url = config.get('http:static:access');
   }
 
@@ -151,17 +153,26 @@ accessLib.requestAccess = function (
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
     clientData: clientData,
-    lang: lang
+    lang: lang,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
 
+function isAuthURLValid(url: string): boolean {
+  try {
+    new URL(url);
+  } catch (error) {
+    return false;
+  }  
+  return true;
+}
+
 function isAuthDomainTrusted(url: string) {
   const hostname = new URL(url).hostname;
-  const trustedApps = config.get('dns:trustedApps');
-  for(let i = 0; i < trustedApps.length; i++) {
-    const domain = trustedApps[i];
+  const trustedDomains = config.get('http:trustedDomains');
+  for(let i = 0; i < trustedDomains.length; i++) {
+    const domain = trustedDomains[i];
     if(hostname.indexOf(domain) >= 0) {
       return true;
     }
