@@ -53,7 +53,11 @@ var messages = {
   'INVALID_KEY' : { 'message' : 'Invalid access request key',
       'detail' : ''},
   'INVALID_APP_ID' : { 'message' : 'Invalid app ID',
-        'detail' : ''}
+        'detail' : ''},
+  'UNTRUSTED_AUTH_URL' : { 'message' : 'Authentication URL should be on the same domain',
+      'detail' : ''},
+  'INVALID_AUTH_URL' : { 'message' : 'Authentication URL is invalid',
+      'detail' : ''}
 };
 
 if (module && module.exports) {

@@ -7,6 +7,7 @@ const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 const logger = require('winston');
+const { URL } = require('url');
 
 import type { AccessState } from '../storage/database';
 
@@ -96,7 +97,18 @@ accessLib.requestAccess = function (
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
-  let url = config.get('http:static:access');
+  let url: string;
+  if(parameters.authUrl) {
+    url = parameters.authUrl;
+    if(!isAuthURLValid(url)) {
+      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+    }
+    if(!isAuthDomainTrusted(url)) {
+      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+    }
+  } else {
+    url = config.get('http:static:access');
+  }
 
   const localDevel = parameters.localDevel; 
   if (typeof localDevel === 'string') {
@@ -146,6 +158,27 @@ accessLib.requestAccess = function (
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
+
+function isAuthURLValid(url: string): boolean {
+  try {
+    new URL(url);
+  } catch (error) {
+    return false;
+  }  
+  return true;
+}
+
+function isAuthDomainTrusted(url: string) {
+  const hostname = new URL(url).hostname;
+  const trustedDomains = config.get('http:trustedDomains');
+  for(let i = 0; i < trustedDomains.length; i++) {
+    const domain = trustedDomains[i];
+    if(hostname.indexOf(domain) >= 0) {
+      return true;
+    }
+  };
+  return false;
+}
 
 /// Check the validity of the access by checking its associated key.
 /// 

@@ -6,6 +6,9 @@ const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 const request = require('superagent');
 const config = require('../../source/utils/config');
+const assert = require('chai').assert;
+const faker = require('faker');
+faker.locale = 'en';
 
 require('readyness/wait/mocha');
 
@@ -161,6 +164,110 @@ describe('POST /access', function () {
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('should validate an access without custom auth URL', function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNull(err);
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('should validate an access with a custom auth URL on the same domain', function (done) {
+    const fakeProtocol = faker.internet.protocol();
+    const fakeSubdomain = faker.internet.domainWord();
+    const fakePort = faker.random.number() % 10000;
+    const fakePath = faker.internet.domainWord();
+    const trustedDomains = config.get('http:trustedDomains');
+    assert.isArray(trustedDomains);
+    const trustedDomain = trustedDomains[Math.floor(Math.random() * Math.floor(trustedDomains.length))];
+    const authUrl = fakeProtocol+'://'+fakeSubdomain+'.'+trustedDomain+':'+fakePort+'/'+fakePath;
+
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        authUrl : authUrl
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNull(err);
+      assert.isNotNull(res);
+      assert.isNotNull(res.body);
+      assert.isNotNull(res.body.url);
+      res.body.url.should.startWith(test.data.authUrl);
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  it('should not validate an access with a custom auth URL on another domain', function (done) {
+    const authUrl = faker.internet.url();
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        authUrl : authUrl
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNotNull(err);
+      assert.isNotNull(err.status);
+      assert.isNotNull(err.response);
+      assert.isNotNull(err.response.body);
+      assert.isNotNull(err.response.body.id);
+      assert.isNotNull(err.response.body.detail);
+      err.status.should.eql(400);
+      err.response.body.id.should.eql("UNTRUSTED_AUTH_URL");
+      err.response.body.detail.should.include(test.data.authUrl);
+
+      done();
+    });
+  });
+  
+  it('should not validate an access with an invalid custom auth URL', function (done) {
+    const authUrl = faker.random.number(); // Really invalid url...
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        authUrl : authUrl
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNotNull(err);
+      assert.isNotNull(err.status);
+      assert.isNotNull(err.response);
+      assert.isNotNull(err.response.body);
+      assert.isNotNull(err.response.body.id);
+      assert.isNotNull(err.response.body.detail);
+      err.status.should.eql(400);
+      err.response.body.id.should.eql("INVALID_AUTH_URL");
+      err.response.body.detail.should.include(test.data.authUrl);
+
+      done();
     });
   });
 });
