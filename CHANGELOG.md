@@ -1,6 +1,7 @@
 # CHANGES in 1.X
 
 ## 1.3.X
+- Add custom auth url to Auth access.
 - Move route /service/infos to /service/info. Keep /service/infos for backward compatibility.
 - Enhance route /service/info with new values.
 
