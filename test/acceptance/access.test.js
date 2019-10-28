@@ -185,14 +185,9 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a custom auth URL on the same domain', function (done) {
-    const fakeProtocol = faker.internet.protocol();
-    const fakeSubdomain = faker.internet.domainWord();
-    const fakePort = faker.random.number() % 10000;
-    const fakePath = faker.internet.domainWord();
-    const trustedDomains = config.get('http:trustedDomains');
-    assert.isArray(trustedDomains);
-    const trustedDomain = trustedDomains[Math.floor(Math.random() * Math.floor(trustedDomains.length))];
-    const authUrl = fakeProtocol+'://'+fakeSubdomain+'.'+trustedDomain+':'+fakePort+'/'+fakePath;
+    const trustedPaths = config.get('http:trustedPaths');
+    assert.isArray(trustedPaths);
+    const authUrl = trustedPaths[Math.floor(Math.random() * Math.floor(trustedPaths.length))];
 
     const test = {
       data: {
@@ -215,6 +210,38 @@ describe('POST /access', function () {
     });
   });
 
+  it('should validate an access with a custom auth URL on the same domain with parameters', function (done) {
+    const trustedPaths = config.get('http:trustedPaths');
+    assert.isArray(trustedPaths);
+    const fakeParamName = faker.internet.domainWord();
+    const fakeParamValue = faker.internet.domainWord();
+    const authUrl = trustedPaths[Math.floor(Math.random() * Math.floor(trustedPaths.length))] + '?'+fakeParamName+'='+fakeParamValue;
+
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        authUrl : authUrl
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNull(err);
+      assert.isNotNull(res);
+      assert.isNotNull(res.body);
+      assert.isNotNull(res.body.url);
+      res.body.url.should.startWith(test.data.authUrl);
+      
+      const nbQuestionMark =(res.body.url.match(/\?/g) || []).length;
+      assert.strictEqual(nbQuestionMark, 1);
+      
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+  
   it('should not validate an access with a custom auth URL on another domain', function (done) {
     const authUrl = faker.internet.url();
     const test = {

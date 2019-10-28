@@ -119,9 +119,12 @@ accessLib.requestAccess = function (
   if (typeof reclaDevel === 'string') {
     url = 'https://sw.rec.la' + reclaDevel;
   }
-
+  
+  let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
+  
   url = url +
-    '?lang=' + lang +
+    firstParamAppender +
+    'lang=' + lang +
     '&key=' + key +
     '&requestingAppId=' + requestingAppId;
   
@@ -164,16 +167,14 @@ function isAuthURLValid(url: string): boolean {
     new URL(url);
   } catch (error) {
     return false;
-  }  
+  }
   return true;
 }
 
 function isAuthDomainTrusted(url: string) {
-  const hostname = new URL(url).hostname;
-  const trustedDomains = config.get('http:trustedDomains');
-  for(let i = 0; i < trustedDomains.length; i++) {
-    const domain = trustedDomains[i];
-    if(hostname.indexOf(domain) >= 0) {
+  const trustedPaths = config.get('http:trustedPaths');
+  for(let i = 0; i < trustedPaths.length; i++) {
+    if(url.startsWith(trustedPaths[i])) {
       return true;
     }
   };
