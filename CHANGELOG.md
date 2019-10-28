@@ -5,6 +5,8 @@
 - Move route /service/infos to /service/info. Keep /service/infos for backward compatibility.
 - Enhance route /service/info with new values.
 
+- Added UDP6 querying support 
+
 - Improves some API endpoints. In particular, from 1.3.42, we will prefer GET /:email/username to the depreciated GET /:email/uid. Also, from 1.3.43, the system call for updating emails will throw consistent errors.
 
 - The Pryv.io DNS now supports TXT records at the root of the domain associated with the platform allowing to perform DNS validation with a wider range of providers and SPF records for the domain.

@@ -41,11 +41,8 @@ const defaultAuth = 'test-system-key';
 
 describe('User Management', () => {
   let serverUrl;
-  before((done) => {
-    require('readyness').doWhen(() => {
-      serverUrl = config.get('server:url');
-      done();
-    });
+  before(() => {
+    serverUrl = config.get('server:url');
   });
 
   describe('POST /user (create user)', function () {

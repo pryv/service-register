@@ -1,7 +1,6 @@
 // @flow
 
 const ndns = require('./ndns'),
-      server = ndns.createServer('udp4'),
       logger = require('winston'),
       config = require('../utils/config'),
       defaultTTL = config.get('dns:defaultTTL');
@@ -174,16 +173,18 @@ function onDnsRequestCatchError(... args) {
 }
 
 function start(
+  BIND_TYPE: string,
   BIND_PORT: string, BIND_HOST: string, 
   dynamic_call: DnsDynamicHandler, 
   done: (msg: ?string) => void
 ) {
+  const server = ndns.createServer(BIND_TYPE),
   // Server launch
   UpdateConfFile = format(new Date(), 'Ymd33');
   server.on('request', (req, res) => onDnsRequestCatchError(dynamic_call, req, res)); 
 
   server.bind(BIND_PORT, BIND_HOST);
-  return done('DNS Started on '+BIND_HOST+':'+BIND_PORT);
+  return done('DNS Started on IP='+BIND_HOST+' PORT='+BIND_PORT+' '+BIND_TYPE);
 }
 
 var getRecords = function(data: DnsData, name: string): DnsRecord {
