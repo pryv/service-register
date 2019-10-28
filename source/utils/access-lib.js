@@ -178,7 +178,7 @@ function isAuthDomainTrusted(url: string) {
     if(url.startsWith(trustedAuthUrls[i])) {
       return true;
     }
-  };
+  }
   return false;
 }
 

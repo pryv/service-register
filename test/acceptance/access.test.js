@@ -192,7 +192,7 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
       },
       contenttype: 'JSON',
@@ -220,7 +220,7 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
       },
       contenttype: 'JSON',
