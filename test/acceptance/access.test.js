@@ -184,20 +184,15 @@ describe('POST /access', function () {
     });
   });
 
-  it('should validate an access with a custom auth URL on the same domain', function (done) {
-    const fakeProtocol = faker.internet.protocol();
-    const fakeSubdomain = faker.internet.domainWord();
-    const fakePort = faker.random.number() % 10000;
-    const fakePath = faker.internet.domainWord();
-    const trustedDomains = config.get('http:trustedDomains');
-    assert.isArray(trustedDomains);
-    const trustedDomain = trustedDomains[Math.floor(Math.random() * Math.floor(trustedDomains.length))];
-    const authUrl = fakeProtocol+'://'+fakeSubdomain+'.'+trustedDomain+':'+fakePort+'/'+fakePath;
+  it('should validate an access with a trusted custom auth URL', function (done) {
+    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    assert.isArray(trustedAuthUrls);
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))];
 
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
       },
       contenttype: 'JSON',
@@ -215,7 +210,39 @@ describe('POST /access', function () {
     });
   });
 
-  it('should not validate an access with a custom auth URL on another domain', function (done) {
+  it('should validate an access with a trusted custom auth URL with parameters', function (done) {
+    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    assert.isArray(trustedAuthUrls);
+    const fakeParamName = faker.internet.domainWord();
+    const fakeParamValue = faker.internet.domainWord();
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))] + '?'+fakeParamName+'='+fakeParamValue;
+
+    const test = {
+      data: {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
+        authUrl : authUrl
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      assert.isNull(err);
+      assert.isNotNull(res);
+      assert.isNotNull(res.body);
+      assert.isNotNull(res.body.url);
+      res.body.url.should.startWith(test.data.authUrl);
+      
+      const nbQuestionMark =(res.body.url.match(/\?/g) || []).length;
+      assert.strictEqual(nbQuestionMark, 1);
+      
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+  
+  it('should not validate an access with an unstrusted custom auth URL', function (done) {
     const authUrl = faker.internet.url();
     const test = {
       data: {
