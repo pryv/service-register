@@ -44,6 +44,7 @@ type RequestAccessParameters = {
   reclaDevel?: mixed, 
   returnURL?: mixed, 
   clientData?: mixed, 
+  authUrl?: string,
 }
 
 
@@ -98,13 +99,13 @@ accessLib.requestAccess = function (
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
   let url: string;
-  if(parameters.authUrl) {
+  if(parameters.authUrl != null) {
     url = parameters.authUrl;
     if(!isAuthURLValid(url)) {
-      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : ' + url }));
     }
     if(!isAuthDomainTrusted(url)) {
-      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : ' + url }));
     }
   } else {
     url = config.get('http:static:access');
@@ -119,9 +120,12 @@ accessLib.requestAccess = function (
   if (typeof reclaDevel === 'string') {
     url = 'https://sw.rec.la' + reclaDevel;
   }
-
+  
+  let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
+  
   url = url +
-    '?lang=' + lang +
+    firstParamAppender +
+    'lang=' + lang +
     '&key=' + key +
     '&requestingAppId=' + requestingAppId;
   
@@ -164,19 +168,17 @@ function isAuthURLValid(url: string): boolean {
     new URL(url);
   } catch (error) {
     return false;
-  }  
+  }
   return true;
 }
 
 function isAuthDomainTrusted(url: string) {
-  const hostname = new URL(url).hostname;
-  const trustedDomains = config.get('http:trustedDomains');
-  for(let i = 0; i < trustedDomains.length; i++) {
-    const domain = trustedDomains[i];
-    if(hostname.indexOf(domain) >= 0) {
+  const trustedAuthUrls = config.get('http:trustedAuthUrls');
+  for(let i = 0; i < trustedAuthUrls.length; i++) {
+    if(url.startsWith(trustedAuthUrls[i])) {
       return true;
     }
-  };
+  }
   return false;
 }
 
