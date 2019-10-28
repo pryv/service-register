@@ -44,6 +44,7 @@ type RequestAccessParameters = {
   reclaDevel?: mixed, 
   returnURL?: mixed, 
   clientData?: mixed, 
+  authUrl?: string,
 }
 
 
@@ -98,13 +99,13 @@ accessLib.requestAccess = function (
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
   let url: string;
-  if(parameters.authUrl) {
+  if(parameters.authUrl != null) {
     url = parameters.authUrl;
     if(!isAuthURLValid(url)) {
-      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : '+domain+' / auth : ' + url }));
     }
     if(!isAuthDomainTrusted(url)) {
-      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : '+url }));
+      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : ' + url }));
     }
   } else {
     url = config.get('http:static:access');
