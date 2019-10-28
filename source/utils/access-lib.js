@@ -172,9 +172,9 @@ function isAuthURLValid(url: string): boolean {
 }
 
 function isAuthDomainTrusted(url: string) {
-  const trustedPaths = config.get('http:trustedPaths');
-  for(let i = 0; i < trustedPaths.length; i++) {
-    if(url.startsWith(trustedPaths[i])) {
+  const trustedAuthUrls = config.get('http:trustedAuthUrls');
+  for(let i = 0; i < trustedAuthUrls.length; i++) {
+    if(url.startsWith(trustedAuthUrls[i])) {
       return true;
     }
   };

@@ -184,10 +184,10 @@ describe('POST /access', function () {
     });
   });
 
-  it('should validate an access with a custom auth URL on the same domain', function (done) {
-    const trustedPaths = config.get('http:trustedPaths');
-    assert.isArray(trustedPaths);
-    const authUrl = trustedPaths[Math.floor(Math.random() * Math.floor(trustedPaths.length))];
+  it('should validate an access with a trusted custom auth URL', function (done) {
+    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    assert.isArray(trustedAuthUrls);
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))];
 
     const test = {
       data: {
@@ -210,12 +210,12 @@ describe('POST /access', function () {
     });
   });
 
-  it('should validate an access with a custom auth URL on the same domain with parameters', function (done) {
-    const trustedPaths = config.get('http:trustedPaths');
-    assert.isArray(trustedPaths);
+  it('should validate an access with a trusted custom auth URL with parameters', function (done) {
+    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    assert.isArray(trustedAuthUrls);
     const fakeParamName = faker.internet.domainWord();
     const fakeParamValue = faker.internet.domainWord();
-    const authUrl = trustedPaths[Math.floor(Math.random() * Math.floor(trustedPaths.length))] + '?'+fakeParamName+'='+fakeParamValue;
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))] + '?'+fakeParamName+'='+fakeParamValue;
 
     const test = {
       data: {
@@ -242,7 +242,7 @@ describe('POST /access', function () {
     });
   });
   
-  it('should not validate an access with a custom auth URL on another domain', function (done) {
+  it('should not validate an access with an unstrusted custom auth URL', function (done) {
     const authUrl = faker.internet.url();
     const test = {
       data: {

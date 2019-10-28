@@ -82,7 +82,7 @@
     "register": {
       "url": "https://reglocal.pryv.in:8443"
     },
-    "trustedPaths": ["https://local.rec.la:2443/access/v0/access.html"]
+    "trustedAuthUrls": ["https://local.rec.la:2443/access/v0/access.html"]
   },
   "server": {
     "certsPathAndKey": "node_modules/rec-la/src/rec.la",
