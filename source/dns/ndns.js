@@ -2436,20 +2436,18 @@ exports.Server = Server;
 
 Server.prototype._Parser = parsers.alloc();
 
-exports.createServer = function(type) {
-	var requestListener = null;
+exports.createServer = function(type, listener) {
+	let bindType = 'udp4';
+	let requestListener = null;
 
-	if(typeof arguments[0] === 'string') {
-		type = arguments[0];
-
-		if (typeof arguments[1] === 'function') {
-			requestListener = arguments[1];
-		}
-	} else if (typeof arguments[0] === 'function') {
-		requestListener = arguments[0];
+	if(typeof type === 'string') {
+		bindType = type;
+	}
+	if (typeof listener === 'function') {
+		requestListener = listener;
 	}
 
-	return new Server(type, requestListener);
+	return new Server(bindType, requestListener);
 };
 
 function messageListener(msg, rinfo) {
