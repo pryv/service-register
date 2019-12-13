@@ -1,6 +1,9 @@
 # CHANGES in 1.X
 
 ## 1.3.X
+
+- Update to node 12.13.1
+
 - Add custom auth url to Auth access.
 - Move route /service/infos to /service/info. Keep /service/infos for backward compatibility.
 - Enhance route /service/info with new values.
