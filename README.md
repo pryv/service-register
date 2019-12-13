@@ -19,7 +19,7 @@ To enable UDP6 add `ip6` value to the configuration, e.g. :
 
 ### Install
 
-*Prerequisites*: Yarn v1+, Node v8+
+*Prerequisites*: Yarn v1+, Node v12+
 
 Download dependencies: `yarn install`
 
