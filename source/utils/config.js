@@ -105,6 +105,9 @@ nconf.defaults({
   invitationTokens: undefined,
 });
 
+// Translate configuration if needed
+translateConfiguration();
+
 // Check the validity of the configuration
 validateConfiguration();
 
@@ -169,6 +172,70 @@ export type ServerDefinition = {
 
   name: string,
 };
+
+function translateConfiguration() {
+
+  // Merge customDnsEntries in staticDataInDomain
+  const staticDataInDomain = nconf.get('dns:staticDataInDomain');
+  const customDnsEntries = nconf.get('dns:customEntries');
+  nconf.set('dns:staticDataInDomain', Object.assign({}, staticDataInDomain, customDnsEntries));
+
+  // Handle hostings
+  const hostings = nconf.get('hostings');
+  Object.entries(hostings).forEach(([hostingKey, hosting]) => {
+
+    // Add region in aahostings
+    const regionKey = `net:aahostings:regions:${hosting.region}`;
+    if (nconf.get(regionKey) == null) {
+      const regionObj = {
+        name: hosting.region,
+        localizedName: {
+          en: hosting.region
+        },
+        zones: {}
+      };
+      nconf.set(regionKey, regionObj);
+    }
+
+    // Add zone in aahostings
+    const zoneKey = `${regionKey}:zones:${hosting.zone}`;
+    if (nconf.get(zoneKey) == null) {
+      const zoneObj = {
+        name: hosting.zone,
+        LocalizedName: {
+          en: hosting.zone
+        },
+        hostings: {}
+      };
+      nconf.set(zoneKey, zoneObj);
+    }
+
+    // Add hosting in aahostings
+    const hostingObj = {
+      url: hosting.url,
+      name: hosting.name,
+      description: hosting.desc,
+      localizedDescription: {}
+    };
+    nconf.set(`${zoneKey}:hostings:${hostingKey}`, hostingObj);
+    
+    // Handle cores
+    Object.entries(hosting.cores).forEach(([coreKey, coreIp]) => {
+
+      // Add entry in aaservers
+      const serverKey = 'net:aaservers:' + hostingKey;
+      const servers = nconf.get(serverKey) || [];
+      servers.push({
+        base_url: `https://${coreKey}.${nconf.get('dns:domain')}`,
+        authorization: nconf.get('auth:coreSystemKey')
+      });
+      nconf.set(serverKey, servers);
+
+      // Add entry in staticDataInDomain
+      nconf.set(`staticDataInDomain:${coreKey}`, {ip: coreIp});
+    });
+  });
+}
 
 function validateConfiguration () {
   const ipRegexp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
