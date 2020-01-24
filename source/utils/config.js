@@ -83,6 +83,23 @@ nconf.defaults({
   },
   'net': { // manly used in /network/dataservers
     aahostings : {
+      regions: {
+        region1: {
+          name: "Region 1",
+          localizedName: {
+            fr: "Region 1"
+          },
+          zones: {
+            zone1: {
+              name: "Zone 1",
+              localizedName: {
+                fr: "Zone 1"
+              },
+              hostings: {}
+            }
+          }
+        }
+      }
     },
     'AAservers_domain': 'pryv.net', // domain for all admin / activity servers
     'aaservers_ssl': true, // set if admin / activity servers have ssl
@@ -178,63 +195,46 @@ function translateConfiguration() {
   // Merge customDnsEntries in staticDataInDomain
   const staticDataInDomain = nconf.get('dns:staticDataInDomain');
   const customDnsEntries = nconf.get('dns:customEntries');
-  nconf.set('dns:staticDataInDomain', Object.assign({}, staticDataInDomain, customDnsEntries));
+  if (customDnsEntries != null) {
+    nconf.set('dns:staticDataInDomain', Object.assign({}, staticDataInDomain, customDnsEntries));
+  }
 
   // Handle hostings
   const hostings = nconf.get('hostings');
-  Object.entries(hostings).forEach(([hostingKey, hosting]) => {
+  if (hostings != null) {
 
-    // Add region in aahostings
-    const regionKey = `net:aahostings:regions:${hosting.region}`;
-    if (nconf.get(regionKey) == null) {
-      const regionObj = {
-        name: hosting.region,
-        localizedName: {
-          en: hosting.region
-        },
-        zones: {}
+    const aaservers = {};
+    const aahostings = {};
+
+    Object.entries(hostings).forEach(([hostingKey, hosting]) => {
+
+      // Add entry in aahostings
+      aahostings[hostingKey] = {
+        url: 'https://hostingprovider.com',
+        name: 'Hosting provider name',
+        description: 'Hosting provider slogan',
+        localizedDescription: {}
       };
-      nconf.set(regionKey, regionObj);
-    }
 
-    // Add zone in aahostings
-    const zoneKey = `${regionKey}:zones:${hosting.zone}`;
-    if (nconf.get(zoneKey) == null) {
-      const zoneObj = {
-        name: hosting.zone,
-        LocalizedName: {
-          en: hosting.zone
-        },
-        hostings: {}
-      };
-      nconf.set(zoneKey, zoneObj);
-    }
+      // Handle cores
+      Object.entries(hosting).forEach(([coreKey, core]) => {
 
-    // Add hosting in aahostings
-    const hostingObj = {
-      url: hosting.url,
-      name: hosting.name,
-      description: hosting.desc,
-      localizedDescription: {}
-    };
-    nconf.set(`${zoneKey}:hostings:${hostingKey}`, hostingObj);
-    
-    // Handle cores
-    Object.entries(hosting.cores).forEach(([coreKey, coreIp]) => {
+        // Add entry in aaservers
+        if (aaservers[hostingKey] == null) aaservers[hostingKey] = [];
+        aaservers[hostingKey].push({
+          base_url: `https://${coreKey}.${nconf.get('dns:domain')}`,
+          authorization: nconf.get('auth:coreSystemKey')
+        });
 
-      // Add entry in aaservers
-      const serverKey = 'net:aaservers:' + hostingKey;
-      const servers = nconf.get(serverKey) || [];
-      servers.push({
-        base_url: `https://${coreKey}.${nconf.get('dns:domain')}`,
-        authorization: nconf.get('auth:coreSystemKey')
+        // Save entry in staticDataInDomain
+        nconf.set(`dns:staticDataInDomain:${coreKey}`, core);
       });
-      nconf.set(serverKey, servers);
-
-      // Add entry in staticDataInDomain
-      nconf.set(`staticDataInDomain:${coreKey}`, {ip: coreIp});
     });
-  });
+
+    // Save aaservers and aahostings 
+    nconf.set('net:aaservers', aaservers);
+    nconf.set('net:aahostings:regions:region1:zones:zone1:hostings', aahostings);
+  }
 }
 
 function validateConfiguration () {
