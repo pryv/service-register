@@ -93,13 +93,13 @@
     "aaservers": {
       "mock-api-server": [
         {
-          "base_url": "http://localhost:5000/",
+          "base_url": "http://localhost:3000/",
           "authorization": "cz90{k)2{3u8q0C"
         }
       ],
       "local-api-server": [
         {
-          "base_url": "http://localhost:5000/",
+          "base_url": "http://localhost:3000/",
           "authorization": "cz90{k)2{3u8q0C"
         }
       ],

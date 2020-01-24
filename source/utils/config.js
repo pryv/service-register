@@ -105,6 +105,9 @@ nconf.defaults({
   invitationTokens: undefined,
 });
 
+// Translate configuration if needed
+translateConfiguration();
+
 // Check the validity of the configuration
 validateConfiguration();
 
@@ -169,6 +172,71 @@ export type ServerDefinition = {
 
   name: string,
 };
+
+function translateConfiguration() {
+
+  // Merge customDnsEntries in staticDataInDomain
+  const staticDataInDomain = nconf.get('dns:staticDataInDomain');
+  const customDnsEntries = nconf.get('dns:customEntries');
+  if (customDnsEntries != null) {
+    nconf.set('dns:staticDataInDomain', Object.assign({}, staticDataInDomain, customDnsEntries));
+  }
+
+  // Handle hostings
+  const hostings = nconf.get('net:hostings');
+  if (hostings != null) {
+
+    const aaservers = {};
+    const aahostings = {};
+
+    Object.entries(hostings).forEach(([hostingKey, hosting]) => {
+
+      // Add entry in aahostings
+      aahostings[hostingKey] = {
+        url: 'https://hostingprovider.com',
+        name: 'Hosting provider name',
+        description: 'Hosting provider slogan',
+        localizedDescription: {}
+      };
+
+      // Handle cores
+      Object.entries(hosting).forEach(([coreKey, core]) => {
+
+        // Add entry in aaservers
+        if (aaservers[hostingKey] == null) aaservers[hostingKey] = [];
+        aaservers[hostingKey].push({
+          base_url: `https://${coreKey}.${nconf.get('dns:domain')}`,
+          authorization: nconf.get('auth:coreSystemKey')
+        });
+
+        // Save entry in staticDataInDomain
+        nconf.set(`dns:staticDataInDomain:${coreKey}`, core);
+      });
+    });
+
+    // Save aaservers and aahostings 
+    nconf.set('net:aaservers', aaservers);
+    nconf.set('net:aahostings', {
+      regions: {
+        region1: {
+          name: 'Region 1',
+          localizedName: {
+            fr: 'Region 1'
+          },
+          zones: {
+            zone1: {
+              name: 'Zone 1',
+              localizedName: {
+                fr: 'Zone 1'
+              },
+              hostings: aahostings
+            }
+          }
+        }
+      }
+    });
+  }
+}
 
 function validateConfiguration () {
   const ipRegexp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
