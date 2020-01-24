@@ -83,23 +83,6 @@ nconf.defaults({
   },
   'net': { // manly used in /network/dataservers
     aahostings : {
-      regions: {
-        region1: {
-          name: "Region 1",
-          localizedName: {
-            fr: "Region 1"
-          },
-          zones: {
-            zone1: {
-              name: "Zone 1",
-              localizedName: {
-                fr: "Zone 1"
-              },
-              hostings: {}
-            }
-          }
-        }
-      }
     },
     'AAservers_domain': 'pryv.net', // domain for all admin / activity servers
     'aaservers_ssl': true, // set if admin / activity servers have ssl
@@ -200,7 +183,7 @@ function translateConfiguration() {
   }
 
   // Handle hostings
-  const hostings = nconf.get('hostings');
+  const hostings = nconf.get('net:hostings');
   if (hostings != null) {
 
     const aaservers = {};
@@ -233,7 +216,25 @@ function translateConfiguration() {
 
     // Save aaservers and aahostings 
     nconf.set('net:aaservers', aaservers);
-    nconf.set('net:aahostings:regions:region1:zones:zone1:hostings', aahostings);
+    nconf.set('net:aahostings', {
+      regions: {
+        region1: {
+          name: 'Region 1',
+          localizedName: {
+            fr: 'Region 1'
+          },
+          zones: {
+            zone1: {
+              name: 'Zone 1',
+              localizedName: {
+                fr: 'Zone 1'
+              },
+              hostings: aahostings
+            }
+          }
+        }
+      }
+    });
   }
 }
 
