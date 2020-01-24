@@ -2,6 +2,8 @@
 
 ## 1.3.X
 
+- Convert simple configuration (mostly hostings) to expected configuration
+
 - Update to node 12.13.1
 
 - Add custom auth url to Auth access.
