@@ -192,12 +192,17 @@ function translateConfiguration() {
     Object.entries(hostings).forEach(([hostingKey, hosting]) => {
 
       // Add entry in aahostings
-      aahostings[hostingKey] = {
+      let provider = {
         url: 'https://hostingprovider.com',
         name: 'Hosting provider name',
         description: 'Hosting provider slogan',
         localizedDescription: {}
       };
+      const providers = nconf.get('net:providers');
+      if (providers != null && providers[hostingKey] != null) {
+        provider = providers[hostingKey];
+      }
+      aahostings[hostingKey] = provider;
 
       // Handle cores
       Object.entries(hosting).forEach(([coreKey, core]) => {
