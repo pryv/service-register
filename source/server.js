@@ -79,7 +79,7 @@ async function collectUsageAndSendReport() {
     logger.error('Unable to send report to ' + reportingUrl + ' Reason : ' + error.message);
   }
 
-  // Send another report in 24 hours
+  // Schedule another report in 24 hours
   const hours = 24;
   const timeout = hours * 60 * 60 * 1000;
   logger.info('Sending another report in ' + hours + ' hours');
