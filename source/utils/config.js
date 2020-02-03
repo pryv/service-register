@@ -103,6 +103,14 @@ nconf.defaults({
     // apps defined in specific configs (dev/staging/production)
   },
   invitationTokens: undefined,
+  services: {
+    reporting: {
+      licenseName: 'OVERRIDE ME',
+      apiVersion: '1.3.50',
+      templateVersion: '1.0.0'
+    }
+  }
+
 });
 
 // Translate configuration if needed

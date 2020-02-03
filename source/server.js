@@ -9,6 +9,10 @@ const config = require('./utils/config');
 const logger = require('winston');
     
 const http = require('http');
+const superagent = require('superagent');
+const bluebird = require('bluebird');
+const child_process = require('child_process');
+const url = require('url');
 
 const ready = require('readyness');
 ready.setLogger(logger.info);
@@ -40,6 +44,65 @@ function produceServer(): ServerWithUrl {
     (server: http.Server);
     return (server: any);
   }
+}
+
+async function collectUsageAndSendReport() {
+
+  // Check if the PRYV_REPORTING_OFF environment variable is set to 1.
+  // If it is, don't collect data and don't send report
+  const optOutReporting = process.env.PRYV_REPORTING_OFF;
+  if (optOutReporting === 1) { // TODO TESTING true, false, 1, 0, '', "1", "0", {}, null
+    logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting');
+    return;
+  }
+
+  // Collect data
+  let reportingSettings = config.get('services:reporting');
+  const hostname = await collectHostname();
+  const clientData = await collectClientData();
+  const body = {
+    licenseName: reportingSettings.licenseName,
+    role: 'register',
+    hostname: hostname,
+    apiVersion: reportingSettings.apiVersion,
+    templateVersion: reportingSettings.templateVersion,
+    clientData: clientData
+  };
+
+  // Send report
+  // TODO TESTING avec et sans service-reporting qui tourne
+  const reportingUrl = 'http://0.0.0.0:4000'; //'reporting.pryv.com';
+  try {
+    const res = await superagent.post(url.resolve(reportingUrl, 'reports')).send(body);
+    logger.info('Report sent to ' + reportingUrl, res.body);
+  } catch(error) {
+    logger.error('Unable to send report to ' + reportingUrl + ' Reason : ' + error.message);
+  }
+
+  // Schedule another report in 24 hours
+  const hours = 24;
+  const timeout = hours * 60 * 60 * 1000;
+  logger.info('Sending another report in ' + hours + ' hours');
+  setTimeout(() => {
+    collectUsageAndSendReport();
+  }, timeout);
+}
+
+async function collectClientData(): Object {
+  const usersStorage = require('./storage/users');
+
+  let numUser = await bluebird.fromCallback(cb => { // TODO TESTING 0 ou plusieurs users, ainsi qu'une erreur de DB
+    usersStorage.getAllUsersInfos(cb);
+  });
+  numUser = numUser.length;
+
+  return {numUser: numUser};
+}
+
+async function collectHostname(): Object {
+  const hostname = await bluebird.fromCallback(
+    cb => child_process.exec('hostname', cb));
+  return hostname.replace(/\s/g,''); // Remove all white spaces
 }
 
 //https server
@@ -85,6 +148,8 @@ if (config.get('server:port') > 0) {
   });
 
   module.exports = server;
+
+  collectUsageAndSendReport();
 } else {
   logger.info('** HTTP server is off !');
 }
