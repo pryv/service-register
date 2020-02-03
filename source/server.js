@@ -64,7 +64,6 @@ async function collectUsageAndSendReport() {
     licenseName: reportingSettings.licenseName,
     role: 'register',
     hostname: hostname,
-    apiVersion: reportingSettings.apiVersion,
     templateVersion: reportingSettings.templateVersion,
     clientData: clientData
   };
@@ -82,7 +81,7 @@ async function collectUsageAndSendReport() {
   // Schedule another report in 24 hours
   const hours = 24;
   const timeout = hours * 60 * 60 * 1000;
-  logger.info('Sending another report in ' + hours + ' hours');
+  logger.info('Scheduling another report in ' + hours + ' hours');
   setTimeout(() => {
     collectUsageAndSendReport();
   }, timeout);
