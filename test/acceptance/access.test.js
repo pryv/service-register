@@ -1,7 +1,7 @@
 'use strict';
 
 /* global describe, it, before, after */
-const server = require('../../source/server');
+const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 const request = require('superagent');
@@ -15,14 +15,19 @@ require('readyness/wait/mocha');
 describe('POST /access/invitationtoken/check', function () {
 
   let defaultConfigInvitationTokens;
+  let server;
 
-  before(function () {
+  before(async function () {
+    server = new Server();
+    await server.start();
+
     defaultConfigInvitationTokens = config.get('invitationTokens');
     config.set('invitationTokens', ['enjoy']);
   });
 
-  after(function () {
+  after(async function () {
     config.set('invitationTokens', defaultConfigInvitationTokens);
+    await server.stop();
   });
 
   var path = '/access/invitationtoken/check/';
@@ -45,6 +50,16 @@ describe('POST /access/invitationtoken/check', function () {
 
 
 describe('POST /access', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
 
   const path = '/access';
 

@@ -1,9 +1,9 @@
 
-/* global describe, it */
+/* global describe, before, after, it */
 const request = require('superagent');
 
 const config = require('../../source/utils/config');
-const server = require('../../source/server');
+const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 
@@ -15,6 +15,17 @@ const authAdminKey = 'test-admin-key';
 const authSystemKey = 'test-system-key';
 
 describe('GET /admin/servers/:serverName/users', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
   it('invalid', function (done) {
     var test = { serverName: 'a', status: 400, desc : 'invalid',
       JSchema : schema.error, JValues: {id: 'INVALID_DATA'}};
@@ -45,6 +56,17 @@ describe('GET /admin/servers/:serverName/users', function () {
 });
 
 describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
   it('invalid src', function (done) {
     var test = { srcServerName: 'a', dstServerName: 'ab.cd.ef', status: 400, desc : 'invalid src',
       JSchema : schema.error, JValues: {id: 'INVALID_DATA'}};
@@ -98,6 +120,17 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
 });
 
 describe('GET /admin/servers', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
   it('one done', function (done) {
     var test = { status: 200, desc : '1 done',
       JSchema : schema.serverList  };
@@ -110,6 +143,16 @@ describe('GET /admin/servers', function () {
 });
 
 describe('/admin/users/invitations', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
   describe('GET ', function () {
     it('should send a list of current tokens', function (done) {
       request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey)
@@ -157,6 +200,17 @@ describe('/admin/users/invitations', function () {
 });
 
 describe('/admin/users', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+  
   describe('GET ', function () {
     it('should get a users list', function (done) {
       request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)

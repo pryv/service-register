@@ -10,7 +10,7 @@
     "release": "node_modules/.bin/babel source --out-dir lib --copy-files",
     "watch": "babel --watch source --out-dir lib --copy-files",
     "test": "node_modules/.bin/mocha --recursive test/",
-    "start": "./node_modules/.bin/babel-node source/server.js"
+    "start": "./node_modules/.bin/babel-node source/server"
   },
   "dependencies": {
     "airbrake": "^2.1.1",
@@ -49,7 +49,8 @@
     "rec-la": "^0.1.2",
     "should": "3.3.1",
     "superagent": "^3.5.0",
-    "supertest": "^3.3.0"
+    "supertest": "^3.3.0",
+    "awaiting": "^3.0"
   },
   "engines": {
     "node": "12.x",

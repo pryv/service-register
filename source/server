@@ -1,0 +1,16 @@
+const Server = require('./server.js');
+const logger = require('winston');
+
+async function start() {
+  try {
+    const server = new Server();
+    await server.start();
+    logger.info('Startup sequence complete, Server is running.');
+  } catch(error) {
+    if (logger) logger.error(e);
+    console.dir(e);
+    process.exit(1);
+  }
+}
+
+start();

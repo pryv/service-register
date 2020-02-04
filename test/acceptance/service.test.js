@@ -1,14 +1,24 @@
-/*global describe,it*/
+/*global describe, before, after, it*/
 const should = require('should');
 
-const validation = require('../support/data-validation'),
-      schemas = require('../support/schema.responses'),
-      request = require('superagent'),
-      server = require('../../source/server');
+const validation = require('../support/data-validation');
+const schemas = require('../support/schema.responses');
+const request = require('superagent');
+const Server = require('../../source/server.js');
 
 require('readyness/wait/mocha');
 
 describe('/service', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
 
   describe('GET /info', function () {
 
