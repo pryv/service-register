@@ -102,7 +102,7 @@ class ServerWithUrl {
     // If it is, don't collect data and don't send report
     const optOutReporting = process.env.PRYV_REPORTING_OFF;
     if (optOutReporting === 1) { // TODO TESTING true, false, 1, 0, '', "1", "0", {}, null
-      logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting');
+      logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting'); // TODO PRYV_REPORTING_OFF ??
       return;
     }
 
@@ -119,7 +119,7 @@ class ServerWithUrl {
     };
 
     // Send report
-    const reportingUrl = 'http://0.0.0.0:4001'; //'reporting.pryv.com';
+    const reportingUrl = 'https://reporting.pryv.com'; // 'http://0.0.0.0:4001'; //
     try {
       const res = await superagent.post(url.resolve(reportingUrl, 'reports')).send(body);
       logger.info('Report sent to ' + reportingUrl, res.body);
