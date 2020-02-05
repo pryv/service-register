@@ -39,6 +39,51 @@ describe('service-reporting ON', function () {
   });
 });
 
+describe('service-reporting ON and optOut ON', function () {
+  let reportHttpServer;
+  let reportMock;
+  const reportHttpServerPort = 4001;
+  let server: Server;
+
+  before(async () => {
+    reportMock = {
+      licenseName: 'pryv.io-test-license',
+      apiVersion: '1.4.26',
+      templateVersion: '1.0.0'
+    };
+    reportHttpServer = new httpServer('/reports', 200, reportMock);
+    await reportHttpServer.listen(reportHttpServerPort);
+
+    const customSettings = {services: {reporting: {optOut: true}}};
+    server = new Server(customSettings);
+    await server.start();
+  });
+
+  after(async () => {
+    reportHttpServer.close();
+    await server.stop();
+  });
+
+  it('server must start and not send a report when opting-out reporting', async () => {
+    await new Promise(async function (resolve) {
+      await awaiting.event(reportHttpServer, 'report_received');
+      resolve();
+    }).timeout(1000)
+      .then(() => {
+        throw new Error('Should not have received a report');
+      })
+      .catch(error => {
+        if (error instanceof Promise.TimeoutError) {
+          // Everything is ok, the promise should have timeouted
+          // since the report has not been sent.
+          assert.isNotEmpty(server.url); // Check the server has booted
+        } else {
+          assert.fail(error.message);
+        }
+      });
+  });
+});
+
 describe('service-reporting OFF', function () {
   let reportHttpServer;
   let server: Server;

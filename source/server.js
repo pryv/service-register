@@ -29,7 +29,11 @@ class ServerWithUrl {
   server: http.Server;
   url: string;
 
-  constructor() {
+  constructor(customSettings?: Object) {
+    if(customSettings != null) {
+      config.overrides(customSettings);
+    }
+
     const ssl = config.get('server:ssl');
     
     // NOTE The code below typecasts through any. If you modify this code, please
@@ -44,7 +48,6 @@ class ServerWithUrl {
   }
 
   async start() {
-    console.log('<<<<<<<<<<<<<<<<<<<< STARTING');
     logger.info('Register  server :' + config.get('http:register:url'));
     logger.info('Static  server :' + config.get('http:static:url'));
 
@@ -100,9 +103,10 @@ class ServerWithUrl {
 
     // Check if the PRYV_REPORTING_OFF environment variable is set to 1.
     // If it is, don't collect data and don't send report
-    const optOutReporting = process.env.PRYV_REPORTING_OFF;
-    if (optOutReporting === 1) { // TODO TESTING true, false, 1, 0, '', "1", "0", {}, null
-      logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting'); // TODO PRYV_REPORTING_OFF ??
+    const optOutReporting = config.get('services:reporting:optOut');
+
+    if (optOutReporting) {
+      logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting');
       return;
     }
 
@@ -155,7 +159,6 @@ class ServerWithUrl {
 
   async stop() {
     await this.server.close();
-    console.log('>>>>>>>>>>>>>>>>>>>> CLOSING');
   }
 }
 
