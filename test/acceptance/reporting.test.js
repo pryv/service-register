@@ -2,77 +2,60 @@
 
 /* global describe, before, after, it */
 
-const httpServer = require('../support/httpServer');
 const awaiting = require('awaiting');
 const chai = require('chai');
 const assert = chai.assert; 
-const Server = require('../../source/server.js');
-const Mock = require('../support/Mock');
-const EventEmitter = require('events');
+const _ = require('lodash');
 
+const config = require('../../source/utils/config');
+const Server = require('../../source/server.js');
 const Promise = require('bluebird');
 
+const Mock = require('../support/Mock');
+const EventEmitter = require('events');
+const eventEmitter = new EventEmitter();
+const reportMock = {
+  licenseName: 'pryv.io-test-license',
+  apiVersion: '1.4.26',
+  templateVersion: '1.0.0'
+};
+const mock = new Mock('https://reporting.pryv.com', '/reports', 'POST', 200, reportMock, () => eventEmitter.emit('report_received'));
+
 describe('service-reporting ON', function () {
-  let reportHttpServer;
-  let reportMock;
-  const reportHttpServerPort = 4001;
   let server: Server;
-  let a: EventEmitter;
 
   before(async () => {
-    reportMock = {
-      licenseName: 'pryv.io-test-license',
-      apiVersion: '1.4.26',
-      templateVersion: '1.0.0'
-    };
-    a = new EventEmitter();
-    new Mock('https://reporting.pryv.com', '/reports', 'POST', 200, reportMock, () => a.emit('report_received'));
-    
-    //reportHttpServer = new httpServer('/reports', 200, reportMock);
-    //await reportHttpServer.listen(reportHttpServerPort);
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
   after(async () => {
-    //reportHttpServer.close();
     await server.stop();
   });
 
   it('server must start and send a report when service-reporting is ON', async function () {
-    await awaiting.event(a, 'report_received');
+    await awaiting.event(eventEmitter, 'report_received');
     assert.isNotEmpty(server.url); // Check the server has booted
   });
 });
 
 describe('service-reporting ON and optOut ON', function () {
-  let reportHttpServer;
-  let reportMock;
-  const reportHttpServerPort = 4001;
   let server: Server;
 
   before(async () => {
-    reportMock = {
-      licenseName: 'pryv.io-test-license',
-      apiVersion: '1.4.26',
-      templateVersion: '1.0.0'
-    };
-    reportHttpServer = new httpServer('/reports', 200, reportMock);
-    await reportHttpServer.listen(reportHttpServerPort);
-
-    const customSettings = {services: {reporting: {optOut: true}}};
-    server = new Server(customSettings);
+    const configClone = _.cloneDeep(config); // clone it to avoid overriding original config, may be used by further tests.
+    configClone.overrides({services: {reporting: {optOut: true}}});
+    server = new Server(configClone);
     await server.start();
   });
 
   after(async () => {
-    reportHttpServer.close();
     await server.stop();
   });
 
   it('server must start and not send a report when opting-out reporting', async () => {
     await new Promise(async function (resolve) {
-      await awaiting.event(reportHttpServer, 'report_received');
+      await awaiting.event(eventEmitter, 'report_received');
       resolve();
     }).timeout(1000)
       .then(() => {
@@ -90,13 +73,16 @@ describe('service-reporting ON and optOut ON', function () {
   });
 });
 
+/**
+ * Must be the last test
+ * See Mock.js stop() function comments
+ */
 describe('service-reporting OFF', function () {
-  let reportHttpServer;
   let server: Server;
 
   before(async () => {
-    reportHttpServer = new httpServer('/reports', 200, {});
-    server = new Server();
+    mock.stop();
+    server = new Server(config);
     await server.start();
   });
 
@@ -106,7 +92,7 @@ describe('service-reporting OFF', function () {
 
   it('server must start and not send a report when service-reporting is OFF', async function () {
     await new Promise(async function (resolve) {
-      await awaiting.event(reportHttpServer, 'report_received');
+      await awaiting.event(eventEmitter, 'report_received');
       resolve();
     }).timeout(1000)
     .then(() => {

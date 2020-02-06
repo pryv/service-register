@@ -22,7 +22,7 @@ describe('POST /:uid/server', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
@@ -64,7 +64,7 @@ describe('GET /:uid/server', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 

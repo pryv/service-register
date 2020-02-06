@@ -18,7 +18,7 @@ describe('GET /admin/servers/:serverName/users', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
@@ -59,7 +59,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
@@ -123,7 +123,7 @@ describe('GET /admin/servers', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
@@ -146,7 +146,7 @@ describe('/admin/users/invitations', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
@@ -203,7 +203,7 @@ describe('/admin/users', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 

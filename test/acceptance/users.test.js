@@ -43,7 +43,7 @@ describe('User Management', () => {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 

@@ -3,6 +3,7 @@
 /* global describe, it, before, beforeEach, after */
 
 require('../../source/server');
+const config = require('../../source/utils/config');
 const Server = require('../../source/server.js');
 
 const validation = require('../support/data-validation');
@@ -19,7 +20,7 @@ describe('Email', function () {
   // Obtains the server url and specialise supertest to call it. 
   let request, server; 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
     request = supertest(server.server);
   });

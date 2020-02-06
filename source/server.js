@@ -5,7 +5,6 @@
  */
 
 const app = require('./app');
-const config = require('./utils/config');
 const logger = require('winston');
     
 const http = require('http');
@@ -28,12 +27,9 @@ ready.setLogger(logger.info);
 class ServerWithUrl {
   server: http.Server;
   url: string;
+  config: Object;
 
-  constructor(customSettings?: Object) {
-    if(customSettings != null) {
-      config.overrides(customSettings);
-    }
-
+  constructor(config: Object) {
     const ssl = config.get('server:ssl');
     
     // NOTE The code below typecasts through any. If you modify this code, please
@@ -44,24 +40,26 @@ class ServerWithUrl {
     if (ssl && ssl !== 'false') {
       throw new Error('SSL inside register server has been removed. Set ssl to false to continue.');
     }
+
+    this.config = config;
     this.server = http.createServer(app);
   }
 
   async start() {
-    logger.info('Register  server :' + config.get('http:register:url'));
-    logger.info('Static  server :' + config.get('http:static:url'));
+    logger.info('Register  server :' + this.config.get('http:register:url'));
+    logger.info('Static  server :' + this.config.get('http:static:url'));
 
-    if (config.get('server:port') <= 0) {
+    if (this.config.get('server:port') <= 0) {
       logger.info('** HTTP server is off !');
       return;
     }
 
-    var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
-      ':' + config.get('server:port'));
+    var appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') +
+      ':' + this.config.get('server:port'));
     
     const opts = {
-      port: config.get('server:port'),
-      host: config.get('server:ip'),
+      port: this.config.get('server:port'),
+      host: this.config.get('server:ip'),
     };
 
     try {
@@ -84,12 +82,12 @@ class ServerWithUrl {
     this.url = this.server.url = server_url;
     
     // Use this instead.
-    config.set('server:url', this.server.url);
+    this.config.set('server:url', this.server.url);
 
     const readyMessage = 'Registration server v' + require('../package.json').version +
         ' listening on ' + server_url +
-      '\n Serving main domain: ' + config.get('dns:domain') +
-      ' extras: ' + config.get('dns:domains');
+      '\n Serving main domain: ' + this.config.get('dns:domain') +
+      ' extras: ' + this.config.get('dns:domains');
     logger.info(readyMessage);
     appListening(readyMessage);
 
@@ -103,7 +101,7 @@ class ServerWithUrl {
 
     // Check if the PRYV_REPORTING_OFF environment variable is set to 1.
     // If it is, don't collect data and don't send report
-    const optOutReporting = config.get('services:reporting:optOut');
+    const optOutReporting = this.config.get('services:reporting:optOut');
 
     if (optOutReporting) {
       logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting');
@@ -111,7 +109,7 @@ class ServerWithUrl {
     }
 
     // Collect data
-    let reportingSettings = config.get('services:reporting');
+    let reportingSettings = this.config.get('services:reporting');
     const hostname = await this.collectHostname();
     const clientData = await this.collectClientData();
     const body = {
@@ -123,7 +121,7 @@ class ServerWithUrl {
     };
 
     // Send report
-    const reportingUrl = 'https://reporting.pryv.com'; // 'http://0.0.0.0:4001'; //
+    const reportingUrl = 'https://reporting.pryv.com';
     try {
       const res = await superagent.post(url.resolve(reportingUrl, 'reports')).send(body);
       logger.info('Report sent to ' + reportingUrl, res.body);

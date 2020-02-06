@@ -4,6 +4,7 @@ const should = require('should');
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const request = require('superagent');
+const config = require('../../source/utils/config');
 const Server = require('../../source/server.js');
 
 require('readyness/wait/mocha');
@@ -12,7 +13,7 @@ describe('/service', function () {
   let server;
 
   before(async function () {
-    server = new Server();
+    server = new Server(config);
     await server.start();
   });
 
