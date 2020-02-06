@@ -7,6 +7,8 @@ const awaiting = require('awaiting');
 const chai = require('chai');
 const assert = chai.assert; 
 const Server = require('../../source/server.js');
+const Mock = require('../support/Mock');
+const EventEmitter = require('events');
 
 const Promise = require('bluebird');
 
@@ -15,6 +17,7 @@ describe('service-reporting ON', function () {
   let reportMock;
   const reportHttpServerPort = 4001;
   let server: Server;
+  let a: EventEmitter;
 
   before(async () => {
     reportMock = {
@@ -22,19 +25,22 @@ describe('service-reporting ON', function () {
       apiVersion: '1.4.26',
       templateVersion: '1.0.0'
     };
-    reportHttpServer = new httpServer('/reports', 200, reportMock);
-    await reportHttpServer.listen(reportHttpServerPort);
+    a = new EventEmitter();
+    new Mock('https://reporting.pryv.com', '/reports', 'POST', 200, reportMock, () => a.emit('report_received'));
+    
+    //reportHttpServer = new httpServer('/reports', 200, reportMock);
+    //await reportHttpServer.listen(reportHttpServerPort);
     server = new Server();
     await server.start();
   });
 
   after(async () => {
-    reportHttpServer.close();
+    //reportHttpServer.close();
     await server.stop();
   });
 
   it('server must start and send a report when service-reporting is ON', async function () {
-    await awaiting.event(reportHttpServer, 'report_received');
+    await awaiting.event(a, 'report_received');
     assert.isNotEmpty(server.url); // Check the server has booted
   });
 });
