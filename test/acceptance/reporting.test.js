@@ -16,6 +16,7 @@ const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
 const reportMock = {
   licenseName: 'pryv.io-test-license',
+  role: 'reg-master',
   templateVersion: '1.0.0'
 };
 const mock = new Mock('https://reporting.pryv.com', '/reports', 'POST', 200, reportMock, () => eventEmitter.emit('report_received'));

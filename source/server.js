@@ -114,7 +114,7 @@ class ServerWithUrl {
     const clientData = await this.collectClientData();
     const body = {
       licenseName: reportingSettings.licenseName,
-      role: 'register',
+      role: reportingSettings.role,
       hostname: hostname,
       templateVersion: reportingSettings.templateVersion,
       clientData: clientData
