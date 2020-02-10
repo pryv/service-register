@@ -15,7 +15,7 @@ const chai = require('chai');
 const assert = chai.assert; 
 
 // Load and start our web server
-require('../../source/server');
+const Server = require('../../source/server.js');
 
 // Mocks out a core server.
 require('../support/mock-core-server');
@@ -40,9 +40,15 @@ const defaultEmail = 'wactiv@pryv.io';
 const defaultAuth = 'test-system-key';
 
 describe('User Management', () => {
-  let serverUrl;
-  before(() => {
-    serverUrl = config.get('server:url');
+  let server;
+
+  before(async function () {
+    server = new Server(config);
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
   });
 
   describe('POST /user (create user)', function () {
@@ -56,7 +62,7 @@ describe('User Management', () => {
         JValues: { 'id': 'INVALID_HOSTING' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -69,7 +75,7 @@ describe('User Management', () => {
         JValues: { 'id': 'INVALID_APPID' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -82,7 +88,7 @@ describe('User Management', () => {
         JValues: { 'id': 'INVALID_USER_NAME' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -95,7 +101,7 @@ describe('User Management', () => {
         JValues: { 'id': 'RESERVED_USER_NAME' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -108,7 +114,7 @@ describe('User Management', () => {
         JValues: { 'id': 'RESERVED_USER_NAME' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -121,7 +127,7 @@ describe('User Management', () => {
         JValues: { 'id': 'INVALID_EMAIL' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -134,7 +140,7 @@ describe('User Management', () => {
         JValues: { 'id': 'INVALID_LANGUAGE' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -147,7 +153,7 @@ describe('User Management', () => {
         JValues: { 'id': 'EXISTING_USER_NAME' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -160,7 +166,7 @@ describe('User Management', () => {
         JValues: { 'id': 'EXISTING_EMAIL' }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -176,7 +182,7 @@ describe('User Management', () => {
         }
       };
 
-      request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+      request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
         .end(function (err, res) {
           dataValidation.jsonResponse(err, res, test, done);
         });
@@ -209,7 +215,7 @@ describe('User Management', () => {
           }
         };
 
-        request.post(serverUrl + basePath).send(test.data)
+        request.post(server.url + basePath).send(test.data)
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -228,7 +234,7 @@ describe('User Management', () => {
           }
         };
 
-        request.post(serverUrl + basePath).send(test.data)
+        request.post(server.url + basePath).send(test.data)
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -262,7 +268,7 @@ describe('User Management', () => {
           }
         };
 
-        request.post(serverUrl + basePath).send(test.data)
+        request.post(server.url + basePath).send(test.data)
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -280,7 +286,7 @@ describe('User Management', () => {
           JValues: { 'id': 'INVALID_INVITATION' }
         };
 
-        request.post(serverUrl + basePath).send(test.data)
+        request.post(server.url + basePath).send(test.data)
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -297,7 +303,7 @@ describe('User Management', () => {
 
         delete test.data.invitationtoken;
 
-        request.post(serverUrl + basePath).send(test.data)
+        request.post(server.url + basePath).send(test.data)
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -328,7 +334,7 @@ describe('User Management', () => {
           JValues: { 'id': 'INVALID_INVITATION' }
         };
 
-        request.post(serverUrl + basePath).send(_.extend({}, defaults(), test.data))
+        request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -345,7 +351,7 @@ describe('User Management', () => {
 
         delete test.data.invitationtoken;
 
-        request.post(serverUrl + basePath).send(test.data)
+        request.post(server.url + basePath).send(test.data)
           .end(function (err, res) {
             dataValidation.jsonResponse(err, res, test, done);
           });
@@ -371,7 +377,7 @@ describe('User Management', () => {
         value: 'false', restype: 'text/plain; charset=utf-8'
       };
 
-      request.post(serverUrl + path).send(_.extend(defaults, test)).end(function (err, res) {
+      request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -382,7 +388,7 @@ describe('User Management', () => {
         value: 'false', restype: 'text/plain; charset=utf-8'
       };
 
-      request.post(serverUrl + path).send(_.extend(defaults, test)).end(function (err, res) {
+      request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -393,7 +399,7 @@ describe('User Management', () => {
         value: 'true', restype: 'text/plain; charset=utf-8'
       };
 
-      request.post(serverUrl + path).send(_.extend(defaults, test)).end(function (err, res) {
+      request.post(server.url + path).send(_.extend(defaults, test)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -412,7 +418,7 @@ describe('User Management', () => {
         JSchema: schemas.error, JValues: { 'id': 'INVALID_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -426,7 +432,7 @@ describe('User Management', () => {
         JSchema: schemas.error, JValues: { 'id': 'INVALID_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -437,7 +443,7 @@ describe('User Management', () => {
         JSchema: schemas.error, JValues: { 'id': 'INVALID_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -448,7 +454,7 @@ describe('User Management', () => {
         JSchema: schemas.error, JValues: { 'id': 'INVALID_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -459,7 +465,7 @@ describe('User Management', () => {
         JSchema: schemas.checkUID
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -470,7 +476,7 @@ describe('User Management', () => {
         JSchema: schemas.checkUID
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -481,7 +487,7 @@ describe('User Management', () => {
         JSchema: schemas.checkUID
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -492,7 +498,7 @@ describe('User Management', () => {
         JSchema: schemas.checkUID, JValues: { reserved: true, reason: 'RESERVED_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -503,7 +509,7 @@ describe('User Management', () => {
         JSchema: schemas.checkUID, JValues: { reserved: true, reason: 'RESERVED_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -514,7 +520,7 @@ describe('User Management', () => {
         JSchema: schemas.checkUID, JValues: { reserved: true, reason: 'RESERVED_USER_NAME' }
       };
 
-      request.get(serverUrl + getPath(test.username)).end(function (err, res) {
+      request.get(server.url + getPath(test.username)).end(function (err, res) {
         dataValidation.jsonResponse(err, res, test, done);
       });
     });
@@ -540,7 +546,7 @@ describe('User Management', () => {
     }
 
     it('must change the username\'s email', function (done) {
-      request.post(serverUrl + getPath()).send({ email: 'toto@pryv.io' })
+      request.post(server.url + getPath()).send({ email: 'toto@pryv.io' })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.check(res, {
@@ -551,7 +557,7 @@ describe('User Management', () => {
         });
     });
     it('must accept changing a user\'s email by the same one', function (done) {
-      request.post(serverUrl + getPath()).send({ email: defaultEmail })
+      request.post(server.url + getPath()).send({ email: defaultEmail })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.check(res, {
@@ -562,7 +568,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the username is unknown', function (done) {
-      request.post(serverUrl + getPath('baduser')).send({ email: 'toto@pryv.io' })
+      request.post(server.url + getPath('baduser')).send({ email: 'toto@pryv.io' })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.checkError(res, {
@@ -572,7 +578,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the email is invalid', function (done) {
-      request.post(serverUrl + getPath()).send({ email: null })
+      request.post(server.url + getPath()).send({ email: null })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.checkError(res, {
@@ -582,7 +588,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the email is taken', function (done) {
-      request.post(serverUrl + getPath('otherUser')).send({ email: defaultEmail })
+      request.post(server.url + getPath('otherUser')).send({ email: defaultEmail })
         .set('Authorization', defaultAuth)
         .end((err, res) => {
           dataValidation.checkError(res, {
@@ -592,7 +598,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the request auth key is missing or unknown', function (done) {
-      request.post(serverUrl + getPath()).send({ email: 'toto@pryv.io' })
+      request.post(server.url + getPath()).send({ email: 'toto@pryv.io' })
         .end((err, res) => {
           dataValidation.checkError(res, {
             status: 401,
@@ -601,7 +607,7 @@ describe('User Management', () => {
         });
     });
     it('must return an error if the request auth key is unauthorized', function (done) {
-      request.post(serverUrl + getPath()).send({ email: 'toto@pryv.io' })
+      request.post(server.url + getPath()).send({ email: 'toto@pryv.io' })
         .set('Authorization', 'test-admin-key')
         .end((err, res) => {
           dataValidation.checkError(res, {
@@ -714,6 +720,6 @@ describe('User Management', () => {
   });
   
   function resourcePath(username: string): string {
-    return `${serverUrl}/users/${username}`;
+    return `${server.url}/users/${username}`;
   }
 });

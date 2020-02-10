@@ -5,7 +5,6 @@
  */
 
 const app = require('./app');
-const config = require('./utils/config');
 const logger = require('winston');
     
 const http = require('http');
@@ -17,10 +16,7 @@ const url = require('url');
 const ready = require('readyness');
 ready.setLogger(logger.info);
 
-type ServerWithUrl = http.Server & {
-  url: ?string,
-};
-
+// server: http.Server;
 // Produces the server instance for listening to HTTP/HTTPS traffic, depending
 // on the configuration. 
 //
@@ -28,130 +24,140 @@ type ServerWithUrl = http.Server & {
 //    return vanilla servers from this function but a subtype. Make sure
 //    the code knows about the `url`.
 //
-function produceServer(): ServerWithUrl {
-  const ssl = config.get('server:ssl');
-  
-  // NOTE The code below typecasts through any. If you modify this code, please
-  //   make sure that the return value is in fact a http/https server instance. 
-  //   Also why we have type assertions just before the cast through any. 
+class ServerWithUrl {
+  server: http.Server;
+  url: string;
+  config: Object;
 
-  // HACK: config doesn't parse bools when passed from command-line
-  if (ssl && ssl !== 'false') {
-    throw new Error('SSL inside register server has been removed. Set ssl to false to continue.');
-  } else {
-    const server =  http.createServer(app);
+  constructor(config: Object) {
+    const ssl = config.get('server:ssl');
     
-    (server: http.Server);
-    return (server: any);
-  }
-}
+    // NOTE The code below typecasts through any. If you modify this code, please
+    //   make sure that the return value is in fact a http/https server instance. 
+    //   Also why we have type assertions just before the cast through any. 
 
-async function collectUsageAndSendReport() {
+    // HACK: config doesn't parse bools when passed from command-line
+    if (ssl && ssl !== 'false') {
+      throw new Error('SSL inside register server has been removed. Set ssl to false to continue.');
+    }
 
-  // Check if the PRYV_REPORTING_OFF environment variable is set to 1.
-  // If it is, don't collect data and don't send report
-  const optOutReporting = process.env.PRYV_REPORTING_OFF;
-  if (optOutReporting === 1) { // TODO TESTING true, false, 1, 0, '', "1", "0", {}, null
-    logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting');
-    return;
+    this.config = config;
+    this.server = http.createServer(app);
   }
 
-  // Collect data
-  let reportingSettings = config.get('services:reporting');
-  const hostname = await collectHostname();
-  const clientData = await collectClientData();
-  const body = {
-    licenseName: reportingSettings.licenseName,
-    role: 'register',
-    hostname: hostname,
-    apiVersion: reportingSettings.apiVersion,
-    templateVersion: reportingSettings.templateVersion,
-    clientData: clientData
-  };
+  async start() {
+    logger.info('Register  server :' + this.config.get('http:register:url'));
+    logger.info('Static  server :' + this.config.get('http:static:url'));
 
-  // Send report
-  // TODO TESTING avec et sans service-reporting qui tourne
-  const reportingUrl = 'http://0.0.0.0:4000'; //'reporting.pryv.com';
-  try {
-    const res = await superagent.post(url.resolve(reportingUrl, 'reports')).send(body);
-    logger.info('Report sent to ' + reportingUrl, res.body);
-  } catch(error) {
-    logger.error('Unable to send report to ' + reportingUrl + ' Reason : ' + error.message);
-  }
+    if (this.config.get('server:port') <= 0) {
+      logger.info('** HTTP server is off !');
+      return;
+    }
 
-  // Schedule another report in 24 hours
-  const hours = 24;
-  const timeout = hours * 60 * 60 * 1000;
-  logger.info('Sending another report in ' + hours + ' hours');
-  setTimeout(() => {
-    collectUsageAndSendReport();
-  }, timeout);
-}
+    var appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') +
+      ':' + this.config.get('server:port'));
+    
+    const opts = {
+      port: this.config.get('server:port'),
+      host: this.config.get('server:ip'),
+    };
 
-async function collectClientData(): Object {
-  const usersStorage = require('./storage/users');
+    try {
+      await bluebird.fromCallback(
+        (cb) => this.server.listen(opts, cb));
+    }
+    catch(e) {
+      if (e.code === 'EACCES') {
+        logger.error('Cannot ' + e.syscall);
+        throw (e);
+      }
+    }
 
-  let numUser = await bluebird.fromCallback(cb => { // TODO TESTING 0 ou plusieurs users, ainsi qu'une erreur de DB
-    usersStorage.getAllUsersInfos(cb);
-  });
-  numUser = numUser.length;
-
-  return {numUser: numUser};
-}
-
-async function collectHostname(): Object {
-  const hostname = await bluebird.fromCallback(
-    cb => child_process.exec('hostname', cb));
-  return hostname.replace(/\s/g,''); // Remove all white spaces
-}
-
-//https server
-logger.info('Register  server :' + config.get('http:register:url'));
-logger.info('Static  server :' + config.get('http:static:url'));
-
-if (config.get('server:port') > 0) {
-  const server = produceServer(); 
-  
-  var appListening = ready.waitFor('register:listening:' + config.get('server:ip') +
-    ':' + config.get('server:port'));
-  
-  const opts = {
-    port: config.get('server:port'),
-    host: config.get('server:ip'),
-  };
-  server.listen(opts, err => {
-    if (err != null)
-      throw new Error(`AF: ${err} occurred.`);
-
-    var address = server.address();
+    var address = this.server.address();
     var protocol = 'http';
 
     const server_url = protocol + '://' + address.address + ':' + address.port;
     
     // Tests access 'server.url' for now. Deprecated. 
-    server.url = server_url;
+    this.url = this.server.url = server_url;
     
     // Use this instead.
-    config.set('server:url', server.url);
+    this.config.set('server:url', this.server.url);
 
     const readyMessage = 'Registration server v' + require('../package.json').version +
         ' listening on ' + server_url +
-      '\n Serving main domain: ' + config.get('dns:domain') +
-      ' extras: ' + config.get('dns:domains');
+      '\n Serving main domain: ' + this.config.get('dns:domain') +
+      ' extras: ' + this.config.get('dns:domains');
     logger.info(readyMessage);
     appListening(readyMessage);
-  }).on('error', function (e) {
-    if (e.code === 'EACCES') {
-      logger.error('Cannot ' + e.syscall);
-      throw (e);
+
+    this.collectUsageAndSendReport();
+
+    //start dns
+    require('./app-dns');
+  }
+
+  async collectUsageAndSendReport() {
+
+    // Check if the PRYV_REPORTING_OFF environment variable is set to 1.
+    // If it is, don't collect data and don't send report
+    const optOutReporting = this.config.get('services:reporting:optOut');
+
+    if (optOutReporting) {
+      logger.info('PRYV_REPORTING_OFF is set to ' + optOutReporting + ', not reporting');
+      return;
     }
-  });
 
-  module.exports = server;
+    // Collect data
+    let reportingSettings = this.config.get('services:reporting');
+    const hostname = await this.collectHostname();
+    const clientData = await this.collectClientData();
+    const body = {
+      licenseName: reportingSettings.licenseName,
+      role: reportingSettings.role,
+      hostname: hostname,
+      templateVersion: reportingSettings.templateVersion,
+      clientData: clientData
+    };
 
-  collectUsageAndSendReport();
-} else {
-  logger.info('** HTTP server is off !');
+    // Send report
+    const reportingUrl = 'https://reporting.pryv.com';
+    try {
+      const res = await superagent.post(url.resolve(reportingUrl, 'reports')).send(body);
+      logger.info('Report sent to ' + reportingUrl, res.body);
+    } catch(error) {
+      logger.error('Unable to send report to ' + reportingUrl + ' Reason : ' + error.message);
+    }
+
+    // Schedule another report in 24 hours
+    const hours = 24;
+    const timeout = hours * 60 * 60 * 1000;
+    logger.info('Scheduling another report in ' + hours + ' hours');
+    setTimeout(() => {
+      this.collectUsageAndSendReport();
+    }, timeout);
+  }
+
+  async collectClientData(): Object {
+    const usersStorage = require('./storage/users');
+
+    let numUser = await bluebird.fromCallback(cb => {
+      usersStorage.getAllUsersInfos(cb);
+    });
+    numUser = numUser.length;
+
+    return {numUser: numUser};
+  }
+
+  async collectHostname(): Object {
+    const hostname = await bluebird.fromCallback(
+      cb => child_process.exec('hostname', cb));
+    return hostname.replace(/\s/g,''); // Remove all white spaces
+  }
+
+  async stop() {
+    await this.server.close();
+  }
 }
-//start dns
-require('./app-dns');
+
+module.exports = ServerWithUrl;

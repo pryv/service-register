@@ -25,6 +25,9 @@
 - Removes the oauth2 configuration value and the code implementing an OAuth2 
   server. This was not used in practice; less functionality = less maintenance. 
 
+### 1.3.51
+Server send a report to https://reporting.pryv.com upon start
+
 ## 1.2.X
 
 - By adding a 'certificateAuthorityAuthorization' section in your configuration 

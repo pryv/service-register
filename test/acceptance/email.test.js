@@ -1,9 +1,10 @@
 // @flow
 
-/* global describe, it, before, beforeEach */
+/* global describe, it, before, beforeEach, after */
 
 require('../../source/server');
 const config = require('../../source/utils/config');
+const Server = require('../../source/server.js');
 
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
@@ -17,11 +18,15 @@ const assert = chai.assert;
 describe('Email', function () {
 
   // Obtains the server url and specialise supertest to call it. 
-  let request; 
-  before(function () {
-    const serverUrl = config.get('server:url');
+  let request, server; 
+  before(async function () {
+    server = new Server(config);
+    await server.start();
+    request = supertest(server.server);
+  });
 
-    request = supertest(serverUrl);
+  after(async function () {
+    await server.stop();
   });
 
   describe('POST /email/check', () => {

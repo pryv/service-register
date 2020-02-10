@@ -106,7 +106,7 @@ nconf.defaults({
   services: {
     reporting: {
       licenseName: 'OVERRIDE ME',
-      apiVersion: '1.3.50',
+      role: 'reg-master',
       templateVersion: '1.0.0'
     }
   }

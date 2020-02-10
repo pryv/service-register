@@ -1,6 +1,6 @@
 
 
-/* global describe, it */
+/* global describe, before, after, it */
 
 const request = require('superagent');
 const should = require('should');
@@ -9,7 +9,7 @@ const chai = require('chai');
 const assert = chai.assert; 
 
 const config = require('../../source/utils/config');
-const server = require('../../source/server');
+const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 
@@ -19,6 +19,18 @@ var domain = config.get('dns:domain');
 var path = '/server';
 
 describe('POST /:uid/server', function () {
+  let server;
+
+  before(async function () {
+    server = new Server(config);
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
+
   it('too short', function (done) {
     request.post(server.url + '/abcd/server').send({}).end((err, res) => {
       should.exist(err);
@@ -49,6 +61,17 @@ describe('POST /:uid/server', function () {
 });
 
 describe('GET /:uid/server', function () {
+  let server;
+
+  before(async function () {
+    server = new Server(config);
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
   it('too short', function(done) {
     request.get(server.url + '/abcd/server')
       .redirects(0)
