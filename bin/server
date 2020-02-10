@@ -1,5 +1,5 @@
-const config = require('../src/utils/config');
-const Server = require('./server.js');
+const config = require('../source/utils/config');
+const Server = require('../source/server.js');
 const logger = require('winston');
 
 async function start() {
