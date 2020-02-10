@@ -10,7 +10,7 @@
     "release": "node_modules/.bin/babel source --out-dir lib --copy-files",
     "watch": "babel --watch source --out-dir lib --copy-files",
     "test": "node_modules/.bin/mocha --recursive test/",
-    "start": "./node_modules/.bin/babel-node source/server"
+    "start": "./node_modules/.bin/babel-node bin/server"
   },
   "dependencies": {
     "airbrake": "^2.1.1",
