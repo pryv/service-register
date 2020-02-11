@@ -2,6 +2,8 @@
 
 ## 1.3.X
 
+- Server sends a report to https://reporting.pryv.com upon start
+
 - Convert simple configuration (mostly hostings) to expected configuration
 
 - Update to node 12.13.1
@@ -29,9 +31,6 @@
 
 - Removes the oauth2 configuration value and the code implementing an OAuth2 
   server. This was not used in practice; less functionality = less maintenance. 
-
-### 1.3.51
-Server send a report to https://reporting.pryv.com upon start
 
 ## 1.2.X
 
