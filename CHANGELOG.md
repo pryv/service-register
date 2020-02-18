@@ -2,6 +2,8 @@
 
 ## 1.3.X
 
+- Add new route to set new records in dns
+
 - Server sends a report to https://reporting.pryv.com upon start
 
 - Convert simple configuration (mostly hostings) to expected configuration
