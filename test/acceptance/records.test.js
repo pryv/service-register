@@ -29,7 +29,7 @@ describe('POST /records', function () {
 
 
   it('should work', async function () {
-    const key = '_acme';
+    const key = 'acme';
     const val = 'abc';
     const payload = {};
     payload[key] = {description: val};
@@ -38,7 +38,7 @@ describe('POST /records', function () {
       .send(payload);
     console.log('res', JSON.stringify(res.body, null, 2));
     await bluebird.fromCallback(cb => {
-      dig('TXT', val + '.' + domain, function (error, result) {
+      dig('TXT', key + '.' + domain, function (error, result) {
         console.log('got err?', error);
         console.log('res', result)
         assert.strictEqual(result, val);

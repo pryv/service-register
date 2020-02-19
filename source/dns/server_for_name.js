@@ -46,7 +46,7 @@ const caaData = {
 };
 
 //static entries; matches 'in domains' names
-const staticDataInDomain = config.get('dns:staticDataInDomain');
+
 
 
 // Logger setup
@@ -74,11 +74,14 @@ function serverForName(
   callback: (req: DnsRequest, res: DnsResponse, rec: DnsRecord) => void, 
   req: DnsRequest, res: DnsResponse
 ): void {
+  const staticDataInDomain = config.get('dns:staticDataInDomain');
+  console.log('got req', reqName, 'lookin in', config.get('dns:staticDataInDomain'));
   const domains = config.get('dns:domains');
   var nullRecord = dns.getRecords({}, reqName);
 
   //simpler request matching in lower case
   var keyName = reqName.toLowerCase();
+  //console.log('what is dere', staticDataFull)
 
   //reserved, static records
   if (keyName in staticDataFull) {
@@ -86,6 +89,8 @@ function serverForName(
   }
 
   logger.info('DNS: ' + keyName);
+
+
  
   if ( domains.indexOf(keyName) > -1) {
     switch (req.q[0].typeName) {
@@ -105,7 +110,7 @@ function serverForName(
     }
   }
 
-  //console.log("**** " + keyName);
+  console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
   var resourceName; 
@@ -122,8 +127,10 @@ function serverForName(
     return callback(req, res, nullRecord);
   }
 
+  console.log('resourceName', resourceName, 'looking for it in', staticDataInDomain);
   // reserved, static records within domain
   if (resourceName in staticDataInDomain) {
+    
     const staticData = staticDataInDomain[resourceName];
     return callback(req, res, dns.getRecords(staticData, reqName));
   }
