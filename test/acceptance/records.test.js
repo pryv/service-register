@@ -28,19 +28,17 @@ describe('POST /records', function () {
   });
 
 
-  it('should work', async function () {
+  it('A dig should retrieve DNS updates', async function () {
     const key = 'acme';
     const val = 'abc';
     const payload = {};
     payload[key] = {description: val};
-    const res = await request.post(server.url + '/records')
+    await request.post(server.url + '/records')
       .set('Authorization', authAdminKey)
       .send(payload);
-    console.log('res', JSON.stringify(res.body, null, 2));
     await bluebird.fromCallback(cb => {
       dig('TXT', key + '.' + domain, function (error, result) {
-        console.log('got err?', error);
-        console.log('res', result)
+        result = result.replace(/^"|"$/g, ''); // Strip boundary quote
         assert.strictEqual(result, val);
         cb();
       });
