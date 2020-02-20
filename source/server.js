@@ -12,6 +12,7 @@ const superagent = require('superagent');
 const bluebird = require('bluebird');
 const child_process = require('child_process');
 const url = require('url');
+const DnsServer = require('./app-dns');
 
 const ready = require('readyness');
 ready.setLogger(logger.info);
@@ -28,6 +29,7 @@ class ServerWithUrl {
   server: http.Server;
   url: string;
   config: Object;
+  dnsServer: DnsServer;
 
   constructor(config: Object) {
     const ssl = config.get('server:ssl');
@@ -94,7 +96,8 @@ class ServerWithUrl {
     this.collectUsageAndSendReport();
 
     //start dns
-    require('./app-dns');
+    this.dnsServer = new DnsServer(this.config);
+    await this.dnsServer.start();
   }
 
   async collectUsageAndSendReport() {
@@ -157,6 +160,7 @@ class ServerWithUrl {
 
   async stop() {
     await this.server.close();
+    await this.dnsServer.close();
   }
 }
 
