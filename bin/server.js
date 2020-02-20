@@ -5,7 +5,6 @@ const logger = require('winston');
 (async () => {
   const server = new Server(config);
   await server.start();
-  logger.info('Startup sequence complete, Server is running.');
 })()
   .then(() => logger.info('Startup sequence complete, Server is running.'))
   .catch(e => {
