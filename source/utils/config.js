@@ -15,7 +15,9 @@ module.exports = nconf;
 //2. Environment variables
 
 nconf.argv()
-  .env();
+  .env({
+    separator: '_',
+  });
 
 //3. A file located at ..
 var configFile =
@@ -103,12 +105,11 @@ nconf.defaults({
     // apps defined in specific configs (dev/staging/production)
   },
   invitationTokens: undefined,
-  services: {
-    reporting: {
-      licenseName: 'OVERRIDE ME',
-      role: 'reg-master',
-      templateVersion: '1.0.0'
-    }
+  reporting: {
+    optOut: false,
+    licenseName: 'OVERRIDE ME',
+    role: 'reg-master',
+    templateVersion: '1.0.0'
   }
 
 });
