@@ -45,7 +45,7 @@ describe('service-reporting ON and optOut ON', function () {
 
   before(async () => {
     const configClone = _.cloneDeep(config); // clone it to avoid overriding original config, may be used by further tests.
-    configClone.overrides({services: {reporting: {optOut: true}}});
+    configClone.set('reporting:optOut', 'true');
     server = new Server(configClone);
     await server.start();
   });

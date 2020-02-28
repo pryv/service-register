@@ -101,7 +101,7 @@ class ServerWithUrl {
 
     // Check if the PRYV_REPORTING_OFF environment variable is set to true.
     // If it is, don't collect data and don't send report
-    const optOutReporting = this.config.get('services:reporting:optOut');
+    const optOutReporting = this.config.get('reporting:optOut');
 
     if (optOutReporting === 'true') {
       logger.info('Reporting opt-out is set to true, not reporting');
