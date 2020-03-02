@@ -1,6 +1,15 @@
 # CHANGES in 1.X
 
 ## 1.3.X
+
+- Add new route to set new records in dns
+
+- Server sends a report to https://reporting.pryv.com upon start
+
+- Convert simple configuration (mostly hostings) to expected configuration
+
+- Update to node 12.13.1
+
 - Add custom auth url to Auth access.
 - Move route /service/infos to /service/info. Keep /service/infos for backward compatibility.
 - Enhance route /service/info with new values.
@@ -24,9 +33,6 @@
 
 - Removes the oauth2 configuration value and the code implementing an OAuth2 
   server. This was not used in practice; less functionality = less maintenance. 
-
-### 1.3.51
-Server send a report to https://reporting.pryv.com upon start
 
 ## 1.2.X
 

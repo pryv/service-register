@@ -12,7 +12,6 @@ const dns = require('./ndns-wrapper');
 
 import type { DnsRequest, DnsResponse, DnsRecord, DnsData } from './ndns-wrapper';
 
-//static entries; matches a fully qualified names
 const staticDataFull = {
   'isc.org': false
 };
@@ -46,7 +45,7 @@ const caaData = {
 };
 
 //static entries; matches 'in domains' names
-const staticDataInDomain = config.get('dns:staticDataInDomain');
+
 
 
 // Logger setup
@@ -74,6 +73,8 @@ function serverForName(
   callback: (req: DnsRequest, res: DnsResponse, rec: DnsRecord) => void, 
   req: DnsRequest, res: DnsResponse
 ): void {
+  //static entries; matches a fully qualified names
+  const staticDataInDomain = config.get('dns:staticDataInDomain');
   const domains = config.get('dns:domains');
   var nullRecord = dns.getRecords({}, reqName);
 
@@ -86,7 +87,7 @@ function serverForName(
   }
 
   logger.info('DNS: ' + keyName);
- 
+
   if ( domains.indexOf(keyName) > -1) {
     switch (req.q[0].typeName) {
     case 'CAA':
@@ -104,8 +105,6 @@ function serverForName(
       return callback(req, res, dns.getRecords(rootData, reqName));
     }
   }
-
-  //console.log("**** " + keyName);
 
   // look for matches within domain .pryv.io
   var resourceName; 
