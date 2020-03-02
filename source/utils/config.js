@@ -41,63 +41,55 @@ nconf.defaults({
   serial: '2019061301',
   domain: 'pryv.li',
   dns: {
-    'defaultTTL' : 3600,
-    'ip': '127.0.0.1',
-    'name': 'localhost',
-    'port': '2053',
-    'mail': []
+    defaultTTL : 3600,
+    ip: '127.0.0.1',
+    name: 'localhost',
+    port: 2053,
+    mail: []
   },
   service: {
-    "name": "My Pryv Lab",
-    "support": "https://pryv.com/helpdesk",
-    "terms": "https://pryv.com/pryv-lab-terms-of-use/"
+    name: 'My Pryv Lab',
+    support: 'https://pryv.com/helpdesk',
+    terms: 'https://pryv.com/pryv-lab-terms-of-use/'
   },
   eventTypes: {
-    "sourceURL": "https://api.pryv.com/event-types/flat.json"
+    sourceURL: 'https://api.pryv.com/event-types/flat.json'
   },
   auth: {
     authorizedKeys: {
 
     }
   },
-  'languages': {
-    'default' : 'en',
-    'supported' : [{'en': 'English'}, {'fr': 'Français'}]
+  languages: {
+    default: 'en',
+    supported: [{en: 'English'}, {fr: 'Français'}]
   },
-  'http': {  // this should match the config of sww
-    'static': {
-      'url': 'https://sw.pryv.me/register/index.html', // for redirection
-      'errorUrl': 'https://sw.pryv.me/register/error.html',
-      'access': 'https://sw.pryv.io:2443/access/v0/access.html' // ADD A trailing slashes for dir
+  http: {  // this should match the config of sww
+    static: {
+      url: 'https://sw.pryv.me/register/index.html', // for redirection
+      errorUrl: 'https://sw.pryv.me/register/error.html',
+      access: 'https://sw.pryv.io:2443/access/v0/access.html' // ADD A trailing slashes for dir
     },
-    'register': { // this is the (public) front url
-      'url': 'https://reg.pryv.io:443'  // no trailling "/" !!
+    register: { // this is the (public) front url
+      url: 'https://reg.pryv.io:443'  // no trailling "/" !!
     }
   },
-  'server': { // see http:register for public url
-    'port': 2443,
-    'ip': '0.0.0.0',
-    'ssl': true,
-    'certsPathAndKey': '/home/register/secrets/pryv.io' // will add '-privatekey'.. and others
+  server: { // see http:register for public url
+    port: 2443,
+    ip: '0.0.0.0',
+    ssl: true,
+    certsPathAndKey: '/home/register/secrets/pryv.io' // will add '-privatekey'.. and others
   },
-  'persistence' : {
+  persistence : {
     'init-ttl' : 86400, // seconds should be 86400 for a day
     'access-ttl' : 3600  // access-request
   },
-  'net': { // manly used in /network/dataservers
+  net: { // manly used in /network/dataservers
     aahostings : {
     },
-    'AAservers_domain': 'pryv.net', // domain for all admin / activity servers
-    'aaservers_ssl': true, // set if admin / activity servers have ssl
-    'aaservers': {}
-  },
-  'test': {
-
-  },
-  'devel': {
-    'static': {
-      'access' : 'https://l.rec.la:4443/access/'
-    }
+    AAservers_domain: 'pryv.net', // domain for all admin / activity servers
+    aaservers_ssl: true, // set if admin / activity servers have ssl
+    aaservers: {}
   },
   airbrake: {
     key: 'xxxxxxxx' // registration server key
@@ -110,7 +102,7 @@ nconf.defaults({
     optOut: false,
     licenseName: 'OVERRIDE ME',
     role: 'reg-master',
-    templateVersion: '1.0.0'
+    templateVersion: '1.0.0',
   }
 
 });
