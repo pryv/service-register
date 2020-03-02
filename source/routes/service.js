@@ -16,6 +16,7 @@ setConfig('home', 'http:static:url');
 setConfig('support', 'service:support');
 setConfig('terms', 'service:terms');
 setConfig('event-types', 'eventTypes:sourceURL');
+setConfig('assets', 'service:assets');
 
 function setConfig(memberName, configPath) {
   const value = config.get(configPath);

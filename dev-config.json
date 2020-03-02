@@ -9,7 +9,10 @@
   "service": {
     "name": "My Pryv Lab Dev",
     "support": "http://pryv.com/helpdesk",
-    "terms": "http://pryv.com/pryv-lab-terms-of-use/"
+    "terms": "http://pryv.com/pryv-lab-terms-of-use/",
+    "assets": {
+      "definitions": "some-url"
+    }
   },
   "eventTypes": {
     "sourceURL": "https://api.pryv.com/event-types/flat.json"
