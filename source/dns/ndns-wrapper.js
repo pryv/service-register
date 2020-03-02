@@ -6,7 +6,6 @@ const ndns = require('./ndns'),
       defaultTTL = config.get('dns:defaultTTL');
 
 var UpdateConfFile;
-let server;
 
 require('./_extend.js');
 
@@ -173,22 +172,19 @@ function onDnsRequestCatchError(... args) {
   }
 }
 
-async function start(
+function start(
   BIND_TYPE: string,
   BIND_PORT: string, BIND_HOST: string, 
-  dynamic_call: DnsDynamicHandler
+  dynamic_call: DnsDynamicHandler, 
+  done: (msg: ?string) => void
 ) {
-  server = ndns.createServer(BIND_TYPE);
+  const server = ndns.createServer(BIND_TYPE),
   // Server launch
   UpdateConfFile = format(new Date(), 'Ymd33');
   server.on('request', (req, res) => onDnsRequestCatchError(dynamic_call, req, res)); 
 
-  await server.bind(BIND_PORT, BIND_HOST);
-  logger.info('DNS Started on IP='+BIND_HOST+' PORT='+BIND_PORT+' '+BIND_TYPE);
-}
-
-async function close() {
-  await server.close();
+  server.bind(BIND_PORT, BIND_HOST);
+  return done('DNS Started on IP='+BIND_HOST+' PORT='+BIND_PORT+' '+BIND_TYPE);
 }
 
 var getRecords = function(data: DnsData, name: string): DnsRecord {
@@ -316,7 +312,6 @@ var getRecords = function(data: DnsData, name: string): DnsRecord {
 };
 
 exports.start = start;
-exports.close = close;
 exports._onDnsRequest = onDnsRequest;
 exports.getRecords = getRecords;
 exports._rotate = rotate; 

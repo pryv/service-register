@@ -1,6 +1,6 @@
 // @flow
 
-/* global describe, it, before, after */
+/* global describe, it, before */
 
 const lodash = require('lodash');
 
@@ -11,32 +11,18 @@ const should = require('should');
 const chai = require('chai');
 const assert = chai.assert; 
 
+const config = require('../../source/utils/config');
 var db = require('../../source/storage/database');
 const ndns = require('../../source/dns/ndns');
 const Client = ndns.Client;
 
-const DnsServer = require('../../source/app-dns');
-let dnsServer;
-let config;
-let domain;
-let staticDataInDomain;
-let root_TXT_records;
+require('../../source/app-dns');
 
 require('readyness/wait/mocha');
 
 describe('DNS', function () {
-  before(async () => {
-    dnsServer = new DnsServer();
-    await dnsServer.start();
-    config = dnsServer.config;
-    domain = config.get('dns:domain');
-    staticDataInDomain = config.get('dns:staticDataInDomain');
-    root_TXT_records = config.get('dns:rootTXT');
-  });
 
-  after(async () => {
-    await dnsServer.close();
-  });
+  const domain = config.get('dns:domain');
 
   describe('users', () => {
 
@@ -59,6 +45,9 @@ describe('DNS', function () {
   });
 
   describe('staticDataInDomain', () => {
+
+    const staticDataInDomain = config.get('dns:staticDataInDomain');
+
     describe('TXT records', () => {
 
       it('multiple records', (done) => {
@@ -99,7 +88,7 @@ describe('DNS', function () {
 
     });
 
-    it('A', function (done) {
+    it('A ' + config.get('dns:domain'), function (done) {
       dig('CNAME', 'sw.' + domain, function (error, result) {
         if (error) { return done(error); }
 
@@ -113,7 +102,7 @@ describe('DNS', function () {
       });
     });
 
-    it.skip('UDP6 A', function (done) { // TODO fix ??
+    it('UDP6 A ' + config.get('dns:domain'), function (done) {
       dig('CNAME', 'sw.' + domain, function (error, result) {
         if (error) { return done(error); }
 
@@ -142,6 +131,9 @@ describe('DNS', function () {
   });
 
   describe('root TXT record', () => {
+
+    const domain = config.get('dns:domain');
+    const root_TXT_records = config.get('dns:rootTXT');
 
     it('works for multiple entries', (done) => {
 

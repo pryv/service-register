@@ -1,28 +1,17 @@
 // @flow
+
+// Starts the DNS server. 
+
+const config = require('./utils/config');
 const dns = require('./dns/ndns-wrapper');
-const { serverForName } = require('./dns/server_for_name.js');
 
-class DnsServer {
-  config;
+const { serverForName, logger } = require('./dns/server_for_name.js');
 
-  constructor(config?: Object) {
-    if(config == null) {
-      this.config = require('./utils/config');
-    } else {
-      this.config = config;
-    }
-  }
+var ready = require('readyness');
+ready.setLogger(logger.info);
 
-  async start() {
-    await dns.start('udp4', this.config.get('dns:port'), this.config.get('dns:ip'), serverForName);
-    if (this.config.get('dns:ip6')) {
-      await dns.start('udp6', this.config.get('dns:port'), this.config.get('dns:ip6'), serverForName);
-    }
-  }
-
-  async close() {
-    await dns.close();
-  }
+var readyListening = ready.waitFor('app_dns:listening');
+dns.start('udp4', config.get('dns:port'), config.get('dns:ip'), serverForName, readyListening);
+if (config.get('dns:ip6')) {
+  dns.start('udp6', config.get('dns:port'), config.get('dns:ip6'), serverForName, readyListening);
 }
-
-module.exports = DnsServer;
