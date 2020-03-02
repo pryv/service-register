@@ -39,6 +39,7 @@ nconf.file({ file: configFile});
 //Set default values
 nconf.defaults({
   serial: '2019061301',
+  domain: 'pryv.li',
   dns: {
     'defaultTTL' : 3600,
     'ip': '127.0.0.1',

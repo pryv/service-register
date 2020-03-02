@@ -6,48 +6,74 @@ const awaiting = require('awaiting');
 const chai = require('chai');
 const assert = chai.assert; 
 const _ = require('lodash');
+const Promise = require('bluebird');
+const supertest = require('supertest');
+const EventEmitter = require('events');
+const hostname = require('os').hostname;
 
 const config = require('../../source/utils/config');
 const Server = require('../../source/server.js');
-const Promise = require('bluebird');
 
+const DEFAULT_USERNAME = 'wactiv';
 const Mock = require('../support/Mock');
-const EventEmitter = require('events');
 const eventEmitter = new EventEmitter();
-const reportMock = {
-  licenseName: 'pryv.io-test-license',
-  role: 'reg-master',
-  templateVersion: '1.0.0',
-  hostname: 'localhost'
-};
-const mock = new Mock('https://reporting.pryv.com', '/reports', 'POST', 200, reportMock, () => eventEmitter.emit('report_received'));
+let lastReport;
+const mock = new Mock('https://reporting.pryv.com', '/reports', 'POST', 200, null, (reqBody) => {
+  lastReport = reqBody;
+  eventEmitter.emit('report_received');
+});
+let server: Server;
+let request;
+
+async function assertServerStarted() {
+  await request.get(`/${DEFAULT_USERNAME}/check_username`);
+}
 
 describe('service-reporting ON', function () {
-  let server: Server;
+  
+
+  const reportingSettings = {
+    optOut: false,
+    licenseName: 'OVERRIDE ME',
+    role: 'reg-master',
+    templateVersion: '1.0.0',
+    hostname: hostname(),
+  };
+  const testDomain = 'test.pryv.li';
 
   before(async () => {
+    config.set('reporting', reportingSettings);
+    config.set('domain', testDomain);
     server = new Server(config);
+
     await server.start();
+    request = supertest(server.server);
   });
 
   after(async () => {
     await server.stop();
   });
 
-  it('server must start and send a report when service-reporting is ON', async function () {
+  it('YYY server must start and send a report when service-reporting is ON', async function () {
     await awaiting.event(eventEmitter, 'report_received');
-    assert.isNotEmpty(server.url); // Check the server has booted
+    await assertServerStarted();
+    assert.equal(lastReport.licenseName, reportingSettings.licenseName, 'missing or wrong licenseName');
+    assert.equal(lastReport.role, reportingSettings.role, 'missing or wrong role');
+    assert.equal(lastReport.templateVersion, reportingSettings.templateVersion, 'missing or wrong templatVersion');
+    assert.equal(lastReport.domain, reportingSettings.domain, 'missing or wrong domain');
+    assert.equal(lastReport.hostname, reportingSettings.hostname, 'missing or wrong hostname');
+    assert.isAbove(lastReport.clientData.numUsers, 0, 'missing or wrong numUsers');
   });
 });
 
 describe('service-reporting ON and optOut ON', function () {
-  let server: Server;
 
   before(async () => {
     const configClone = _.cloneDeep(config); // clone it to avoid overriding original config, may be used by further tests.
     configClone.set('reporting:optOut', 'true');
     server = new Server(configClone);
     await server.start();
+    request = supertest(server.server);
   });
 
   after(async () => {
@@ -62,11 +88,11 @@ describe('service-reporting ON and optOut ON', function () {
       .then(() => {
         throw new Error('Should not have received a report');
       })
-      .catch(error => {
+      .catch(async (error) => {
         if (error instanceof Promise.TimeoutError) {
           // Everything is ok, the promise should have timeouted
           // since the report has not been sent.
-          assert.isNotEmpty(server.url); // Check the server has booted
+          await assertServerStarted();
         } else {
           assert.fail(error.message);
         }
@@ -79,12 +105,12 @@ describe('service-reporting ON and optOut ON', function () {
  * See Mock.js stop() function comments
  */
 describe('service-reporting OFF', function () {
-  let server: Server;
 
   before(async () => {
     mock.stop();
     server = new Server(config);
     await server.start();
+    request = supertest(server.server);
   });
 
   after(async () => {
@@ -99,11 +125,11 @@ describe('service-reporting OFF', function () {
     .then(() => {
       throw new Error('Should not have received a report');
     })
-    .catch(error => {
+    .catch(async (error) => {
       if (error instanceof Promise.TimeoutError) {
         // Everything is ok, the promise should have timeouted
         // since the report has not been sent.
-        assert.isNotEmpty(server.url); // Check the server has booted
+        await assertServerStarted();
       } else {
         assert.fail(error.message);
       }

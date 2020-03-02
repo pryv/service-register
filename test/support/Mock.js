@@ -9,9 +9,9 @@ class Mock {
     this.scope = nock(endpoint)
       .persist()
       .intercept(path, method)
-      .reply(function () {
-        cb();
-        return [status, res];
+      .reply(function (uri, reqBody) {
+        cb(reqBody);
+        return [status, res || reqBody];
       });
   }
 

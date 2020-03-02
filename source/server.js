@@ -141,12 +141,12 @@ class ServerWithUrl {
   async collectClientData(): Object {
     const usersStorage = require('./storage/users');
 
-    let numUser = await bluebird.fromCallback(cb => {
+    let numUsers = await bluebird.fromCallback(cb => {
       usersStorage.getAllUsersInfos(cb);
     });
-    numUser = numUser.length;
+    numUsers = numUsers.length;
 
-    return {numUser: numUser};
+    return {numUsers: numUsers};
   }
 
   async collectHostname(): Object {
