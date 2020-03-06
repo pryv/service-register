@@ -109,7 +109,7 @@ class ServerWithUrl {
     }
 
     // Collect data
-    let reportingSettings = this.config.get('services:reporting');
+    let reportingSettings = this.config.get('reporting');
     const hostname = await this.collectHostname();
     const clientData = await this.collectClientData();
     const body = {
