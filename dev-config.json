@@ -8,8 +8,10 @@
   },
   "service": {
     "name": "My Pryv Lab Dev",
-    "support": "http://pryv.com/helpdesk",
-    "terms": "http://pryv.com/pryv-lab-terms-of-use/",
+    "support": "https://pryv.com/helpdesk",
+    "terms": "https://pryv.com/pryv-lab-terms-of-use/",
+    "access": "http://access.rec.la:8080/access/",
+    "api": "https://{username}.pryv.me/",
     "assets": {
       "definitions": "some-url"
     }
@@ -27,8 +29,8 @@
   },
   "dns": {
     "name": "local.pryv.net",
-    "domain": "pryv.in",
-    "domains": ["pryv.io","pryv.me", "pryv.li", "pryv.in"],
+    "domain": "rec.la",
+    "domains": ["rec.la", "pryv.me", "pryv.li"],
     "certificateAuthorityAuthorization": {
       "issuer": "letsencrypt.org"
     },
@@ -45,21 +47,21 @@
       "www": {
         "alias": [
           {
-            "name": "local.pryv.in"
+            "name": "www.rec.la"
           }
         ]
       },
       "sw": {
         "alias": [
           {
-            "name": "local.pryv.in"
+            "name": "sw.rec.la"
           }
         ]
       },
       "reg": {
         "alias": [
           {
-            "name": "reglocal.pryv.in"
+            "name": "reglocal.rec.la"
           }
         ]
       },
@@ -83,7 +85,7 @@
       "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
     },
     "register": {
-      "url": "https://reglocal.pryv.in:8443"
+      "url": "http://reglocal.rec.la:8080"
     },
     "trustedAuthUrls": ["https://local.rec.la:2443/access/v0/access.html"]
   },

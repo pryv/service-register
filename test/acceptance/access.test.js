@@ -33,21 +33,90 @@ describe('POST /access/invitationtoken/check', function () {
   var path = '/access/invitationtoken/check/';
 
   it('invalid', function (done) {
-    var test = { invitationtoken: 'facebook', status: 200, value: 'false', restype:'text/plain; charset=utf-8' };
-    request.post(server.url + path).send(test).end(function(err,res) {
+    var test = { invitationtoken: 'facebook', status: 200, value: 'false', restype: 'text/plain; charset=utf-8' };
+    request.post(server.url + path).send(test).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
   it('valid', function (done) {
-    var test = { invitationtoken: 'enjoy', status: 200, value: 'true', restype:'text/plain; charset=utf-8' };
-    request.post(server.url + path).send(test).end(function(err,res) {
+    var test = { invitationtoken: 'enjoy', status: 200, value: 'true', restype: 'text/plain; charset=utf-8' };
+    request.post(server.url + path).send(test).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
 
 });
 
+
+describe('POST /access/:key', function () {
+  const path = '/access';
+  let server;
+  let accessState;
+
+  before(async function () {
+    server = new Server(config);
+    await server.start();
+  });
+
+  this.beforeAll(function (done) {
+    const test = {
+      data: {
+        requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
+        appAuthorization: 'ABCDEFGHIJKLMNOPQ',
+        requestedPermissions: [{ some: 'json', data: 'to request access' }]
+      },
+      contenttype: 'JSON',
+      status: 201,
+      JSchema: schema.accessPOST
+    };
+
+    request.post(server.url + path).send(test.data).end(function (err, res) {
+      const generatedUrl = res.body.poll;
+
+      const ending = /\/access\/\w+$/;
+      generatedUrl.should.match(ending);
+      accessState = res.body;
+      accessState.status.should.equal('NEED_SIGNIN');
+
+      dataValidation.jsonResponse(err, res, test, done);
+    });
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
+  it('ACCEPTED username + token ', async function () {
+    const data = {
+      status: 'ACCEPTED',
+      username: 'tototp',
+      token: 'token'
+    }
+
+    const res = await request.post(accessState.poll).send(data);
+
+    'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+    data.username.should.equal(res.body.username);
+    data.token.should.equal(res.body.token);
+  });
+
+  it('ACCEPTED apiEndpoint', async function () {
+    const data = {
+      status: 'ACCEPTED',
+      apiEndpoint: 'https://token@tototp.pryv.me/',
+      username: 'tototp',
+      token: 'token'
+    }
+    const res = await request.post(accessState.poll).send(data);
+
+    'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+    'tototp'.should.equal(res.body.username);
+    'token'.should.equal(res.body.token);
+   
+  });
+
+});
 
 describe('POST /access', function () {
   let server;
@@ -68,7 +137,7 @@ describe('POST /access', function () {
       data: {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: [{some: 'json', data: 'to request access'}]
+        requestedPermissions: [{ some: 'json', data: 'to request access' }]
       },
       contenttype: 'JSON',
       status: 201,
@@ -82,11 +151,8 @@ describe('POST /access', function () {
       //    /access/DiM1efAaZmTi0WbH
       const ending = /\/access\/\w+$/;
       generatedUrl.should.match(ending);
-      console.log(res.body);
-      assert.isNotNull(res.body.serviceInfo);
-      assert.isNotNull(res.body.serviceInfo.name);
       dataValidation.jsonResponse(err, res, test, done);
-  
+
     });
   });
   it('invalid', function (done) {
@@ -96,7 +162,7 @@ describe('POST /access', function () {
       data: {
         requestingAppId: 'a', languageCode: 'en', returnURL: 'http://BlipBlop.com',
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: [{some: 'json', data: 'to request access'}]
+        requestedPermissions: [{ some: 'json', data: 'to request access' }]
       },
       contenttype: 'JSON',
       status: 400,
@@ -112,12 +178,12 @@ describe('POST /access', function () {
       data: {
         requestingAppId: 'reg-test', languageCode: 'abcdef', returnURL: false,
         appAuthorization: 'ABCDEFGHIJKLMNOPQ',
-        requestedPermissions: [{some: 'json', data: 'to request access'}]
+        requestedPermissions: [{ some: 'json', data: 'to request access' }]
       },
       contenttype: 'JSON',
       status: 400,
       JSchema: schema.error,
-      JValues: {'id': 'INVALID_LANGUAGE'}
+      JValues: { 'id': 'INVALID_LANGUAGE' }
     };
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
@@ -127,8 +193,8 @@ describe('POST /access', function () {
   it('returnURL should accept a null', function (done) {
     const test = {
       data: {
-        requestingAppId: 'reg-test', 
-        languageCode: 'en', 
+        requestingAppId: 'reg-test',
+        languageCode: 'en',
         returnURL: null,
         requestedPermissions: [
           { some: 'json', data: 'to request access' }
@@ -144,7 +210,7 @@ describe('POST /access', function () {
     });
   });
   it('returnURL should accept `false`', function (done) {
-  
+
     const test = {
       data: {
         requestingAppId: 'reg-test',
@@ -189,7 +255,7 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{ streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord() }],
       },
       contenttype: 'JSON',
       status: 201,
@@ -210,8 +276,8 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
-        authUrl : authUrl
+        requestedPermissions: [{ streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord() }],
+        authUrl: authUrl
       },
       contenttype: 'JSON',
       status: 201,
@@ -233,13 +299,13 @@ describe('POST /access', function () {
     assert.isArray(trustedAuthUrls);
     const fakeParamName = faker.internet.domainWord();
     const fakeParamValue = faker.internet.domainWord();
-    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))] + '?'+fakeParamName+'='+fakeParamValue;
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))] + '?' + fakeParamName + '=' + fakeParamValue;
 
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
-        authUrl : authUrl
+        requestedPermissions: [{ streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord() }],
+        authUrl: authUrl
       },
       contenttype: 'JSON',
       status: 201,
@@ -252,21 +318,21 @@ describe('POST /access', function () {
       assert.isNotNull(res.body);
       assert.isNotNull(res.body.url);
       res.body.url.should.startWith(test.data.authUrl);
-      
-      const nbQuestionMark =(res.body.url.match(/\?/g) || []).length;
+
+      const nbQuestionMark = (res.body.url.match(/\?/g) || []).length;
       assert.strictEqual(nbQuestionMark, 1);
-      
+
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
-  
+
   it('should not validate an access with an unstrusted custom auth URL', function (done) {
     const authUrl = faker.internet.url();
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
-        authUrl : authUrl
+        requestedPermissions: [{ streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord() }],
+        authUrl: authUrl
       },
     };
 
@@ -284,14 +350,14 @@ describe('POST /access', function () {
       done();
     });
   });
-  
+
   it('should not validate an access with an invalid custom auth URL', function (done) {
     const authUrl = faker.random.number(); // Really invalid url...
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
-        authUrl : authUrl
+        requestedPermissions: [{ streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord() }],
+        authUrl: authUrl
       }
     };
 
@@ -316,7 +382,7 @@ describe('POST /access', function () {
       const serviceInfo = { name: 'Test' };
       const payload = {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word()}],
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
         serviceInfo: serviceInfo,
       };
 
@@ -327,10 +393,10 @@ describe('POST /access', function () {
       assert.equal(body.serviceInfo.name, serviceInfo.name);
     });
     it('should refuse an invalid one', async function () {
-      const serviceInfo = {boby: 'Bob'};
+      const serviceInfo = { boby: 'Bob' };
       const payload = {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word()}],
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
         serviceInfo: serviceInfo,
       };
       try {
@@ -340,8 +406,8 @@ describe('POST /access', function () {
         assert.equal(e.response.body.id, 'INVALID_SERVICE_INFO_URL');
         assert.include(e.response.body.detail, serviceInfo);
       }
-      
-      
+
+
     });
   });
 });

@@ -32,7 +32,8 @@
     "redis": "0.12.x",
     "semver": "1.1.4",
     "serve-favicon": "^2.5.0",
-    "winston": "0.6.x"
+    "winston": "0.6.x",
+    "pryv": "git://github.com/pryv/lib-js.git#2.0.0"
   },
   "devDependencies": {
     "awaiting": "^3.0",

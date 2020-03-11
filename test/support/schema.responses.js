@@ -243,26 +243,33 @@ exports.multipleErrors = {
   }
 };
 
+
+const serviceInfo = {
+  type: 'object',
+  required: true,
+  properties: {
+    name: {
+      type: 'string',
+      required: true
+    },
+    register: {
+      type: 'string',
+      required: true
+    }
+  }
+};
+
 exports.accessPOST = {
   type: 'object',
   properties: {
-    url : {
+    authUrl : {
       type: 'string', // url?
       required: true
     },
     poll : {
       type: 'string', // url?
       required: true
-    }
-  }
-};
-
-exports.accessGET = {
-  type: 'object',
-  properties: {
-    status : {
-      type: 'string',
-      required: true
-    }
+    },
+    serviceInfo: serviceInfo,
   }
 };

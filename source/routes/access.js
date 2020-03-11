@@ -8,6 +8,7 @@ const invitationToken = require('../storage/invitations');
 const cookieParser = require('cookie-parser');
 
 const info = require('../utils/service-info');
+const Pryv = require('pryv');
 
 /**
  * Routes handling applications access
@@ -84,24 +85,39 @@ module.exports = function (app: express$Application) {
           };
           break;
         case 'ACCEPTED':
+          var apiEndpoint = null;
+          if (body.apiEndpoint) {
+            apiEndpoint = checkAndConstraints.apiEndpoint(body.apiEndpoint);
+            if (!apiEndpoint) {
+              return next(messages.e(400, 'INVALID_API_ENDPOINT'));
+            }
+          } 
+
+          // TO be deprecated
           var username = checkAndConstraints.uid(body.username);
           if (!username) {
             return next(messages.e(400, 'INVALID_USER_NAME'));
           }
 
-          if (!checkAndConstraints.appToken(username)) {
+          if (!checkAndConstraints.appToken(body.token)) {
             return next(messages.e(400, 'INVALID_DATA'));
           }
 
-          accessStateC = {
+
+          if (!apiEndpoint) {
+            apiEndpoint = Pryv.Service.buildAPIEndpoint(info, username, body.token)
+          }
+
+          accessState = {
             status: 'ACCEPTED',
-            username: body.username,
-            token: body.token,
+            apiEndpoint: apiEndpoint,
+            username: username, // should be deprecated
+            token: body.token, // should be deprecated
             code: 200
           };
           break;
       }
-      _setAccessState(res, next, key, accessStateC, previousValue);
+      _setAccessState(res, next, key, accessState, previousValue);
     }, next);
   });
 };
@@ -121,6 +137,9 @@ function _setAccessState(res, next, key, accessState, previousValue) {
   if (previousValue && previousValue.serviceInfo) {
     accessState.serviceInfo = previousValue.serviceInfo;
   }
+
+  
+
   accessCommon.setAccessState(key, accessState, function (accessState) {
     if (accessState.code != null) res.status(accessState.code);
     accessState.serviceInfo = accessState.serviceInfo || info;

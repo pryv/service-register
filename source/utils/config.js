@@ -20,8 +20,7 @@ nconf.argv()
   });
 
 //3. A file located at ..
-var configFile =
-  fs.existsSync('dev-config.json') ? 'dev-config.json': 'localhost-config.json';
+var configFile = 'dev-config.json';
 if (typeof(nconf.get('config')) !== 'undefined') {
   configFile = nconf.get('config');
 }
@@ -50,7 +49,8 @@ nconf.defaults({
   service: {
     name: 'My Pryv Lab',
     support: 'https://pryv.com/helpdesk',
-    terms: 'https://pryv.com/pryv-lab-terms-of-use/'
+    terms: 'https://pryv.com/pryv-lab-terms-of-use/',
+    access: 'https://access.rec.la:8080/access'
   },
   eventTypes: {
     sourceURL: 'https://api.pryv.com/event-types/flat.json'

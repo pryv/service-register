@@ -95,7 +95,7 @@ describe('GET /:uid/server', function () {
       .redirects(0)
       .end((err, res) => {
         assert.equal(res.statusCode, 302, 'Should have status code 302');
-        res.header.location.should.match('https://pryv.in/?username=wactiv');
+        res.header.location.should.match('https://rec.la/?username=wactiv');
         done(); 
       });
   });

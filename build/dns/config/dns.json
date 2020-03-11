@@ -8,21 +8,21 @@
       "www": {
         "alias": [
           {
-            "name": "local.pryv.in"
+            "name": "www.rec.la"
           }
         ]
       },
       "sw": {
         "alias": [
           {
-            "name": "local.pryv.in"
+            "name": "sw.rec.la"
           }
         ]
       },
       "reg": {
         "alias": [
           {
-            "name": "reglocal.pryv.in"
+            "name": "reg.rec.la"
           }
         ]
       }

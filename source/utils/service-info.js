@@ -1,10 +1,7 @@
 const config = require('../utils/config');
+const url = require('url');
 
 const info = Object.assign({}, config.get('service'));
-
-// set default, up to the time they are provided by config
-info.access = info.access || 'https://access.' + config.get('dns:domain') + '/access';
-info.api = info.api || 'https://{username}.' + config.get('dns:domain') + '/';
 
 setConfig('serial', 'serial');
 setConfig('register', 'http:register:url');
@@ -16,5 +13,12 @@ function setConfig(memberName, configPath) {
   if (value)
     info[memberName] = value;
 }
+
+// add eventual missing '/';
+['access', 'api', 'register'].forEach((key) => { 
+  if (info[key].slice(-1) !== '/') {
+    info[key] += '/';
+  }
+});
 
 module.exports = info;

@@ -9,6 +9,8 @@ const accessLib = module.exports = {};
 const logger = require('winston');
 const { URL } = require('url');
 
+const info = require('../utils/service-info');
+
 import type { AccessState } from '../storage/database';
 
 accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
@@ -98,7 +100,7 @@ accessLib.requestAccess = function (
   }
 
   const key = randGenerator(16);
-  const pollURL = config.get('http:register:url') + '/access/' + key; 
+  const pollURL = info.access + key; 
   
   if (serviceInfo != null) {
     if (! isServiceInfoValid(serviceInfo)) {
@@ -119,6 +121,7 @@ accessLib.requestAccess = function (
   } else {
     url = config.get('http:static:access');
   }
+  
 
   const localDevel = parameters.localDevel; 
   if (typeof localDevel === 'string') {
@@ -129,9 +132,14 @@ accessLib.requestAccess = function (
   if (typeof reclaDevel === 'string') {
     url = 'https://sw.rec.la' + reclaDevel;
   }
+
+  
   
   let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
   
+  let authUrl: string;
+  authUrl = url + firstParamAppender;
+
   url = url +
     firstParamAppender +
     'lang=' + lang +
@@ -154,6 +162,8 @@ accessLib.requestAccess = function (
   if (cleanOauthState != null) 
     url += '&oauthState=' + cleanOauthState;
 
+  authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
+
   const accessState: AccessState = {
     status: 'NEED_SIGNIN',
     code: 201,
@@ -161,6 +171,7 @@ accessLib.requestAccess = function (
     requestingAppId: requestingAppId,
     requestedPermissions: requestedPermissions,
     url: url,
+    authUrl: authUrl,
     poll: pollURL,
     returnURL: effectiveReturnURL,
     oauthState: cleanOauthState,

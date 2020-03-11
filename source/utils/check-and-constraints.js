@@ -154,6 +154,13 @@ exports.appToken = function (str: string): ?string {
   return (str.length < 256) ? str : null;
 };
 
+
+exports.apiEndpoint = function (str) {
+  if (!str) { return null; }
+  str = _(str).trim();
+  return (str.length > 5 && str.length < 1000) ? str : null;
+};
+
 exports.accesskey = function (str) {
   if (! str) { return null; }
   str = _(str).trim();
