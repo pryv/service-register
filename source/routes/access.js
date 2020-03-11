@@ -5,7 +5,6 @@ const checkAndConstraints = require('../utils/check-and-constraints');
 const accessCommon = require('../utils/access-lib');
 const invitationToken = require('../storage/invitations');
 
-const cookieParser = require('cookie-parser');
 
 const info = require('../utils/service-info');
 const Pryv = require('pryv');
@@ -15,11 +14,6 @@ const Pryv = require('pryv');
  * @param app
  */
 module.exports = function (app: express$Application) {
-
-  /**
-   * All access routes use cookies
-   */
-  app.all('/access/*', cookieParser(accessCommon.ssoCookieSignSecret));
 
   /**
    * POST /access: request an access
