@@ -186,7 +186,7 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
       },
       contenttype: 'JSON',
       status: 201,
@@ -262,12 +262,9 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
       },
-      contenttype: 'JSON',
-      status: 201,
-      JSchema: schema.accessPOST
     };
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
@@ -278,7 +275,7 @@ describe('POST /access', function () {
       assert.isNotNull(err.response.body.id);
       assert.isNotNull(err.response.body.detail);
       err.status.should.eql(400);
-      err.response.body.id.should.eql("UNTRUSTED_AUTH_URL");
+      err.response.body.id.should.eql('UNTRUSTED_AUTH_URL');
       err.response.body.detail.should.include(test.data.authUrl);
 
       done();
@@ -290,12 +287,9 @@ describe('POST /access', function () {
     const test = {
       data: {
         requestingAppId: 'reg-test',
-        requestedPermissions: [{streamId: faker.internet.domainWord(), level: "contribute", defaultName: faker.internet.domainWord()}],
+        requestedPermissions: [{streamId: faker.internet.domainWord(), level: 'contribute', defaultName: faker.internet.domainWord()}],
         authUrl : authUrl
-      },
-      contenttype: 'JSON',
-      status: 201,
-      JSchema: schema.accessPOST
+      }
     };
 
     request.post(server.url + path).send(test.data).end(function (err, res) {
@@ -306,10 +300,45 @@ describe('POST /access', function () {
       assert.isNotNull(err.response.body.id);
       assert.isNotNull(err.response.body.detail);
       err.status.should.eql(400);
-      err.response.body.id.should.eql("INVALID_AUTH_URL");
+      err.response.body.id.should.eql('INVALID_AUTH_URL');
       err.response.body.detail.should.include(test.data.authUrl);
 
       done();
+    });
+  });
+
+  describe('serviceInfoUrl', function () {
+
+    it('should accept a valid one', async function () {
+      const serviceInfoUrl = faker.internet.url();
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word()}],
+        serviceInfoUrl: serviceInfoUrl,
+      };
+
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.serviceInfoUrl, serviceInfoUrl);
+    });
+    it('should refuse an invalid one', async function () {
+      const serviceInfoUrl = faker.lorem.word();
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word()}],
+        serviceInfoUrl: serviceInfoUrl,
+      };
+      try {
+        await request.post(server.url + path).send(payload);
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_SERVICE_INFO_URL');
+        assert.include(e.response.body.detail, serviceInfoUrl);
+      }
+      
+      
     });
   });
 });

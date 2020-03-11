@@ -45,6 +45,7 @@ type RequestAccessParameters = {
   returnURL?: mixed, 
   clientData?: mixed, 
   authUrl?: string,
+  serviceInfoUrl?: string,
 }
 
 
@@ -82,6 +83,7 @@ accessLib.requestAccess = function (
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   const clientData = parameters.clientData;
+  const serviceInfoUrl = parameters.serviceInfoUrl;
 
   let effectiveReturnURL; 
   if ((returnURL == null) || (typeof returnURL === 'string')) {
@@ -98,6 +100,13 @@ accessLib.requestAccess = function (
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
+  if (serviceInfoUrl != null) {
+    if (! isServiceInfoUrlValid(serviceInfoUrl)) {
+      return errorHandler(messages.e(400, 'INVALID_SERVICE_INFO_URL', { detail: serviceInfoUrl }));
+    }
+  }
+  
+
   let url: string;
   if(parameters.authUrl != null) {
     url = parameters.authUrl;
@@ -158,18 +167,14 @@ accessLib.requestAccess = function (
     poll_rate_ms: 1000,
     clientData: clientData,
     lang: lang,
+    serviceInfoUrl: serviceInfoUrl,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
 
 function isAuthURLValid(url: string): boolean {
-  try {
-    new URL(url);
-  } catch (error) {
-    return false;
-  }
-  return true;
+  return isValidUrl(url);
 }
 
 function isAuthDomainTrusted(url: string) {
@@ -180,6 +185,19 @@ function isAuthDomainTrusted(url: string) {
     }
   }
   return false;
+}
+
+function isServiceInfoUrlValid(url: string): boolean {
+  return isValidUrl(url);
+}
+
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+  } catch (error) {
+    return false;
+  }
+  return true;
 }
 
 /// Check the validity of the access by checking its associated key.

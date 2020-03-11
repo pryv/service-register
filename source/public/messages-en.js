@@ -57,6 +57,8 @@ var messages = {
   'UNTRUSTED_AUTH_URL' : { 'message' : 'Authentication URL should be on the same domain',
       'detail' : ''},
   'INVALID_AUTH_URL' : { 'message' : 'Authentication URL is invalid',
+      'detail' : ''},
+  'INVALID_SERVICE_INFO_URL' : { 'message' : 'Service information URL is invalid',
       'detail' : ''}
 };
 
