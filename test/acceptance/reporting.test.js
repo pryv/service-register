@@ -44,7 +44,7 @@ describe('service-reporting ON', function () {
   before(async () => {
     config.set('reporting', reportingSettings);
     config.set('domain', testDomain);
-    server = new Server(config);
+    server = new Server();
 
     await server.start();
     request = supertest(server.server);
@@ -108,7 +108,7 @@ describe('service-reporting OFF', function () {
 
   before(async () => {
     mock.stop();
-    server = new Server(config);
+    server = new Server();
     await server.start();
     request = supertest(server.server);
   });

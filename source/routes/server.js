@@ -3,14 +3,14 @@
 var checkAndConstraints = require('../utils/check-and-constraints'),
     db = require('../storage/database'),
     messages = require('../utils/messages'),
-    config = require('../utils/config');
+    config = require('../utils/config'),
+    pryv = require('../utils/service-info');
 
 /** Routes to discover server assignations.
  */
 function discoverServerAssignations(app) {
   var domain = '.' + config.get('dns:domain');
   var aaservers_mode = config.get('net:aaservers_ssl') ? 'https' : 'http';
-  var confirmDisplayErrorUrl = config.get('http:static:errorUrl');
 
   /** GET /:uid/server - find the server hosting the provided username (uid).
    */
@@ -18,7 +18,7 @@ function discoverServerAssignations(app) {
     var uid = checkAndConstraints.uid(req.params.uid);
 
     if (! uid) {
-      return res.redirect(confirmDisplayErrorUrl + '?id=INVALID_USER_NAME');
+      return next(messages.e(400, 'INVALID_USER_NAME'));
     }
 
     db.getServer(uid, function (error, result) {
@@ -27,7 +27,7 @@ function discoverServerAssignations(app) {
       }
 
       if (!result) {
-        return res.redirect(confirmDisplayErrorUrl + '?id=UNKNOWN_USER_NAME');
+        return next(messages.e(404, 'UNKNOWN_USER_NAME'));
       }
 
       return res.redirect(aaservers_mode + '://' + result + '/?username=' + uid);

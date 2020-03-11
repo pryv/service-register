@@ -3,16 +3,8 @@ const url = require('url');
 
 const info = Object.assign({}, config.get('service'));
 
-setConfig('serial', 'serial');
-setConfig('register', 'http:register:url');
-setConfig('home', 'http:static:url');
-setConfig('event-types', 'eventTypes:sourceURL');
+info.serial = config.get('serial');
 
-function setConfig(memberName, configPath) {
-  const value = config.get(configPath);
-  if (value)
-    info[memberName] = value;
-}
 
 // add eventual missing '/';
 ['access', 'api', 'register'].forEach((key) => { 

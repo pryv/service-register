@@ -14,6 +14,11 @@ const child_process = require('child_process');
 const url = require('url');
 
 const ready = require('readyness');
+
+const info = require('./utils/service-info');
+const config = require('./utils/config');
+
+
 ready.setLogger(logger.info);
 
 // server: http.Server;
@@ -29,33 +34,20 @@ class ServerWithUrl {
   url: string;
   config: Object;
 
-  constructor(config: Object) {
-    const ssl = config.get('server:ssl');
-    
-    // NOTE The code below typecasts through any. If you modify this code, please
-    //   make sure that the return value is in fact a http/https server instance. 
-    //   Also why we have type assertions just before the cast through any. 
-
-    // HACK: config doesn't parse bools when passed from command-line
-    if (ssl && ssl !== 'false') {
-      throw new Error('SSL inside register server has been removed. Set ssl to false to continue.');
-    }
-
-    this.config = config;
+  constructor(customConfig: Object) {
+    this.config = customConfig || config;
     this.server = http.createServer(app);
   }
 
   async start() {
-    logger.info('Register  server :' + this.config.get('http:register:url'));
-    logger.info('Static  server :' + this.config.get('http:static:url'));
+    logger.info('Register  server :' + info.register);
 
     if (this.config.get('server:port') <= 0) {
       logger.info('** HTTP server is off !');
       return;
     }
 
-    var appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') +
-      ':' + this.config.get('server:port'));
+    var appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') + ':' + this.config.get('server:port'));
     
     const opts = {
       port: this.config.get('server:port'),

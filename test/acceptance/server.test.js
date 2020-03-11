@@ -22,7 +22,7 @@ describe('POST /:uid/server', function () {
   let server;
 
   before(async function () {
-    server = new Server(config);
+    server = new Server();
     await server.start();
   });
 
@@ -64,7 +64,7 @@ describe('GET /:uid/server', function () {
   let server;
 
   before(async function () {
-    server = new Server(config);
+    server = new Server();
     await server.start();
   });
 
@@ -76,8 +76,7 @@ describe('GET /:uid/server', function () {
     request.get(server.url + '/abcd/server')
       .redirects(0)
       .end((err, res) => {
-        assert.equal(res.statusCode, 302, 'Should have status code 302');
-        res.header.location.should.match(/\/error\.html\?id=INVALID_USER_NAME$/);
+        assert.equal(res.statusCode, 400, 'Should have status code 400');
         done(); 
       });
   });
@@ -85,8 +84,7 @@ describe('GET /:uid/server', function () {
     request.get(server.url + '/abcdefghijkl/server')
       .redirects(0)
       .end((err, res) => {
-        assert.equal(res.statusCode, 302, 'Should have status code 302');
-        res.header.location.should.match(/\/error\.html\?id=UNKNOWN_USER_NAME$/);
+        assert.equal(res.statusCode, 404, 'Should have status code 404');
         done(); 
       });
   });

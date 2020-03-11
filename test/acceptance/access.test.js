@@ -18,7 +18,7 @@ describe('POST /access/invitationtoken/check', function () {
   let server;
 
   before(async function () {
-    server = new Server(config);
+    server = new Server();
     await server.start();
 
     defaultConfigInvitationTokens = config.get('invitationTokens');
@@ -55,7 +55,7 @@ describe('POST /access/:key', function () {
   let accessState;
 
   before(async function () {
-    server = new Server(config);
+    server = new Server();
     await server.start();
   });
 
@@ -122,7 +122,7 @@ describe('POST /access', function () {
   let server;
 
   before(async function () {
-    server = new Server(config);
+    server = new Server();
     await server.start();
   });
 

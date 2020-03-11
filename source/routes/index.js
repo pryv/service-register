@@ -1,4 +1,4 @@
-var config = require('../utils/config');
+var info = require('../utils/service-info');
 
 /**
  * Load index.html, redirect to register Home page
@@ -6,6 +6,6 @@ var config = require('../utils/config');
  */
 module.exports = function(app) {
   app.get('/', function(req, res) {
-    return res.redirect(config.get('http:static:url'));
+    return res.redirect(info.home);
   });
 };

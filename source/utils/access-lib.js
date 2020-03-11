@@ -151,7 +151,7 @@ accessLib.requestAccess = function (
 
   url +=
     '&domain=' + domain +
-    '&registerURL=' + encodeURIComponent(config.get('http:register:url')); 
+    '&registerURL=' + encodeURIComponent(info.register); 
   
   url += '&poll=' + encodeURIComponent(pollURL);
   
@@ -188,8 +188,11 @@ function isAuthURLValid(url: string): boolean {
   return isValidUrl(url);
 }
 
+const trustedAuthUrls = config.get('http:trustedAuthUrls');
+trustedAuthUrls.push(config.get('http:static:access'));
+
 function isAuthDomainTrusted(url: string) {
-  const trustedAuthUrls = config.get('http:trustedAuthUrls');
+  
   for(let i = 0; i < trustedAuthUrls.length; i++) {
     if(url.startsWith(trustedAuthUrls[i])) {
       return true;

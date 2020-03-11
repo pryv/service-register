@@ -20,7 +20,7 @@ describe('Email', function () {
   // Obtains the server url and specialise supertest to call it. 
   let request, server; 
   before(async function () {
-    server = new Server(config);
+    server = new Server();
     await server.start();
     request = supertest(server.server);
   });

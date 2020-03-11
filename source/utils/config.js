@@ -50,10 +50,13 @@ nconf.defaults({
     name: 'My Pryv Lab',
     support: 'https://pryv.com/helpdesk',
     terms: 'https://pryv.com/pryv-lab-terms-of-use/',
-    access: 'https://access.rec.la:8080/access'
-  },
-  eventTypes: {
-    sourceURL: 'https://api.pryv.com/event-types/flat.json'
+    access: 'https://access.rec.la:8080/access',
+    register: 'https://reg.pryv.io:443/',
+    home: 'https://sw.pryv.me/access/register.html',
+    'event-types': 'https://api.pryv.com/event-types/flat.json',
+    assets: {
+       definitions: 'https://pryv.github.io/assets-pryv.me/index.json'
+    }
   },
   auth: {
     authorizedKeys: {
@@ -64,21 +67,16 @@ nconf.defaults({
     default: 'en',
     supported: [{en: 'English'}, {fr: 'Français'}]
   },
-  http: {  // this should match the config of sww
+  http: {  
     static: {
-      url: 'https://sw.pryv.me/register/index.html', // for redirection
-      errorUrl: 'https://sw.pryv.me/register/error.html',
-      access: 'https://sw.pryv.io:2443/access/v0/access.html' // ADD A trailing slashes for dir
+      // location of access.html page
+      access: 'https://sw.pryv.me/access/access.html' // ADD A trailing slashes for dir
     },
-    register: { // this is the (public) front url
-      url: 'https://reg.pryv.io:443'  // no trailling "/" !!
-    }
+    trustedAuthUrls: [] // List of web app that can be declared in authUrl params (No need to redeclare static.access)
   },
   server: { // see http:register for public url
-    port: 2443,
-    ip: '0.0.0.0',
-    ssl: true,
-    certsPathAndKey: '/home/register/secrets/pryv.io' // will add '-privatekey'.. and others
+    port: 2443, //x
+    ip: '0.0.0.0' //x
   },
   persistence : {
     'init-ttl' : 86400, // seconds should be 86400 for a day

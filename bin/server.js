@@ -1,9 +1,8 @@
-const config = require('../source/utils/config');
 const Server = require('../source/server');
 const logger = require('winston');
 
 (async () => {
-  const server = new Server(config);
+  const server = new Server();
   await server.start();
   logger.info('Startup sequence complete, Server is running.');
 })()

@@ -12,12 +12,11 @@
     "terms": "https://pryv.com/pryv-lab-terms-of-use/",
     "access": "http://access.rec.la:8080/access/",
     "api": "https://{username}.pryv.me/",
+    "home": "https://l.rec.la:4443",
+    "event-types": "https://api.pryv.com/event-types/flat.json",
     "assets": {
-      "definitions": "some-url"
+      "definitions": "https://pryv.github.io/assets-pryv.me/index.json"
     }
-  },
-  "eventTypes": {
-    "sourceURL": "https://api.pryv.com/event-types/flat.json"
   },
   "redis": {
     "password": "MyRecordedLife",
@@ -81,18 +80,12 @@
   },
   "http": {
     "static": {
-      "url": "https://l.rec.la:4443",
-      "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
-    },
-    "register": {
-      "url": "http://reglocal.rec.la:8080"
+      "access": "https://local.rec.la:4443/access/access.html"
     },
     "trustedAuthUrls": ["https://local.rec.la:2443/access/v0/access.html"]
   },
   "server": {
-    "certsPathAndKey": "node_modules/rec-la/src/rec.la",
-    "port": 8080,
-    "ssl": false
+    "port": 8080
   },
   "net": {
     "aaservers": {
