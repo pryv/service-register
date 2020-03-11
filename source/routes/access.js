@@ -7,6 +7,8 @@ const invitationToken = require('../storage/invitations');
 
 const cookieParser = require('cookie-parser');
 
+const info = require('../utils/service-info');
+
 /**
  * Routes handling applications access
  * @param app
@@ -28,7 +30,7 @@ module.exports = function (app: express$Application) {
    */
   app.post('/access/invitationtoken/check', (req: express$Request, res) => {
     // FLOW We're assuming that body will be JSON encoded.
-    const body: {[key: string]: string} = req.body; 
+    const body: { [key: string]: string } = req.body;
 
     invitationToken.checkIfValid(body.invitationtoken, function (isValid/*, error*/) {
       res.header('Content-Type', 'text/plain');
@@ -40,6 +42,7 @@ module.exports = function (app: express$Application) {
    */
   app.get('/access/:key', (req: express$Request, res, next) => {
     accessCommon.testKeyAndGetValue(req.params.key, (value) => {
+      value.serviceInfo = value.serviceInfo || info;
       return res.status(value.code).json(value);
     }, next);
   });
@@ -49,67 +52,78 @@ module.exports = function (app: express$Application) {
    */
   app.post('/access/:key', (req: express$Request, res, next) => {
     // FLOW We're assuming that body will be JSON encoded.
-    const body: { [key: string]: ?(string | number)} = req.body; 
+    const body: { [key: string]: ?(string | number) } = req.body;
 
     const key = req.params.key;
-    accessCommon.testKeyAndGetValue(key, function (/*value*/) {
+    accessCommon.testKeyAndGetValue(key, function (previousValue) {
 
-      if (body.status === 'REFUSED') {
-        const accessStateA = {
-          status: 'REFUSED',
-          reasonID: body.reasonID || 'REASON_UNDEFINED',
-          message:  body.message || '',
-          code: 403
-        };
-        _setAccessState(res, next, key, accessStateA);
+      let accessState = {
+        status: 'ERROR',
+        id: body.id,
+        message: 'Unkown status code : ' + body.status,
+        detail: '',
+        code: 403
+      };
 
-      } else if (body.status === 'ERROR') {
-        const accessStateB = {
-          status: 'ERROR',
-          id: body.id || 'INTERNAL_ERROR',
-          message:  body.message || '',
-          detail:  body.detail || '',
-          code: 403
-        };
-        _setAccessState(res, next, key, accessStateB);
+      switch (body.status) {
+        case 'REFUSED':
+          accessState = {
+            status: 'REFUSED',
+            reasonID: body.reasonID || 'REASON_UNDEFINED',
+            message: body.message || '',
+            code: 403
+          };
+          break;
+        case 'ERROR':
+          accessState = {
+            status: 'ERROR',
+            id: body.id || 'INTERNAL_ERROR',
+            message: body.message || '',
+            detail: body.detail || '',
+            code: 403
+          };
+          break;
+        case 'ACCEPTED':
+          var username = checkAndConstraints.uid(body.username);
+          if (!username) {
+            return next(messages.e(400, 'INVALID_USER_NAME'));
+          }
 
-      } else if (body.status === 'ACCEPTED') {
-        var username = checkAndConstraints.uid(body.username);
-        if (! username) {
-          return next(messages.e(400, 'INVALID_USER_NAME'));
-        }
+          if (!checkAndConstraints.appToken(username)) {
+            return next(messages.e(400, 'INVALID_DATA'));
+          }
 
-        if (! checkAndConstraints.appToken(username)) {
-          return next(messages.e(400, 'INVALID_DATA'));
-        }
-
-        const accessStateC = {
-          status: 'ACCEPTED',
-          username: body.username,
-          token: body.token,
-          code: 200
-        };
-
-        _setAccessState(res, next, key, accessStateC);
+          accessStateC = {
+            status: 'ACCEPTED',
+            username: body.username,
+            token: body.token,
+            code: 200
+          };
+          break;
       }
+      _setAccessState(res, next, key, accessStateC, previousValue);
     }, next);
   });
 };
 
 function _requestAccess(req: express$Request, res, next) {
   // FLOW We're assuming that body will be JSON encoded.
-  const body: { [key: string]: ?string } = req.body; 
+  const body: { [key: string]: ?string } = req.body;
 
   accessCommon.requestAccess(body, function (accessState) {
+    accessState.serviceInfo = accessState.serviceInfo || info;
     res.status(accessState.code).json(accessState);
   }, next);
 }
 
 
-function _setAccessState(res, next, key, accessState) {
+function _setAccessState(res, next, key, accessState, previousValue) {
+  if (previousValue && previousValue.serviceInfo) {
+    accessState.serviceInfo = previousValue.serviceInfo;
+  }
   accessCommon.setAccessState(key, accessState, function (accessState) {
     if (accessState.code != null) res.status(accessState.code);
-
+    accessState.serviceInfo = accessState.serviceInfo || info;
     res.json(accessState);
   }, function (errorMessage) {
     next(errorMessage);

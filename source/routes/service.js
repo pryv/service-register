@@ -4,25 +4,7 @@ const appsList = config.get('appList');
 const messages = require('../utils/messages');
 const dataservers = require('../utils/dataservers');
 
-const info = {
-  access: 'https://access.' + config.get('dns:domain') + '/access',
-  api: 'https://{username}.' +  config.get('dns:domain') + '/'
-};
-
-setConfig('serial', 'serial');
-setConfig('register', 'http:register:url');
-setConfig('name', 'service:name');
-setConfig('home', 'http:static:url');
-setConfig('support', 'service:support');
-setConfig('terms', 'service:terms');
-setConfig('event-types', 'eventTypes:sourceURL');
-setConfig('assets', 'service:assets');
-
-function setConfig(memberName, configPath) {
-  const value = config.get(configPath);
-  if(value)
-    info[memberName] = value;
-}
+const info = require('../utils/service-info');
 
 /**
  * Routes that provide information about the service and its applications

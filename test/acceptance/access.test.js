@@ -82,8 +82,11 @@ describe('POST /access', function () {
       //    /access/DiM1efAaZmTi0WbH
       const ending = /\/access\/\w+$/;
       generatedUrl.should.match(ending);
-
+      console.log(res.body);
+      assert.isNotNull(res.body.serviceInfo);
+      assert.isNotNull(res.body.serviceInfo.name);
       dataValidation.jsonResponse(err, res, test, done);
+  
     });
   });
   it('invalid', function (done) {
@@ -307,35 +310,35 @@ describe('POST /access', function () {
     });
   });
 
-  describe('serviceInfoUrl', function () {
+  describe('serviceInfo', function () {
 
     it('should accept a valid one', async function () {
-      const serviceInfoUrl = faker.internet.url();
+      const serviceInfo = { name: 'Test' };
       const payload = {
         requestingAppId: 'reg-test',
         requestedPermissions: [{streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word()}],
-        serviceInfoUrl: serviceInfoUrl,
+        serviceInfo: serviceInfo,
       };
 
       const res = await request.post(server.url + path).send(payload);
       assert.equal(res.status, 201);
       const body = res.body;
       assert.isNotNull(body);
-      assert.equal(body.serviceInfoUrl, serviceInfoUrl);
+      assert.equal(body.serviceInfo.name, serviceInfo.name);
     });
     it('should refuse an invalid one', async function () {
-      const serviceInfoUrl = faker.lorem.word();
+      const serviceInfo = {boby: 'Bob'};
       const payload = {
         requestingAppId: 'reg-test',
         requestedPermissions: [{streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word()}],
-        serviceInfoUrl: serviceInfoUrl,
+        serviceInfo: serviceInfo,
       };
       try {
         await request.post(server.url + path).send(payload);
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_SERVICE_INFO_URL');
-        assert.include(e.response.body.detail, serviceInfoUrl);
+        assert.include(e.response.body.detail, serviceInfo);
       }
       
       

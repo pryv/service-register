@@ -45,7 +45,7 @@ type RequestAccessParameters = {
   returnURL?: mixed, 
   clientData?: mixed, 
   authUrl?: string,
-  serviceInfoUrl?: string,
+  serviceInfo?: mixed,
 }
 
 
@@ -83,7 +83,7 @@ accessLib.requestAccess = function (
   const returnURL = parameters.returnURL;
   const oauthState = parameters.oauthState;
   const clientData = parameters.clientData;
-  const serviceInfoUrl = parameters.serviceInfoUrl;
+  const serviceInfo = parameters.serviceInfo;
 
   let effectiveReturnURL; 
   if ((returnURL == null) || (typeof returnURL === 'string')) {
@@ -100,9 +100,9 @@ accessLib.requestAccess = function (
   const key = randGenerator(16);
   const pollURL = config.get('http:register:url') + '/access/' + key; 
   
-  if (serviceInfoUrl != null) {
-    if (! isServiceInfoUrlValid(serviceInfoUrl)) {
-      return errorHandler(messages.e(400, 'INVALID_SERVICE_INFO_URL', { detail: serviceInfoUrl }));
+  if (serviceInfo != null) {
+    if (! isServiceInfoValid(serviceInfo)) {
+      return errorHandler(messages.e(400, 'INVALID_SERVICE_INFO_URL', { detail: serviceInfo }));
     }
   }
   
@@ -167,7 +167,7 @@ accessLib.requestAccess = function (
     poll_rate_ms: 1000,
     clientData: clientData,
     lang: lang,
-    serviceInfoUrl: serviceInfoUrl,
+    serviceInfo: serviceInfo,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
@@ -187,8 +187,8 @@ function isAuthDomainTrusted(url: string) {
   return false;
 }
 
-function isServiceInfoUrlValid(url: string): boolean {
-  return isValidUrl(url);
+function isServiceInfoValid(serviceInfo: mixed): boolean {
+  return serviceInfo && serviceInfo.name ? true : false;
 }
 
 function isValidUrl(url: string): boolean {
