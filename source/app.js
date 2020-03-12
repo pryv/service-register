@@ -8,7 +8,6 @@ const config = require('./config');
 const errorhandler = require('errorhandler');
 const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 
 //Dependencies
 const app: express$Application = module.exports = express();
@@ -21,7 +20,6 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '10mb' }));
 
-app.use(cookieParser());
 app.use(require('./middleware/cross-domain'));
 logger.setLevels(logger.config.syslog.levels);
 

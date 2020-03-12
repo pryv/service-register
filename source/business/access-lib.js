@@ -12,8 +12,6 @@ const info = require('./service-info');
 
 import type { AccessState } from '../storage/database';
 
-accessLib.ssoCookieSignSecret = config.get('settings:access:ssoCookieSignSecret') ||
-  'Hallowed Be Thy Name, O Node 20180926';
 
 /** Update an app access state in the database.
  * 
