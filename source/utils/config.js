@@ -67,11 +67,8 @@ nconf.defaults({
     default: 'en',
     supported: [{en: 'English'}, {fr: 'Français'}]
   },
-  http: {  
-    static: {
-      // location of access.html page
-      access: 'https://sw.pryv.me/access/access.html' // ADD A trailing slashes for dir
-    },
+  access: {
+    defaultAuthUrl: 'https://sw.pryv.me/access/access.html/',
     trustedAuthUrls: [] // List of web app that can be declared in authUrl params (No need to redeclare static.access)
   },
   server: { // see http:register for public url

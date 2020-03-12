@@ -269,7 +269,7 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a trusted custom auth URL', function (done) {
-    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    const trustedAuthUrls = config.get('access:trustedAuthUrls');
     assert.isArray(trustedAuthUrls);
     const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))];
 
@@ -295,7 +295,7 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a trusted custom auth URL with parameters', function (done) {
-    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    const trustedAuthUrls = config.get('access:trustedAuthUrls');
     assert.isArray(trustedAuthUrls);
     const fakeParamName = faker.internet.domainWord();
     const fakeParamValue = faker.internet.domainWord();

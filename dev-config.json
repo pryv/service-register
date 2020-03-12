@@ -78,10 +78,8 @@
       }
     }
   },
-  "http": {
-    "static": {
-      "access": "https://local.rec.la:4443/access/access.html"
-    },
+  "access": {
+    "defaultAuthUrl": "https://local.rec.la:4443/access/access.html",
     "trustedAuthUrls": ["https://local.rec.la:2443/access/v0/access.html"]
   },
   "server": {

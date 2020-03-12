@@ -119,13 +119,7 @@ accessLib.requestAccess = function (
       return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : ' + url }));
     }
   } else {
-    url = config.get('http:static:access');
-  }
-  
-
-  const localDevel = parameters.localDevel; 
-  if (typeof localDevel === 'string') {
-    url = config.get('devel:static:access') + localDevel;
+    url = config.get('access:defaultAuthUrl');
   }
 
   const reclaDevel = parameters.reclaDevel; 
@@ -188,8 +182,8 @@ function isAuthURLValid(url: string): boolean {
   return isValidUrl(url);
 }
 
-const trustedAuthUrls = config.get('http:trustedAuthUrls');
-trustedAuthUrls.push(config.get('http:static:access'));
+const trustedAuthUrls = config.get('access:trustedAuthUrls');
+trustedAuthUrls.push(config.get('access:defaultAuthUrl'));
 
 function isAuthDomainTrusted(url: string) {
   
