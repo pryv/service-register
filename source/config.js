@@ -37,7 +37,6 @@ nconf.file({ file: configFile});
 
 //Set default values
 nconf.defaults({
-  serial: '2019061301',
   domain: 'pryv.li',
   dns: {
     defaultTTL : 3600,
@@ -47,6 +46,7 @@ nconf.defaults({
     mail: []
   },
   service: {
+    serial: '2019061301',
     name: 'My Pryv Lab',
     support: 'https://pryv.com/helpdesk',
     terms: 'https://pryv.com/pryv-lab-terms-of-use/',
