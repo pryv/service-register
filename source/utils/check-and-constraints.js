@@ -1,6 +1,7 @@
 // @flow
 
 const _ = require('lodash');
+const { URL } = require('url');
 
 // Username regular expression
 var checkUsername = new RegExp('^' + '([a-z0-9-]{1,100})' + '$');
@@ -176,4 +177,13 @@ exports.access = function (json: Object): ?PermissionSet {
   if (! Array.isArray(json)) return null; 
   
   return json;
+};
+
+exports.url = function (str) {
+  try {
+    new URL(str);
+  } catch (error) {
+    return false;
+  }
+  return true;
 };

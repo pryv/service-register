@@ -7,7 +7,6 @@ const checkAndConstraints = require('../utils/check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 const logger = require('winston');
-const { URL } = require('url');
 
 const info = require('./service-info');
 
@@ -179,7 +178,7 @@ accessLib.requestAccess = function (
 };
 
 function isAuthURLValid(url: string): boolean {
-  return isValidUrl(url);
+  return checkAndConstraints.url(url);
 }
 
 const trustedAuthUrls = config.get('access:trustedAuthUrls');
@@ -197,15 +196,6 @@ function isAuthDomainTrusted(url: string) {
 
 function isServiceInfoValid(serviceInfo: mixed): boolean {
   return serviceInfo && serviceInfo.name ? true : false;
-}
-
-function isValidUrl(url: string): boolean {
-  try {
-    new URL(url);
-  } catch (error) {
-    return false;
-  }
-  return true;
 }
 
 /// Check the validity of the access by checking its associated key.
