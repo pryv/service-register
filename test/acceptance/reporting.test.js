@@ -11,7 +11,7 @@ const supertest = require('supertest');
 const EventEmitter = require('events');
 const hostname = require('os').hostname;
 
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const Server = require('../../source/server.js');
 
 const DEFAULT_USERNAME = 'wactiv';

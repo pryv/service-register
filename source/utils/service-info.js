@@ -1,4 +1,4 @@
-const config = require('../utils/config');
+const config = require('../config');
 const url = require('url');
 
 const info = Object.assign({}, config.get('service'));

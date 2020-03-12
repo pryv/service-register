@@ -4,7 +4,7 @@ const should = require('should');
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const request = require('superagent');
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const Server = require('../../source/server.js');
 
 require('readyness/wait/mocha');

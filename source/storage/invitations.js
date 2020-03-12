@@ -6,7 +6,7 @@ const messages = require('../utils/messages');
 const db = require('../storage/database');
 const _ = require('lodash');
 const async = require('async');
-const config = require('../utils/config');
+const config = require('../config');
 
 var randtoken = require('rand-token').generator({
   chars: 'a-z'

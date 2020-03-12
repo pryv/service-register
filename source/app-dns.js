@@ -2,7 +2,7 @@
 
 // Starts the DNS server. 
 
-const config = require('./utils/config');
+const config = require('./config');
 const dns = require('./dns/ndns-wrapper');
 
 const { serverForName, logger } = require('./dns/server_for_name.js');

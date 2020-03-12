@@ -2,7 +2,7 @@
 /* global describe, before, after, it */
 const request = require('superagent');
 
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');

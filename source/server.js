@@ -16,7 +16,7 @@ const url = require('url');
 const ready = require('readyness');
 
 const info = require('./utils/service-info');
-const config = require('./utils/config');
+const config = require('./config');
 
 
 ready.setLogger(logger.info);
@@ -47,7 +47,7 @@ class ServerWithUrl {
       return;
     }
 
-    var appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') + ':' + this.config.get('server:port'));
+    const appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') + ':' + this.config.get('server:port'));
     
     const opts = {
       port: this.config.get('server:port'),
@@ -65,8 +65,8 @@ class ServerWithUrl {
       }
     }
 
-    var address = this.server.address();
-    var protocol = 'http';
+    const address = this.server.address();
+    const protocol = 'http';
 
     const server_url = protocol + '://' + address.address + ':' + address.port;
     

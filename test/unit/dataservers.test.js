@@ -9,7 +9,7 @@ const assert = require('assert');
 const should = require('should');
 const async = require('async');
 
-import type { ServerDefinition } from '../../source/utils/config';
+import type { ServerDefinition } from '../../source/config';
 
 /* global describe, it, before */
 describe('utils/dataservers', function () {

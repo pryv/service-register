@@ -2,7 +2,7 @@
 
 const db = require('../storage/database');
 const messages = require('./messages');
-const config = require('./config');
+const config = require('../config');
 const checkAndConstraints = require('./check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};

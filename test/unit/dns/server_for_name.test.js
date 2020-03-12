@@ -1,7 +1,7 @@
 // @flow
 
 const { serverForName } = require('../../../source/dns/server_for_name.js');
-const config = require('../../../source/utils/config');
+const config = require('../../../source/config');
 
 /* global describe, it */
 

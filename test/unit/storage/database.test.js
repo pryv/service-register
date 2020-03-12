@@ -12,7 +12,7 @@ logger.setLevels(logger.config.syslog.levels);
 
 const db = require('../../../source/storage/database');
 
-const config = require('../../../source/utils/config');  
+const config = require('../../../source/config');  
 const redis = require('redis').createClient(
   config.get('redis:port'),
   config.get('redis:host'), {});

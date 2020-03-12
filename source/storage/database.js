@@ -6,7 +6,7 @@ const semver = require('semver');
 const logger = require('winston');
 const lodash = require('lodash');
 
-const config = require('../utils/config');  
+const config = require('../config');  
 const messages = require('../utils/messages');
 
 const redis = require('redis').createClient(

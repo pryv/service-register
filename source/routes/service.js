@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const appsList = require('../utils/config').get('appList');
+const appsList = require('../config').get('appList');
 const messages = require('../utils/messages');
 const dataservers = require('../utils/dataservers');
 

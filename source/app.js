@@ -3,7 +3,7 @@
 //frameworks
 var logger = require('winston');
 var express = require('express');
-const config = require('./utils/config');
+const config = require('./config');
 
 const errorhandler = require('errorhandler');
 const favicon = require('serve-favicon');

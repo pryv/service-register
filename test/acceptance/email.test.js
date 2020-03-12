@@ -3,7 +3,7 @@
 /* global describe, it, before, beforeEach, after */
 
 require('../../source/server');
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const Server = require('../../source/server.js');
 
 const validation = require('../support/data-validation');
