@@ -85,35 +85,43 @@ describe('POST /access/:key', function () {
   after(async function () {
     await server.stop();
   });
+  
+  describe('when updating status to Accepted', function () {
+    describe('with username and token', function () {
+      it('should return apiEndpoint, username & token', async function () {
+        const data = {
+          status: 'ACCEPTED',
+          username: 'tototp',
+          token: 'token'
+        };
+    
+        const res = await request.post(accessState.poll).send(data);
+    
+        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+        data.username.should.equal(res.body.username);
+        data.token.should.equal(res.body.token);
+      });
+    });
 
-  it('ACCEPTED username + token ', async function () {
-    const data = {
-      status: 'ACCEPTED',
-      username: 'tototp',
-      token: 'token'
-    }
-
-    const res = await request.post(accessState.poll).send(data);
-
-    'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-    data.username.should.equal(res.body.username);
-    data.token.should.equal(res.body.token);
+    describe('with apiEndpoint, username and token', function () {
+      it('should return apiEndpoint, username & token', async function () {
+        const data = {
+          status: 'ACCEPTED',
+          apiEndpoint: 'https://token@tototp.pryv.me/',
+          username: 'tototp',
+          token: 'token'
+        };
+        const res = await request.post(accessState.poll).send(data);
+    
+        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+        'tototp'.should.equal(res.body.username);
+        'token'.should.equal(res.body.token);
+      });
+    });
   });
+  
 
-  it('ACCEPTED apiEndpoint', async function () {
-    const data = {
-      status: 'ACCEPTED',
-      apiEndpoint: 'https://token@tototp.pryv.me/',
-      username: 'tototp',
-      token: 'token'
-    }
-    const res = await request.post(accessState.poll).send(data);
-
-    'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-    'tototp'.should.equal(res.body.username);
-    'token'.should.equal(res.body.token);
-   
-  });
+  
 
 });
 
