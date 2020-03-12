@@ -1,6 +1,6 @@
 'use strict';
 
-/* global describe, it, before, after */
+/* global describe, it, before, beforeEach, after */
 const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
@@ -59,7 +59,7 @@ describe('POST /access/:key', function () {
     await server.start();
   });
 
-  this.beforeAll(function (done) {
+  beforeEach(async function () {
     const test = {
       data: {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
@@ -71,16 +71,15 @@ describe('POST /access/:key', function () {
       JSchema: schema.accessPOST
     };
 
-    request.post(server.url + path).send(test.data).end(function (err, res) {
-      const generatedUrl = res.body.poll;
+    const res = await request.post(server.url + path).send(test.data)
+    const generatedUrl = res.body.poll;
 
-      const ending = /\/access\/\w+$/;
-      generatedUrl.should.match(ending);
-      accessState = res.body;
-      accessState.status.should.equal('NEED_SIGNIN');
+    const ending = /\/access\/\w+$/;
+    generatedUrl.should.match(ending);
+    accessState = res.body;
+    accessState.status.should.equal('NEED_SIGNIN');
 
-      dataValidation.jsonResponse(err, res, test, done);
-    });
+    dataValidation.jsonResponse(null, res, test, () => {});
   });
 
   after(async function () {
