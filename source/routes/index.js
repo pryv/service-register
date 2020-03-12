@@ -1,4 +1,4 @@
-var info = require('../utils/service-info');
+var info = require('../business/service-info');
 
 /**
  * Load index.html, redirect to register Home page

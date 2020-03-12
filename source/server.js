@@ -15,7 +15,7 @@ const url = require('url');
 
 const ready = require('readyness');
 
-const info = require('./utils/service-info');
+const info = require('./business/service-info');
 const config = require('./config');
 
 

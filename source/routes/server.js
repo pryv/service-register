@@ -4,7 +4,7 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
     db = require('../storage/database'),
     messages = require('../utils/messages'),
     config = require('../config'),
-    pryv = require('../utils/service-info');
+    pryv = require('../business/service-info');
 
 /** Routes to discover server assignations.
  */

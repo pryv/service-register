@@ -9,7 +9,7 @@ const users = require('../storage/users');
 const requireRoles = require('../middleware/requireRoles');
 const db = require('../storage/database');
 const encryption = require('../utils/encryption');
-const dataservers = require('../utils/dataservers');
+const dataservers = require('../business/dataservers');
 const reservedWords = require('../storage/reserved-userid');
 const invitationToken = require('../storage/invitations');
 

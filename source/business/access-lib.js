@@ -1,15 +1,15 @@
 // @flow
 
 const db = require('../storage/database');
-const messages = require('./messages');
+const messages = require('../utils/messages');
 const config = require('../config');
-const checkAndConstraints = require('./check-and-constraints');
+const checkAndConstraints = require('../utils/check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 const logger = require('winston');
 const { URL } = require('url');
 
-const info = require('../utils/service-info');
+const info = require('./service-info');
 
 import type { AccessState } from '../storage/database';
 
