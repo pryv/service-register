@@ -17,6 +17,7 @@ const ready = require('readyness');
 
 const info = require('./business/service-info');
 const config = require('./config');
+const Reporting = require('lib-reporting');
 
 
 ready.setLogger(logger.info);
@@ -100,51 +101,23 @@ class ServerWithUrl {
       return;
     }
 
-    // Collect data
-    let reportingSettings = this.config.get('reporting');
-    const hostname = await this.collectHostname();
-    const clientData = await this.collectClientData();
-    const body = {
-      licenseName: reportingSettings.licenseName,
-      role: reportingSettings.role,
-      hostname: hostname,
-      templateVersion: reportingSettings.templateVersion,
-      clientData: clientData
-    };
 
-    // Send report
-    const reportingUrl = 'https://reporting.pryv.com';
-    try {
-      const res = await superagent.post(url.resolve(reportingUrl, 'reports')).send(body);
-      logger.info('Report sent to ' + reportingUrl, res.body);
-    } catch(error) {
-      logger.error('Unable to send report to ' + reportingUrl + ' Reason : ' + error.message);
-    }
-
-    // Schedule another report in 24 hours
-    const hours = 24;
-    const timeout = hours * 60 * 60 * 1000;
-    logger.info('Scheduling another report in ' + hours + ' hours');
-    setTimeout(() => {
-      this.collectUsageAndSendReport();
-    }, timeout);
+    new Reporting(
+      this.config.get('reporting:licenseName'),
+      this.config.get('reporting:role'),
+      this.config.get('reporting:templateVersion'),
+      this.collectClientData,
+      logger.info
+      );
   }
 
   async collectClientData(): Object {
     const usersStorage = require('./storage/users');
-
     let numUsers = await bluebird.fromCallback(cb => {
       usersStorage.getAllUsersInfos(cb);
     });
     numUsers = numUsers.length;
-
-    return {numUsers: numUsers};
-  }
-
-  async collectHostname(): Object {
-    const hostname = await bluebird.fromCallback(
-      cb => child_process.exec('hostname', cb));
-    return hostname.replace(/\s/g,''); // Remove all white spaces
+    return { numUsers: numUsers, domain: this.config.get('dns:domain')};
   }
 
   async stop() {
