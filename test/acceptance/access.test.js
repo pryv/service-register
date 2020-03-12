@@ -119,7 +119,6 @@ describe('POST /access/:key', function () {
       });
     });
   });
-  
 
   
 
@@ -306,7 +305,7 @@ describe('POST /access', function () {
     assert.isArray(trustedAuthUrls);
     const fakeParamName = faker.internet.domainWord();
     const fakeParamValue = faker.internet.domainWord();
-    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))] + '?' + fakeParamName + '=' + fakeParamValue;
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * trustedAuthUrls.length)] + '?' + fakeParamName + '=' + fakeParamValue;
 
     const test = {
       data: {
