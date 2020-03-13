@@ -13,7 +13,7 @@
     "access": "http://access.rec.la:8080/access/",
     "api": "https://{username}.pryv.me/",
     "home": "https://l.rec.la:4443",
-    "event-types": "https://api.pryv.com/event-types/flat.json",
+    "eventTypes": "https://api.pryv.com/event-types/flat.json",
     "assets": {
       "definitions": "https://pryv.github.io/assets-pryv.me/index.json"
     }
