@@ -2,7 +2,7 @@
 
 const ndns = require('./ndns'),
       logger = require('winston'),
-      config = require('../utils/config'),
+      config = require('../config'),
       defaultTTL = config.get('dns:defaultTTL');
 
 var UpdateConfFile;

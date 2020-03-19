@@ -6,7 +6,7 @@ const exec = require('child_process').exec;
 const bluebird = require('bluebird');
 const assert = require('chai').assert;
 
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const Server = require('../../source/server.js');
 
 require('readyness/wait/mocha');

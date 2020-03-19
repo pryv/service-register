@@ -1,6 +1,6 @@
 // @flow
 
-const dataservers = require('../../source/utils/dataservers.js');
+const dataservers = require('../../source/business/dataservers.js');
 const db = require('../../source/storage/database');
 
 const http = require('http');
@@ -9,7 +9,7 @@ const assert = require('assert');
 const should = require('should');
 const async = require('async');
 
-import type { ServerDefinition } from '../../source/utils/config';
+import type { ServerDefinition } from '../../source/config';
 
 /* global describe, it, before */
 describe('utils/dataservers', function () {

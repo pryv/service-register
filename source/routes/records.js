@@ -1,6 +1,6 @@
 // @flow
 
-const config = require('../utils/config');
+const config = require('../config');
 const _ = require('lodash');
 const requireRoles = require('../middleware/requireRoles');
 

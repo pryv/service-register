@@ -4,7 +4,7 @@
 
 var logger = require('winston'),
   db = require('../storage/database'),
-  config = require('../utils/config');
+  config = require('../config');
 
 // Reserved words
 var wordsLoaded = require('readyness').waitFor('reservedWords');

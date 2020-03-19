@@ -8,8 +8,8 @@ const db = require('../storage/database');
 const async = require('async');
 const lodash = require('lodash');
 const logger = require('winston');
-const config = require('../utils/config');
-const dataservers = require('../utils/dataservers');
+const config = require('../config');
+const dataservers = require('../business/dataservers');
 const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
 const messages = require('../utils/messages');
@@ -33,7 +33,7 @@ export type UserInformation = {
   server?: string, 
 }
 
-import type ServerConfig from '../utils/config';
+import type ServerConfig from '../config';
 
 type CreateResult = {
   username: string, 

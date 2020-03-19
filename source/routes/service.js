@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const appsList = require('../utils/config').get('appList');
+const appsList = require('../config').get('appList');
 const messages = require('../utils/messages');
-const dataservers = require('../utils/dataservers');
+const dataservers = require('../business/dataservers');
 
-const info = require('../utils/service-info');
+const info = require('../business/service-info');
 
 /**
  * Routes that provide information about the service and its applications

@@ -1,15 +1,14 @@
 // @flow
 
 const db = require('../storage/database');
-const messages = require('./messages');
-const config = require('./config');
-const checkAndConstraints = require('./check-and-constraints');
+const messages = require('../utils/messages');
+const config = require('../config');
+const checkAndConstraints = require('../utils/check-and-constraints');
 const domain = config.get('dns:domain');
 const accessLib = module.exports = {};
 const logger = require('winston');
-const { URL } = require('url');
 
-const info = require('../utils/service-info');
+const info = require('./service-info');
 
 import type { AccessState } from '../storage/database';
 
@@ -117,13 +116,7 @@ accessLib.requestAccess = function (
       return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : '+domain+' / auth : ' + url }));
     }
   } else {
-    url = config.get('http:static:access');
-  }
-  
-
-  const localDevel = parameters.localDevel; 
-  if (typeof localDevel === 'string') {
-    url = config.get('devel:static:access') + localDevel;
+    url = config.get('access:defaultAuthUrl');
   }
 
   const reclaDevel = parameters.reclaDevel; 
@@ -183,11 +176,11 @@ accessLib.requestAccess = function (
 };
 
 function isAuthURLValid(url: string): boolean {
-  return isValidUrl(url);
+  return checkAndConstraints.url(url);
 }
 
-const trustedAuthUrls = config.get('http:trustedAuthUrls');
-trustedAuthUrls.push(config.get('http:static:access'));
+const trustedAuthUrls = config.get('access:trustedAuthUrls');
+trustedAuthUrls.push(config.get('access:defaultAuthUrl'));
 
 function isAuthDomainTrusted(url: string) {
   
@@ -201,15 +194,6 @@ function isAuthDomainTrusted(url: string) {
 
 function isServiceInfoValid(serviceInfo: mixed): boolean {
   return serviceInfo && serviceInfo.name ? true : false;
-}
-
-function isValidUrl(url: string): boolean {
-  try {
-    new URL(url);
-  } catch (error) {
-    return false;
-  }
-  return true;
 }
 
 /// Check the validity of the access by checking its associated key.

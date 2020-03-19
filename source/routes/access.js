@@ -2,11 +2,11 @@
 
 const messages = require('../utils/messages');
 const checkAndConstraints = require('../utils/check-and-constraints');
-const accessCommon = require('../utils/access-lib');
+const accessCommon = require('../business/access-lib');
 const invitationToken = require('../storage/invitations');
 
 
-const info = require('../utils/service-info');
+const info = require('../business/service-info');
 const Pryv = require('pryv');
 
 /**

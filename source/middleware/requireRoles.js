@@ -1,4 +1,4 @@
-var authorizedKeys = require('../utils/config').get('auth:authorizedKeys'),
+var authorizedKeys = require('../config').get('auth:authorizedKeys'),
     messages = require('../utils/messages');
 
 /**

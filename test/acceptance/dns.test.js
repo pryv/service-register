@@ -11,7 +11,7 @@ const should = require('should');
 const chai = require('chai');
 const assert = chai.assert; 
 
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 var db = require('../../source/storage/database');
 const ndns = require('../../source/dns/ndns');
 const Client = ndns.Client;

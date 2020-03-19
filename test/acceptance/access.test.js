@@ -1,11 +1,11 @@
 'use strict';
 
-/* global describe, it, before, after */
+/* global describe, it, before, beforeEach, after */
 const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 const request = require('superagent');
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const assert = require('chai').assert;
 const faker = require('faker');
 faker.locale = 'en';
@@ -59,7 +59,7 @@ describe('POST /access/:key', function () {
     await server.start();
   });
 
-  this.beforeAll(function (done) {
+  beforeEach(async function () {
     const test = {
       data: {
         requestingAppId: 'reg-test', languageCode: 'en', returnURL: 'something',
@@ -71,50 +71,56 @@ describe('POST /access/:key', function () {
       JSchema: schema.accessPOST
     };
 
-    request.post(server.url + path).send(test.data).end(function (err, res) {
-      const generatedUrl = res.body.poll;
+    const res = await request.post(server.url + path).send(test.data)
+    const generatedUrl = res.body.poll;
 
-      const ending = /\/access\/\w+$/;
-      generatedUrl.should.match(ending);
-      accessState = res.body;
-      accessState.status.should.equal('NEED_SIGNIN');
+    const ending = /\/access\/\w+$/;
+    generatedUrl.should.match(ending);
+    accessState = res.body;
+    accessState.status.should.equal('NEED_SIGNIN');
 
-      dataValidation.jsonResponse(err, res, test, done);
-    });
+    dataValidation.jsonResponse(null, res, test, () => {});
   });
 
   after(async function () {
     await server.stop();
   });
+  
+  describe('when updating status to Accepted', function () {
+    describe('with username and token', function () {
+      it('should return apiEndpoint, username & token', async function () {
+        const data = {
+          status: 'ACCEPTED',
+          username: 'tototp',
+          token: 'token'
+        };
+    
+        const res = await request.post(accessState.poll).send(data);
+    
+        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+        data.username.should.equal(res.body.username);
+        data.token.should.equal(res.body.token);
+      });
+    });
 
-  it('ACCEPTED username + token ', async function () {
-    const data = {
-      status: 'ACCEPTED',
-      username: 'tototp',
-      token: 'token'
-    }
-
-    const res = await request.post(accessState.poll).send(data);
-
-    'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-    data.username.should.equal(res.body.username);
-    data.token.should.equal(res.body.token);
+    describe('with apiEndpoint, username and token', function () {
+      it('should return apiEndpoint, username & token', async function () {
+        const data = {
+          status: 'ACCEPTED',
+          apiEndpoint: 'https://token@tototp.pryv.me/',
+          username: 'tototp',
+          token: 'token'
+        };
+        const res = await request.post(accessState.poll).send(data);
+    
+        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+        'tototp'.should.equal(res.body.username);
+        'token'.should.equal(res.body.token);
+      });
+    });
   });
 
-  it('ACCEPTED apiEndpoint', async function () {
-    const data = {
-      status: 'ACCEPTED',
-      apiEndpoint: 'https://token@tototp.pryv.me/',
-      username: 'tototp',
-      token: 'token'
-    }
-    const res = await request.post(accessState.poll).send(data);
-
-    'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-    'tototp'.should.equal(res.body.username);
-    'token'.should.equal(res.body.token);
-   
-  });
+  
 
 });
 
@@ -269,7 +275,7 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a trusted custom auth URL', function (done) {
-    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    const trustedAuthUrls = config.get('access:trustedAuthUrls');
     assert.isArray(trustedAuthUrls);
     const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))];
 
@@ -295,11 +301,11 @@ describe('POST /access', function () {
   });
 
   it('should validate an access with a trusted custom auth URL with parameters', function (done) {
-    const trustedAuthUrls = config.get('http:trustedAuthUrls');
+    const trustedAuthUrls = config.get('access:trustedAuthUrls');
     assert.isArray(trustedAuthUrls);
     const fakeParamName = faker.internet.domainWord();
     const fakeParamValue = faker.internet.domainWord();
-    const authUrl = trustedAuthUrls[Math.floor(Math.random() * Math.floor(trustedAuthUrls.length))] + '?' + fakeParamName + '=' + fakeParamValue;
+    const authUrl = trustedAuthUrls[Math.floor(Math.random() * trustedAuthUrls.length)] + '?' + fakeParamName + '=' + fakeParamValue;
 
     const test = {
       data: {

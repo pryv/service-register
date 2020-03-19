@@ -3,7 +3,7 @@
 const url = require('url');
 const http = require('http');
 const https = require('https');
-const config = require('./config');
+const config = require('../config');
 const users = require('../storage/users');
 
 import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} from './config';

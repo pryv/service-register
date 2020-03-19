@@ -7,7 +7,7 @@ const lodash = require('lodash');
 
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 
 const _ = require('lodash');
 const request = require('superagent');

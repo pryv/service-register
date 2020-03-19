@@ -6,7 +6,7 @@
 
 require('../../source/server');
 var should = require('should');
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 require('readyness/wait/mocha');
 
 var invitations = require('../../source/storage/invitations');

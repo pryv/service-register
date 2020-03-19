@@ -1,5 +1,5 @@
 /*global it*/
-var config = require('../../source/utils/config');
+var config = require('../../source/config');
 var validate = require('json-schema').validate;
 var querystring = require('querystring');
 var schemas = require('./schema.responses');

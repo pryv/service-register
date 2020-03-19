@@ -8,7 +8,7 @@ const should = require('should');
 const chai = require('chai');
 const assert = chai.assert; 
 
-const config = require('../../source/utils/config');
+const config = require('../../source/config');
 const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');

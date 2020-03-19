@@ -7,7 +7,7 @@ const logger = require('winston');
 const db = require('../storage/database');
 
 const checkAndConstraints = require('../utils/check-and-constraints');
-const config = require('../utils/config');
+const config = require('../config');
 const dns = require('./ndns-wrapper');
 
 import type { DnsRequest, DnsResponse, DnsRecord, DnsData } from './ndns-wrapper';
