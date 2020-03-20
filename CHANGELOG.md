@@ -2,6 +2,16 @@
 
 ## 1.3.X
 
+### 1.3.60
+
+ - accept serviceInfo object in auth request
+ - provide `serviceInfo` and `pryvApiEndpoint` if ACCEPTED
+ - fetch serviceInfo params from config `service` object
+ - move access-related config to access, renaming some
+ - serviceInfo['event-types] -> serviceInfo.eventTypes
+
+### before
+
 - Add new route to set new records in dns
 
 - Server sends a report to https://reporting.pryv.com upon start
