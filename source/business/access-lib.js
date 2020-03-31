@@ -34,7 +34,8 @@ accessLib.setAccessState = function (
   });
 };
 
-type RequestAccessParameters = {
+type RequestAccessParametersV1 = {
+  requestVersion: string, // 'v1'
   requestingAppId?: mixed, 
   requestedPermissions?: mixed, 
   languageCode?: mixed, 
@@ -47,6 +48,17 @@ type RequestAccessParameters = {
   serviceInfo?: mixed,
 }
 
+type RequestAccessParametersV2 = {
+  requestVersion: string, // 'v2'
+  accessRequest: Object, // matching accesses.create parameters
+  languageCode?: mixed,
+  oauthState?: mixed,
+  localDevel?: mixed,
+  reclaDevel?: mixed,
+  returnURL?: mixed,
+  authUrl?: string,
+  serviceInfo?: mixed,
+}
 
 /**
  * Request and generate an app access
@@ -57,7 +69,20 @@ type RequestAccessParameters = {
  * @returns {*}
  */
 accessLib.requestAccess = function (
-  parameters: RequestAccessParameters, 
+  parameters: RequestAccessParametersV1,
+  successHandler: (any) => mixed,
+  errorHandler: (any) => mixed,
+) {
+  if (parmaeters.requestVersion == 'v2') {
+    return requestAccessV2(parameters, successHandler, errorHandler);
+  } else {
+    return requestAccessV1(parameters, successHandler, errorHandler);
+  }
+}
+
+
+function requestAccessV1 (
+  parameters: RequestAccessParametersV1, 
   successHandler: (any) => mixed, 
   errorHandler: (any) => mixed, 
 ) {
@@ -155,7 +180,9 @@ accessLib.requestAccess = function (
 
   authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
 
+
   const accessState: AccessState = {
+    requestVersion: 'v1',
     status: 'NEED_SIGNIN',
     code: 201,
     key: key,
@@ -168,6 +195,132 @@ accessLib.requestAccess = function (
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
     clientData: clientData,
+    lang: lang,
+    serviceInfo: serviceInfo,
+  };
+
+
+
+  accessLib.setAccessState(key, accessState, successHandler, errorHandler);
+};
+
+
+
+function requestAccessV2 (
+  parameters: RequestAccessParametersV2,
+  successHandler: (any) => mixed,
+  errorHandler: (any) => mixed,
+) {
+  // Parameters
+  const requestingAppId = checkAndConstraints.appID(parameters.accessRequest.name);
+  if (!requestingAppId) {
+    return errorHandler(messages.e(400, 'INVALID_APP_ID',
+      { name: parameters.accessRequest.name }));
+  }
+
+  // FLOW We don't currently verify the contents of the requested permissions. 
+  const requestedPermissions = checkAndConstraints.access(parameters.accessRequest.permissions);
+  if (requestedPermissions == null || !Array.isArray(requestedPermissions)) {
+    return errorHandler(messages.e(400, 'INVALID_DATA',
+      { detail: 'Missing or invalid .accessRequest.permissions field' }));
+  }
+
+  const lang = checkAndConstraints.lang(parameters.languageCode);
+  if (lang == null)
+    return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
+
+  const returnURL = parameters.returnURL;
+  const oauthState = parameters.oauthState;
+  const clientData = parameters.clientData;
+  const serviceInfo = parameters.serviceInfo;
+
+  let effectiveReturnURL;
+  if ((returnURL == null) || (typeof returnURL === 'string')) {
+    effectiveReturnURL = returnURL;
+  } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
+    // deprecated
+    logger.warning('Deprecated: received returnURL=false, this optional parameter must be a string.');
+
+    effectiveReturnURL = null;
+  } else {
+    return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Invalid returnURL field.' }));
+  }
+
+  const key = randGenerator(16);
+  const pollURL = info.access + key;
+
+  if (serviceInfo != null) {
+    if (!isServiceInfoValid(serviceInfo)) {
+      return errorHandler(messages.e(400, 'INVALID_SERVICE_INFO_URL', { detail: serviceInfo }));
+    }
+  }
+
+
+  let url: string;
+  if (parameters.authUrl != null) {
+    url = parameters.authUrl;
+    if (!isAuthURLValid(url)) {
+      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : ' + domain + ' / auth : ' + url }));
+    }
+    if (!isAuthDomainTrusted(url)) {
+      return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : ' + domain + ' / auth : ' + url }));
+    }
+  } else {
+    url = config.get('http:static:access');
+  }
+
+
+  const localDevel = parameters.localDevel;
+  if (typeof localDevel === 'string') {
+    url = config.get('devel:static:access') + localDevel;
+  }
+
+  const reclaDevel = parameters.reclaDevel;
+  if (typeof reclaDevel === 'string') {
+    url = 'https://sw.rec.la' + reclaDevel;
+  }
+
+
+
+  let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
+
+  let authUrl: string;
+  authUrl = url + firstParamAppender;
+
+  url = url +
+    firstParamAppender +
+    'lang=' + lang +
+    '&key=' + key +
+    '&requestingAppId=' + requestingAppId;
+
+  if (effectiveReturnURL != null)
+    url += '&returnURL=' + encodeURIComponent(effectiveReturnURL);
+
+  url +=
+    '&domain=' + domain +
+    '&registerURL=' + encodeURIComponent(info.register);
+
+  url += '&poll=' + encodeURIComponent(pollURL);
+
+  const cleanOauthState = (typeof oauthState) === 'string' ?
+    oauthState :
+    null;
+
+  if (cleanOauthState != null)
+    url += '&oauthState=' + cleanOauthState;
+
+  authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
+
+
+  const accessState: AccessState = {
+    status: 'NEED_SIGNIN',
+    code: 201,
+    accessRequest: parameters.accessRequest,
+    authUrl: authUrl,
+    poll: pollURL,
+    returnURL: effectiveReturnURL,
+    oauthState: cleanOauthState,
+    poll_rate_ms: 1000,
     lang: lang,
     serviceInfo: serviceInfo,
   };
