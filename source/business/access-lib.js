@@ -281,43 +281,23 @@ function requestAccessV2 (
   }
 
 
-
   let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
 
   let authUrl: string;
   authUrl = url + firstParamAppender;
 
-  url = url +
-    firstParamAppender +
-    'lang=' + lang +
-    '&key=' + key +
-    '&requestingAppId=' + requestingAppId;
-
-  if (effectiveReturnURL != null)
-    url += '&returnURL=' + encodeURIComponent(effectiveReturnURL);
-
-  url +=
-    '&domain=' + domain +
-    '&registerURL=' + encodeURIComponent(info.register);
-
-  url += '&poll=' + encodeURIComponent(pollURL);
-
   const cleanOauthState = (typeof oauthState) === 'string' ?
     oauthState :
     null;
 
-  if (cleanOauthState != null)
-    url += '&oauthState=' + cleanOauthState;
-
   authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
-
 
   const accessState: AccessState = {
     status: 'NEED_SIGNIN',
     code: 201,
     accessRequest: parameters.accessRequest,
     authUrl: authUrl,
-    poll: pollURL,
+    pollUrl: pollURL,
     returnURL: effectiveReturnURL,
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
