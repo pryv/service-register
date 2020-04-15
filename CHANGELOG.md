@@ -2,6 +2,10 @@
 
 ## 1.3.X
 
+### 1.3.61
+
+ - fix appid was not stored at user creation
+
 ### 1.3.60
 
  - accept serviceInfo object in auth request
