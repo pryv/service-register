@@ -16,7 +16,14 @@ const assert = chai.assert;
 
 const async = require('async');
 
-const authAdminKey = 'test-admin-key';
+const registerKeys = config.get('auth:authorizedKeys');
+const authAdminKey = retrieveAdminKey(registerKeys);
+
+function retrieveAdminKey(authKeys) {
+  return Object.keys(authKeys).filter(k => {
+    return registerKeys[k].roles.indexOf('admin') >= 0;
+  })[0];
+}
 
 // Load and start our web server
 const Server = require('../../source/server.js');
@@ -58,7 +65,8 @@ describe('User Management', () => {
   describe('POST /user (create user)', function () {
     const basePath = '/user';
 
-    it ('valid user', function (done) { 
+    // fixes missing appId PR#104
+    it ('user creation should store all provided fields', function (done) {
       const testData = _.extend({}, defaults());
       const test = {
         data: testData,
@@ -79,8 +87,7 @@ describe('User Management', () => {
         function checkUser(stepDone) {
           request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)
             .end((err, res) => {
-              let found = false;
-              res.body.users.forEach(function (user) { 
+              res.body.users.forEach(function (user) {
                 if (user.username === testData.username) {
                   delete testData.hosting;
                   delete testData.password;
