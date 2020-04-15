@@ -101,8 +101,7 @@
       ],
       "exoscale.ch-ch": [
         {
-          "base_name": "stact-exoscale-ch-01",
-          "port": 443,
+          "base_name": "http://localhost:5000",
           "authorization": "cz90{k)2{3u8q0C"
         }
       ],
