@@ -14,6 +14,10 @@ const request = require('superagent');
 const chai = require('chai');
 const assert = chai.assert; 
 
+const async = require('async');
+
+const authAdminKey = 'test-admin-key';
+
 // Load and start our web server
 const Server = require('../../source/server.js');
 
@@ -53,6 +57,46 @@ describe('User Management', () => {
 
   describe('POST /user (create user)', function () {
     const basePath = '/user';
+
+    it ('valid user', function (done) { 
+      const testData = _.extend({}, defaults());
+      const test = {
+        data: testData,
+        status: 200,
+        JSchema: schemas.userCreated,
+        JValues: {
+          username: testData.username,
+        }
+      };
+
+      async.series([
+        function doRequest(stepDone) {
+          request.post(server.url + basePath).send(_.extend({}, defaults(), test.data))
+            .end(function (err, res) {
+              dataValidation.jsonResponse(err, res, test, stepDone);
+            });
+        },
+        function checkUser(stepDone) {
+          request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)
+            .end((err, res) => {
+              let found = false;
+              res.body.users.forEach(function (user) { 
+                if (user.username === testData.username) {
+                  delete testData.hosting;
+                  delete testData.password;
+                  user.invitationtoken = user.invitationToken;
+                  Object.keys(testData).forEach(function (prop) {
+                    assert.deepEqual(testData[prop], user[prop]);
+                  });
+                }
+              });
+              stepDone();
+            });
+        
+        }
+      ], done);
+
+    });
 
     it('invalid hosting', function (done) {
       var test = {

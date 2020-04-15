@@ -99,6 +99,7 @@ module.exports = function (app: express$Application) {
             username: username, email: email, language: language, 
             password: password, passwordHash: passwordHash, 
             invitationToken: givenInvitationToken, referer: referer, 
+            appid: appID
           };
           users.create(host, userAttrs, function(creationError, result) {
             if(creationError) {
