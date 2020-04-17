@@ -153,6 +153,9 @@ accessLib.requestAccess = function (
   if (cleanOauthState != null) 
     url += '&oauthState=' + cleanOauthState;
 
+    /**
+     * this should be poll instead of pollUrl (as in accessState)
+     */
   authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
 
   const accessState: AccessState = {
