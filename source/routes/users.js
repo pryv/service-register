@@ -11,7 +11,9 @@ const db = require('../storage/database');
 const encryption = require('../utils/encryption');
 const dataservers = require('../business/dataservers');
 const reservedWords = require('../storage/reserved-userid');
+// START - CLEAN FOR OPENSOURCE
 const invitationToken = require('../storage/invitations');
+// END - CLEAN FOR OPENSOURCE
 
 /**
  * Routes for users
@@ -32,7 +34,7 @@ module.exports = function (app: express$Application) {
     const username = checkAndConstraints.uid(body.username);
     const password = checkAndConstraints.password(body.password);
     const email = checkAndConstraints.email(body.email);
-    const givenInvitationToken = body.invitationtoken;
+    const givenInvitationToken = body.invitationtoken || 'no-token';
     const referer = checkAndConstraints.referer(body.referer);
     const language = checkAndConstraints.lang(body.languageCode);
 
@@ -44,6 +46,7 @@ module.exports = function (app: express$Application) {
 
     const existsList = [];
     async.parallel([
+      // START - CLEAN FOR OPENSOURCE
       function _isInvitationTokenValid(callback) {
         invitationToken.checkIfValid(givenInvitationToken, function (valid, error) {
           if (! valid) {
@@ -52,6 +55,7 @@ module.exports = function (app: express$Application) {
           callback(error);
         });
       },
+      // END - CLEAN FOR OPENSOURCE
       function _isUserIdReserved(callback) {
         reservedWords.useridIsReserved(username, function (error, reserved) {
           if (reserved) {
@@ -112,6 +116,7 @@ module.exports = function (app: express$Application) {
     });
   });
 
+  // START - CLEAN FOR OPENSOURCE
   /// DELETE /username/:username: Delete an existing user
   /// 
   /// If given 'onlyReg', the user is only deleted from the registry. 
@@ -148,6 +153,7 @@ module.exports = function (app: express$Application) {
       }
       catch (err) { return next(err); }
     });
+  // END - CLEAN FOR OPENSOURCE
 
   /**
    * POST /username/check: check the existence/validity of a given username
@@ -167,6 +173,7 @@ module.exports = function (app: express$Application) {
     _check(req, res, next, false);
   });
 
+  // START - CLEAN FOR OPENSOURCE
   /**
    * POST /users/:username/change-email: change the email address for a given user
    */
@@ -192,6 +199,8 @@ module.exports = function (app: express$Application) {
         res.json(result);
       });
     });
+
+  // END - CLEAN FOR OPENSOURCE
 };
 
 // Checks if the username is valid. If `raw` is set to true, this will respond
@@ -240,6 +249,7 @@ function _check(req: express$Request, res: express$Response, next: express$NextF
   });
 }
 
+// START - CLEAN FOR OPENSOURCE
 /// Checks if the conditions are right to be able to delete a given user
 /// (identified by `username`). If this function finds any reason why the delete
 /// would not work, it throws this reason in the form of an Error (rejects the 
@@ -272,3 +282,4 @@ function produceError(errorId: ErrorId, msg: string): Error {
     message: msg,
   });
 }
+// END - CLEAN FOR OPENSOURCE
