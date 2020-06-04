@@ -96,7 +96,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warning('Received empty request, treating as if it was empty.');
+      logger.warn('Received empty request, treating as if it was empty.');
       return '';
     }
       

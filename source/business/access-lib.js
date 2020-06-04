@@ -89,7 +89,7 @@ accessLib.requestAccess = function (
     effectiveReturnURL = returnURL;
   } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
     // deprecated
-    logger.warning('Deprecated: received returnURL=false, this optional parameter must be a string.');
+    logger.warn('Deprecated: received returnURL=false, this optional parameter must be a string.');
 
     effectiveReturnURL = null; 
   } else {

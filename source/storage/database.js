@@ -558,7 +558,7 @@ function _findGhostsEmails() {
       }
 
       if (e) {
-        logger.warning('Db structure _findGhostsEmails ' + email + e);
+        logger.warn('Db structure _findGhostsEmails ' + email + e);
       }
     });
   });
@@ -574,7 +574,7 @@ function _findGhostsServer() {
     redis.hgetall(username + ':users', function (error, user) {
 
       if (! user) {
-        logger.warning('Db structure _findGhostsServer ' + server +
+        logger.warn('Db structure _findGhostsServer ' + server +
           ' cannot find user :' + username);
         //redis.del(key);
       }
