@@ -3582,13 +3582,6 @@ readyness@0.1.x:
   resolved "https://registry.yarnpkg.com/readyness/-/readyness-0.1.0.tgz#0df60b49039d9fef9560607941e54a00e62f1658"
   integrity sha1-DfYLSQOdn++VYGB5QeVKAOYvFlg=
 
-rec-la@^0.1.2:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/rec-la/-/rec-la-0.1.8.tgz#85ecf6f6caf4b70805360adc5513613ffab3a70c"
-  integrity sha512-aKcFmzSuKg6cV086d7jDGILXdEhmNITmysb3zvOrwxFwSXzUpGPx3xoGKJituQHb8lX7mQ8WvCUS7vI8qRIQUw==
-  dependencies:
-    express "^4.14.0"
-
 rechoir@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/rechoir/-/rechoir-0.6.2.tgz#85204b54dba82d5742e28c96756ef43af50e3384"
