@@ -6,6 +6,11 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
     config = require('../config'),
     pryv = require('../business/service-info');
 
+var logger = require('winston'); // patch compatibility issue with winston
+logger.warn = function(...args) {
+  logger.warning(...args);
+}
+
 /** Routes to discover server assignations.
  */
 function discoverServerAssignations(app) {
