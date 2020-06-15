@@ -104,7 +104,6 @@ accessLib.requestAccess = function (
       return errorHandler(messages.e(400, 'INVALID_SERVICE_INFO_URL', { detail: serviceInfo }));
     }
   }
-  
 
   let url: string;
   if(parameters.authUrl != null) {
@@ -124,7 +123,7 @@ accessLib.requestAccess = function (
     url = 'https://sw.rec.la' + reclaDevel;
   }
 
-  
+  // TODO check params, don't add to url field
   
   let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
   
@@ -158,6 +157,8 @@ accessLib.requestAccess = function (
      */
   authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
 
+  // TODO add them to access state
+
   const accessState: AccessState = {
     status: 'NEED_SIGNIN',
     code: 201,
@@ -175,6 +176,7 @@ accessLib.requestAccess = function (
     serviceInfo: serviceInfo,
   };
 
+  // TODO see if this doesn't break
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
 

@@ -416,4 +416,27 @@ describe('POST /access', function () {
 
     });
   });
+
+  describe('expireAfter', () => {
+    // check response has expireAfter as well
+    it('shoudl accept a valid one', () => {
+    });
+    it('should refuse an invalid one', () => {
+    });
+  });
+
+  describe('deviceName', () => {
+    // check response has deviceName as well
+    it('shoudl accept a valid one', () => {
+    });
+    it('should refuse an invalid one', () => {
+    });
+  });
+
+  describe('selfRevoke permission', () => {
+    it('shoudl accept a valid one', () => {
+    });
+    it('should refuse an invalid one', () => {
+    });
+  });
 });
