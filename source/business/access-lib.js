@@ -167,8 +167,6 @@ accessLib.requestAccess = function (
      */
   authUrl += '&pollUrl=' + encodeURIComponent(pollURL);
 
-  // TODO add them to access state
-
   const accessState: AccessState = {
     status: 'NEED_SIGNIN',
     code: 201,
@@ -188,7 +186,6 @@ accessLib.requestAccess = function (
     expireAfter: expireAfter
   };
 
-  // TODO see if this doesn't break
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
 };
 

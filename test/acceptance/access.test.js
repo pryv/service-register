@@ -439,7 +439,8 @@ describe('POST /access', function () {
       };
 
       try {
-        await request.post(server.url + path).send(payload);
+        const res = await request.post(server.url + path).send(payload);
+        assert.isNull(res);
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_EXPIRE_AFTER');
@@ -472,7 +473,8 @@ describe('POST /access', function () {
       };
 
       try {
-        await request.post(server.url + path).send(payload);
+        const res = await request.post(server.url + path).send(payload);
+        assert.isNull(res);
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_DEVICE_NAME');
