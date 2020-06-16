@@ -412,31 +412,72 @@ describe('POST /access', function () {
         assert.equal(e.response.body.id, 'INVALID_SERVICE_INFO_URL');
         assert.include(e.response.body.detail, serviceInfo);
       }
-
-
     });
   });
 
-  describe('expireAfter', () => {
-    // check response has expireAfter as well
-    it('shoudl accept a valid one', () => {
+  describe('expireAfter', function() {
+    it('should accept a valid value', async function() {
+      const expireAfter = 53453463243425;
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        expireAfter: expireAfter,
+      };
+
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.expireAfter, expireAfter);
     });
-    it('should refuse an invalid one', () => {
+    it('should refuse an invalid value', async function() {
+      const expireAfter = 'invalid_value';
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        expireAfter: expireAfter,
+      };
+
+      try {
+        await request.post(server.url + path).send(payload);
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_EXPIRE_AFTER');
+        assert.include(e.response.body.detail, expireAfter);
+      }
     });
   });
 
-  describe('deviceName', () => {
-    // check response has deviceName as well
-    it('shoudl accept a valid one', () => {
-    });
-    it('should refuse an invalid one', () => {
-    });
-  });
+  describe('deviceName', function() {
+    it('should accept a valid value', async function() {
+      const deviceName = 'some_name';
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        deviceName: deviceName,
+      };
 
-  describe('selfRevoke permission', () => {
-    it('shoudl accept a valid one', () => {
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.deviceName, deviceName);
     });
-    it('should refuse an invalid one', () => {
+    it('should refuse an invalid value', async function() {
+      const deviceName = 67;
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        deviceName: deviceName,
+      };
+
+      try {
+        await request.post(server.url + path).send(payload);
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_DEVICE_NAME');
+        assert.include(e.response.body.detail, deviceName);
+      }
     });
   });
 });
