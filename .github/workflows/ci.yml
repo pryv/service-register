@@ -1,0 +1,34 @@
+name: Pryv-registration-server CI
+
+on: 
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [12.13]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Checkouts to the newest version of the branch and builds using Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: yarn setup
+      run: yarn setup
+      
+    - name: yarn install
+      run: yarn install
+      
+    - name: yarn database
+      run: yarn database
+    
+    - name: yarn test
+      run: yarn test
