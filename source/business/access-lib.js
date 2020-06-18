@@ -46,7 +46,8 @@ type RequestAccessParameters = {
   authUrl?: string,
   serviceInfo?: mixed,
   deviceName?: string,
-  expireAfter?: number;
+  expireAfter?: number,
+  referer?: string,
 }
 
 
@@ -130,6 +131,11 @@ accessLib.requestAccess = function (
     return errorHandler(messages.e(400, 'INVALID_EXPIRE_AFTER', { detail: 'expireAfter : ' + expireAfter }));
   }
 
+  const referer = parameters.referer;
+  if (referer != null && typeof referer !== 'string') {
+    return errorHandler(messages.e(400, 'INVALID_REFERER', { detail: 'referer : ' + referer }));
+  }
+
   const reclaDevel = parameters.reclaDevel; 
   if (typeof reclaDevel === 'string') {
     url = 'https://sw.rec.la' + reclaDevel;
@@ -183,7 +189,8 @@ accessLib.requestAccess = function (
     lang: lang,
     serviceInfo: serviceInfo,
     deviceName: deviceName,
-    expireAfter: expireAfter
+    expireAfter: expireAfter,
+    referer: referer,
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);

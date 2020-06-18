@@ -482,4 +482,38 @@ describe('POST /access', function () {
       }
     });
   });
+
+  describe('referer', function() {
+    it('should accept a valid value', async function() {
+      const referer = faker.lorem.word();
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        referer: referer,
+      };
+
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.referer, referer);
+    });
+    it('should refuse an invalid value', async function() {
+      const referer = {};
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        referer: referer,
+      };
+
+      try {
+        const res = await request.post(server.url + path).send(payload);
+        assert.isNull(res);
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_REFERER');
+        assert.include(e.response.body.detail, referer);
+      }
+    });
+  });
 });

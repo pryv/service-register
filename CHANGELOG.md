@@ -4,7 +4,8 @@
 
 ### 1.3.62
 
- - expireAfter and deviceName parameters accepted as payload to /access endpoint
+ - expireAfter, deviceName & referer parameters accepted as payload to POST /access endpoint
+ - return 400 with correct error if JSON is malformed
 
 ### 1.3.61
 

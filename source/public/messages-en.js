@@ -67,7 +67,9 @@ var messages = {
   'INVALID_DEVICE_NAME' : { 'message' : 'Device name is invalid',
     'detail' : ''},
   'INVALID_EXPIRE_AFTER' : { 'message' : 'ExpireAfter is invalid',
-    'detail' : ''}
+    'detail' : ''},
+  'INVALID_REFERER' : { 'message' : 'referer is invalid',
+    'detail' : ''},
 };
 
 if (module && module.exports) {
