@@ -1,12 +1,10 @@
-name: Pryv-registration-server CI
+name: Pryv-registration-server deployment CD
 
 on: 
-  pull_request:
-    branches:
-      - master
   push:
-    branches:
-      - feature/worflow-pipeline
+    tags:
+      - '*'
+
 jobs:
   build:
 
@@ -18,7 +16,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Checkouts to the newest version of the branch and builds using Node.js ${{ matrix.node-version }}
+    - name: Deployment pipeline
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
@@ -32,5 +30,8 @@ jobs:
     - name: yarn database
       run: yarn database
     
-    - name: yarn test
+    - name: yarn test - This should never fail and could be skipped
       run: yarn test
+      
+    - name: Build and deploy
+      run: cd build && ./build
