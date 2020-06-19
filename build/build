@@ -35,6 +35,7 @@ tar cf build/release.tar \
   .
 popd
 
+: <<'END'
 # Build the docker image (commented out)
 echo "---------------------------- building register ------------------------------"
 pushd register
@@ -49,4 +50,4 @@ cp ../release.tar .
 sudo docker build -f Dockerfile -t pryv/dns:$version .
 release "pryv/dns" $version
 popd
-
+END

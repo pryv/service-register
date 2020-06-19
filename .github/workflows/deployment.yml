@@ -1,4 +1,4 @@
-name: Pryv-registration-server deployment CD
+name: Pryv-registration-server deployment worflow
 
 on: 
   push:
@@ -26,11 +26,38 @@ jobs:
     - name: yarn install
       run: yarn install
       
-    - name: yarn database
-      run: yarn database
-    
-    - name: yarn test - This should never fail and could be skipped
-      run: yarn test
+    - name: yarn release
+      run: yarn release
       
-    - name: Build and deploy
-      run: cd build && ./build
+    - name: Prepare for the build
+      run: |
+        tar cf build/release.tar --exclude .git --exclude node_modules --exclude build .
+        popd
+      
+    - uses: azure/docker-login@v1
+    - name: Build and deploy registry container
+      with:
+        login-server: ${{ secrets.REGISTRY_PRYV_SERVER }}
+        username: ${{ secrets.REGISTRY_PRYV_USERNAME }}
+        password: ${{ secrets.REGISTRY_PRYV_PASSWORD }}
+
+    - run: |
+        cd register
+        cp ../release.tar .
+        docker build -f Dockerfile -t pryv/register:6.6.6-delete .
+        docker tag "pryv/register:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:6.6.6-delete"
+        cd ..
+        
+    - uses: azure/docker-login@v1
+    - name: Build and deploy DNS container
+      with:
+        login-server: ${{ secrets.REGISTRY_PRYV_SERVER }}
+        username: ${{ secrets.REGISTRY_PRYV_USERNAME }}
+        password: ${{ secrets.REGISTRY_PRYV_PASSWORD }}
+
+    - run: |
+        cd dns
+        cp ../release.tar .
+        sudo docker build -f Dockerfile -t pryv/dns:6.6.6-delete .
+        docker tag "pryv/dns:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:6.6.6-delete"
+        cd ..
