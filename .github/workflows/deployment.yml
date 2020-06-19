@@ -2,9 +2,8 @@ name: Pryv-registration-server deployment CD
 
 on: 
   push:
-    tags:
-      - '*'
-
+    branches:
+      - feature/worflow-pipeline
 jobs:
   build:
 
