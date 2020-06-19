@@ -42,10 +42,8 @@ jobs:
         tar cf build/release.tar \
                 --exclude .git \
                 --exclude node_modules \
-                --exclude nbproject \
                 --exclude .github \
                 --exclude test \
-                --exclude mindMap.mmd \
                 --exclude build .
 
     - name: Login to the docker containers registry
@@ -62,7 +60,7 @@ jobs:
         cd build/register
         cp ../release.tar .
         docker build -f Dockerfile -t pryv/register:${{ env.RELEASE_VERSION }} .
-        docker tag "pryv/${{ env.RELEASE_VERSION }}" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:${{ env.RELEASE_VERSION }}"
+        docker tag "pryv/register:${{ env.RELEASE_VERSION }}" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:${{ env.RELEASE_VERSION }}"
         #docker push "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:${{ env.RELEASE_VERSION }}"
     
     - name: Build and deploy DNS container 
