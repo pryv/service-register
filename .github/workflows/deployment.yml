@@ -34,13 +34,15 @@ jobs:
       run: |
         tar cf build/release.tar --exclude .git --exclude node_modules --exclude build .
         popd
-      
-    - name: Build and deploy registry container
+
+    - name: Login to the docker containers registry
       uses: azure/docker-login@v1
       with:
         login-server: ${{ secrets.REGISTRY_PRYV_SERVER }}
         username: ${{ secrets.REGISTRY_PRYV_USERNAME }}
         password: ${{ secrets.REGISTRY_PRYV_PASSWORD }}
+        
+    - name: Build and deploy registry container
       run: |
         cd register
         cp ../release.tar .
@@ -49,11 +51,6 @@ jobs:
         cd ..
     
     - name: Build and deploy DNS container
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ secrets.REGISTRY_PRYV_SERVER }}
-        username: ${{ secrets.REGISTRY_PRYV_USERNAME }}
-        password: ${{ secrets.REGISTRY_PRYV_PASSWORD }}
       run: |
         cd dns
         cp ../release.tar .
