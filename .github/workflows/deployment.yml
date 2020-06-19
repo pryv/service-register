@@ -54,10 +54,12 @@ jobs:
         cp ../release.tar .
         docker build -f Dockerfile -t pryv/register:6.6.6-delete .
         docker tag "pryv/register:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:6.6.6-delete"
-        cd ..
+        
     
     - name: Build and deploy DNS container 
       run: |
+        cd ..
+        ls
         cd dns
         cp ../release.tar .
         sudo docker build -f Dockerfile -t pryv/dns:6.6.6-delete .
