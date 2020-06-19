@@ -6,7 +6,7 @@ on:
       - master
   push:
     branches:
-      - feature/worflow-pipeline
+      - master
 jobs:
   build:
 
