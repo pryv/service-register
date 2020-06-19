@@ -2,8 +2,8 @@ name: Pryv-registration-server deployment workflow
 
 on: 
   push:
-    branches:
-      - feature/worflow-pipeline
+    tags:
+      - '*'
 jobs:
   build:
 
@@ -24,6 +24,15 @@ jobs:
       
     - name: yarn install
       run: yarn install
+      
+    - name: yarn setup
+      run: yarn setup
+
+    - name: yarn database
+      run: yarn database
+    
+    - name: yarn test - This should never fail and could be skipped
+      run: yarn test
       
     - name: yarn release
       run: yarn release
@@ -52,15 +61,16 @@ jobs:
         docker tag "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/base:1.3.40" "pryv/base:1.3.40"
         cd build/register
         cp ../release.tar .
-        docker build -f Dockerfile -t pryv/register:6.6.6-delete .
-        docker tag "pryv/register:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:6.6.6-delete"
-        docker push "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:6.6.6-delete"
+        docker build -f Dockerfile -t pryv/register:${{ env.RELEASE_VERSION }} .
+        docker tag "pryv/${{ env.RELEASE_VERSION }}" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:${{ env.RELEASE_VERSION }}"
+        #docker push "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:${{ env.RELEASE_VERSION }}"
     
     - name: Build and deploy DNS container 
       run: |
         ls
         cd build/dns
         cp ../release.tar .
-        sudo docker build -f Dockerfile -t pryv/dns:6.6.6-delete .
-        docker tag "pryv/dns:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:6.6.6-delete"
-        docker push "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:6.6.6-delete"
+        sudo docker build -f Dockerfile -t pryv/dns:${{ env.RELEASE_VERSION }} .
+        docker tag "pryv/dns:${{ env.RELEASE_VERSION }}" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:${{ env.RELEASE_VERSION }}"
+        docker images
+        #docker push "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:${{ env.RELEASE_VERSION }}"
