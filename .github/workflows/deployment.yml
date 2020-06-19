@@ -1,4 +1,4 @@
-name: Pryv-registration-server deployment worflow
+name: Pryv-registration-server deployment workflow
 
 on: 
   push:
@@ -14,9 +14,10 @@ jobs:
         node-version: [12.13]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Download master branch
+      uses: actions/checkout@v2
     
-    - name: Setup node with version ${{ matrix.node-version }}
+    - name: Setup Node.js with version ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
@@ -60,4 +61,5 @@ jobs:
         cp ../release.tar .
         sudo docker build -f Dockerfile -t pryv/dns:6.6.6-delete .
         docker tag "pryv/dns:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:6.6.6-delete"
+        docker images
         cd ..
