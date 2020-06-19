@@ -49,6 +49,8 @@ jobs:
         
     - name: Build and deploy registry container
       run: |
+        docker pull ${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/base:1.3.40
+        docker tag "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/base:1.3.40" "pryv/base:1.3.40"
         cd build/register
         cp ../release.tar .
         docker build -f Dockerfile -t pryv/register:6.6.6-delete .
