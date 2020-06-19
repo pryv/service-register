@@ -57,7 +57,7 @@ jobs:
         docker tag "pryv/register:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:6.6.6-delete"
         cd ..
     
-    - name: Build and deploy DNS container
+    - name: Build and deploy DNS container 
       run: |
         cd dns
         cp ../release.tar .
