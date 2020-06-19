@@ -20,9 +20,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-        
-    - name: yarn setup
-      run: yarn setup
       
     - name: yarn install
       run: yarn install
@@ -33,7 +30,6 @@ jobs:
     - name: Prepare for the build
       run: |
         tar cf build/release.tar --exclude .git --exclude node_modules --exclude build .
-        popd
 
     - name: Login to the docker containers registry
       uses: azure/docker-login@v1
@@ -44,7 +40,7 @@ jobs:
         
     - name: Build and deploy registry container
       run: |
-        cd register
+        cd build/register
         cp ../release.tar .
         docker build -f Dockerfile -t pryv/register:6.6.6-delete .
         docker tag "pryv/register:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/register:6.6.6-delete"
