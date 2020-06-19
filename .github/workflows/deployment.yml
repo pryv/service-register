@@ -36,7 +36,6 @@ jobs:
                 --exclude nbproject \
                 --exclude .github \
                 --exclude test \
-                --exclude licenser \
                 --exclude mindMap.mmd \
                 --exclude build .
 
