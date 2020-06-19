@@ -58,11 +58,9 @@ jobs:
     
     - name: Build and deploy DNS container 
       run: |
-        cd ..
         ls
-        cd dns
+        cd build/dns
         cp ../release.tar .
         sudo docker build -f Dockerfile -t pryv/dns:6.6.6-delete .
         docker tag "pryv/dns:6.6.6-delete" "${{ secrets.REGISTRY_PRYV_SERVER }}/pryv/dns:6.6.6-delete"
         docker images
-        cd ..
