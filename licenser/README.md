@@ -5,7 +5,7 @@
 Actions are specified in fileSpecs configuration object. Each time a file match a specs all actions defined in the specification will be applies. 
 
 #### addHeader
-aa
+
 - For each file type a Specifications are defined in fileSpecs array
    - startBlock: The starting line of the license block (used to determine 
      if file already has a lincense)
