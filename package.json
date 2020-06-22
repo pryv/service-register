@@ -12,7 +12,7 @@
     "test": "node_modules/.bin/mocha --recursive test/",
     "start": "./node_modules/.bin/babel-node bin/server",
     "local": "nodemon --inspect ./node_modules/.bin/babel-node bin/server",
-    "license": "cd licenser ; yarn apply"
+    "license": "cd licenser ; yarn install; yarn apply"
   },
   "dependencies": {
     "airbrake": "^2.1.1",
