@@ -62,6 +62,7 @@ module.exports = function (app: any) {
     });
   });
 
+  // START - CLEAN FOR OPENSOURCE
   // GET /admin/users/invitations: get the invitations list
   app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
 
@@ -164,6 +165,7 @@ module.exports = function (app: any) {
         res.json({count: count});
       });
     });
+  // END - CLEAN FOR OPENSOURCE
 };
 
 function toHtmlTables(headers: {[string]: string}, infoArray) {

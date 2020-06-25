@@ -20,6 +20,9 @@ const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
 const messages = require('../utils/messages');
 
+const info = require('../business/service-info');
+const Pryv = require('pryv');
+
 type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed;
 type Callback = GenericCallback<mixed>;
 
@@ -43,7 +46,7 @@ import type ServerConfig from '../config';
 
 type CreateResult = {
   username: string, 
-  server: string, 
+  apiEndpoint: string, 
 };
 
 /**
@@ -105,12 +108,12 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
 
           return callback(null, {
             username: user.username, 
-            server: user.username + domain});
+            server: user.username + domain,
+            apiEndpoint: Pryv.Service.buildAPIEndpoint(info, user.username, null)});
         });
       });
     });
-};
-
+  };
 /**
  * Update the email address for an user
  * @param username: the user

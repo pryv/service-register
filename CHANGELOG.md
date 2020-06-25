@@ -2,6 +2,11 @@
 
 ## 1.3.X
 
+### 1.3.62
+
+ - expireAfter, deviceName & referer parameters accepted as payload to POST /access endpoint
+ - return 400 with correct error if JSON is malformed
+
 ### 1.3.61
 
  - fix appid was not stored at user creation

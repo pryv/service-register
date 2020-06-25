@@ -119,7 +119,7 @@ function serverForName(
     resourceName = checkAndConstraints.extractResourceFromHostname(keyName, domains);
   }
   catch (err) {
-    logger.warning('DNS: ' + err);
+    logger.warn('DNS: ' + err);
   }
 
   if (resourceName == null) {
@@ -134,7 +134,7 @@ function serverForName(
   }
   
   if (! checkAndConstraints.isLegalUsername(resourceName)) {
-    logger.warning(`DNS: ${util.inspect(resourceName)} is no legal username.`);
+    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
     return callback(req, res, nullRecord);
   }
   
