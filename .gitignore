@@ -15,9 +15,3 @@ build/service-register/release.tar
 .idea
 lib
 yarn-error.log
-
-# IDE
-nbproject/
-
-# project structure visualization made on netbeans
-mindMap.mmd
