@@ -15,7 +15,6 @@ build/service-register/release.tar
 .idea
 lib
 yarn-error.log
-/nbproject/private/
 
 # code tree structure visualization
 mindMap.mmd
