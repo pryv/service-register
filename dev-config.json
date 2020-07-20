@@ -4,7 +4,8 @@
     "authorizedKeys": {
       "test-admin-key": { "roles": ["admin"] },
       "test-system-key": { "roles": ["system"] }
-    }
+    },
+    "coreSystemKey": "cz90{k)2{3u8q0C"
   },
   "service": {
     "name": "My Pryv Lab Dev",
@@ -86,76 +87,56 @@
     "port": 8080
   },
   "net": {
-    "aaservers": {
-      "mock-api-server": [
-        {
-          "base_url": "http://localhost:3000/",
-          "authorization": "cz90{k)2{3u8q0C"
-        }
-      ],
-      "local-api-server": [
-        {
-          "base_url": "http://localhost:3000/",
-          "authorization": "cz90{k)2{3u8q0C"
-        }
-      ],
-      "exoscale.ch-ch": [
-        {
-          "base_name": "http://localhost:5000",
-          "authorization": "cz90{k)2{3u8q0C"
-        }
-      ],
-      "single": [
-        {
-          "base_url": "http://127.0.0.1:3000", 
-          "authorization": "OVERRIDE ME"
-        }
-      ],
-      "test.ch-ch": [
-        {
-          "base_name": "localhost",
-          "port": 443,
-          "authorization": "cz90{k)2{3u8q0C"
+      "hostings": {
+        "exoscale.ch-ch": {
+          "co2": {
+            "ip": "127.0.0.1"
+          }
         },
-        {
-          "base_name": "dummy_server",
-          "port": 443,
-          "authorization": "cz90{k)2{3u8q0C"
-        }
-      ]
-    },
-    "aahostings": {
-      "regions": {
-        "europe": {
-          "name": "Europe",
-          "localizedName": {
-            "fr": "Europe"
+        "test.ch-ch": {
+          "localhost": {
+            "ip": "127.0.0.1"
           },
-          "zones": {
-            "switzerland": {
-              "name": "Switzerland",
-              "localizedName": {
-                "fr": "Suisse"
-              },
-              "hostings": {
-                "exoscale.ch-ch": {
-                  "url": "http://www.exoscale.ch",
-                  "name": "Exoscale",
-                  "description": "Swiss quality",
-                  "localizedDescription": {}
-                },
-                "local-api-server": {
-                  "url": "http://www.exoscale.ch",
-                  "name": "Exoscale",
-                  "description": "Swiss quality",
-                  "localizedDescription": {}
-                }
-              }
-            }
+          "dummy_server": {
+            "ip": "127.0.0.1"
+          }
+        },
+        "local-api-server": {
+          "localhost": {
+            "ip": "127.0.0.1",
+            "port": "3000"
+          }
+        },
+        "mock-api-server":
+        {
+          "localhost": {
+            "ip": "127.0.0.1",
+            "port": "3000"
           }
         }
+      },
+      "providers": {
+        "exoscale.ch-ch": {
+          "url": "http://www.exoscale.ch",
+          "name": "Exoscale",
+          "description": "Swiss quality"
+        },
+        "local-api-server": {
+          "url": "http://localhost",
+          "name": "Switzerland",
+          "description": "Switzerland"
+        },
+        "localhost": {
+            "url": "http://localhost:3000",
+            "name": "Switzerland",
+            "base_name": "localhost"
+        },
+        "dummy_server":  {
+            "url": "http://localhost:3000",
+            "name": "Switzerland",
+            "base_name": "dummy_server"
+        }
       }
-    }
   },
   "appList": {
     "test-a": {

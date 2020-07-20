@@ -212,8 +212,15 @@ function translateConfiguration() {
 
         // Add entry in aaservers
         if (aaservers[hostingKey] == null) aaservers[hostingKey] = [];
+        let base_url = `https://${coreKey}.${nconf.get('dns:domain')}`;
+
+        // with port there will be only local and testing env
+        if(core.port){
+          base_url = `http://${coreKey}:${core.port}`;
+        }
+        
         aaservers[hostingKey].push({
-          base_url: `https://${coreKey}.${nconf.get('dns:domain')}`,
+          base_url: base_url,
           authorization: nconf.get('auth:coreSystemKey')
         });
 
@@ -274,8 +281,7 @@ function validateConfiguration () {
 
   // Check the hosting entries
   const hostings = nconf.get('net:aahostings'); 
-  
-  const hosturlRegexp = /^http(s?):\/\/[a-zA-Z0-9.-]+$/;
+  const hosturlRegexp = /^http(s?):\/\/([a-zA-Z0-9.-])+(:3000)?$/;
   
   if (hostings == null || hostings.regions == null) 
     throw parseError('No net:aahostings key found in configuration'); 
@@ -298,7 +304,6 @@ function validateConfiguration () {
       for (const hostingName of Object.keys(hostings)) {
         const hosting = hostings[hostingName];
         const hostingUrl = hosting.url;
-        
         if(hostingUrl == null || typeof hostingUrl !== 'string' || !hosturlRegexp.test(hostingUrl))
           throw parseError('Hosting ' + hostingName + ' has invalid url: ' + hostingUrl
             + '\n Expecting an url in the form: "http(s)://server.domain.tld".');  

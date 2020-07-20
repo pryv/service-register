@@ -698,7 +698,6 @@ exports.reservedWordExists = function (word: string, callback: GenericCallback<b
   });
 };
 
-
 /// Given a value (`a`) and a namespace kind (`b`): Assembles and returns the 
 /// redis namespace for accessing that value. 
 /// 
@@ -706,3 +705,51 @@ type NamespaceKind = 'users' | 'server' | 'email';
 function ns(a: string, b: NamespaceKind): string {
   return `${a}:${b}`;
 }
+
+/**
+ * Get reservation if exists
+ * 
+ * @param String key 
+ * @param {*} callback 
+ */
+function getReservation(key: string, callback: GenericCallback<boolean>) {
+  key = key.toLowerCase();
+
+  getSet(key + ':reservation', function (error, result) {
+    if (error != null){
+      return callback(null, false);
+    }
+
+    return callback(error, result);
+  });
+}
+exports.getReservation = getReservation;
+
+
+/**
+ * Use user main attribute (username, insurance number or other) as a key
+ * and set a reservation for certain core - so if user started the registration
+ * on one core he/she would be not registered on another core
+ * 
+ * @param String key 
+ * @param String core 
+ * @param Timestamp time 
+ * @param {*} callback 
+ */
+function setReservation(key: string, core: string, time: integer, callback: GenericCallback<boolean>) {
+  key = key.toLowerCase();
+  const multi = redis.multi();
+  multi.hmset(ns(key, 'reservation'), {
+    "core": core,
+    "time": time
+  });
+  multi.exec((error) => {
+    if (error != null) {
+      logger.error(
+        `Database#setReservation: ${key} e: ${error}`, error);
+      return callback(error, false);
+    }
+    return callback(null, true);
+  });
+}
+exports.setReservation = setReservation;

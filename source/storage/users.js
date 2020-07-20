@@ -9,7 +9,7 @@
 /**
  * Extension of database.js dedicated to user management
  */
-
+const bluebird = require('bluebird');
 const db = require('../storage/database');
 const async = require('async');
 const lodash = require('lodash');
@@ -100,20 +100,73 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
       }
 
       user.id = result.id;
-      db.setServerAndInfos(user.username, host.name, user, function (error) {
-        if (error != null) return callback(error);
-
-        invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
-          if (error != null) return callback(error);
-
-          return callback(null, {
-            username: user.username, 
-            server: user.username + domain,
-            apiEndpoint: Pryv.Service.buildAPIEndpoint(info, user.username, null)});
-        });
-      });
+      createUserOnServiceRegister(host, user, callback);
     });
   };
+
+
+/**
+ * Create a new user in the service-register
+ * (not on the service-core)
+ *
+ * @param host the hosting for this user
+ * @param user the user data, a json object containing: username, password hash, language and email
+ * @param callback function(error,result), result being a json object containing new user data
+ */
+function createUserOnServiceRegister(
+  host: ServerConfig,
+  user: UserInformation,
+  callback: GenericCallback<CreateResult>) {
+  // Construct the request for core, including the password.
+  db.setServerAndInfos(user.username, host.name, user, function (error) {
+    if (error != null) return callback(error);
+
+    invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+      if (error != null) return callback(error);
+
+      return callback(null, {
+        username: user.username,
+        server: user.username + domain,
+        apiEndpoint: Pryv.Service.buildAPIEndpoint(info, user.username, null)
+      });
+    });
+  });
+}
+exports.createUserOnServiceRegister = createUserOnServiceRegister;
+
+/**
+ * Create user reservation or return error if reservation already exists
+ * (not on the service-core)
+ *
+ * @param host the hosting for this user
+ * @param user the user data, a json object containing: username, password hash, language and email
+ * @param callback function(error,result), result being a json object containing new user data
+ */
+exports.createUserReservation = async (key: String,
+  core: String) => {
+
+  // Check if there is no reservation for this key
+  const reservation = await bluebird.fromCallback(cb => db.getReservation(key, cb));
+
+  if (reservation !== null) {
+    // if reservation was done in the last 10 minutes
+    if (reservation.time >= (Date.now() - 10 * 60 * 1000)) {
+
+      // a) return success if core is the same
+      // b) if in last 10 minutes reservation was made from different core, return false
+      if (reservation.core == core) {
+        // TODO IEVA maybe I can update time here
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  const res = await bluebird.fromCallback(cb => db.setReservation(key, core, Date.now(), cb));
+  return res;
+};
+
+
 /**
  * Update the email address for an user
  * @param username: the user

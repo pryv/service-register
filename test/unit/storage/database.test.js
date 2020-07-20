@@ -146,6 +146,7 @@ describe('Redis Database', () => {
       assert.strictEqual(uid, 'foobar');
     });
   });
+  
   describe('#changeEmail(username, email, cb)', () => {
     const info = userFixture({
       username: 'a wrong initial value',
@@ -169,6 +170,26 @@ describe('Redis Database', () => {
         await redisExists('a@b.ch:email'));
       assert.isTrue(
         await redisExists('c@d.de:email'));
+    });
+  });
+
+
+  describe('#setReservation(key, core, time, cb)', () => {
+    const info = userFixture({
+      key: 'User@pryv.com',
+      core: 'A@B.CH',
+    });
+
+    it('Reservation is saved correctly', async () => {
+      const now = Date.now();
+      await bluebird.fromCallback(cb => 
+        db.setReservation(info.key, info.core, now, cb));
+
+      const storedReservation = await bluebird.fromCallback(
+          cb => db.getReservation(info.key, cb));
+
+      assert.equal(storedReservation.core, 'A@B.CH');
+      assert.equal(storedReservation.time, now);
     });
   });
 

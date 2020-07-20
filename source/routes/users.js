@@ -122,6 +122,22 @@ module.exports = function (app: express$Application) {
     });
   });
 
+
+  // POST /users: create a new user only in service-register (system call)
+  app.post('/users', (req: express$Request, res, next) => {
+      requireRoles('system'),
+      users.createUserOnServiceRegister(req.body.host, {
+      "username": req.body.username,
+      "email": req.body.email,
+      "invitationtoken": req.body.invitationtoken
+      }, function(creationError, result) {
+        if(creationError) {
+          return next(messages.ei(creationError));
+        }
+        res.status(200).json(result);
+      });
+  });
+
   // START - CLEAN FOR OPENSOURCE
   /// DELETE /username/:username: Delete an existing user
   /// 
@@ -179,6 +195,7 @@ module.exports = function (app: express$Application) {
     _check(req, res, next, false);
   });
 
+
   // START - CLEAN FOR OPENSOURCE
   /**
    * POST /users/:username/change-email: change the email address for a given user
@@ -207,6 +224,62 @@ module.exports = function (app: express$Application) {
     });
 
   // END - CLEAN FOR OPENSOURCE
+
+  // do username, email and invitation token validations (system call)
+  app.post('/users/validate',
+    requireRoles('system'),
+    async (req: express$Request, res, next) => {
+      const body: {[string]: ?(string | number | boolean)} = req.body; 
+      let errors = [];
+      try {
+        // 1. Validate invitation toke
+        const invitationTokenValid = await bluebird.fromCallback(cb => 
+              invitationToken.checkIfTokenIsValid(body.invitationToken, cb));
+
+        if (!invitationTokenValid) {
+          errors.push('InvalidInvitationToken');
+        } else {
+          // continue validation only if invitation token is valid
+
+          // 2. Check if user is reserved isUserIdReserved
+          const uuidIsReserved = await bluebird.fromCallback(cb => reservedWords.useridIsReserved(body.username, cb));
+
+          if (uuidIsReserved === true) {
+            errors.push('ReservedUsername');
+          }
+          // 3. Check if Uid already exists
+          const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
+          if (uidExists === true) {
+            errors.push('ExistingUsername');
+          }
+          // 4. Check if email already exists
+          const emailExists = await bluebird.fromCallback(cb => db.emailExists(body.email, cb));
+          if (emailExists === true) {
+            errors.push('ExistingEmail');
+          }
+        }
+
+        if (errors.length > 0) {
+          return res.status(400).json({ "errors": errors });
+        }
+        res.status(200).json({ "success": true });
+      } catch (err) { return next(err); }
+    });
+
+
+  // POST /users: create a reservation for registration so that user would not be
+  // registered in several cores (system call)
+  app.post('/users/reservations',
+    requireRoles('system'),
+    async (req: express$Request, res, next) => {
+      const body: {[string]: ?(string | number | boolean)} = req.body; 
+      try {
+        const result = await users.createUserReservation(body.key, body.core);
+        return res.status(200).json({ success: result });
+      } catch (error) {
+        return next(err);
+      }
+    });
 };
 
 // Checks if the username is valid. If `raw` is set to true, this will respond

@@ -773,4 +773,178 @@ describe('User Management', () => {
   function resourcePath(username: string): string {
     return `${server.url}/users/${username}`;
   }
+
+  describe('POST /users/validate', function () {
+    const path = '/users/validate';
+    it('Path requires system auth', async () => {
+      const userTestData = _.extend({}, defaults());
+      const testData = {
+        username: userTestData.username,
+        email: userTestData.email,
+        invitationToken: userTestData.invitationToken,
+      }
+
+      try{
+        const res = await request.post(server.url + path).send(testData);
+        assert.isNull(res);
+      } catch(e){
+        assert.equal(e.status, 401);
+      }
+    });
+
+    it('Successfully validate username, email and invitation token', async () => {
+      const userTestData = _.extend({}, defaults());
+      const testData = {
+        "username": userTestData.username,
+        "email": userTestData.email,
+        "invitationToken": userTestData.invitationToken,
+      }
+
+      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+    });
+
+    describe('Sequence of validations', () => {
+      let defaultConfigInvitationTokens;
+
+      before(function () {
+        defaultConfigInvitationTokens = config.get('invitationTokens');
+        config.set('invitationTokens', ['first', 'second', 'third']);
+      });
+
+      after(function () {
+        config.set('invitationTokens', defaultConfigInvitationTokens);
+      });
+
+      it('username, email fails and invitation token is ok', async () => {
+        const testData = {
+          username: 'wactiv',
+          email: 'wactiv@pryv.io',
+          invitationToken: 'second',
+        }
+
+        try{
+          const res = await request.post(server.url + path)
+                                   .send(testData)
+                                   .set('Authorization', defaultAuth);
+          assert.isNull(res);
+        } catch(e){
+          assert.equal(e.status, 400);
+          assert.include(e.response.body.errors, 'ExistingUsername');
+          assert.include(e.response.body.errors, 'ExistingEmail');
+          assert.equal(e.response.body.errors.length, 2);
+        }
+      });
+ 
+      it('Does not check email and username if invitation token validation fails', async () => {
+        const testData = {
+          "username": 'wactiv',
+          "email": 'wactiv@pryv.io',
+          "invitationToken": 'abc',
+        }
+
+        try{
+          const res = await request.post(server.url + path)
+                                   .send(testData)
+                                   .set('Authorization', defaultAuth);
+          assert.isNull(res);
+        } catch(e){
+          assert.equal(e.status, 400);
+          assert.include(e.response.body.errors, 'InvalidInvitationToken');
+          assert.equal(e.response.body.errors.length, 1);
+        }
+      });
+    });
+
+    it('username is reserved', async () => {
+      const testData = {
+        username: 'pryvwa',
+        email: 'anyemail@pryv.io',
+        invitationToken: null
+      }
+
+      try{
+        const res = await request.post(server.url + path)
+                                 .send(testData)
+                                 .set('Authorization', defaultAuth);
+        assert.isNull(res);
+      } catch(e){
+        assert.equal(e.status, 400);
+        assert.include(e.response.body.errors, 'ReservedUsername');
+        assert.equal(e.response.body.errors.length, 1);
+      }
+    });
+  });
+
+
+  describe('POST /users/reservations', () => {
+    const path = '/users/reservations';
+    it('Path requires system auth', async () => {
+      try{
+        const res = await request.post(server.url + path);
+        assert.isNull(res);
+      } catch(e){
+        assert.equal(e.status, 401);
+      }
+    });
+
+    it('Successfully reserve the key', async () => {
+      const testData = {
+        "key": 'key_Test1',
+        "core": 'testing_core1'
+      }
+
+      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+    });
+
+    it('Get successful response when trying to reserve user key from the save server in 10 minutes', async () => {
+      const testData = {
+        key: 'key_Test2',
+        core: 'testing_core2'
+      }
+
+      const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res1.status, 200);
+      assert.equal(res1.body.success, true);
+
+      const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res2.status, 200);
+      assert.equal(res2.body.success, true);
+    });
+
+    it('Fail when reservation is made from different core', async () => {
+      const res1 = await request.post(server.url + path)
+                  .send({
+                    key: 'key_Test3',
+                    core: 'testing_core3'
+                  })
+                  .set('Authorization', defaultAuth);
+      assert.equal(res1.status, 200);
+      assert.equal(res1.body.success, true);
+
+      const res2 = await request.post(server.url + path)
+                  .send({
+                    key: 'key_Test3',
+                    core: 'testing_core_not_3'
+                  })
+                  .set('Authorization', defaultAuth);
+
+      assert.equal(res2.status, 200);
+      assert.equal(res2.body.success, false);
+    });
+
+    it('Success when reservation is made from different core after more than 10 minutes', async () => {
+      const key = 'key_Test';
+      await bluebird.fromCallback(cb => db.setReservation(key, 'core1', Date.now() - 11 * 60 * 1000, cb));
+
+      const res2 = await request.post(server.url + path).send({key: key, core: 'core2'}).set('Authorization', defaultAuth);
+      assert.equal(res2.status, 200);
+      assert.equal(res2.body.success, true);
+    });
+
+  });
+
 });
