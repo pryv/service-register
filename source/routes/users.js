@@ -129,10 +129,14 @@ module.exports = function (app: express$Application) {
       users.createUserOnServiceRegister(req.body.host, {
       "username": req.body.username,
       "email": req.body.email,
-      "invitationtoken": req.body.invitationtoken
+      "invitationToken": req.body.invitationtoken
       }, function(creationError, result) {
         if(creationError) {
-          return next(messages.ei(creationError));
+           if(creationError.httpCode && creationError.data){
+              return next(creationError);
+           }else{
+              return next(messages.ei(creationError));
+           }
         }
         res.status(200).json(result);
       });
@@ -229,12 +233,12 @@ module.exports = function (app: express$Application) {
   app.post('/users/validate',
     requireRoles('system'),
     async (req: express$Request, res, next) => {
-      const body: {[string]: ?(string | number | boolean)} = req.body; 
+      const body: {[string]: ?(string | number | boolean)} = req.body;
       let errors = [];
       try {
         // 1. Validate invitation toke
         const invitationTokenValid = await bluebird.fromCallback(cb => 
-              invitationToken.checkIfTokenIsValid(body.invitationToken, cb));
+              invitationToken.checkIfTokenIsValid(body.invitationtoken, cb));
 
         if (!invitationTokenValid) {
           errors.push('InvalidInvitationToken');
