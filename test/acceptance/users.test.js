@@ -781,7 +781,7 @@ describe('User Management', () => {
       const testData = {
         username: userTestData.username,
         email: userTestData.email,
-        invitationToken: userTestData.invitationToken,
+        invitationtoken: userTestData.invitationToken,
       }
 
       try{
@@ -821,7 +821,7 @@ describe('User Management', () => {
         const testData = {
           username: 'wactiv',
           email: 'wactiv@pryv.io',
-          invitationToken: 'second',
+          invitationtoken: 'second',
         }
 
         try{
@@ -861,7 +861,7 @@ describe('User Management', () => {
       const testData = {
         username: 'pryvwa',
         email: 'anyemail@pryv.io',
-        invitationToken: null
+        invitationtoken: null
       }
 
       try{
