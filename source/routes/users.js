@@ -133,6 +133,7 @@ module.exports = function (app: express$Application) {
       "referer": req.body.referer,
       "appid": req.body.appId,
       "id": req.body.id,
+      "language": req.body.language
       }, function(creationError, result) {
         if(creationError) {
            if(creationError.httpCode && creationError.data){
