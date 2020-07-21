@@ -129,7 +129,10 @@ module.exports = function (app: express$Application) {
       users.createUserOnServiceRegister(req.body.host, {
       "username": req.body.username,
       "email": req.body.email,
-      "invitationToken": req.body.invitationtoken
+      "invitationToken": req.body.invitationtoken,
+      "referer": req.body.referer,
+      "appid": req.body.appId,
+      "id": req.body.id,
       }, function(creationError, result) {
         if(creationError) {
            if(creationError.httpCode && creationError.data){
