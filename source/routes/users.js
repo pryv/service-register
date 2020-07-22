@@ -286,9 +286,9 @@ module.exports = function (app: express$Application) {
       try {
         const result = await users.createUserReservation(body.key, body.core);
         if(result){
-          return res.status(200).json({ "success": true });
+          return res.status(200).json({ "reservation": true });
         }else{
-          return res.status(400).json({ "success": false });
+          return res.status(400).json({ "reservation": false });
         }
       } catch (error) {
         return next(err);
