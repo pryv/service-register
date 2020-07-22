@@ -783,7 +783,6 @@ describe('User Management', () => {
         email: userTestData.email,
         invitationtoken: userTestData.invitationToken,
       }
-
       try{
         const res = await request.post(server.url + path).send(testData);
         assert.isNull(res);
@@ -925,15 +924,18 @@ describe('User Management', () => {
       assert.equal(res1.status, 200);
       assert.equal(res1.body.success, true);
 
-      const res2 = await request.post(server.url + path)
+      try{
+        const res2 = await request.post(server.url + path)
                   .send({
                     key: 'key_Test3',
                     core: 'testing_core_not_3'
                   })
                   .set('Authorization', defaultAuth);
-
-      assert.equal(res2.status, 200);
-      assert.equal(res2.body.success, false);
+        assert.isNull(res2);
+      } catch (e){
+        assert.equal(e.status, 400);
+        assert.equal(e.response.body.success, false);
+      }
     });
 
     it('Success when reservation is made from different core after more than 10 minutes', async () => {

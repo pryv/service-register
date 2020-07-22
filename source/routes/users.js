@@ -124,26 +124,27 @@ module.exports = function (app: express$Application) {
 
 
   // POST /users: create a new user only in service-register (system call)
-  app.post('/users', (req: express$Request, res, next) => {
+  app.post('/users',
       requireRoles('system'),
-      users.createUserOnServiceRegister(req.body.host, {
-      "username": req.body.username,
-      "email": req.body.email,
-      "invitationToken": req.body.invitationtoken,
-      "referer": req.body.referer,
-      "appid": req.body.appId,
-      "id": req.body.id,
-      "language": req.body.language
-      }, function(creationError, result) {
-        if(creationError) {
-           if(creationError.httpCode && creationError.data){
-              return next(creationError);
-           }else{
-              return next(messages.ei(creationError));
-           }
-        }
-        res.status(200).json(result);
-      });
+      (req: express$Request, res, next) => {
+        users.createUserOnServiceRegister(req.body.host, {
+        "username": req.body.username,
+        "email": req.body.email,
+        "invitationToken": req.body.invitationtoken,
+        "referer": req.body.referer,
+        "appid": req.body.appId,
+        "id": req.body.id,
+        "language": req.body.language
+        }, function(creationError, result) {
+          if(creationError) {
+             if(creationError.httpCode && creationError.data){
+                return next(creationError);
+             }else{
+                return next(messages.ei(creationError));
+             }
+          }
+          return res.status(200).json(result);
+        });
   });
 
   // START - CLEAN FOR OPENSOURCE
@@ -268,11 +269,12 @@ module.exports = function (app: express$Application) {
         }
 
         if (errors.length > 0) {
-          return res.status(400).json({ "errors": errors });
+          return res.status(400).json({ "success": false, "errors": errors });
         }
-        res.status(200).json({ "success": true });
+        return res.status(200).json({ "success": true });
+        //return res.status(200);
       } catch (err) { return next(err); }
-    });
+});
 
 
   // POST /users: create a reservation for registration so that user would not be
@@ -283,7 +285,11 @@ module.exports = function (app: express$Application) {
       const body: {[string]: ?(string | number | boolean)} = req.body; 
       try {
         const result = await users.createUserReservation(body.key, body.core);
-        return res.status(200).json({ success: result });
+        if(result){
+          return res.status(200).json({ "success": true });
+        }else{
+          return res.status(400).json({ "success": false });
+        }
       } catch (error) {
         return next(err);
       }

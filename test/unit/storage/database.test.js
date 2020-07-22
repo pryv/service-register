@@ -174,20 +174,38 @@ describe('Redis Database', () => {
   });
 
 
-  describe('#setReservation(key, core, time, cb)', () => {
+  describe('Reservations', () => {
     const info = userFixture({
       key: 'User@pryv.com',
       core: 'A@B.CH',
     });
+    const key = info.key.toLowerCase();
+    const now = Date.now();
 
-    it('Reservation is saved correctly', async () => {
-      const now = Date.now();
-      await bluebird.fromCallback(cb => 
-        db.setReservation(info.key, info.core, now, cb));
+    it('#getReservation(key, core, time, cb)', async () => {
+      // manually save reservation
+      const multi = redis.multi();
+      multi.hmset(`${key}:reservation`, {
+        "core": info.core,
+        "time": now
+      });
+      await bluebird.fromCallback(cb => multi.exec(cb));
 
+      // get reservation
       const storedReservation = await bluebird.fromCallback(
           cb => db.getReservation(info.key, cb));
 
+      assert.equal(storedReservation.core, 'A@B.CH');
+      assert.equal(storedReservation.time, now);
+    });
+
+    it('#setReservation(key, core, time, cb)', async () => {
+      // save reservation
+      await bluebird.fromCallback(cb => 
+        db.setReservation(info.key, info.core, now, cb));
+
+      // retrieve reservation
+      const storedReservation = await bluebird.fromCallback(cb => db.getSet(`${key}:reservation`, cb));
       assert.equal(storedReservation.core, 'A@B.CH');
       assert.equal(storedReservation.time, now);
     });
