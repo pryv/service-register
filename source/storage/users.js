@@ -135,6 +135,18 @@ function createUserOnServiceRegister(
 exports.createUserOnServiceRegister = createUserOnServiceRegister;
 
 /**
+ * Check if reservation still is valid (by default it is valid for 10 minutes)
+ *
+ * @param reservationTime timestamp of saved reservation
+ */
+function isReservationStillValid(reservationTime){
+  if (reservationTime >= (Date.now() - 10 * 60 * 1000)) {
+    return true;
+  }else{
+    return false;
+  }
+}
+/**
  * Create user reservation or return error if reservation already exists
  * (not on the service-core)
  *
@@ -142,15 +154,14 @@ exports.createUserOnServiceRegister = createUserOnServiceRegister;
  * @param user the user data, a json object containing: username, password hash, language and email
  * @param callback function(error,result), result being a json object containing new user data
  */
-exports.createUserReservation = async (key: String,
+exports.createUserReservation = async (registrationIndexedValues: String,
   core: String) => {
 
-  // Check if there is no reservation for this key
-  const reservation = await bluebird.fromCallback(cb => db.getReservation(key, cb));
-
+  // Check if there is no reservation for this registrationIndexedValues
+  const reservation = await bluebird.fromCallback(cb => db.getReservation(registrationIndexedValues, cb));
   if (reservation !== null) {
     // if reservation was done in the last 10 minutes
-    if (reservation.time >= (Date.now() - 10 * 60 * 1000)) {
+    if (isReservationStillValid(reservation.time)) {
 
       // a) return success if core is the same
       // b) if in last 10 minutes reservation was made from different core, return false
@@ -162,7 +173,7 @@ exports.createUserReservation = async (key: String,
       }
     }
   }
-  const res = await bluebird.fromCallback(cb => db.setReservation(key, core, Date.now(), cb));
+  const res = await bluebird.fromCallback(cb => db.setReservation(registrationIndexedValues, core, Date.now(), cb));
   return res;
 };
 

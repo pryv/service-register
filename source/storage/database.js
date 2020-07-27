@@ -712,10 +712,10 @@ function ns(a: string, b: NamespaceKind): string {
  * @param String key 
  * @param {*} callback 
  */
-function getReservation(key: string, callback: GenericCallback<boolean>) {
-  key = key.toLowerCase();
+function getReservation(registrationIndexedValues: string, callback: GenericCallback<boolean>) {
+  registrationIndexedValues = registrationIndexedValues.toLowerCase();
 
-  getSet(key + ':reservation', function (error, result) {
+  getSet(registrationIndexedValues + ':reservation', function (error, result) {
     if (error != null){
       return callback(null, false);
     }
@@ -727,26 +727,26 @@ exports.getReservation = getReservation;
 
 
 /**
- * Use user main attribute (username, insurance number or other) as a key
+ * Use concatenated user main attributes (username, insurance number or other indexed values) as a registrationIndexedValues
  * and set a reservation for certain core - so if user started the registration
  * on one core he/she would be not registered on another core
  * 
- * @param String key 
+ * @param String registrationIndexedValues
  * @param String core 
  * @param Timestamp time 
  * @param {*} callback 
  */
-function setReservation(key: string, core: string, time: integer, callback: GenericCallback<boolean>) {
-  key = key.toLowerCase();
+function setReservation(registrationIndexedValues: string, core: string, time: integer, callback: GenericCallback<boolean>) {
+  registrationIndexedValues = registrationIndexedValues.toLowerCase();
   const multi = redis.multi();
-  multi.hmset(ns(key, 'reservation'), {
+  multi.hmset(ns(registrationIndexedValues, 'reservation'), {
     "core": core,
     "time": time
   });
   multi.exec((error) => {
     if (error != null) {
       logger.error(
-        `Database#setReservation: ${key} e: ${error}`, error);
+        `Database#setReservation: ${registrationIndexedValues} e: ${error}`, error);
       return callback(error, false);
     }
     return callback(null, true);

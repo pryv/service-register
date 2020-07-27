@@ -785,23 +785,10 @@ describe('User Management', () => {
       }
       try{
         const res = await request.post(server.url + path).send(testData);
-        assert.isNull(res);
+        assert.isTrue(false);
       } catch(e){
         assert.equal(e.status, 401);
       }
-    });
-
-    it('Successfully validate username, email and invitation token', async () => {
-      const userTestData = _.extend({}, defaults());
-      const testData = {
-        "username": userTestData.username,
-        "email": userTestData.email,
-        "invitationToken": userTestData.invitationToken,
-      }
-
-      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res.status, 200);
-      assert.equal(res.body.success, true);
     });
 
     describe('Sequence of validations', () => {
@@ -827,7 +814,7 @@ describe('User Management', () => {
           const res = await request.post(server.url + path)
                                    .send(testData)
                                    .set('Authorization', defaultAuth);
-          assert.isNull(res);
+          assert.isTrue(false);
         } catch(e){
           assert.equal(e.status, 400);
           assert.include(e.response.body.errors, 'ExistingUsername');
@@ -847,7 +834,7 @@ describe('User Management', () => {
           const res = await request.post(server.url + path)
                                    .send(testData)
                                    .set('Authorization', defaultAuth);
-          assert.isNull(res);
+          assert.isTrue(false);
         } catch(e){
           assert.equal(e.status, 400);
           assert.include(e.response.body.errors, 'InvalidInvitationToken');
@@ -867,12 +854,25 @@ describe('User Management', () => {
         const res = await request.post(server.url + path)
                                  .send(testData)
                                  .set('Authorization', defaultAuth);
-        assert.isNull(res);
+        assert.isTrue(false);
       } catch(e){
         assert.equal(e.status, 400);
         assert.include(e.response.body.errors, 'ReservedUsername');
         assert.equal(e.response.body.errors.length, 1);
       }
+    });
+
+    it('Successfully validate username, email and invitation token', async () => {
+      const userTestData = _.extend({}, defaults());
+      const testData = {
+        username: userTestData.username,
+        email: userTestData.email,
+        invitationToken: userTestData.invitationToken,
+      }
+
+      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
     });
   });
 
@@ -882,69 +882,73 @@ describe('User Management', () => {
     it('Path requires system auth', async () => {
       try{
         const res = await request.post(server.url + path);
-        assert.isNull(res);
+        assert.isTrue(false);
       } catch(e){
         assert.equal(e.status, 401);
       }
     });
 
-    it('Successfully reserve the key', async () => {
-      const testData = {
-        "key": 'key_Test1',
-        "core": 'testing_core1'
-      }
-
-      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res.status, 200);
-      assert.equal(res.body.success, true);
-    });
-
-    it('Get successful response when trying to reserve user key from the save server in 10 minutes', async () => {
-      const testData = {
-        key: 'key_Test2',
-        core: 'testing_core2'
-      }
-
-      const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res1.status, 200);
-      assert.equal(res1.body.success, true);
-
-      const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res2.status, 200);
-      assert.equal(res2.body.success, true);
-    });
-
     it('Fail when reservation is made from different core', async () => {
       const res1 = await request.post(server.url + path)
                   .send({
-                    key: 'key_Test3',
+                    registrationIndexedValues: 'key_Test3',
                     core: 'testing_core3'
                   })
                   .set('Authorization', defaultAuth);
       assert.equal(res1.status, 200);
-      assert.equal(res1.body.success, true);
+      assert.equal(res1.body.reservation, true);
 
       try{
         const res2 = await request.post(server.url + path)
                   .send({
-                    key: 'key_Test3',
+                    registrationIndexedValues: 'key_Test3',
                     core: 'testing_core_not_3'
                   })
                   .set('Authorization', defaultAuth);
         assert.isNull(res2);
       } catch (e){
         assert.equal(e.status, 400);
-        assert.equal(e.response.body.success, false);
+        assert.equal(e.response.body.reservation, false);
       }
     });
 
-    it('Success when reservation is made from different core after more than 10 minutes', async () => {
-      const key = 'key_Test';
-      await bluebird.fromCallback(cb => db.setReservation(key, 'core1', Date.now() - 11 * 60 * 1000, cb));
+    it('Successfully reserve the key', async () => {
+      const testData = {
+        registrationIndexedValues: 'key_Test1',
+        core: 'testing_core1'
+      }
 
-      const res2 = await request.post(server.url + path).send({key: key, core: 'core2'}).set('Authorization', defaultAuth);
+      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res.status, 200);
+      assert.equal(res.body.reservation, true);
+    });
+
+    it('Get successful response when trying to reserve user registrationIndexedValues from the save server in 10 minutes', async () => {
+      const testData = {
+        registrationIndexedValues: 'key_Test2',
+        core: 'testing_core2'
+      }
+
+      const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+      assert.equal(res1.status, 200);
+      assert.equal(res1.body.reservation, true);
+
+      const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
       assert.equal(res2.status, 200);
-      assert.equal(res2.body.success, true);
+      assert.equal(res2.body.reservation, true);
+    });
+
+    it('Success when reservation is made from different core after more than 10 minutes', async () => {
+      try {
+        const registrationIndexedValues = 'key_Testtt_Tesing@pryv.com';
+        await bluebird.fromCallback(cb => db.setReservation(registrationIndexedValues, 'core_new', Date.now() - 11 * 60 * 1000, cb));
+        const res2 = await request.post(server.url + path).send({registrationIndexedValues: registrationIndexedValues, core: 'core2'}).set('Authorization', defaultAuth);
+        assert.equal(res2.status, 200);
+        assert.equal(res2.body.reservation, true);
+      }catch(error){
+        console.log(error.response.error);
+        assert.isTrue(false);
+      }
     });
 
   });

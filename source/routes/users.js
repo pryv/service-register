@@ -128,13 +128,13 @@ module.exports = function (app: express$Application) {
       requireRoles('system'),
       (req: express$Request, res, next) => {
         users.createUserOnServiceRegister(req.body.host, {
-        "username": req.body.username,
-        "email": req.body.email,
-        "invitationToken": req.body.invitationtoken,
-        "referer": req.body.referer,
-        "appid": req.body.appId,
-        "id": req.body.id,
-        "language": req.body.language
+        username: req.body.username,
+        email: req.body.email,
+        invitationToken: req.body.invitationtoken,
+        referer: req.body.referer,
+        appid: req.body.appId,
+        id: req.body.id,
+        language: req.body.language
         }, function(creationError, result) {
           if(creationError) {
              if(creationError.httpCode && creationError.data){
@@ -284,7 +284,7 @@ module.exports = function (app: express$Application) {
     async (req: express$Request, res, next) => {
       const body: {[string]: ?(string | number | boolean)} = req.body; 
       try {
-        const result = await users.createUserReservation(body.key, body.core);
+        const result = await users.createUserReservation(body.registrationIndexedValues, body.core);
         if(result){
           return res.status(200).json({ "reservation": true });
         }else{
