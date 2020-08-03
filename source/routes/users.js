@@ -270,9 +270,16 @@ module.exports = function (app: express$Application) {
 
         if (errors.length > 0) {
           return res.status(400).json({ "success": false, "errors": errors });
+        }else{
+          // if there are no validation errors, do the reservation for the core
+          const result = await users.createUserReservation(body.registrationIndexedValues, body.core);
+
+          if(result){
+            return res.status(200).json({ "success": true });
+          }else{
+            return res.status(400).json({ "success": false, "errors": ["DuplicatedUserRegistration"] });
+          }
         }
-        return res.status(200).json({ "success": true });
-        //return res.status(200);
       } catch (err) { return next(err); }
 });
 
