@@ -117,6 +117,7 @@ function createUserOnServiceRegister(
   host: ServerConfig,
   user: UserInformation,
   callback: GenericCallback<CreateResult>) {
+
   // Construct the request for core, including the password.
   db.setServerAndInfos(user.username, host.name, user, function (error) {
     if (error != null) return callback(error);

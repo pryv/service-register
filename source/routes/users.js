@@ -127,15 +127,21 @@ module.exports = function (app: express$Application) {
   app.post('/users',
       requireRoles('system'),
       (req: express$Request, res, next) => {
-        users.createUserOnServiceRegister(req.body.host, {
-        username: req.body.username,
-        email: req.body.email,
-        invitationToken: req.body.invitationtoken,
-        referer: req.body.referer,
-        appid: req.body.appId,
-        id: req.body.id,
-        language: req.body.language
-        }, function(creationError, result) {
+        // form user data to match previous format
+        let userData = req.body;
+        if( userData.appId ){
+          userData.appid = userData.appId;
+          delete userData.appId;
+        }
+
+        if( userData.invitationtoken ){
+          userData.invitationToken = userData.invitationtoken;
+          delete userData.invitationtoken;
+        }
+        // delete host param
+        const host = Object.assign({}, req.body.host);
+        delete userData.host;
+        users.createUserOnServiceRegister(host, userData, function(creationError, result) {
           if(creationError) {
              if(creationError.httpCode && creationError.data){
                 return next(creationError);
@@ -281,28 +287,8 @@ module.exports = function (app: express$Application) {
           }
         }
       } catch (err) { return next(err); }
-});
-
-
-  // POST /users: create a reservation for registration so that user would not be
-  // registered in several cores (system call)
-  app.post('/users/reservations',
-    requireRoles('system'),
-    async (req: express$Request, res, next) => {
-      const body: {[string]: ?(string | number | boolean)} = req.body; 
-      try {
-        const result = await users.createUserReservation(body.registrationIndexedValues, body.core);
-        if(result){
-          return res.status(200).json({ "reservation": true });
-        }else{
-          return res.status(400).json({ "reservation": false });
-        }
-      } catch (error) {
-        return next(err);
-      }
-    });
+  });
 };
-
 // Checks if the username is valid. If `raw` is set to true, this will respond
 // to the request directly, sending a 'text/plain' boolean response ('true' or
 // 'false'). If `raw` is false, it will either call `next` with an error or 
