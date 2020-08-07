@@ -99,6 +99,10 @@ describe('Email', function () {
 
   describe('GET /:email/username', () => {
 
+    it.only('throws an error when the call is disabled in config', async () => {
+      config.set('routes.disableGetUsernameByEmail', true);
+      await getUsername('x'.repeat(10), false, 403);
+    });
     it('throws an error when the provided email has invalid format', async () => {
       await getUsername('x'.repeat(301), false, 400);
     });

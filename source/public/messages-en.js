@@ -76,6 +76,9 @@ var messages = {
     'detail' : ''},
   'INVALID_REFERER' : { 'message' : 'referer is invalid',
     'detail' : ''},
+  'FORBIDDEN_METHOD' : {'message' : 'The action you are trying to execute is forbidden',
+    'detail' : ''
+  }
 };
 
 if (module && module.exports) {
