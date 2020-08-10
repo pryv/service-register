@@ -101,7 +101,7 @@ describe('Email', function () {
 
     it('throws an error when the call is disabled in config', async () => {
       config.set('routes:disableGetUsernameByEmail', true);
-      await getUsername('x'.repeat(10), false, 403);
+      await getUsername('x'.repeat(10), false, 405);
     });
     it('throws an error when the provided email has invalid format', async () => {
       config.set('routes:disableGetUsernameByEmail', false);
