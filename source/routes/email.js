@@ -86,7 +86,7 @@ module.exports = function (app: any) {
  */
 function getUsernameFromEmail(email: string): Promise<string> {
   if (config.get('routes:disableGetUsernameByEmail')) {
-    return Promise.reject(messages.e(405, 'FORBIDDEN_METHOD'));
+    return Promise.reject(messages.e(405, 'DISABLED_METHOD'));
   }
   if (checkAndConstraints.email(email) == null) {
     return Promise.reject(messages.e(400, 'INVALID_EMAIL'));
