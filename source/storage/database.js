@@ -554,58 +554,47 @@ exports.changeEmail = function (
   });
 };
 
-
-exports.updateField = function (
+/**
+ * Updates the user values and if field is unique, saves the value as a key
+ * (as it was done for username and email before)
+ * @param string username 
+ * @param string fieldName
+ * @param string fieldValue
+ * @param boolean unique 
+ */
+exports.updateField = async function (
   username: string,
   fieldName: string,
   fieldValue: string,
-  callback: Callback,
+  unique: boolean
 ) {
   // TODO IEVA - why everything is converted to lowercase?
   fieldName = fieldName.toLowerCase();
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
+  
+  try {
+    // Update username:users:<fieldname> value if username exists
+    const previousValue = await bluebird.fromCallback(cb =>
+      redis.hget(ns(username, 'users'), fieldName, cb));
 
-  // Check that email does not exists
-  redis.get(ns(fieldValue, fieldName), function (error, email_username) {
-    if (error != null) return callback(error);
+    // BUG Race condition: If two requests enter here at the same time, the
+    //  last one to enter will win, writing the values. The verification we
+    //  do above is not protected / linked to what follows.
+              
+    const multi = redis.multi();
+    multi.hmset(ns(username, 'users'), fieldName, fieldValue);
 
-    if (email_username === username) {
-      logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
-      return callback();
+    // if user field should be unique, save the value as a key separately
+    if (unique){
+      multi.set(ns(fieldValue, fieldName), username);
+      // Remove previous user field value
+      multi.del(ns(previousValue, fieldName));
     }
-
-    if (email_username != null) {
-      logger.debug(`#changeEmail: Cannot set, in use: ${email}, current ${email_username}, new ${username}`);
-      return callback(new messages.REGError(400, {
-        id: 'DUPLICATE_EMAIL',
-        message: `Cannot set e-mail: ${email} (email is in use)`,
-      }));
-    }
-
-    // assert: email index says we don't currently use this email.
-
-    // Remove previous user e-mail
-    redis.hget(ns(username, 'users'), 'email', function (error, previous_email) {
-      if (error != null) return callback(error);
-
-      // BUG Race condition: If two requests enter here at the same time, the
-      //  last one to enter will win, writing the values. The verification we
-      //  do above is not protected / linked to what follows.
-
-      const multi = redis.multi();
-      multi.hmset(ns(username, 'users'), 'email', email);
-      multi.set(ns(email, 'email'), username);
-      multi.del(ns(previous_email, 'email'));
-      multi.exec(function (error) {
-        if (error != null)
-          logger.error(
-            `Database#changeEmail: ${username} email: ${email} e: ${error}`, error);
-
-        return callback(error);
-      });
-    });
-  });
+    await bluebird.fromCallback(cb => multi.exec(cb));
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.isFieldUnique = async (

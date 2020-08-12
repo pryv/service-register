@@ -157,19 +157,19 @@ module.exports = function (app: express$Application) {
    */
   app.put('/users',
     requireRoles('system'),
-    (req: express$Request, res, next) => {
+    async (req: express$Request, res, next) => {
       // FLOW Assume body has this type.
-      const body: { [string]: ?(string | number | boolean) } = req.body;
+      let body = req.body;
       // Update each field except for the username
-      const username = Object.assign({}, body.username);
-      delete body.username;
-      const fieldsForUpdate = Object.keys(body);
-      users.updateFields(username, fieldsForUpdate, function(error, result) {
-        if (error != null) {
-          return next(error);
-        }
-        res.json(result);
-      });
+      let username = body.user.username;
+      delete body.user.username;
+      try {
+        await users.updateFields(username, fieldsForUpdate, body.unique);
+        // dummy succesful response for the system call
+        res.status(200).json({user: true});
+      } catch (error) {
+        next(error);
+      }
   });
 
   // START - CLEAN FOR OPENSOURCE
