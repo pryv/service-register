@@ -67,7 +67,7 @@ describe('User Management', () => {
 
     // fixes missing appId PR#104
     it ('user creation should store all provided fields', function (done) {
-      const testData = _.extend({}, defaults());
+      let testData = _.extend({}, defaults());
       const test = {
         data: testData,
         status: 200,
@@ -91,7 +91,8 @@ describe('User Management', () => {
                 if (user.username === testData.username) {
                   delete testData.hosting;
                   delete testData.password;
-                  user.invitationtoken = user.invitationToken;
+                  testData.invitationToken = testData.invitationtoken;
+                  delete testData.invitationtoken;
                   Object.keys(testData).forEach(function (prop) {
                     assert.deepEqual(testData[prop], user[prop]);
                   });
@@ -588,7 +589,7 @@ describe('User Management', () => {
       users.forEach(async (user) => {
         await bluebird.fromCallback((cb) => 
           // FLOW Ignore the missing attributes in the user attr hash.
-          db.setServerAndInfos(user.username, 'server.name.at.tld', user, cb));
+          db.setServerAndInfos(user.username, 'server.name.at.tld', user, ['email'], cb));
       });
     });
 
@@ -688,7 +689,7 @@ describe('User Management', () => {
       };
 
       // FLOW Ignore the missing attributes in the user attr hash.
-      db.setServerAndInfos('jsmith', 'server.name.at.tld', userInfos, done);
+      db.setServerAndInfos('jsmith', 'server.name.at.tld', userInfos, ['email'], done);
     });
 
     it('requires the system role', async () => {
@@ -776,12 +777,13 @@ describe('User Management', () => {
 
   describe('POST /users/validate', function () {
     const path = '/users/validate';
+
     it('Path requires system auth', async () => {
       const userTestData = _.extend({}, defaults());
       const testData = {
         username: userTestData.username,
         email: userTestData.email,
-        invitationtoken: userTestData.invitationToken,
+        invitationtoken: userTestData.invitationtoken,
       }
       try{
         const res = await request.post(server.url + path).send(testData);
@@ -792,165 +794,292 @@ describe('User Management', () => {
     });
 
     describe('Sequence of validations', () => {
-      let defaultConfigInvitationTokens;
+      describe('Invitation token is required', () => {
+        let defaultConfigInvitationTokens;
 
-      before(function () {
-        defaultConfigInvitationTokens = config.get('invitationTokens');
-        config.set('invitationTokens', ['first', 'second', 'third']);
-      });
+        before(function () {
+          defaultConfigInvitationTokens = config.get('invitationTokens');
+          config.set('invitationTokens', ['first', 'second', 'third']);
+        });
 
-      after(function () {
-        config.set('invitationTokens', defaultConfigInvitationTokens);
-      });
+        after(function () {
+          config.set('invitationTokens', defaultConfigInvitationTokens);
+        });
 
-      it('username, email fails and invitation token is ok', async () => {
-        const testData = {
-          username: 'wactiv',
-          email: 'wactiv@pryv.io',
-          invitationtoken: 'second',
-        }
+        it('username, email fails and invitation token is ok', async () => {
+          const testData = {
+            username: 'wactiv',
+            invitationtoken: 'second',
+            uniqueFields: {
+              email: 'wactiv@pryv.io',
+            }
+          }
 
-        try{
-          const res = await request.post(server.url + path)
-                                   .send(testData)
-                                   .set('Authorization', defaultAuth);
-          assert.isTrue(false);
-        } catch(e){
-          assert.equal(e.status, 400);
-          assert.include(e.response.body.errors, 'ExistingUsername');
-          assert.include(e.response.body.errors, 'ExistingEmail');
-          assert.equal(e.response.body.errors.length, 2);
-        }
-      });
+          try {
+            await request.post(server.url + path)
+              .send(testData)
+              .set('Authorization', defaultAuth);
+            assert.isTrue(false);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.errors, 'Existing-username');
+            assert.include(e.response.body.errors, 'Existing-email');
+            assert.equal(e.response.body.errors.length, 2);
+          }
+        });
  
-      it('Does not check email and username if invitation token validation fails', async () => {
+        it('Does not check email and username if invitation token validation fails', async () => {
+          const testData = {
+            "username": 'wactiv',
+            "email": 'wactiv@pryv.io',
+            "invitationtoken": 'abc',
+          }
+
+          try {
+            await request.post(server.url + path)
+              .send(testData)
+              .set('Authorization', defaultAuth);
+            assert.isTrue(false);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.errors, 'InvalidInvitationToken');
+            assert.equal(e.response.body.errors.length, 1);
+          }
+        });
+
+        it('Fail when additional unique field is not unique', async () => {
+          const userTestData = _.extend({}, defaults());
+          const randomFieldValue = 'randomFieldWithNumbersAndUppercases2';
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: 'first',
+            uniqueFields: {
+              email: userTestData.email,
+              RandomField: randomFieldValue
+            },
+            core: 'testing_core1'
+          }
+          try {
+            let userRegistrationData = {
+              user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+              unique: ['email', 'username', 'RandomField'],
+              host: 'some-host'
+            }
+            const userRegistrationRes = await request.post(server.url + '/users').set('Authorization', defaultAuth)
+              .send(userRegistrationData);
+            // make sure registration was successful
+            assert.equal(userRegistrationRes.status, 200);
+            
+            // call validation api and check that RandomField is already existing
+            await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+            (false).equal(true);
+          } catch (err) {
+            assert.equal(err.response.status, 400);
+            assert.equal(err.response.body.reservation, false);
+            assert.include(err.response.body.errors, 'Existing-RandomField');
+          }
+        });
+
+        it('Successfully validate username, email and invitation token and reserve the unique values', async () => {
+          const userTestData = _.extend({}, defaults());
+          const randomFieldValue = 'randomFieldWithNumbersAndUppercases1';
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: 'first',
+            uniqueFields: {
+              email: userTestData.email,
+              RandomField: randomFieldValue
+            },
+            core: 'testing_core1'
+          }
+          try {
+            const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+            assert.equal(res.status, 200);
+            assert.equal(res.body.reservation, true);
+          } catch (err) {
+            (false).equal(true);
+          }
+
+          // check the reservation in the database
+          const storedReservation = await db.getReservations({
+            email: userTestData.email,
+            username: userTestData.username,
+            RandomField: randomFieldValue
+          });
+          assert.equal(storedReservation.length, 3);
+          assert.equal(storedReservation[0].core, testData.core);
+          assert.exists(storedReservation[0].time);
+
+          assert.equal(storedReservation[1].core, testData.core);
+          assert.exists(storedReservation[1].time);
+
+          assert.equal(storedReservation[2].core, testData.core);
+          assert.exists(storedReservation[2].time);
+        });
+      });
+    
+      it('username is reserved', async () => {
         const testData = {
-          "username": 'wactiv',
-          "email": 'wactiv@pryv.io',
-          "invitationToken": 'abc',
+          username: 'pryvwa',
+          invitationtoken: null,
+          uniqueFields: {
+            email: 'anyemail@pryv.io'
+          }
         }
 
         try{
-          const res = await request.post(server.url + path)
-                                   .send(testData)
-                                   .set('Authorization', defaultAuth);
+          await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
           assert.isTrue(false);
-        } catch(e){
+        } catch (e) {
           assert.equal(e.status, 400);
-          assert.include(e.response.body.errors, 'InvalidInvitationToken');
+          assert.include(e.response.body.errors, 'ReservedUsername');
           assert.equal(e.response.body.errors.length, 1);
         }
       });
     });
+    describe('Reservation', () => {
+      it('Reservation fails if reservation is made for username', async () => {
+        const userTestData1 = _.extend({}, defaults());
+        const userTestData2 = _.extend({}, defaults());
+        const testData1 = {
+          username: userTestData1.username,
+          invitationtoken: userTestData1.invitationtoken,
+          uniqueFields: {
+            email: userTestData1.email,
+          },
+          core: 'testing_core3'
+        }
+        const testData2 = _.extend({}, testData1, {
+          core: 'testing_core_not_3',
+          uniqueFields: {
+            email: userTestData2.email,
+          },
+        });
+        const res1 = await request.post(server.url + path).send(testData1).set('Authorization', defaultAuth);
+        assert.equal(res1.status, 200);
+        assert.equal(res1.body.reservation, true);
 
-    it('username is reserved', async () => {
-      const testData = {
-        username: 'pryvwa',
-        email: 'anyemail@pryv.io',
-        invitationtoken: null
-      }
+        try {
+          const res2 = await request.post(server.url + path)
+            .send(testData2)
+            .set('Authorization', defaultAuth);
+          assert.isNull(res2);
+        } catch (e) {
+          assert.equal(e.status, 400);
+          assert.equal(e.response.body.reservation, false);
+        }
+      });
 
-      try{
-        const res = await request.post(server.url + path)
-                                 .send(testData)
-                                 .set('Authorization', defaultAuth);
-        assert.isTrue(false);
-      } catch(e){
-        assert.equal(e.status, 400);
-        assert.include(e.response.body.errors, 'ReservedUsername');
-        assert.equal(e.response.body.errors.length, 1);
-      }
-    });
+      it('[ieva]Reservation fails if reservation is made for additional unique field', async () => {
+        const userTestData1 = _.extend({}, defaults());
+        const userTestData2 = _.extend({}, defaults());
+        const randomFieldValue = randomuser();
+        const testData1 = {
+          username: userTestData1.username,
+          invitationtoken: userTestData1.invitationtoken,
+          uniqueFields: {
+            email: userTestData1.email,
+            RandomField: randomFieldValue,
+          },
+          core: 'testing_core4'
+        }
+        const testData2 = _.extend({}, testData1, {
+          core: 'testing_core_not_4',
+          username: userTestData2.username,
+          uniqueFields: {
+            email: userTestData2.email,
+            RandomField: randomFieldValue,
+          },
+        });
+        try {
+          const res1 = await request.post(server.url + path).send(testData1).set('Authorization', defaultAuth);
+          assert.equal(res1.status, 200);
+          assert.equal(res1.body.reservation, true);
+        } catch (e) {
+          console.log(e, 'e');
+          assert.equal(false, true);
+        }
+        try {
+          const res2 = await request.post(server.url + path)
+            .send(testData2)
+            .set('Authorization', defaultAuth);
+          assert.isNull(res2);
+        } catch (e) {
+          assert.equal(e.status, 400);
+          assert.equal(e.response.body.reservation, false);
+        }
+      });
 
-    it('Successfully validate username, email and invitation token', async () => {
-      const userTestData = _.extend({}, defaults());
-      const testData = {
-        username: userTestData.username,
-        email: userTestData.email,
-        invitationToken: userTestData.invitationToken,
-      }
+      it('Fail when reservation is made from different core', async () => {
+        const userTestData = _.extend({}, defaults());
+        const testData = {
+          username: userTestData.username,
+          invitationtoken: userTestData.invitationtoken,
+          uniqueFields: {
+            email: userTestData.email,
+          },
+          core: 'testing_core3'
+        }
+        const testData2 = _.extend({}, testData, { core: 'testing_core_not_3'});
+        const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+        assert.equal(res1.status, 200);
+        assert.equal(res1.body.reservation, true);
 
-      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res.status, 200);
-      assert.equal(res.body.success, true);
-    });
-  });
+        try {
+          const res2 = await request.post(server.url + path)
+            .send(testData2)
+            .set('Authorization', defaultAuth);
+          assert.isNull(res2);
+        } catch (e) {
+          assert.equal(e.status, 400);
+          assert.equal(e.response.body.reservation, false);
+        }
+      });
 
+      it('Get successful response when trying to reserve user registrationIndexedValues from the save server in 10 minutes', async () => {
+        const userTestData = _.extend({}, defaults());
+        const testData = {
+          username: userTestData.username,
+          invitationtoken: userTestData.invitationtoken,
+          uniqueFields: {
+            email: userTestData.email,
+          },
+          core: 'testing_core2'
+        }
 
-  describe('POST /users/reservations', () => {
-    const path = '/users/reservations';
-    it('Path requires system auth', async () => {
-      try{
-        const res = await request.post(server.url + path);
-        assert.isTrue(false);
-      } catch(e){
-        assert.equal(e.status, 401);
-      }
-    });
+        const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+        assert.equal(res1.status, 200);
+        assert.equal(res1.body.reservation, true);
 
-    it('Fail when reservation is made from different core', async () => {
-      const res1 = await request.post(server.url + path)
-                  .send({
-                    registrationIndexedValues: 'key_Test3',
-                    core: 'testing_core3'
-                  })
-                  .set('Authorization', defaultAuth);
-      assert.equal(res1.status, 200);
-      assert.equal(res1.body.reservation, true);
-
-      try{
-        const res2 = await request.post(server.url + path)
-                  .send({
-                    registrationIndexedValues: 'key_Test3',
-                    core: 'testing_core_not_3'
-                  })
-                  .set('Authorization', defaultAuth);
-        assert.isNull(res2);
-      } catch (e){
-        assert.equal(e.status, 400);
-        assert.equal(e.response.body.reservation, false);
-      }
-    });
-
-    it('Successfully reserve the key', async () => {
-      const testData = {
-        registrationIndexedValues: 'key_Test1',
-        core: 'testing_core1'
-      }
-
-      const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res.status, 200);
-      assert.equal(res.body.reservation, true);
-    });
-
-    it('Get successful response when trying to reserve user registrationIndexedValues from the save server in 10 minutes', async () => {
-      const testData = {
-        registrationIndexedValues: 'key_Test2',
-        core: 'testing_core2'
-      }
-
-      const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res1.status, 200);
-      assert.equal(res1.body.reservation, true);
-
-      const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-      assert.equal(res2.status, 200);
-      assert.equal(res2.body.reservation, true);
-    });
-
-    it('Success when reservation is made from different core after more than 10 minutes', async () => {
-      try {
-        const registrationIndexedValues = 'key_Testtt_Tesing@pryv.com';
-        await bluebird.fromCallback(cb => db.setReservation(registrationIndexedValues, 'core_new', Date.now() - 11 * 60 * 1000, cb));
-        const res2 = await request.post(server.url + path).send({registrationIndexedValues: registrationIndexedValues, core: 'core2'}).set('Authorization', defaultAuth);
+        const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
         assert.equal(res2.status, 200);
         assert.equal(res2.body.reservation, true);
-      }catch(error){
-        console.log(error.response.error);
-        assert.isTrue(false);
-      }
+      });
+
+      it('Success when reservation is made from different core after more than 10 minutes', async () => {
+        try {
+          const userTestData = _.extend({}, defaults());
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: userTestData.invitationtoken,
+            uniqueFields: {
+              email: userTestData.email,
+              username: userTestData.username,
+            },
+            core: 'core2'
+          }
+
+          await db.setReservations({
+            username: userTestData.username,
+            email: userTestData.email,
+          }, 'core_new', Date.now() - 11 * 60 * 1000);
+          const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+          assert.equal(res2.status, 200);
+          assert.equal(res2.body.reservation, true);
+        } catch (error) {
+          assert.isTrue(false);
+        }
+      });
     });
-
   });
-
 });

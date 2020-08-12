@@ -35,7 +35,7 @@ describe('Redis Database', () => {
         const info = userFixture({
           username: 'jsmith', email: 'jsmith@foo.bar'
         });
-        db.setServerAndInfos('jsmith', 'someServer', info, done);
+        db.setServerAndInfos('jsmith', 'someServer', info, ['email'], done);
       });
 
       it('deletes the user', async () => {
@@ -57,7 +57,7 @@ describe('Redis Database', () => {
 
       // Call setServerAndInfos for 'foobar' - setup a user
       beforeEach((done) => {
-        db.setServerAndInfos('foobar', 'server_XYZ', info, done);
+        db.setServerAndInfos('foobar', 'server_XYZ', info, ['email'], done);
       });      
 
       it('stores user information', async () => {
@@ -93,7 +93,7 @@ describe('Redis Database', () => {
         email: 'A@B.CH',
       });
       await bluebird.fromCallback(cb => 
-        db.setServerAndInfos('foobar', 'server', info, cb));
+        db.setServerAndInfos('foobar', 'server', info, ['email'], cb));
       
       assert.isTrue(
         await redisExists('a@b.ch:email')
@@ -104,7 +104,7 @@ describe('Redis Database', () => {
         email: 'A@B.CH',
       });
       await bluebird.fromCallback(cb =>
-        db.setServerAndInfos('foobar', 'server', info, cb));
+        db.setServerAndInfos('foobar', 'server', info, ['email'], cb));
 
       const storedInfo = await bluebird.fromCallback(
         cb => redis.hgetall('foobar:users', cb));
@@ -119,7 +119,7 @@ describe('Redis Database', () => {
 
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {
-      db.setServerAndInfos('foobar', 'server_XYZ', info, done);
+      db.setServerAndInfos('foobar', 'server_XYZ', info, ['email'], done);
     });      
 
     it('is case insensitive for email', async () => {
@@ -136,7 +136,7 @@ describe('Redis Database', () => {
 
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {
-      db.setServerAndInfos('foobar', 'server_XYZ', info, done);
+      db.setServerAndInfos('foobar', 'server_XYZ', info, ['email'], done);
     });
 
     it('is case insensitive for email', async () => {
@@ -155,7 +155,7 @@ describe('Redis Database', () => {
 
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {
-      db.setServerAndInfos('foobar', 'server_XYZ', info, done);
+      db.setServerAndInfos('foobar', 'server_XYZ', info, ['email'], done);
     });
 
     it('is case insensitive for email', async () => {
@@ -179,35 +179,52 @@ describe('Redis Database', () => {
       key: 'User@pryv.com',
       core: 'A@B.CH',
     });
-    const key = info.key.toLowerCase();
+    const randomFieldValue = 'abc';
     const now = Date.now();
 
     it('#getReservation(key, core, time, cb)', async () => {
       // manually save reservation
       const multi = redis.multi();
-      multi.hmset(`${key}:reservation`, {
+      multi.hmset(`email-reservations:${info.key}`, {
+        "core": info.core,
+        "time": now
+      });
+      multi.hmset(`randomfield-reservations:${randomFieldValue}`, {
         "core": info.core,
         "time": now
       });
       await bluebird.fromCallback(cb => multi.exec(cb));
 
       // get reservation
-      const storedReservation = await bluebird.fromCallback(
-          cb => db.getReservation(info.key, cb));
+      const storedReservation = await db.getReservations({
+        email: info.key,
+        randomfield: randomFieldValue,
+      });
+      assert.equal(storedReservation.length, 2);
+      assert.equal(storedReservation[0].core, 'A@B.CH');
+      assert.equal(storedReservation[0].time, now);
 
-      assert.equal(storedReservation.core, 'A@B.CH');
-      assert.equal(storedReservation.time, now);
+      assert.equal(storedReservation[1].core, 'A@B.CH');
+      assert.equal(storedReservation[1].time, now);
     });
 
     it('#setReservation(key, core, time, cb)', async () => {
       // save reservation
-      await bluebird.fromCallback(cb => 
-        db.setReservation(info.key, info.core, now, cb));
+      await db.setReservations({
+        email: info.key,
+        RandomKey: randomFieldValue,
+      }, info.core, now);
 
-      // retrieve reservation
-      const storedReservation = await bluebird.fromCallback(cb => db.getSet(`${key}:reservation`, cb));
-      assert.equal(storedReservation.core, 'A@B.CH');
-      assert.equal(storedReservation.time, now);
+      // retrieve reservations
+      const storedReservation1 = await bluebird.fromCallback(cb =>
+        db.getSet(`email-reservations:${info.key}`, cb));
+      assert.equal(storedReservation1.core, info.core);
+      assert.equal(storedReservation1.time, now);
+
+      const storedReservation2 = await bluebird.fromCallback(cb =>
+        db.getSet(`RandomKey-reservations:${randomFieldValue}`, cb));
+      assert.equal(storedReservation2.core, info.core);
+      assert.equal(storedReservation2.time, now);
     });
   });
 

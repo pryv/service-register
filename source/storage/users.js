@@ -100,7 +100,7 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
       }
 
       user.id = result.id;
-      createUserOnServiceRegister(host, user, callback);
+      createUserOnServiceRegister(host, user, ['email'], callback);
     });
   };
 
@@ -116,12 +116,12 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
 function createUserOnServiceRegister(
   host: ServerConfig,
   user: UserInformation,
+  uniqueFields: array<string>,
   callback: GenericCallback<CreateResult>) {
 
   // Construct the request for core, including the password.
-  db.setServerAndInfos(user.username, host.name, user, function (error) {
+  db.setServerAndInfos(user.username, host.name, user, uniqueFields, function (error) {
     if (error != null) return callback(error);
-
     invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
       if (error != null) return callback(error);
 
@@ -155,27 +155,39 @@ function isReservationStillValid(reservationTime){
  * @param user the user data, a json object containing: username, password hash, language and email
  * @param callback function(error,result), result being a json object containing new user data
  */
-exports.createUserReservation = async (registrationIndexedValues: String,
+exports.createUserReservation = async (
+  uniqueFields: String,
   core: String) => {
 
-  // Check if there is no reservation for this registrationIndexedValues
-  const reservation = await bluebird.fromCallback(cb => db.getReservation(registrationIndexedValues, cb));
-  if (reservation !== null) {
-    // if reservation was done in the last 10 minutes
-    if (isReservationStillValid(reservation.time)) {
+  // Check if there is no reservation for any of uniqueFields
+  //const reservation = await bluebird.fromCallback(cb => db.getReservations(username, uniqueFields, cb));
+  try{
+    const reservations = await db.getReservations(uniqueFields);
+    let reservation;
+    let reservationExists = false;
+      for (reservation of reservations) {
+        if (reservation !== null) {
+          // if reservation was done in the last 10 minutes
+          if (isReservationStillValid(reservation.time)) {
 
-      // a) return success if core is the same
-      // b) if in last 10 minutes reservation was made from different core, return false
-      if (reservation.core == core) {
-        // TODO IEVA maybe I can update time here
-        return true;
-      } else {
-        return false;
+            // a) return success if core is the same
+            // b) if in last 10 minutes reservation was made from different core, return false
+            if (reservation.core != core) {
+              reservationExists = true;
+              break;
+            }
+          }
       }
     }
+
+    if(reservationExists === true){
+      return false;
+    }
+    await db.setReservations(uniqueFields, core, Date.now());
+    return true;
+  } catch(error){
+    throw error;
   }
-  const res = await bluebird.fromCallback(cb => db.setReservation(registrationIndexedValues, core, Date.now(), cb));
-  return res;
 };
 
 
@@ -205,6 +217,27 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
       callback(null, {success: true});
     });
   });
+};
+
+/**
+ * Update all fields for the user
+ */
+exports.updateFields = async (username: string, fields: array) => {
+  try{
+    const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
+    if (! exists){
+      throw(new messages.REGError(404, {
+        id: 'UNKNOWN_USER_NAME',
+        message: 'No such user',
+      }));
+    }
+
+    const fieldsForUpdate = fields.map(field => bluebird.fromCallback(cb => db.updateField(username, field, cb)));
+    await Promise.all(fieldsForUpdate);
+    return true;
+  } catch (error) {
+    throw error;
+  }
 };
 
 type ServerUsageStats = {

@@ -128,7 +128,7 @@ module.exports = function (app: express$Application) {
       requireRoles('system'),
       (req: express$Request, res, next) => {
         // form user data to match previous format
-        let userData = req.body;
+        let userData = req.body.user;
         if( userData.appId ){
           userData.appid = userData.appId;
           delete userData.appId;
@@ -140,8 +140,7 @@ module.exports = function (app: express$Application) {
         }
         // delete host param
         const host = Object.assign({}, req.body.host);
-        delete userData.host;
-        users.createUserOnServiceRegister(host, userData, function(creationError, result) {
+        users.createUserOnServiceRegister(host, userData, req.body.unique, function(creationError, result) {
           if(creationError) {
              if(creationError.httpCode && creationError.data){
                 return next(creationError);
@@ -151,6 +150,26 @@ module.exports = function (app: express$Application) {
           }
           return res.status(200).json(result);
         });
+  });
+
+  /** PUT /users: update the user only in service-register (system call)
+   * no validation is applied because it is system call
+   */
+  app.put('/users',
+    requireRoles('system'),
+    (req: express$Request, res, next) => {
+      // FLOW Assume body has this type.
+      const body: { [string]: ?(string | number | boolean) } = req.body;
+      // Update each field except for the username
+      const username = Object.assign({}, body.username);
+      delete body.username;
+      const fieldsForUpdate = Object.keys(body);
+      users.updateFields(username, fieldsForUpdate, function(error, result) {
+        if (error != null) {
+          return next(error);
+        }
+        res.json(result);
+      });
   });
 
   // START - CLEAN FOR OPENSOURCE
@@ -250,7 +269,7 @@ module.exports = function (app: express$Application) {
         // 1. Validate invitation toke
         const invitationTokenValid = await bluebird.fromCallback(cb => 
               invitationToken.checkIfTokenIsValid(body.invitationtoken, cb));
-
+        let uniqueFields = body.uniqueFields;
         if (!invitationTokenValid) {
           errors.push('InvalidInvitationToken');
         } else {
@@ -262,28 +281,35 @@ module.exports = function (app: express$Application) {
           if (uuidIsReserved === true) {
             errors.push('ReservedUsername');
           }
+
           // 3. Check if Uid already exists
           const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
           if (uidExists === true) {
-            errors.push('ExistingUsername');
+            errors.push('Existing-username');
           }
-          // 4. Check if email already exists
-          const emailExists = await bluebird.fromCallback(cb => db.emailExists(body.email, cb));
-          if (emailExists === true) {
-            errors.push('ExistingEmail');
+
+          // manually remove username from the unique list because other rules could be applied to it
+          // check if each field is unique
+          for (const [key, value] of Object.entries(uniqueFields)){
+            const unique = await db.isFieldUnique(key, value);
+            if(! unique){
+              errors.push('Existing-' + key);
+            }
           }
         }
 
         if (errors.length > 0) {
-          return res.status(400).json({ "success": false, "errors": errors });
+          return res.status(400).json({ "reservation": false, "errors": errors });
         }else{
           // if there are no validation errors, do the reservation for the core
-          const result = await users.createUserReservation(body.registrationIndexedValues, body.core);
+          // username should always be unique, so lets add it to unique Fields
+          uniqueFields.username = body.username;
+          const result = await users.createUserReservation(uniqueFields, body.core);
 
           if(result){
-            return res.status(200).json({ "success": true });
+            return res.status(200).json({ "reservation": true });
           }else{
-            return res.status(400).json({ "success": false, "errors": ["DuplicatedUserRegistration"] });
+            return res.status(400).json({ "reservation": false, "errors": ["DuplicatedUserRegistration"] });
           }
         }
       } catch (err) { return next(err); }

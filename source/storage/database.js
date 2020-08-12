@@ -80,7 +80,7 @@ function checkConnection() {
 
       const user = { id: 0, email: 'wactiv@pryv.io', username: 'wactiv1' };
       // FLOW deprecated code; disregard for type checks. 
-      setServerAndInfos('wactiv', config.get('dns:domain'), user, nextStep);
+      setServerAndInfos('wactiv', config.get('dns:domain'), user, ['email'], nextStep);
     },
     function _getDatabaseVersion(nextStep) { 
       redis.get(DBVERSION_KEY, function (error, result) {
@@ -406,9 +406,11 @@ exports.getUIDFromMail = function (mail: string, callback: GenericCallback<strin
 ///   except error == null. 
 /// 
 function setServerAndInfos(
-  username: string, server: string, 
+  username: string,
+  server: string,
   infos: UserInformation, 
-  callback: Callback, 
+  uniqueFields: array,
+  callback: Callback,
 ) {
   const attrs = lodash.clone(infos);
 
@@ -421,8 +423,11 @@ function setServerAndInfos(
   attrs.registeredTimestamp =  Date.now();
 
   // Sanitises the user information
-  username = username.toLowerCase(); 
-  attrs.email = attrs.email.toLowerCase(); 
+  username = username.toLowerCase();
+  // leave Backward compatible email saving process
+  if(attrs.email){
+    attrs.email = attrs.email.toLowerCase();
+  }
   
   // Ensure that username matches itself
   attrs.username = username; 
@@ -439,24 +444,29 @@ function setServerAndInfos(
         return stepDone();
       });
     },
-    function _storeUser(stepDone) {
-      const multi = redis.multi();
-      multi.hmset(ns(username, 'users'), attrs);
-      multi.set(ns(username, 'server'), server);
+    async function _storeUser () {
+      try{
+        const multi = redis.multi();
+        multi.hmset(ns(username, 'users'), attrs);
+        multi.set(ns(username, 'server'), server);
 
-      // If user exists remove previous email
-      if (previousEmail != null && previousEmail !== attrs.email) {
-        multi.del(ns(previousEmail, 'email'));
+        // If user exists remove previous email
+        if (previousEmail != null && previousEmail !== attrs.email) {
+          multi.del(ns(previousEmail, 'email'));
+        }
+        for (field of uniqueFields) {
+          // make sure that the field has any value
+          if(! attrs[field]) continue;
+          value = attrs[field].toLowerCase();
+          field = field.toLowerCase(); 
+          multi.set(ns(value, field), username);
+        }
+        await bluebird.fromCallback(cb => multi.exec(cb));
+        callback();
+      } catch (error) {
+        logger.error(`Database#setServerAndInfos: ${username} e: ${error}`, error);
+        return callback(error); //TODO IEVA -make sure it is handled
       }
-
-      multi.set(ns(attrs.email, 'email'), username);
-      multi.exec((error) => {
-        if (error != null)
-          logger.error(
-            `Database#setServerAndInfos: ${username} e: ${error}`, error);
- 
-        return stepDone(error);
-      });
     }
   ],
   callback);
@@ -542,6 +552,79 @@ exports.changeEmail = function (
       });
     });
   });
+};
+
+
+exports.updateField = function (
+  username: string,
+  fieldName: string,
+  fieldValue: string,
+  callback: Callback,
+) {
+  // TODO IEVA - why everything is converted to lowercase?
+  fieldName = fieldName.toLowerCase();
+  fieldValue = fieldValue.toLowerCase();
+  username = username.toLowerCase();
+
+  // Check that email does not exists
+  redis.get(ns(fieldValue, fieldName), function (error, email_username) {
+    if (error != null) return callback(error);
+
+    if (email_username === username) {
+      logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
+      return callback();
+    }
+
+    if (email_username != null) {
+      logger.debug(`#changeEmail: Cannot set, in use: ${email}, current ${email_username}, new ${username}`);
+      return callback(new messages.REGError(400, {
+        id: 'DUPLICATE_EMAIL',
+        message: `Cannot set e-mail: ${email} (email is in use)`,
+      }));
+    }
+
+    // assert: email index says we don't currently use this email.
+
+    // Remove previous user e-mail
+    redis.hget(ns(username, 'users'), 'email', function (error, previous_email) {
+      if (error != null) return callback(error);
+
+      // BUG Race condition: If two requests enter here at the same time, the
+      //  last one to enter will win, writing the values. The verification we
+      //  do above is not protected / linked to what follows.
+
+      const multi = redis.multi();
+      multi.hmset(ns(username, 'users'), 'email', email);
+      multi.set(ns(email, 'email'), username);
+      multi.del(ns(previous_email, 'email'));
+      multi.exec(function (error) {
+        if (error != null)
+          logger.error(
+            `Database#changeEmail: ${username} email: ${email} e: ${error}`, error);
+
+        return callback(error);
+      });
+    });
+  });
+};
+
+exports.isFieldUnique = async (
+  fieldName: string,
+  fieldValue: string
+) => {
+  // TODO IEVA - why everything is converted to lowercase?
+  fieldName = fieldName.toLowerCase();
+  fieldValue = fieldValue.toLowerCase();
+
+  // Check that email does not exists
+  try{
+  const exists = await bluebird.fromCallback(
+    cb => redis.exists(fieldValue + ':' + fieldName, cb));
+    return exists !== 1;
+
+  } catch(error){
+    throw error;
+  }
 };
 
 /**
@@ -707,49 +790,55 @@ function ns(a: string, b: NamespaceKind): string {
 }
 
 /**
- * Get reservation if exists
+ * Get reservations if exists
  * 
- * @param String key 
- * @param {*} callback 
+ * @param object uniqueFields - key is the name of the field (like email) 
+ * and value is the email itself
  */
-function getReservation(registrationIndexedValues: string, callback: GenericCallback<boolean>) {
-  registrationIndexedValues = registrationIndexedValues.toLowerCase();
-
-  getSet(registrationIndexedValues + ':reservation', function (error, result) {
-    if (error != null){
-      return callback(null, false);
+async function getReservations(uniqueFields: object) {
+  let results = [];
+  let result;
+  try{
+    for(let [key, value] of Object.entries(uniqueFields)){
+      result = await bluebird.fromCallback(cb => getSet(ns(key + '-reservations', value), cb));
+      if (result) {
+        results.push(result);
+      }
     }
-
-    return callback(error, result);
-  });
+    return results;
+  } catch(error){
+     throw error;
+  }
 }
-exports.getReservation = getReservation;
+exports.getReservations = getReservations;
 
 
 /**
- * Use concatenated user main attributes (username, insurance number or other indexed values) as a registrationIndexedValues
+ * For each unique property set the reservation
  * and set a reservation for certain core - so if user started the registration
  * on one core he/she would be not registered on another core
  * 
- * @param String registrationIndexedValues
+ * @param Object uniqueFields - key is the name of the field (like email)
  * @param String core 
- * @param Timestamp time 
- * @param {*} callback 
+ * @param Timestamp time
  */
-function setReservation(registrationIndexedValues: string, core: string, time: integer, callback: GenericCallback<boolean>) {
-  registrationIndexedValues = registrationIndexedValues.toLowerCase();
+async function setReservations(uniqueFields: object, core: string, time: integer) {
+
   const multi = redis.multi();
-  multi.hmset(ns(registrationIndexedValues, 'reservation'), {
-    "core": core,
-    "time": time
-  });
-  multi.exec((error) => {
-    if (error != null) {
-      logger.error(
-        `Database#setReservation: ${registrationIndexedValues} e: ${error}`, error);
-      return callback(error, false);
+  try{
+    for(let [key, value] of Object.entries(uniqueFields)){
+      //key = key.toLowerCase();
+      //value = value.toLowerCase();
+      multi.hmset(ns(key + '-reservations', value), {
+        "core": core,
+        "time": time
+      });
     }
-    return callback(null, true);
-  });
+    await bluebird.fromCallback(cb => multi.exec(cb));
+  } catch(error){
+    logger.error(`Database#setReservation: ${registrationIndexedValues} e: ${error}`, error);
+    throw error;
+  }
+
 }
-exports.setReservation = setReservation;
+exports.setReservations = setReservations;
