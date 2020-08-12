@@ -863,7 +863,7 @@ describe('User Management', () => {
             let userRegistrationData = {
               user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
               unique: ['email', 'RandomField'],
-              host: 'some-host'
+              host: { name: 'some-host' }
             }
             const userRegistrationRes = await request.post(server.url + '/users').set('Authorization', defaultAuth)
               .send(userRegistrationData);
@@ -1112,7 +1112,7 @@ describe('User Management', () => {
       let userRegistrationData = {
         user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
         unique: ['email', 'RandomField'],
-        host: 'some-host'
+        host: { name: 'some-host' }
       }
       try {
         await request.post(server.url + path).send(userRegistrationData);
@@ -1127,7 +1127,7 @@ describe('User Management', () => {
       let userRegistrationData = {
         user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
         unique: ['email', 'RandomField'],
-        host: 'some-host'
+        host: { name: 'some-host' }
       }
 
       it('Registration process was successful', async () => {
@@ -1161,7 +1161,7 @@ describe('User Management', () => {
       let userRegistrationData = {
         user: userData,
         unique: ['RandomField'],
-        host: 'some-host'
+        host: { name: 'some-host' }
       }
 
       try {
@@ -1194,7 +1194,7 @@ describe('User Management', () => {
         let userRegistrationData = {
           user: userData,
           unique: [],
-          host: 'some-host'
+          host: { name: 'some-host' }
         }
 
         try {
@@ -1211,7 +1211,7 @@ describe('User Management', () => {
         let userRegistrationData = {
           user: userData,
           unique: [],
-          host: 'some-host'
+          host: { name: 'some-host' }
         }
 
         try {
