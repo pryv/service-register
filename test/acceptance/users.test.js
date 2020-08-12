@@ -786,7 +786,7 @@ describe('User Management', () => {
         invitationtoken: userTestData.invitationtoken,
       }
       try{
-        const res = await request.post(server.url + path).send(testData);
+        await request.post(server.url + path).send(testData);
         assert.isTrue(false);
       } catch(e){
         assert.equal(e.status, 401);
@@ -849,7 +849,7 @@ describe('User Management', () => {
 
         it('Fail when additional unique field is not unique', async () => {
           const userTestData = _.extend({}, defaults());
-          const randomFieldValue = 'randomFieldWithNumbersAndUppercases2';
+          const randomFieldValue = randomuser();
           const testData = {
             username: userTestData.username,
             invitationtoken: 'first',
@@ -862,7 +862,7 @@ describe('User Management', () => {
           try {
             let userRegistrationData = {
               user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
-              unique: ['email', 'username', 'RandomField'],
+              unique: ['email', 'RandomField'],
               host: 'some-host'
             }
             const userRegistrationRes = await request.post(server.url + '/users').set('Authorization', defaultAuth)
@@ -882,7 +882,7 @@ describe('User Management', () => {
 
         it('Successfully validate username, email and invitation token and reserve the unique values', async () => {
           const userTestData = _.extend({}, defaults());
-          const randomFieldValue = 'randomFieldWithNumbersAndUppercases1';
+          const randomFieldValue = randomuser();
           const testData = {
             username: userTestData.username,
             invitationtoken: 'first',
@@ -970,7 +970,7 @@ describe('User Management', () => {
         }
       });
 
-      it('[ieva]Reservation fails if reservation is made for additional unique field', async () => {
+      it('Reservation fails if reservation is made for additional unique field', async () => {
         const userTestData1 = _.extend({}, defaults());
         const userTestData2 = _.extend({}, defaults());
         const randomFieldValue = randomuser();
@@ -1077,6 +1077,153 @@ describe('User Management', () => {
           assert.equal(res2.status, 200);
           assert.equal(res2.body.reservation, true);
         } catch (error) {
+          assert.isTrue(false);
+        }
+      });
+
+      it('Success reservation without email', async () => {
+        try {
+          const userTestData = _.extend({}, defaults());
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: userTestData.invitationtoken,
+            uniqueFields: {},
+            core: 'core2'
+          }
+
+          await db.setReservations({
+            username: userTestData.username
+          }, 'core_new', Date.now() - 11 * 60 * 1000);
+          const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+          assert.equal(res.status, 200);
+          assert.equal(res.body.reservation, true);
+        } catch (error) {
+          assert.isTrue(false);
+        }
+      });
+    });
+  });
+
+  describe('POST /users', function () {
+    const path = '/users';
+
+    it('Path requires system auth', async () => {
+      const randomFieldValue = randomuser();
+      let userRegistrationData = {
+        user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+        unique: ['email', 'RandomField'],
+        host: 'some-host'
+      }
+      try {
+        await request.post(server.url + path).send(userRegistrationData);
+        assert.isTrue(false);
+      } catch (e) {
+        assert.equal(e.status, 401);
+      }
+    });
+
+    describe('Successful system registration', async () => {
+      const randomFieldValue = randomuser();
+      let userRegistrationData = {
+        user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+        unique: ['email', 'RandomField'],
+        host: 'some-host'
+      }
+
+      it('Registration process was successful', async () => {
+        try {
+          const userRegistrationRes = await request.post(server.url + path).set('Authorization', defaultAuth)
+            .send(userRegistrationData);
+          assert.equal(userRegistrationRes.status, 200);
+          assert.equal(userRegistrationRes.body.username, userRegistrationData.user.username);
+          assert.equal(userRegistrationRes.body.server, userRegistrationData.user.username + '.rec.la');
+          assert.equal(userRegistrationRes.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
+        } catch (e) {
+          console.log(e,'e');
+          assert.equal(false, true);
+        }
+      });
+
+      it('Unique fields were saved in redis database', async () => {
+        const usernameUnique = await  db.isFieldUnique('users', userRegistrationData.user.username);
+        const emailUnique = await db.isFieldUnique('email', userRegistrationData.user.email);
+        const randomFieldUnique = await db.isFieldUnique('RandomField', userRegistrationData.user.RandomField);
+        assert.equal(usernameUnique, false);
+        assert.equal(emailUnique, false);
+        assert.equal(randomFieldUnique, false);
+      });
+    });
+
+    it('Registration without email is successful', async () => {
+      const randomFieldValue = randomuser();
+      let userData = _.extend({}, defaults(), { RandomField: randomFieldValue });
+      delete userData.email;
+      let userRegistrationData = {
+        user: userData,
+        unique: ['RandomField'],
+        host: 'some-host'
+      }
+
+      try {
+        const res = await request.post(server.url + path)
+          .send(userRegistrationData)
+          .set('Authorization', defaultAuth);
+        assert.equal(res.status, 200);
+        assert.equal(res.body.username, userRegistrationData.user.username);
+        assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
+        assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
+      } catch (e) {
+        console.log(e, 'e');
+        assert.isTrue(false);
+      }
+    });
+    describe('Registration when invitation token is required is successful', async () => {
+      let defaultConfigInvitationTokens;
+
+      before(function () {
+        defaultConfigInvitationTokens = config.get('invitationTokens');
+        config.set('invitationTokens', ['first']);
+      });
+
+      after(function () {
+        config.set('invitationTokens', defaultConfigInvitationTokens);
+      });
+
+      it('Registration fails if token is invalid', async () => {
+        let userData = _.extend({}, defaults(), { invitationtoken: 'random' });
+        let userRegistrationData = {
+          user: userData,
+          unique: [],
+          host: 'some-host'
+        }
+
+        try {
+          await request.post(server.url + path)
+            .send(userRegistrationData)
+            .set('Authorization', defaultAuth);
+          assert.isTrue(false);
+        } catch (e) {
+          assert.equal(e.status, 404);
+        }
+      });
+      it('Registration succeeds when token is valid', async () => {
+        let userData = _.extend({}, defaults(), { invitationtoken: 'first' });
+        let userRegistrationData = {
+          user: userData,
+          unique: [],
+          host: 'some-host'
+        }
+
+        try {
+          const res = await request.post(server.url + path)
+            .send(userRegistrationData)
+            .set('Authorization', defaultAuth);
+          assert.equal(res.status, 200);
+          assert.equal(res.body.username, userRegistrationData.user.username);
+          assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
+          assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
+        } catch (e) {
+          console.log(e, 'e');
           assert.isTrue(false);
         }
       });

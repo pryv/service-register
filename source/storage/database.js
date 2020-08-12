@@ -612,16 +612,14 @@ exports.isFieldUnique = async (
   fieldName: string,
   fieldValue: string
 ) => {
-  // TODO IEVA - why everything is converted to lowercase?
   fieldName = fieldName.toLowerCase();
   fieldValue = fieldValue.toLowerCase();
 
   // Check that email does not exists
-  try{
-  const exists = await bluebird.fromCallback(
-    cb => redis.exists(fieldValue + ':' + fieldName, cb));
+  try {
+    const exists = await bluebird.fromCallback(
+      cb => redis.exists(fieldValue + ':' + fieldName, cb));
     return exists !== 1;
-
   } catch(error){
     throw error;
   }

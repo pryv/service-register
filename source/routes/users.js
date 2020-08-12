@@ -125,31 +125,31 @@ module.exports = function (app: express$Application) {
 
   // POST /users: create a new user only in service-register (system call)
   app.post('/users',
-      requireRoles('system'),
-      (req: express$Request, res, next) => {
-        // form user data to match previous format
-        let userData = req.body.user;
-        if( userData.appId ){
-          userData.appid = userData.appId;
-          delete userData.appId;
-        }
+    requireRoles('system'),
+    (req: express$Request, res, next) => {
+      // form user data to match previous format
+      let userData = req.body.user;
+      if( userData.appId ){
+        userData.appid = userData.appId;
+        delete userData.appId;
+      }
 
-        if( userData.invitationtoken ){
-          userData.invitationToken = userData.invitationtoken;
-          delete userData.invitationtoken;
+      if( userData.invitationtoken ){
+        userData.invitationToken = userData.invitationtoken;
+        delete userData.invitationtoken;
+      }
+
+      const host = Object.assign({}, req.body.host);
+      users.createUserOnServiceRegister(host, userData, req.body.unique, function(creationError, result) {
+        if(creationError) {
+            if(creationError.httpCode && creationError.data){
+              return next(creationError);
+            }else{
+              return next(messages.ei(creationError));
+            }
         }
-        // delete host param
-        const host = Object.assign({}, req.body.host);
-        users.createUserOnServiceRegister(host, userData, req.body.unique, function(creationError, result) {
-          if(creationError) {
-             if(creationError.httpCode && creationError.data){
-                return next(creationError);
-             }else{
-                return next(messages.ei(creationError));
-             }
-          }
-          return res.status(200).json(result);
-        });
+        return res.status(200).json(result);
+      });
   });
 
   /** PUT /users: update the user only in service-register (system call)
