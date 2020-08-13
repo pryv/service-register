@@ -458,7 +458,6 @@ function setServerAndInfos(
           // make sure that the field has any value
           if(! attrs[field]) continue;
           value = attrs[field].toLowerCase();
-          field = field.toLowerCase(); 
           multi.set(ns(value, field), username);
         }
         await bluebird.fromCallback(cb => multi.exec(cb));
@@ -555,6 +554,39 @@ exports.changeEmail = function (
 };
 
 /**
+ * Validate if field (that has to be unique) has a unique value
+ * @param string username 
+ * @param string fieldName
+ * @param string fieldValue
+ */
+exports.isFieldUniqueForUser = async function (
+  username: string,
+  fieldName: string,
+  fieldValue: string
+) {
+  fieldValue = fieldValue.toLowerCase();
+  username = username.toLowerCase();
+
+  try {
+    const currentValueBelongsToUsername = await bluebird.fromCallback(cb =>
+      redis.get(ns(fieldValue, fieldName), cb));
+
+    if (currentValueBelongsToUsername === username) {
+      logger.debug(`trying to update an ${fieldName} to the same value ${username} ${currentValueBelongsToUsername}`);
+      return true;
+    }
+
+    if (currentValueBelongsToUsername != null) {
+      logger.debug(`#validateUniqueField: Cannot set, in use: ${fieldValue}, current ${currentValueBelongsToUsername}, new ${username}`);
+      return false;
+    }
+  } catch (error) {
+    throw error;
+  }
+  return true;
+};
+
+/**
  * Updates the user values and if field is unique, saves the value as a key
  * (as it was done for username and email before)
  * @param string username 
@@ -569,7 +601,6 @@ exports.updateField = async function (
   unique: boolean
 ) {
   // TODO IEVA - why everything is converted to lowercase?
-  fieldName = fieldName.toLowerCase();
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
   
@@ -601,7 +632,6 @@ exports.isFieldUnique = async (
   fieldName: string,
   fieldValue: string
 ) => {
-  fieldName = fieldName.toLowerCase();
   fieldValue = fieldValue.toLowerCase();
 
   // Check that email does not exists

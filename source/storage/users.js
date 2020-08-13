@@ -227,6 +227,10 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
  * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
  */
 exports.updateFields = async (username: string, fields: object, uniqueFieldsNames: array<string>) => {
+  // get update action and execute them in parallel
+  let fieldsForUpdate = [];
+  let errors = [];
+  let unique;
   try {
     const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
 
@@ -236,9 +240,25 @@ exports.updateFields = async (username: string, fields: object, uniqueFieldsName
         message: 'No such user',
       }));
     }
-    // get update action and execute them in parallel
-    let fieldsForUpdate = [];
-    let unique;
+
+    // validate all unique fields
+    for (const [key, value] of Object.entries(fields)) {
+      if(uniqueFieldsNames.includes(key)){
+        unique = await db.isFieldUniqueForUser(username, key, value);
+        if (! unique) {
+          errors.push({
+            id: `Existing-${key}`,
+            message: `Cannot set ${key} : ${value} (${key}  is in use)`,
+            });
+        }
+      }
+    }
+
+    if (errors.length > 0) {
+      throw errors;
+    }
+
+    // save all fields
     for (const [key, value] of Object.entries(fields)) {
       unique = (uniqueFieldsNames.includes(key));
       fieldsForUpdate.push(db.updateField(username, key, value, unique));

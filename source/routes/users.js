@@ -164,11 +164,14 @@ module.exports = function (app: express$Application) {
       let username = body.user.username;
       delete body.user.username;
       try {
-        await users.updateFields(username, fieldsForUpdate, body.unique);
+        await users.updateFields(username, body.user, body.unique);
         // dummy succesful response for the system call
         res.status(200).json({user: true});
-      } catch (error) {
-        next(error);
+      } catch (errors) {
+        if (typeof errors === 'object') {
+          return res.status(400).json({ user: false, errors: errors });
+        }
+        next(errors);
       }
   });
 
@@ -290,7 +293,7 @@ module.exports = function (app: express$Application) {
 
           // manually remove username from the unique list because other rules could be applied to it
           // check if each field is unique
-          for (const [key, value] of Object.entries(uniqueFields)){
+          for (const [key, value] of Object.entries(uniqueFields)) {
             const unique = await db.isFieldUnique(key, value);
             if(! unique){
               errors.push('Existing-' + key);
