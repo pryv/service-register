@@ -288,15 +288,17 @@ module.exports = function (app: express$Application) {
           // 3. Check if Uid already exists
           const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
           if (uidExists === true) {
-            errors.push('Existing-username');
+            errors.push('Existing_username');
           }
 
           // manually remove username from the unique list because other rules could be applied to it
           // check if each field is unique
+          // just in case username is here, remove it , because it was already checked
+          delete uniqueFields.username;
           for (const [key, value] of Object.entries(uniqueFields)) {
             const unique = await db.isFieldUnique(key, value);
             if(! unique){
-              errors.push('Existing-' + key);
+              errors.push('Existing_' + key);
             }
           }
         }

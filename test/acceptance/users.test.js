@@ -832,8 +832,8 @@ describe('User Management', () => {
             assert.isTrue(false);
           } catch (e) {
             assert.equal(e.status, 400);
-            assert.include(e.response.body.errors, 'Existing-username');
-            assert.include(e.response.body.errors, 'Existing-email');
+            assert.include(e.response.body.errors, 'Existing_username');
+            assert.include(e.response.body.errors, 'Existing_email');
             assert.equal(e.response.body.errors.length, 2);
           }
         });
@@ -886,7 +886,7 @@ describe('User Management', () => {
           } catch (err) {
             assert.equal(err.response.status, 400);
             assert.equal(err.response.body.reservation, false);
-            assert.include(err.response.body.errors, 'Existing-RandomField');
+            assert.include(err.response.body.errors, 'Existing_RandomField');
           }
         });
 
@@ -1287,7 +1287,7 @@ describe('User Management', () => {
           assert.equal(e.status, 400);
           assert.equal(e.response.body.errors.length, 1);
           assert.equal(e.response.body.user, false);
-          assert.equal(e.response.body.errors[0].id, 'Existing-email');
+          assert.equal(e.response.body.errors[0].id, 'Existing_email');
           assert.exists(e.response.body.errors[0].message);
         }
       });
@@ -1320,7 +1320,7 @@ describe('User Management', () => {
           assert.equal(e.status, 400);
           assert.equal(e.response.body.errors.length, 1);
           assert.equal(e.response.body.user, false);
-          assert.equal(e.response.body.errors[0].id, 'Existing-RandomField');
+          assert.equal(e.response.body.errors[0].id, 'Existing_RandomField');
           assert.exists(e.response.body.errors[0].message);
         }
       });
@@ -1354,8 +1354,8 @@ describe('User Management', () => {
           assert.equal(e.status, 400);
           assert.equal(e.response.body.errors.length, 2);
           assert.equal(e.response.body.user, false);
-          assert.equal(e.response.body.errors[0].id, 'Existing-email');
-          assert.equal(e.response.body.errors[1].id, 'Existing-RandomField');
+          assert.equal(e.response.body.errors[0].id, 'Existing_email');
+          assert.equal(e.response.body.errors[1].id, 'Existing_RandomField');
           assert.exists(e.response.body.errors[0].message);
           assert.exists(e.response.body.errors[1].message);
         }

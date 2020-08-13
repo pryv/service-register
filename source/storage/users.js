@@ -247,7 +247,7 @@ exports.updateFields = async (username: string, fields: object, uniqueFieldsName
         unique = await db.isFieldUniqueForUser(username, key, value);
         if (! unique) {
           errors.push({
-            id: `Existing-${key}`,
+            id: `Existing_${key}`,
             message: `Cannot set ${key} : ${value} (${key}  is in use)`,
             });
         }
