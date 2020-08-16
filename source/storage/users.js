@@ -219,6 +219,13 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
   });
 };
 
+// TODO IEVA - move to global helpers
+const asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array)
+  }
+}
+
 /**
  *
  * Update all fields for the user
@@ -226,7 +233,11 @@ exports.setEmail = function create(username: string, email: string, callback: Ca
  * @param object fields {fieldname: fieldvalue}
  * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
  */
-exports.updateFields = async (username: string, fields: object, uniqueFieldsNames: array<string>) => {
+exports.updateFields = async (
+  username: string,
+  fields: object,
+  fieldsToDelete: object,
+) => {
   // get update action and execute them in parallel
   let fieldsForUpdate = [];
   let errors = [];
@@ -242,16 +253,23 @@ exports.updateFields = async (username: string, fields: object, uniqueFieldsName
     }
 
     // validate all unique fields
-    for (const [key, value] of Object.entries(fields)) {
-      if(uniqueFieldsNames.includes(key)){
-        unique = await db.isFieldUniqueForUser(username, key, value);
-        if (! unique) {
-          errors.push({
-            id: `Existing_${key}`,
-            message: `Cannot set ${key} : ${value} (${key}  is in use)`,
-            });
-        }
+    for (const [key, valuesList] of Object.entries(fields)) {
+      // because each key could have many values, iterate them
+      const checkUniqueness = async () => {
+        await asyncForEach(valuesList, async (valueObject) => {
+          if(valueObject.isUnique == true){
+            unique = await db.isFieldUniqueForUser(username, key, valueObject.value);
+            if (! unique) {
+              errors.push({
+                id: `Existing_${key}`,
+                message: `Cannot set ${key} : ${valueObject.value} (${key}  is in use)`,
+                });
+            }
+          }
+        });
+        //return errors;
       }
+      await checkUniqueness();
     }
 
     if (errors.length > 0) {
@@ -259,13 +277,20 @@ exports.updateFields = async (username: string, fields: object, uniqueFieldsName
     }
 
     // save all fields
-    for (const [key, value] of Object.entries(fields)) {
-      unique = (uniqueFieldsNames.includes(key));
-      fieldsForUpdate.push(db.updateField(username, key, value, unique));
+    for (const [key, valuesList] of Object.entries(fields)) {
+      // because each key could have many values, iterate them
+      valuesList.forEach(valueObject => {
+        fieldsForUpdate.push(db.updateField(username, key, valueObject));
+      });
+    }
+
+    // delete all not needed unique fields
+    for (const [key, value] of Object.entries(fieldsToDelete)) {
+      fieldsForUpdate.push(db.deleteUniqueField(username, key, value));
     }
     await Promise.all(fieldsForUpdate);
   } catch (error) {
-    logger.error(`users#updateFields: e: ${error}`, error);
+    logger.debug(`users#updateFields: e: ${error}`, error);
     throw error;
   }
 };

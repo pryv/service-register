@@ -597,15 +597,23 @@ exports.isFieldUniqueForUser = async function (
 exports.updateField = async function (
   username: string,
   fieldName: string,
-  fieldValue: string,
-  unique: boolean
+  dataObject: object
 ) {
+  let fieldValue = dataObject.value;
+  const unique = dataObject.isUnique;
+  const active = dataObject.isActive;
+  const creation = dataObject.creation;
+
+  // check if anything should be updated
+  if(! unique && !active){
+    return;
+  }
   // TODO IEVA - why everything is converted to lowercase?
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
   
   try {
-    // Update username:users:<fieldname> value if username exists
+    // Get username:users:<fieldname> value if username exists
     const previousValue = await bluebird.fromCallback(cb =>
       redis.hget(ns(username, 'users'), fieldName, cb));
 
@@ -614,15 +622,51 @@ exports.updateField = async function (
     //  do above is not protected / linked to what follows.
               
     const multi = redis.multi();
-    multi.hmset(ns(username, 'users'), fieldName, fieldValue);
+    if(active){
+      multi.hmset(ns(username, 'users'), fieldName, fieldValue);
+    }
 
     // if user field should be unique, save the value as a key separately
     if (unique){
       multi.set(ns(fieldValue, fieldName), username);
       // Remove previous user field value
-      multi.del(ns(previousValue, fieldName));
+      // TODO IEVA validate
+      if(previousValue && ! creation){
+        multi.del(ns(previousValue, fieldName));
+      }
     }
+
     await bluebird.fromCallback(cb => multi.exec(cb));
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Validate that field belongs to the user
+ * and delete it
+ * @param {*} username 
+ * @param {*} fieldName 
+ * @param {*} fieldValue 
+ */
+exports.deleteUniqueField = async function (
+  username: string,
+  fieldName: string,
+  fieldValue: string
+) {
+  fieldValue = fieldValue.toLowerCase();
+  username = username.toLowerCase();
+
+  try {
+    // Get username:users:<fieldname> value if username exists
+    const previousValue = await bluebird.fromCallback(cb =>
+      redis.get(ns(fieldValue, fieldName), cb));
+
+    // if user field should be unique, save the value as a key separately
+    if (previousValue === username) {
+      // Remove unique value
+      await bluebird.fromCallback(cb => redis.del(ns(fieldValue, fieldName), cb));
+    }
   } catch (error) {
     throw error;
   }

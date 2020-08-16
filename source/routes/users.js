@@ -164,7 +164,8 @@ module.exports = function (app: express$Application) {
       let username = body.user.username;
       delete body.user.username;
       try {
-        await users.updateFields(username, body.user, body.unique);
+        const fieldsToDelete = (body.fieldsToDelete) ? body.fieldsToDelete : {};
+        await users.updateFields(username, body.user, fieldsToDelete);
         // dummy succesful response for the system call
         res.status(200).json({user: true});
       } catch (errors) {

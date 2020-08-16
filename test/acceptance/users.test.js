@@ -47,12 +47,33 @@ function defaults() {
 }
 
 function defaultsForSystemRegistration () {
-  const randomFieldValue = randomuser();
-
-  return {
+   const randomFieldValue = randomuser();
+   return {
     user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
     unique: ['email', 'RandomField'],
     host: { name: 'some-host' }
+  }
+}
+
+function defaultsForSystemDataUpdate () {
+  const randomFieldValue = randomuser();
+
+  return {
+    user:{
+      username: randomuser(),
+      email: [{
+        value: randomuser() + '@wactiv.chx',
+        isUnique: true,
+        isActive: true,
+      }],
+      RandomField: [{
+       value: randomFieldValue,
+       isUnique: true,
+       isActive: true,
+      }]
+    },
+    fieldsToInsert: [],
+    fieldsToDelete: [],
   };
 }
 
@@ -816,7 +837,7 @@ describe('User Management', () => {
           config.set('invitationTokens', defaultConfigInvitationTokens);
         });
 
-        it('username, email fails and invitation token is ok', async () => {
+        it('Fails when invitation token is ok, but username, email fails', async () => {
           const testData = {
             username: 'wactiv',
             invitationtoken: 'second',
@@ -927,8 +948,29 @@ describe('User Management', () => {
           assert.exists(storedReservation[2].time);
         });
       });
-    
-      it('username is reserved', async () => {
+
+      it('[F1B0] Fails when invitation token is not provided', async () => {
+        const testData = {
+          username: 'wactiv',
+          uniqueFields: {
+            email: 'wactiv@pryv.io',
+          }
+        }
+
+        try {
+          await request.post(server.url + path)
+            .send(testData)
+            .set('Authorization', defaultAuth);
+          assert.isTrue(false);
+        } catch (e) {
+          assert.equal(e.status, 400);
+          assert.include(e.response.body.errors, 'Existing_username');
+          assert.include(e.response.body.errors, 'Existing_email');
+          assert.equal(e.response.body.errors.length, 2);
+        }
+      });
+
+      it('Fail if username is reserved', async () => {
         const testData = {
           username: 'pryvwa',
           invitationtoken: null,
@@ -948,7 +990,7 @@ describe('User Management', () => {
       });
     });
     describe('Reservation', () => {
-      it('Reservation fails if reservation is made for username', async () => {
+      it('Reservation for email fails when done from different core in 10 minutes', async () => {
         const userTestData1 = _.extend({}, defaults());
         const userTestData2 = _.extend({}, defaults());
         const testData1 = {
@@ -980,7 +1022,7 @@ describe('User Management', () => {
         }
       });
 
-      it('Reservation fails if reservation is made for additional unique field', async () => {
+      it('Reservation for additional field fails when done from different core in 10 minutes', async () => {
         const userTestData1 = _.extend({}, defaults());
         const userTestData2 = _.extend({}, defaults());
         const randomFieldValue = randomuser();
@@ -1046,7 +1088,7 @@ describe('User Management', () => {
         }
       });
 
-      it('Get successful response when trying to reserve user registrationIndexedValues from the save server in 10 minutes', async () => {
+      it('Success when reservation is made from the same server in 10 minutes', async () => {
         const userTestData = _.extend({}, defaults());
         const testData = {
           username: userTestData.username,
@@ -1132,7 +1174,7 @@ describe('User Management', () => {
       }
     });
 
-    describe('Successful system registration', async () => {
+    describe('Successful system registration with additional properties', async () => {
       const randomFieldValue = randomuser();
       let userRegistrationData = {
         user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
@@ -1152,6 +1194,10 @@ describe('User Management', () => {
           console.log(e,'e');
           assert.equal(false, true);
         }
+      });
+
+      it('All fields were saved in <username>:users', async () => {
+        // TODO IEVA
       });
 
       it('Unique fields were saved in redis database', async () => {
@@ -1259,19 +1305,19 @@ describe('User Management', () => {
 
     describe('Unique fields validation', async () => {
 
-      it('Fail if email is not unique', async () => {
+      it('[AFD5] Fail if email is not unique', async () => {
         try {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+
           let userRegistrationData1 = defaultsForSystemRegistration();
+          userRegistrationData1.user.username = userDataUpdate.user.username;
 
           let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.email = userRegistrationData1.user.email;
-
-          let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userRegistrationData1.user.username;
+          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
 
           // seed initial user
           await request.post(server.url + path)
-            .send(userRegistrationData3)
+            .send(userRegistrationData1)
             .set('Authorization', defaultAuth);
 
           // seed the user that will have the same email and random field
@@ -1280,10 +1326,10 @@ describe('User Management', () => {
             .set('Authorization', defaultAuth);
 
           await request.put(server.url + path).set('Authorization', defaultAuth)
-            .send(userRegistrationData1);
+            .send(userDataUpdate);
           assert.equal(false, true);
         } catch (e) {
-          console.log(e.response.body, 'e');
+          console.log(e, 'e');
           assert.equal(e.status, 400);
           assert.equal(e.response.body.errors.length, 1);
           assert.equal(e.response.body.user, false);
@@ -1292,15 +1338,15 @@ describe('User Management', () => {
         }
       });
 
-      it('Fail if additional field is not unique', async () => {
+      it('[E987] Fail if additional field is not unique', async () => {
         try {
-          let userRegistrationData1 = defaultsForSystemRegistration();
+          let userDataUpdate = defaultsForSystemDataUpdate();
 
           let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.RandomField = userRegistrationData1.user.RandomField;
+          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
 
           let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userRegistrationData1.user.username;
+          userRegistrationData3.user.username = userDataUpdate.user.username;
 
           // seed initial user
           await request.post(server.url + path)
@@ -1313,10 +1359,10 @@ describe('User Management', () => {
             .set('Authorization', defaultAuth);
 
           await request.put(server.url + path).set('Authorization', defaultAuth)
-            .send(userRegistrationData1);
+            .send(userDataUpdate);
           assert.equal(false, true);
         } catch (e) {
-          console.log(e.response.body, 'e');
+          console.log(e, 'e');
           assert.equal(e.status, 400);
           assert.equal(e.response.body.errors.length, 1);
           assert.equal(e.response.body.user, false);
@@ -1325,16 +1371,16 @@ describe('User Management', () => {
         }
       });
 
-      it('Fail with nested error if several fields are not unique', async () => {
+      it('[7740] Fail with nested error if several fields are not unique', async () => {
         try {
-          let userRegistrationData1 = defaultsForSystemRegistration();
+          let userDataUpdate = defaultsForSystemDataUpdate();
 
           let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.email = userRegistrationData1.user.email;
-          userRegistrationData2.user.RandomField = userRegistrationData1.user.RandomField;
+          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
+          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
 
           let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userRegistrationData1.user.username;
+          userRegistrationData3.user.username = userDataUpdate.user.username;
 
           // seed initial user
           await request.post(server.url + path)
@@ -1347,10 +1393,10 @@ describe('User Management', () => {
             .set('Authorization', defaultAuth);
 
           await request.put(server.url + path).set('Authorization', defaultAuth)
-            .send(userRegistrationData1);
+            .send(userDataUpdate);
           assert.equal(false, true);
         } catch (e) {
-          console.log(e.response.body, 'e');
+          console.log(e, 'e');
           assert.equal(e.status, 400);
           assert.equal(e.response.body.errors.length, 2);
           assert.equal(e.response.body.user, false);
@@ -1362,45 +1408,43 @@ describe('User Management', () => {
       });
     });
 
-    describe('[ieva] Update user information', async () => {
+    describe('[CAD9] Update user information', async () => {
       let userRegistrationData1 = defaultsForSystemRegistration();
-      let userRegistrationData2 = defaultsForSystemRegistration();
-      userRegistrationData2.user.username = userRegistrationData1.user.username;
+      let userDataUpdate = defaultsForSystemDataUpdate();
+      userDataUpdate.user.username = userRegistrationData1.user.username;
 
-      it('Succeed updating fields when all fields are unique', async () => {
+      it('[DAE0] Succeed updating fields when all fields are unique', async () => {
         // seed initial user
         await request.post(server.url + path)
           .send(userRegistrationData1)
           .set('Authorization', defaultAuth);
 
         const response = await request.put(server.url + path).set('Authorization', defaultAuth)
-          .send(userRegistrationData2);
+          .send(userDataUpdate);
         assert.equal(response.status, 200);
         assert.equal(response.body.user, true);
       });
 
-      it(' Succeed updating username:users information', async () => {
+      it('[AB25] Succeed updating username:users information', async () => {
         const userInfo = await bluebird.fromCallback(cb =>
           db.getSet(`${userRegistrationData1.user.username}:users`, cb));
-        for (const [key, value] of Object.entries(userRegistrationData2.user)){
-          assert.equal(value, userInfo[key]);
-        }
+          assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
+          assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
       });
 
-      it('Succeed updating unique fields information', async () => {
+      it('[0C62] Succeed updating unique fields information', async () => {
         const oldEmail = await bluebird.fromCallback(cb =>
           db.get(`${userRegistrationData1.user.email}:email`, cb));
         const uniqueEmail = await bluebird.fromCallback(cb =>
-          db.get(`${userRegistrationData2.user.email}:email`, cb));
-        console.log(oldEmail,'oldEmail',uniqueEmail, 'uniqueEmail');
+          db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
         const oldRandomField = await bluebird.fromCallback(cb =>
           db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
         const uniqueRandomField = await bluebird.fromCallback(cb =>
-          db.get(`${userRegistrationData2.user.RandomField}:RandomField`, cb));
+          db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
         assert.equal(oldEmail, null);
         assert.equal(oldRandomField, null);
-        assert.equal(uniqueEmail, userRegistrationData2.user.username);
-        assert.equal(uniqueRandomField, userRegistrationData2.user.username);
+        assert.equal(uniqueEmail, userDataUpdate.user.username);
+        assert.equal(uniqueRandomField, userDataUpdate.user.username);
       });
     });
   });
