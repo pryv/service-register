@@ -267,7 +267,6 @@ exports.updateFields = async (
             }
           }
         });
-        //return errors;
       }
       await checkUniqueness();
     }

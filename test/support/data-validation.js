@@ -145,7 +145,6 @@ function validateJSONSchema(responseData, jsonSchema) {
  * helper that test the content of a JSON structure
  **/
 function validateJsonValues(tests, data_json) {
-
   for (var key in tests) {
     if (tests.hasOwnProperty(key)) {
       var test = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??

@@ -608,7 +608,6 @@ exports.updateField = async function (
   if(! unique && !active){
     return;
   }
-  // TODO IEVA - why everything is converted to lowercase?
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
   
@@ -617,7 +616,7 @@ exports.updateField = async function (
     const previousValue = await bluebird.fromCallback(cb =>
       redis.hget(ns(username, 'users'), fieldName, cb));
 
-    // BUG Race condition: If two requests enter here at the same time, the
+    // Race condition: If two requests enter here at the same time, the
     //  last one to enter will win, writing the values. The verification we
     //  do above is not protected / linked to what follows.
               
@@ -630,7 +629,6 @@ exports.updateField = async function (
     if (unique){
       multi.set(ns(fieldValue, fieldName), username);
       // Remove previous user field value
-      // TODO IEVA validate
       if(previousValue && ! creation){
         multi.del(ns(previousValue, fieldName));
       }
