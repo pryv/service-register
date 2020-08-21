@@ -637,6 +637,8 @@ exports.updateField = async function (
     }
 
     await bluebird.fromCallback(cb => multi.exec(cb));
+    // TODO, better to return true only after checking the response from the redis
+    return true;
   } catch (error) {
     throw error;
   }
@@ -667,6 +669,7 @@ exports.deleteUniqueField = async function (
       // Remove unique value
       await bluebird.fromCallback(cb => redis.del(ns(fieldValue, fieldName), cb));
     }
+    return true;
   } catch (error) {
     throw error;
   }

@@ -65,15 +65,16 @@ function defaultsForSystemDataUpdate () {
         value: randomuser() + '@wactiv.chx',
         isUnique: true,
         isActive: true,
+        creation: false
       }],
       RandomField: [{
        value: randomFieldValue,
        isUnique: true,
        isActive: true,
+       creation: false
       }]
     },
-    fieldsToInsert: [],
-    fieldsToDelete: [],
+    fieldsToDelete: {},
   };
 }
 
@@ -824,8 +825,8 @@ describe('User Management', () => {
       }
     });
 
-    describe('Sequence of validations', () => {
-      describe('Invitation token is required', () => {
+    describe('When not valid input is provided', () => {
+      describe('When invitation token is required', () => {
         let defaultConfigInvitationTokens;
 
         before(function () {
@@ -837,7 +838,27 @@ describe('User Management', () => {
           config.set('invitationTokens', defaultConfigInvitationTokens);
         });
 
-        it('Fails when invitation token is ok, but username, email fails', async () => {
+        it('Fails when invitation token is not provided', async () => {
+          const testData = {
+            username: 'wactiv',
+            uniqueFields: {
+              email: 'wactiv@pryv.io',
+            }
+          }
+
+          try {
+            await request.post(server.url + path)
+              .send(testData)
+              .set('Authorization', defaultAuth);
+            assert.isTrue(false);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.errors, 'InvalidInvitationToken');
+            assert.equal(e.response.body.errors.length, 1);
+          }
+        });
+
+        it('Fails when invitation token is ok, but username, email are not unique', async () => {
           const testData = {
             username: 'wactiv',
             invitationtoken: 'second',
@@ -911,6 +932,39 @@ describe('User Management', () => {
           }
         });
 
+        it('[ieva] Successfully validate ONLY username and invitation token when email is not provided', async () => {
+          const userTestData = _.extend({}, defaults());
+          const randomFieldValue = randomuser();
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: 'first',
+            uniqueFields: {
+              RandomField: randomFieldValue
+            },
+            core: 'testing_core1'
+          }
+          try {
+            const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+            assert.equal(res.status, 200);
+            assert.equal(res.body.reservation, true);
+          } catch (err) {
+            (false).equal(true);
+          }
+
+          // check the reservation in the database
+          const storedReservation = await db.getReservations({
+            email: userTestData.email,
+            username: userTestData.username,
+            RandomField: randomFieldValue
+          });
+          assert.equal(storedReservation.length, 2);
+          assert.equal(storedReservation[0].core, testData.core);
+          assert.exists(storedReservation[0].time);
+
+          assert.equal(storedReservation[1].core, testData.core);
+          assert.exists(storedReservation[1].time);
+        });
+
         it('Successfully validate username, email and invitation token and reserve the unique values', async () => {
           const userTestData = _.extend({}, defaults());
           const randomFieldValue = randomuser();
@@ -947,27 +1001,7 @@ describe('User Management', () => {
           assert.equal(storedReservation[2].core, testData.core);
           assert.exists(storedReservation[2].time);
         });
-      });
 
-      it('[F1B0] Fails when invitation token is not provided', async () => {
-        const testData = {
-          username: 'wactiv',
-          uniqueFields: {
-            email: 'wactiv@pryv.io',
-          }
-        }
-
-        try {
-          await request.post(server.url + path)
-            .send(testData)
-            .set('Authorization', defaultAuth);
-          assert.isTrue(false);
-        } catch (e) {
-          assert.equal(e.status, 400);
-          assert.include(e.response.body.errors, 'Existing_username');
-          assert.include(e.response.body.errors, 'Existing_email');
-          assert.equal(e.response.body.errors.length, 2);
-        }
       });
 
       it('Fail if username is reserved', async () => {
@@ -1303,148 +1337,286 @@ describe('User Management', () => {
       }
     });
 
-    describe('Unique fields validation', async () => {
+    describe('[CUI9] When fields for update are provided', async () => {
+      describe('When not valid input is provided', async () => {
 
-      it('[AFD5] Fail if email is not unique', async () => {
-        try {
-          let userDataUpdate = defaultsForSystemDataUpdate();
+        it('[AFD5] Fail if email is not unique', async () => {
+          try {
+            let userDataUpdate = defaultsForSystemDataUpdate();
 
-          let userRegistrationData1 = defaultsForSystemRegistration();
-          userRegistrationData1.user.username = userDataUpdate.user.username;
+            let userRegistrationData1 = defaultsForSystemRegistration();
+            userRegistrationData1.user.username = userDataUpdate.user.username;
 
-          let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
+            let userRegistrationData2 = defaultsForSystemRegistration();
+            userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
 
-          // seed initial user
-          await request.post(server.url + path)
-            .send(userRegistrationData1)
-            .set('Authorization', defaultAuth);
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData1)
+              .set('Authorization', defaultAuth);
 
-          // seed the user that will have the same email and random field
-          await request.post(server.url + path)
-            .send(userRegistrationData2)
-            .set('Authorization', defaultAuth);
+            // seed the user that will have the same email and random field
+            await request.post(server.url + path)
+              .send(userRegistrationData2)
+              .set('Authorization', defaultAuth);
 
-          await request.put(server.url + path).set('Authorization', defaultAuth)
-            .send(userDataUpdate);
-          assert.equal(false, true);
-        } catch (e) {
-          console.log(e, 'e');
-          assert.equal(e.status, 400);
-          assert.equal(e.response.body.errors.length, 1);
-          assert.equal(e.response.body.user, false);
-          assert.equal(e.response.body.errors[0].id, 'Existing_email');
-          assert.exists(e.response.body.errors[0].message);
-        }
+            await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+            assert.equal(false, true);
+          } catch (e) {
+            console.log(e, 'e');
+            assert.equal(e.status, 400);
+            assert.equal(e.response.body.errors.length, 1);
+            assert.equal(e.response.body.user, false);
+            assert.equal(e.response.body.errors[0].id, 'Existing_email');
+            assert.exists(e.response.body.errors[0].message);
+          }
+        });
+
+        it('[E987] Fail if additional field is not unique', async () => {
+          try {
+            let userDataUpdate = defaultsForSystemDataUpdate();
+
+            let userRegistrationData2 = defaultsForSystemRegistration();
+            userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+
+            let userRegistrationData3 = defaultsForSystemRegistration();
+            userRegistrationData3.user.username = userDataUpdate.user.username;
+
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData3)
+              .set('Authorization', defaultAuth);
+
+            // seed the user that will have the same email and random field
+            await request.post(server.url + path)
+              .send(userRegistrationData2)
+              .set('Authorization', defaultAuth);
+
+            await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+            assert.equal(false, true);
+          } catch (e) {
+            console.log(e, 'e');
+            assert.equal(e.status, 400);
+            assert.equal(e.response.body.errors.length, 1);
+            assert.equal(e.response.body.user, false);
+            assert.equal(e.response.body.errors[0].id, 'Existing_RandomField');
+            assert.exists(e.response.body.errors[0].message);
+          }
+        });
+
+        it('[7740] Fail with nested error if several fields are not unique', async () => {
+          try {
+            let userDataUpdate = defaultsForSystemDataUpdate();
+
+            let userRegistrationData2 = defaultsForSystemRegistration();
+            userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
+            userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+
+            let userRegistrationData3 = defaultsForSystemRegistration();
+            userRegistrationData3.user.username = userDataUpdate.user.username;
+
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData3)
+              .set('Authorization', defaultAuth);
+
+            // seed the user that will have the same email and random field
+            await request.post(server.url + path)
+              .send(userRegistrationData2)
+              .set('Authorization', defaultAuth);
+
+            await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+            assert.equal(false, true);
+          } catch (e) {
+            console.log(e, 'e');
+            assert.equal(e.status, 400);
+            assert.equal(e.response.body.errors.length, 2);
+            assert.equal(e.response.body.user, false);
+            assert.equal(e.response.body.errors[0].id, 'Existing_email');
+            assert.equal(e.response.body.errors[1].id, 'Existing_RandomField');
+            assert.exists(e.response.body.errors[0].message);
+            assert.exists(e.response.body.errors[1].message);
+          }
+        });
       });
 
-      it('[E987] Fail if additional field is not unique', async () => {
-        try {
-          let userDataUpdate = defaultsForSystemDataUpdate();
+      describe('[CAD9] When valid input is provided', async () => {
+        describe('When fields have property “creation” set to false', async () => {
+          let response;
+          let userRegistrationData1;
+          let userDataUpdate;
 
-          let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+          before(async function () {
+            userRegistrationData1 = defaultsForSystemRegistration();
+            userDataUpdate = defaultsForSystemDataUpdate();
+            userDataUpdate.user.username = userRegistrationData1.user.username;
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData1)
+              .set('Authorization', defaultAuth);
 
-          let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userDataUpdate.user.username;
+            response = await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+          });
+          it('[DAE0] Response is successful when all fields are unique', async () => {
+            assert.equal(response.status, 200);
+            assert.equal(response.body.user, true);
+          });
+          it('[AB25] Succeed updating username:users information', async () => {
+            const userInfo = await bluebird.fromCallback(cb =>
+              db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+              assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
+              assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
+          });
+          it('[0C62] Succeed updating unique fields information', async () => {
+            const oldEmail = await bluebird.fromCallback(cb =>
+              db.get(`${userRegistrationData1.user.email}:email`, cb));
+            const uniqueEmail = await bluebird.fromCallback(cb =>
+              db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
+            const oldRandomField = await bluebird.fromCallback(cb =>
+              db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
+            const uniqueRandomField = await bluebird.fromCallback(cb =>
+              db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
+            assert.equal(oldEmail, null);
+            assert.equal(oldRandomField, null);
+            assert.equal(uniqueEmail, userDataUpdate.user.username);
+            assert.equal(uniqueRandomField, userDataUpdate.user.username);
+          });
+        });
+        describe('[637G] When fields have property “creation” set to true', async () => {
+          let response;
+          let userRegistrationData1;
+          let userDataUpdate;
 
-          // seed initial user
-          await request.post(server.url + path)
-            .send(userRegistrationData3)
-            .set('Authorization', defaultAuth);
+          before(async function () {
+            userRegistrationData1 = defaultsForSystemRegistration();
+            userDataUpdate = defaultsForSystemDataUpdate();
+            userDataUpdate.user.username = userRegistrationData1.user.username;
+            userDataUpdate.user.email[0].creation = true;
+            userDataUpdate.user.RandomField[0].creation = true;
 
-          // seed the user that will have the same email and random field
-          await request.post(server.url + path)
-            .send(userRegistrationData2)
-            .set('Authorization', defaultAuth);
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData1)
+              .set('Authorization', defaultAuth);
 
-          await request.put(server.url + path).set('Authorization', defaultAuth)
-            .send(userDataUpdate);
-          assert.equal(false, true);
-        } catch (e) {
-          console.log(e, 'e');
-          assert.equal(e.status, 400);
-          assert.equal(e.response.body.errors.length, 1);
-          assert.equal(e.response.body.user, false);
-          assert.equal(e.response.body.errors[0].id, 'Existing_RandomField');
-          assert.exists(e.response.body.errors[0].message);
-        }
+            response = await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+          });
+          it('Should return status 200', async () => {
+            assert.equal(response.status, 200);
+            assert.equal(response.body.user, true);
+          });
+          it('Should update username:users information', async () => {
+            const userInfo = await bluebird.fromCallback(cb =>
+              db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+              assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
+              assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
+          });
+          it('Old unique field should be not modified', async () => {
+            const oldEmail = await bluebird.fromCallback(cb =>
+              db.get(`${userRegistrationData1.user.email}:email`, cb));
+            const oldRandomField = await bluebird.fromCallback(cb =>
+              db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
+            assert.equal(oldEmail, userRegistrationData1.user.username);
+            assert.equal(oldRandomField, userRegistrationData1.user.username);
+          });
+          it('New unique field should be created', async () => {
+            const uniqueEmail = await bluebird.fromCallback(cb =>
+              db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
+            const uniqueRandomField = await bluebird.fromCallback(cb =>
+              db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
+            assert.equal(uniqueEmail, userDataUpdate.user.username);
+            assert.equal(uniqueRandomField, userDataUpdate.user.username);
+          });
+        });
       });
+      describe('When field "fieldsToDelete" are provided', async () => {
+        describe('[2T6H] When not valid input is provided', async () => {
+          describe('When username is provided for the deletion', async () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate;
 
-      it('[7740] Fail with nested error if several fields are not unique', async () => {
-        try {
-          let userDataUpdate = defaultsForSystemDataUpdate();
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              userDataUpdate = {
+                user: { username: userRegistrationData1.user.username, },
+                fieldsToDelete: {
+                  username: userRegistrationData1.user.username
+                }
+              };
+              console.log('userRegistrationData1', userDataUpdate, 'userDataUpdate');
+              // seed initial user
+              try{
+                await request.post(server.url + path)
+                  .send(userRegistrationData1)
+                  .set('Authorization', defaultAuth);
 
-          let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
-          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+                response = await request.put(server.url + path).set('Authorization', defaultAuth)
+                  .send(userDataUpdate);
+              } catch (err) {
+                response = err.response;
+              }
+            });
+            it('Response is successful when all fields are unique', async () => {
+              assert.equal(response.status, 400);
+              assert.equal(response.body.user, false);
+            });
+            it('Information in username:users should not be changed', async () => {
+              const userInfo = await bluebird.fromCallback(cb =>
+                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+              assert.equal(userRegistrationData1.user.email, userInfo['email']);
+            });
+          });
+        });
+        describe('[MML3] When valid input is provided', async () => {
+          let response;
+          let userRegistrationData1;
+          let userDataUpdate;
 
-          let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userDataUpdate.user.username;
+          before(async function () {
+            userRegistrationData1 = defaultsForSystemRegistration();
+            userDataUpdate = {
+              user: { username: userRegistrationData1.user.username, },
+              fieldsToDelete: {
+                email: userRegistrationData1.user.email,
+                RandomField: userRegistrationData1.user.RandomField
+              }
+            };
+            console.log('userRegistrationData1', userDataUpdate,'userDataUpdate');
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData1)
+              .set('Authorization', defaultAuth);
 
-          // seed initial user
-          await request.post(server.url + path)
-            .send(userRegistrationData3)
-            .set('Authorization', defaultAuth);
-          
-          // seed the user that will have the same email and random field
-          await request.post(server.url + path)
-            .send(userRegistrationData2)
-            .set('Authorization', defaultAuth);
+            response = await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+          });
+          it('[DAE0] Response is successful when all fields are unique', async () => {
+            assert.equal(response.status, 200);
+            assert.equal(response.body.user, true);
+          });
+          it('[AB25] Information in username:users is not changed', async () => {
+            const userInfo = await bluebird.fromCallback(cb =>
+              db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+            assert.equal(userRegistrationData1.user.email, userInfo['email']);
+            assert.equal(userRegistrationData1.user.RandomField, userInfo['RandomField']);
+          });
 
-          await request.put(server.url + path).set('Authorization', defaultAuth)
-            .send(userDataUpdate);
-          assert.equal(false, true);
-        } catch (e) {
-          console.log(e, 'e');
-          assert.equal(e.status, 400);
-          assert.equal(e.response.body.errors.length, 2);
-          assert.equal(e.response.body.user, false);
-          assert.equal(e.response.body.errors[0].id, 'Existing_email');
-          assert.equal(e.response.body.errors[1].id, 'Existing_RandomField');
-          assert.exists(e.response.body.errors[0].message);
-          assert.exists(e.response.body.errors[1].message);
-        }
-      });
-    });
+          it('[0C62] Succeed deleting unique fields information', async () => {
+            const uniqueEmailField = await bluebird.fromCallback(cb =>
+              db.get(`${userRegistrationData1.user.email}:email`, cb));
 
-    describe('[CAD9] Update user information', async () => {
-      let userRegistrationData1 = defaultsForSystemRegistration();
-      let userDataUpdate = defaultsForSystemDataUpdate();
-      userDataUpdate.user.username = userRegistrationData1.user.username;
-
-      it('[DAE0] Succeed updating fields when all fields are unique', async () => {
-        // seed initial user
-        await request.post(server.url + path)
-          .send(userRegistrationData1)
-          .set('Authorization', defaultAuth);
-
-        const response = await request.put(server.url + path).set('Authorization', defaultAuth)
-          .send(userDataUpdate);
-        assert.equal(response.status, 200);
-        assert.equal(response.body.user, true);
-      });
-
-      it('[AB25] Succeed updating username:users information', async () => {
-        const userInfo = await bluebird.fromCallback(cb =>
-          db.getSet(`${userRegistrationData1.user.username}:users`, cb));
-          assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
-          assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
-      });
-
-      it('[0C62] Succeed updating unique fields information', async () => {
-        const oldEmail = await bluebird.fromCallback(cb =>
-          db.get(`${userRegistrationData1.user.email}:email`, cb));
-        const uniqueEmail = await bluebird.fromCallback(cb =>
-          db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
-        const oldRandomField = await bluebird.fromCallback(cb =>
-          db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
-        const uniqueRandomField = await bluebird.fromCallback(cb =>
-          db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
-        assert.equal(oldEmail, null);
-        assert.equal(oldRandomField, null);
-        assert.equal(uniqueEmail, userDataUpdate.user.username);
-        assert.equal(uniqueRandomField, userDataUpdate.user.username);
+            const uniqueRandomField = await bluebird.fromCallback(cb =>
+              db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
+            assert.equal(uniqueEmailField, null);
+            assert.equal(uniqueRandomField, null);
+          });
+        });
       });
     });
   });

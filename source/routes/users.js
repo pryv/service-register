@@ -160,14 +160,21 @@ module.exports = function (app: express$Application) {
     async (req: express$Request, res, next) => {
       // FLOW Assume body has this type.
       let body = req.body;
-      // Update each field except for the username
+      // Allow update and delete for all fields except for username
       let username = body.user.username;
       delete body.user.username;
+
+      let fieldsToDelete = (body.fieldsToDelete) ? body.fieldsToDelete : {};
+      delete fieldsToDelete.username;
       try {
-        const fieldsToDelete = (body.fieldsToDelete) ? body.fieldsToDelete : {};
-        await users.updateFields(username, body.user, fieldsToDelete);
+        const response = await users.updateFields(username, body.user, fieldsToDelete);
+
         // dummy succesful response for the system call
-        res.status(200).json({user: true});
+        if (response === false) {
+          res.status(400).json({ user: false });
+        } else {
+          res.status(200).json({ user: true });
+        }
       } catch (errors) {
         if (typeof errors === 'object') {
           return res.status(400).json({ user: false, errors: errors });

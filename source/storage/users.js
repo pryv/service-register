@@ -288,7 +288,13 @@ exports.updateFields = async (
     for (const [key, value] of Object.entries(fieldsToDelete)) {
       fieldsForUpdate.push(db.deleteUniqueField(username, key, value));
     }
-    await Promise.all(fieldsForUpdate);
+    const response = await Promise.all(fieldsForUpdate);
+
+    if (response.length === 0) {
+      return false;
+    } else {
+      return true;
+    }
   } catch (error) {
     logger.debug(`users#updateFields: e: ${error}`, error);
     throw error;
