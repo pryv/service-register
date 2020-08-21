@@ -1034,7 +1034,7 @@ describe('User Management', () => {
             email: userTestData1.email,
           },
           core: 'testing_core3'
-        }
+        };
         const testData2 = _.extend({}, testData1, {
           core: 'testing_core_not_3',
           uniqueFields: {

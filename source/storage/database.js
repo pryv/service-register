@@ -884,7 +884,7 @@ exports.getReservations = getReservations;
  * @param String core 
  * @param Timestamp time
  */
-async function setReservations(uniqueFields: object, core: string, time: integer) {
+async function setReservations(uniqueFields: object, core: string, time: number) {
 
   const multi = redis.multi();
   try{
@@ -892,8 +892,8 @@ async function setReservations(uniqueFields: object, core: string, time: integer
       //key = key.toLowerCase();
       //value = value.toLowerCase();
       multi.hmset(ns(key + '-reservations', value), {
-        "core": core,
-        "time": time
+        core: core,
+        time: time
       });
     }
     await bluebird.fromCallback(cb => multi.exec(cb));
