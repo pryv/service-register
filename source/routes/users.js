@@ -260,7 +260,7 @@ module.exports = function (app: express$Application) {
       if (!email) {
         return next(new messages.REGError(400, {
           id: 'INVALID_EMAIL',
-          message: `"${body.email}" is not a valid e-mail address`,
+          message: `${body.email} is not a valid e-mail address`,
         }));
       }
 
@@ -314,18 +314,18 @@ module.exports = function (app: express$Application) {
         }
 
         if (error) {
-          return res.status(400).json({ "reservation": false, "error": error });
+          return res.status(400).json({ reservation: false, error: error });
         }else{
           // if there are no validation errors, do the reservation for the core
           // username should always be unique, so lets add it to unique Fields
           uniqueFields.username = body.username;
           const result = await users.createUserReservation(uniqueFields, body.core);
           if(result === true){
-            return res.status(200).json({ "reservation": true });
+            return res.status(200).json({ reservation: true });
           }else {
             error = uniquenessErrorStructure;
             error.data[result] = uniqueFields[result];
-            return res.status(400).json({ "reservation": false, "error": ['Existing_' + result] });
+            return res.status(400).json({ reservation: false, error: ['Existing_' + result] });
           }
         }
       } catch (err) { return next(err); }
