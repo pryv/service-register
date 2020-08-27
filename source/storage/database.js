@@ -864,6 +864,7 @@ async function getReservations(uniqueFields: object) {
     for(let [key, value] of Object.entries(uniqueFields)){
       result = await bluebird.fromCallback(cb => getSet(ns(key + '-reservations', value), cb));
       if (result) {
+        result['field'] = key;
         results.push(result);
       }
     }

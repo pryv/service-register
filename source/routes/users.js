@@ -19,6 +19,7 @@ const dataservers = require('../business/dataservers');
 const reservedWords = require('../storage/reserved-userid');
 // START - CLEAN FOR OPENSOURCE
 const invitationToken = require('../storage/invitations');
+const ErrorIds = require('../utils/errors-ids');
 // END - CLEAN FOR OPENSOURCE
 
 /**
@@ -26,6 +27,10 @@ const invitationToken = require('../storage/invitations');
  * @param app
  */
 module.exports = function (app: express$Application) {
+  const uniquenessErrorTemplate = {
+        id: ErrorIds.ItemAlreadyExists,
+        data: {}
+      };
   // POST /user: create a new user
   app.post('/user', (req: express$Request, res, next) => {
     // FLOW Assume body has this type.
@@ -169,7 +174,7 @@ module.exports = function (app: express$Application) {
       try {
         const response = await users.updateFields(username, body.user, fieldsToDelete);
 
-        // dummy succesful response for the system call
+        // dummy successful response for the system call
         if (response === false) {
           res.status(400).json({ user: false });
         } else {
@@ -177,7 +182,7 @@ module.exports = function (app: express$Application) {
         }
       } catch (errors) {
         if (typeof errors === 'object') {
-          return res.status(400).json({ user: false, errors: errors });
+          return res.status(400).json({ user: false, error: errors });
         }
         next(errors);
       }
@@ -275,54 +280,52 @@ module.exports = function (app: express$Application) {
     requireRoles('system'),
     async (req: express$Request, res, next) => {
       const body: {[string]: ?(string | number | boolean)} = req.body;
-      let errors = [];
+      let error = null;
+
       try {
         // 1. Validate invitation toke
         const invitationTokenValid = await bluebird.fromCallback(cb => 
               invitationToken.checkIfTokenIsValid(body.invitationtoken, cb));
         let uniqueFields = body.uniqueFields;
         if (!invitationTokenValid) {
-          errors.push('InvalidInvitationToken');
+          error = 'invitationToken-invalid';
         } else {
           // continue validation only if invitation token is valid
 
-          // 2. Check if user is reserved isUserIdReserved
-          const uuidIsReserved = await bluebird.fromCallback(cb => reservedWords.useridIsReserved(body.username, cb));
-
-          if (uuidIsReserved === true) {
-            errors.push('ReservedUsername');
-          }
-
-          // 3. Check if Uid already exists
+          // 2. Check if Uid already exists
           const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
           if (uidExists === true) {
-            errors.push('Existing_username');
+          // TODO IEVA - reuse id somewhere globally
+            error = uniquenessErrorTemplate;
+            error.data['username'] = body.username;
           }
 
           // manually remove username from the unique list because other rules could be applied to it
-          // check if each field is unique
+          // 3. check if each field is unique
           // just in case username is here, remove it , because it was already checked
           delete uniqueFields.username;
           for (const [key, value] of Object.entries(uniqueFields)) {
             const unique = await db.isFieldUnique(key, value);
             if(! unique){
-              errors.push('Existing_' + key);
+              if(! error ) error = uniquenessErrorTemplate;
+              error.data[key] = value;
             }
           }
         }
 
-        if (errors.length > 0) {
-          return res.status(400).json({ "reservation": false, "errors": errors });
+        if (error) {
+          return res.status(400).json({ "reservation": false, "error": error });
         }else{
           // if there are no validation errors, do the reservation for the core
           // username should always be unique, so lets add it to unique Fields
           uniqueFields.username = body.username;
           const result = await users.createUserReservation(uniqueFields, body.core);
-
-          if(result){
+          if(result === true){
             return res.status(200).json({ "reservation": true });
-          }else{
-            return res.status(400).json({ "reservation": false, "errors": ["DuplicatedUserRegistration"] });
+          }else {
+            error = uniquenessErrorStructure;
+            error.data[result] = uniqueFields[result];
+            return res.status(400).json({ "reservation": false, "error": ['Existing_' + result] });
           }
         }
       } catch (err) { return next(err); }

@@ -19,6 +19,7 @@ const dataservers = require('../business/dataservers');
 const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
 const messages = require('../utils/messages');
+const ErrorIds = require('../utils/errors-ids');
 
 const info = require('../business/service-info');
 const Pryv = require('pryv');
@@ -148,8 +149,8 @@ function isReservationStillValid(reservationTime){
   }
 }
 /**
- * Create user reservation or return error if reservation already exists
- * (not on the service-core)
+ * Create user reservation or return error with field name that was
+ * already reserved
  *
  * @param host the hosting for this user
  * @param user the user data, a json object containing: username, password hash, language and email
@@ -157,31 +158,34 @@ function isReservationStillValid(reservationTime){
  */
 exports.createUserReservation = async (
   uniqueFields: String,
-  core: String) => {
+  core: String): string => {
 
-  // Check if there is no reservation for any of uniqueFields
-  //const reservation = await bluebird.fromCallback(cb => db.getReservations(username, uniqueFields, cb));
   try{
+    // Get reservations for all uniqueFields
     const reservations = await db.getReservations(uniqueFields);
     let reservation;
+    let reservedField; //TODO IEVA
     let reservationExists = false;
-      for (reservation of reservations) {
-        if (reservation !== null) {
-          // if reservation was done in the last 10 minutes
-          if (isReservationStillValid(reservation.time)) {
+    console.log(reservations,'reservations');
+    for (reservation of reservations) {
+      if (reservation !== null) {
+        console.log(reservation,'reservation');
+        // if reservation was done in the last 10 minutes
+        if (isReservationStillValid(reservation.time)) {
 
-            // a) return success if core is the same
-            // b) if in last 10 minutes reservation was made from different core, return false
-            if (reservation.core != core) {
-              reservationExists = true;
-              break;
-            }
+          // a) return success if core is the same
+          // b) if in last 10 minutes reservation was made from different core, return false
+          if (reservation.core != core) {
+            reservationExists = true;
+            reservedField = reservation.field;
+            break;
           }
+        }
       }
     }
 
     if(reservationExists === true){
-      return false;
+      return reservedField;
     }
     await db.setReservations(uniqueFields, core, Date.now());
     return true;
@@ -226,6 +230,11 @@ const asyncForEach = async (array, callback) => {
   }
 }
 
+const uniquenessErrorStructure = {
+      id: 'item-already-exists',
+      data: {}
+    };
+
 /**
  *
  * Update all fields for the user
@@ -240,7 +249,10 @@ exports.updateFields = async (
 ) => {
   // get update action and execute them in parallel
   let fieldsForUpdate = [];
-  let errors = [];
+  let uniquenessErrorTemplate = {
+    id: ErrorIds.ItemAlreadyExists,
+    data: {}
+  };
   let unique;
   try {
     const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
@@ -260,10 +272,7 @@ exports.updateFields = async (
           if(valueObject.isUnique == true){
             unique = await db.isFieldUniqueForUser(username, key, valueObject.value);
             if (! unique) {
-              errors.push({
-                id: `Existing_${key}`,
-                message: `Cannot set ${key} : ${valueObject.value} (${key}  is in use)`,
-                });
+              uniquenessErrorTemplate.data[key] = valueObject.value;
             }
           }
         });
@@ -271,8 +280,8 @@ exports.updateFields = async (
       await checkUniqueness();
     }
 
-    if (errors.length > 0) {
-      throw errors;
+    if (Object.keys(uniquenessErrorTemplate.data).length > 0) {
+      throw uniquenessErrorTemplate;
     }
 
     // save all fields
