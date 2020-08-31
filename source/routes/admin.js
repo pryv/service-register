@@ -63,18 +63,6 @@ module.exports = function (app: any) {
   });
 
   app.get('/admin/users/:username', requireRoles('admin'), function (req, res, next) {
-    const headers = {
-      registeredDate : 'Registered At',
-      username : 'Username',
-      email: 'e-mail',
-      language: 'lang',
-      server: 'Server',
-      appid: 'From app',
-      referer: 'Referer',
-      invitationToken : 'Token',
-      errors: 'Errors'
-    };
-
     users.getUserInfos(req.params.username, function (errors, user) {
       if (errors.length !== 0) {
         return next(error);
