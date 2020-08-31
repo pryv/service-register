@@ -65,11 +65,10 @@ module.exports = function (app: any) {
   app.get('/admin/users/:username', requireRoles('admin'), function (req, res, next) {
     users.getUserInfos(req.params.username, function (errors, user) {
       if (errors.length !== 0) {
-        return next(error);
-      }
-
-      if (user == null) {
-        return next(new Error('AF: Missing user'));
+        if(errors.find(err => err.user.includes('users is empty'))) {
+          return res.status(404).send('User not found');
+        }
+        return next(errors);
       }
 
       // Convert timestamp tor readable data
@@ -82,7 +81,7 @@ module.exports = function (app: any) {
         outputUser.registeredDate = new Date(parseInt(user.registeredTimestamp)).toUTCString();
       }
 
-      res.json(outputUser);
+      return res.json(outputUser);
     });
   });
 
