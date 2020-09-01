@@ -62,29 +62,6 @@ module.exports = function (app: any) {
     });
   });
 
-  app.get('/admin/users/:username', requireRoles('admin'), function (req, res, next) {
-    users.getUserInfos(req.params.username, function (errors, user) {
-      if (errors.length !== 0) {
-        if(errors.find(err => err.user.includes('users is empty'))) {
-          return res.status(404).send('User not found');
-        }
-        return next(errors);
-      }
-
-      // Convert timestamp tor readable data
-      const outputUser = lodash.clone(user);
-
-      if (outputUser.registeredTimestamp == null) {
-        outputUser.registeredTimestamp = 0;
-        outputUser.registeredDate = '';
-      } else {
-        outputUser.registeredDate = new Date(parseInt(user.registeredTimestamp)).toUTCString();
-      }
-
-      return res.json(outputUser);
-    });
-  });
-
   // START - CLEAN FOR OPENSOURCE
   // GET /admin/users/invitations: get the invitations list
   app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
@@ -119,6 +96,29 @@ module.exports = function (app: any) {
       }
 
       res.json({invitations: invitations});
+    });
+  });
+
+  app.get('/admin/users/:username', requireRoles('admin'), function (req, res, next) {
+    users.getUserInfos(req.params.username, function (errors, user) {
+      if (errors.length !== 0) {
+        if(errors.find(err => err.user.includes('users is empty'))) {
+          return res.status(404).send('User not found');
+        }
+        return next(errors);
+      }
+
+      // Convert timestamp tor readable data
+      const outputUser = lodash.clone(user);
+
+      if (outputUser.registeredTimestamp == null) {
+        outputUser.registeredTimestamp = 0;
+        outputUser.registeredDate = '';
+      } else {
+        outputUser.registeredDate = new Date(parseInt(user.registeredTimestamp)).toUTCString();
+      }
+
+      return res.json(outputUser);
     });
   });
 
