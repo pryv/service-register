@@ -63,8 +63,8 @@ module.exports = function (app: any) {
   });
 
   // START - CLEAN FOR OPENSOURCE
-  // GET /admin/users/invitations: get the invitations list
-  app.get('/admin/users/invitations', requireRoles('admin'), function (req, res, next) {
+  // GET /admin/invitations: get the invitations list
+  app.get('/admin/invitations', requireRoles('admin'), function (req, res, next) {
 
     invitations.getAll(function (error, invitations) {
       if (error) {
@@ -123,9 +123,9 @@ module.exports = function (app: any) {
   });
 
   /**
-   * GET /admin/users/invitations/post: generate an invitation
+   * GET /admin/invitations/post: generate an invitation
    */
-  app.get('/admin/users/invitations/post', requireRoles('admin'), function (req, res, next){
+  app.get('/admin/invitations/post', requireRoles('admin'), function (req, res, next){
 
     var count = parseInt(req.query.count);
     var message = req.query.message || '';
