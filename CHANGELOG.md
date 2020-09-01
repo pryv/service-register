@@ -2,6 +2,11 @@
 
 ## 1.3.X
 
+### 1.3.64
+
+ - GET /admin/users/:username enpoint
+ - /admin/users/invitations renamed to /admin/invitations
+
 ### 1.3.62
 
  - expireAfter, deviceName & referer parameters accepted as payload to POST /access endpoint
