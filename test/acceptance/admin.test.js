@@ -143,7 +143,7 @@ describe('GET /admin/servers', function () {
   });
 });
 
-describe('/admin/users/invitations', function () {
+describe('/admin/invitations', function () {
   let server;
 
   before(async function () {
@@ -156,7 +156,7 @@ describe('/admin/users/invitations', function () {
   });
   describe('GET ', function () {
     it('should send a list of current tokens', function (done) {
-      request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey)
+      request.get(server.url + '/admin/invitations' + '?auth=' + authAdminKey)
       .end((err, res) => {
         dataValidation.check(res, {status: 200});
 
@@ -170,7 +170,7 @@ describe('/admin/users/invitations', function () {
       });
     });
     it('should send a list of current tokens as html tables', function (done) {
-      request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey + '&toHTML=true')
+      request.get(server.url + '/admin/invitations' + '?auth=' + authAdminKey + '&toHTML=true')
       .end((err, res) => {
         dataValidation.check(res, {status: 200});
         res.text.should.containEql('<th>Created At</th>');
@@ -186,7 +186,7 @@ describe('/admin/users/invitations', function () {
   });
   describe('future POST ', function () {
     it('should create a list of token', function (done) {
-      request.get(server.url + '/admin/users/invitations/post' +
+      request.get(server.url + '/admin/invitations/post' +
           '?auth=' + authAdminKey +
           '&count=2&message=testx'
         ).end((err, res) => {
