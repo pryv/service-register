@@ -164,12 +164,10 @@ exports.createUserReservation = async (
     // Get reservations for all uniqueFields
     const reservations = await db.getReservations(uniqueFields);
     let reservation;
-    let reservedField; //TODO IEVA
+    let reservedField;
     let reservationExists = false;
-    console.log(reservations,'reservations');
     for (reservation of reservations) {
       if (reservation !== null) {
-        console.log(reservation,'reservation');
         // if reservation was done in the last 10 minutes
         if (isReservationStillValid(reservation.time)) {
 
@@ -229,11 +227,6 @@ const asyncForEach = async (array, callback) => {
     await callback(array[index], index, array)
   }
 }
-
-const uniquenessErrorStructure = {
-      id: 'item-already-exists',
-      data: {}
-    };
 
 /**
  *

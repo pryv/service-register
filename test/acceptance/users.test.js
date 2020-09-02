@@ -8,6 +8,7 @@ const lodash = require('lodash');
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const config = require('../../source/config');
+const ErrorIds = require('../../source/utils/errors-ids');
 
 const _ = require('lodash');
 const request = require('superagent');
@@ -853,8 +854,8 @@ describe('User Management', () => {
             assert.isTrue(false);
           } catch (e) {
             assert.equal(e.status, 400);
-            assert.include(e.response.body.errors, 'InvalidInvitationToken');
-            assert.equal(e.response.body.errors.length, 1);
+            assert.include(e.response.body.error.id, ErrorIds.InvalidInvitationToken);
+            assert.include(e.response.body.error.data, {});
           }
         });
 
@@ -874,13 +875,12 @@ describe('User Management', () => {
             assert.isTrue(false);
           } catch (e) {
             assert.equal(e.status, 400);
-            assert.include(e.response.body.errors, 'Existing_username');
-            assert.include(e.response.body.errors, 'Existing_email');
-            assert.equal(e.response.body.errors.length, 2);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, { username: testData.username, email: testData.uniqueFields.email });
           }
         });
  
-        it('Does not check email and username if invitation token validation fails', async () => {
+        it('[AA3I] Does not check email and username if invitation token validation fails', async () => {
           const testData = {
             "username": 'wactiv',
             "email": 'wactiv@pryv.io',
@@ -894,8 +894,8 @@ describe('User Management', () => {
             assert.isTrue(false);
           } catch (e) {
             assert.equal(e.status, 400);
-            assert.include(e.response.body.errors, 'InvalidInvitationToken');
-            assert.equal(e.response.body.errors.length, 1);
+            assert.include(e.response.body.error.id, ErrorIds.InvalidInvitationToken);
+            assert.include(e.response.body.error.data, {});
           }
         });
 
@@ -928,7 +928,8 @@ describe('User Management', () => {
           } catch (err) {
             assert.equal(err.response.status, 400);
             assert.equal(err.response.body.reservation, false);
-            assert.include(err.response.body.errors, 'Existing_RandomField');
+            assert.include(err.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(err.response.body.error.data, { RandomField: randomFieldValue } );
           }
         });
 
@@ -965,7 +966,7 @@ describe('User Management', () => {
           assert.exists(storedReservation[1].time);
         });
 
-        it('Successfully validate username, email and invitation token and reserve the unique values', async () => {
+        it('[220B] Successfully validate username, email and invitation token and reserve the unique values', async () => {
           const userTestData = _.extend({}, defaults());
           const randomFieldValue = randomuser();
           const testData = {
@@ -1001,26 +1002,6 @@ describe('User Management', () => {
           assert.equal(storedReservation[2].core, testData.core);
           assert.exists(storedReservation[2].time);
         });
-
-      });
-
-      it('Fail if username is reserved', async () => {
-        const testData = {
-          username: 'pryvwa',
-          invitationtoken: null,
-          uniqueFields: {
-            email: 'anyemail@pryv.io'
-          }
-        }
-
-        try{
-          await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-          assert.isTrue(false);
-        } catch (e) {
-          assert.equal(e.status, 400);
-          assert.include(e.response.body.errors, 'ReservedUsername');
-          assert.equal(e.response.body.errors.length, 1);
-        }
       });
     });
     describe('Reservation', () => {
@@ -1341,15 +1322,14 @@ describe('User Management', () => {
       describe('When not valid input is provided', async () => {
 
         it('[AFD5] Fail if email is not unique', async () => {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+
+          let userRegistrationData1 = defaultsForSystemRegistration();
+          userRegistrationData1.user.username = userDataUpdate.user.username;
+
+          let userRegistrationData2 = defaultsForSystemRegistration();
+          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
           try {
-            let userDataUpdate = defaultsForSystemDataUpdate();
-
-            let userRegistrationData1 = defaultsForSystemRegistration();
-            userRegistrationData1.user.username = userDataUpdate.user.username;
-
-            let userRegistrationData2 = defaultsForSystemRegistration();
-            userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
-
             // seed initial user
             await request.post(server.url + path)
               .send(userRegistrationData1)
@@ -1364,25 +1344,22 @@ describe('User Management', () => {
               .send(userDataUpdate);
             assert.equal(false, true);
           } catch (e) {
-            console.log(e, 'e');
             assert.equal(e.status, 400);
-            assert.equal(e.response.body.errors.length, 1);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, { email: userRegistrationData2.user.email });
             assert.equal(e.response.body.user, false);
-            assert.equal(e.response.body.errors[0].id, 'Existing_email');
-            assert.exists(e.response.body.errors[0].message);
           }
         });
 
         it('[E987] Fail if additional field is not unique', async () => {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+
+          let userRegistrationData2 = defaultsForSystemRegistration();
+          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+
+          let userRegistrationData3 = defaultsForSystemRegistration();
+          userRegistrationData3.user.username = userDataUpdate.user.username;
           try {
-            let userDataUpdate = defaultsForSystemDataUpdate();
-
-            let userRegistrationData2 = defaultsForSystemRegistration();
-            userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
-
-            let userRegistrationData3 = defaultsForSystemRegistration();
-            userRegistrationData3.user.username = userDataUpdate.user.username;
-
             // seed initial user
             await request.post(server.url + path)
               .send(userRegistrationData3)
@@ -1397,22 +1374,21 @@ describe('User Management', () => {
               .send(userDataUpdate);
             assert.equal(false, true);
           } catch (e) {
-            console.log(e, 'e');
             assert.equal(e.status, 400);
-            assert.equal(e.response.body.errors.length, 1);
             assert.equal(e.response.body.user, false);
-            assert.equal(e.response.body.errors[0].id, 'Existing_RandomField');
-            assert.exists(e.response.body.errors[0].message);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, { RandomField: userDataUpdate.user.RandomField[0].value });
+            assert.equal(e.response.body.user, false);
           }
         });
 
         it('[7740] Fail with nested error if several fields are not unique', async () => {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+          let userRegistrationData2 = defaultsForSystemRegistration();
+          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
+          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
           try {
-            let userDataUpdate = defaultsForSystemDataUpdate();
 
-            let userRegistrationData2 = defaultsForSystemRegistration();
-            userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
-            userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
 
             let userRegistrationData3 = defaultsForSystemRegistration();
             userRegistrationData3.user.username = userDataUpdate.user.username;
@@ -1431,14 +1407,14 @@ describe('User Management', () => {
               .send(userDataUpdate);
             assert.equal(false, true);
           } catch (e) {
-            console.log(e, 'e');
             assert.equal(e.status, 400);
-            assert.equal(e.response.body.errors.length, 2);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, {
+              email: userRegistrationData2.user.email,
+              RandomField: userRegistrationData2.user.RandomField }
+            );
+
             assert.equal(e.response.body.user, false);
-            assert.equal(e.response.body.errors[0].id, 'Existing_email');
-            assert.equal(e.response.body.errors[1].id, 'Existing_RandomField');
-            assert.exists(e.response.body.errors[0].message);
-            assert.exists(e.response.body.errors[1].message);
           }
         });
       });
@@ -1549,7 +1525,7 @@ describe('User Management', () => {
                   username: userRegistrationData1.user.username
                 }
               };
-              console.log('userRegistrationData1', userDataUpdate, 'userDataUpdate');
+
               // seed initial user
               try{
                 await request.post(server.url + path)
@@ -1587,7 +1563,7 @@ describe('User Management', () => {
                 RandomField: userRegistrationData1.user.RandomField
               }
             };
-            console.log('userRegistrationData1', userDataUpdate,'userDataUpdate');
+
             // seed initial user
             await request.post(server.url + path)
               .send(userRegistrationData1)

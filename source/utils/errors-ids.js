@@ -5,5 +5,6 @@
  * Proprietary and confidential
  */
 module.exports = {
-  ItemAlreadyExists: 'item-already-exists'
+  ItemAlreadyExists: 'item-already-exists',
+  InvalidInvitationToken: 'invitationToken-invalid'
 }

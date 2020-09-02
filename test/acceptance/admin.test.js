@@ -213,7 +213,7 @@ describe('/admin/users', function () {
   });
   
   describe('GET ', function () {
-    it('should get a users list', function (done) {
+    it('[LOLO] should get a users list', function (done) {
       request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)
       .end((err, res) => {
         dataValidation.check(res, {status: 200});
@@ -264,7 +264,7 @@ describe('/admin/users/:username', function () {
       email: 'jsmith@test.com',
     };
 
-    db.setServerAndInfos(username, 'server.name.at.tld', userInfos, done);
+    db.setServerAndInfos(username, 'server.name.at.tld', userInfos, ['email'], done);
   });
 
   after(async function () {

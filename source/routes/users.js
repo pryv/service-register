@@ -27,8 +27,8 @@ const ErrorIds = require('../utils/errors-ids');
  * @param app
  */
 module.exports = function (app: express$Application) {
-  const uniquenessErrorTemplate = {
-        id: ErrorIds.ItemAlreadyExists,
+  const errorTemplate = {
+        id: '',
         data: {}
       };
   // POST /user: create a new user
@@ -288,7 +288,8 @@ module.exports = function (app: express$Application) {
               invitationToken.checkIfTokenIsValid(body.invitationtoken, cb));
         let uniqueFields = body.uniqueFields;
         if (!invitationTokenValid) {
-          error = 'invitationToken-invalid';
+          error = errorTemplate;
+          error.id = ErrorIds.InvalidInvitationToken;
         } else {
           // continue validation only if invitation token is valid
 
@@ -296,7 +297,8 @@ module.exports = function (app: express$Application) {
           const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
           if (uidExists === true) {
           // TODO IEVA - reuse id somewhere globally
-            error = uniquenessErrorTemplate;
+            error = errorTemplate;
+            error.id = ErrorIds.ItemAlreadyExists;
             error.data['username'] = body.username;
           }
 
@@ -307,7 +309,8 @@ module.exports = function (app: express$Application) {
           for (const [key, value] of Object.entries(uniqueFields)) {
             const unique = await db.isFieldUnique(key, value);
             if(! unique){
-              if(! error ) error = uniquenessErrorTemplate;
+              if(! error ) error = errorTemplate;
+              error.id = error.id = ErrorIds.ItemAlreadyExists;;
               error.data[key] = value;
             }
           }
@@ -323,7 +326,8 @@ module.exports = function (app: express$Application) {
           if(result === true){
             return res.status(200).json({ reservation: true });
           }else {
-            error = uniquenessErrorStructure;
+            error = errorTemplate;
+            error.id = ErrorIds.ItemAlreadyExists;
             error.data[result] = uniqueFields[result];
             return res.status(400).json({ reservation: false, error: ['Existing_' + result] });
           }
