@@ -53,6 +53,7 @@ nconf.defaults({
   },
   service: {
     serial: '2019061301',
+    version: '1.6.0',
     name: 'My Pryv Lab',
     support: 'https://pryv.com/helpdesk',
     terms: 'https://pryv.com/pryv-lab-terms-of-use/',
