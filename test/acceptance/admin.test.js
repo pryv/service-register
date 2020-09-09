@@ -213,7 +213,7 @@ describe('/admin/users', function () {
   });
   
   describe('GET ', function () {
-    it('[LOLO] should get a users list', function (done) {
+    it('should get a users list', function (done) {
       request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)
       .end((err, res) => {
         dataValidation.check(res, {status: 200});

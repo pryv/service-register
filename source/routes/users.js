@@ -153,7 +153,7 @@ module.exports = function (app: express$Application) {
               return next(messages.ei(creationError));
             }
         }
-        return res.status(200).json(result);
+        return res.status(201).json(result);
       });
   });
 

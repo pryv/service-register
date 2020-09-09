@@ -811,7 +811,7 @@ describe('User Management', () => {
   describe('POST /users/validate', function () {
     const path = '/users/validate';
 
-    it('Path requires system auth', async () => {
+    it('When system auth fails', async () => {
       const userTestData = _.extend({}, defaults());
       const testData = {
         username: userTestData.username,
@@ -839,134 +839,7 @@ describe('User Management', () => {
           config.set('invitationTokens', defaultConfigInvitationTokens);
         });
 
-        it('Fails when invitation token is not provided', async () => {
-          const testData = {
-            username: 'wactiv',
-            uniqueFields: {
-              email: 'wactiv@pryv.io',
-            }
-          }
-
-          try {
-            await request.post(server.url + path)
-              .send(testData)
-              .set('Authorization', defaultAuth);
-            assert.isTrue(false);
-          } catch (e) {
-            assert.equal(e.status, 400);
-            assert.include(e.response.body.error.id, ErrorIds.InvalidInvitationToken);
-            assert.include(e.response.body.error.data, {});
-          }
-        });
-
-        it('Fails when invitation token is ok, but username, email are not unique', async () => {
-          const testData = {
-            username: 'wactiv',
-            invitationtoken: 'second',
-            uniqueFields: {
-              email: 'wactiv@pryv.io',
-            }
-          }
-
-          try {
-            await request.post(server.url + path)
-              .send(testData)
-              .set('Authorization', defaultAuth);
-            assert.isTrue(false);
-          } catch (e) {
-            assert.equal(e.status, 400);
-            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
-            assert.include(e.response.body.error.data, { username: testData.username, email: testData.uniqueFields.email });
-          }
-        });
- 
-        it('[AA3I] Does not check email and username if invitation token validation fails', async () => {
-          const testData = {
-            "username": 'wactiv',
-            "email": 'wactiv@pryv.io',
-            "invitationtoken": 'abc',
-          }
-
-          try {
-            await request.post(server.url + path)
-              .send(testData)
-              .set('Authorization', defaultAuth);
-            assert.isTrue(false);
-          } catch (e) {
-            assert.equal(e.status, 400);
-            assert.include(e.response.body.error.id, ErrorIds.InvalidInvitationToken);
-            assert.include(e.response.body.error.data, {});
-          }
-        });
-
-        it('Fail when additional unique field is not unique', async () => {
-          const userTestData = _.extend({}, defaults());
-          const randomFieldValue = randomuser();
-          const testData = {
-            username: userTestData.username,
-            invitationtoken: 'first',
-            uniqueFields: {
-              email: userTestData.email,
-              RandomField: randomFieldValue
-            },
-            core: 'testing_core1'
-          }
-          try {
-            let userRegistrationData = {
-              user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
-              unique: ['email', 'RandomField'],
-              host: { name: 'some-host' }
-            }
-            const userRegistrationRes = await request.post(server.url + '/users').set('Authorization', defaultAuth)
-              .send(userRegistrationData);
-            // make sure registration was successful
-            assert.equal(userRegistrationRes.status, 200);
-            
-            // call validation api and check that RandomField is already existing
-            await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-            (false).equal(true);
-          } catch (err) {
-            assert.equal(err.response.status, 400);
-            assert.equal(err.response.body.reservation, false);
-            assert.include(err.response.body.error.id, ErrorIds.ItemAlreadyExists);
-            assert.include(err.response.body.error.data, { RandomField: randomFieldValue } );
-          }
-        });
-
-        it('[ieva] Successfully validate ONLY username and invitation token when email is not provided', async () => {
-          const userTestData = _.extend({}, defaults());
-          const randomFieldValue = randomuser();
-          const testData = {
-            username: userTestData.username,
-            invitationtoken: 'first',
-            uniqueFields: {
-              RandomField: randomFieldValue
-            },
-            core: 'testing_core1'
-          }
-          try {
-            const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-            assert.equal(res.status, 200);
-            assert.equal(res.body.reservation, true);
-          } catch (err) {
-            (false).equal(true);
-          }
-
-          // check the reservation in the database
-          const storedReservation = await db.getReservations({
-            email: userTestData.email,
-            username: userTestData.username,
-            RandomField: randomFieldValue
-          });
-          assert.equal(storedReservation.length, 2);
-          assert.equal(storedReservation[0].core, testData.core);
-          assert.exists(storedReservation[0].time);
-
-          assert.equal(storedReservation[1].core, testData.core);
-          assert.exists(storedReservation[1].time);
-        });
-
-        it('[220B] Successfully validate username, email and invitation token and reserve the unique values', async () => {
+        it('Should successfully validate username, email and invitation token and reserve the unique values', async () => {
           const userTestData = _.extend({}, defaults());
           const randomFieldValue = randomuser();
           const testData = {
@@ -1001,6 +874,133 @@ describe('User Management', () => {
 
           assert.equal(storedReservation[2].core, testData.core);
           assert.exists(storedReservation[2].time);
+        });
+
+        it('Should successfully validate ONLY username and invitation token when email is not provided', async () => {
+          const userTestData = _.extend({}, defaults());
+          const randomFieldValue = randomuser();
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: 'first',
+            uniqueFields: {
+              RandomField: randomFieldValue
+            },
+            core: 'testing_core1'
+          }
+          try {
+            const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+            assert.equal(res.status, 200);
+            assert.equal(res.body.reservation, true);
+          } catch (err) {
+            (false).equal(true);
+          }
+
+          // check the reservation in the database
+          const storedReservation = await db.getReservations({
+            email: userTestData.email,
+            username: userTestData.username,
+            RandomField: randomFieldValue
+          });
+          assert.equal(storedReservation.length, 2);
+          assert.equal(storedReservation[0].core, testData.core);
+          assert.exists(storedReservation[0].time);
+
+          assert.equal(storedReservation[1].core, testData.core);
+          assert.exists(storedReservation[1].time);
+        });
+
+        it('Should fail when invitation token is not provided', async () => {
+          const testData = {
+            username: 'wactiv',
+            uniqueFields: {
+              email: 'wactiv@pryv.io',
+            }
+          }
+
+          try {
+            await request.post(server.url + path)
+              .send(testData)
+              .set('Authorization', defaultAuth);
+            assert.isTrue(false);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.error.id, ErrorIds.InvalidInvitationToken);
+            assert.include(e.response.body.error.data, {});
+          }
+        });
+
+        it('Should fail when invitation token is ok, but username, email are not unique', async () => {
+          const testData = {
+            username: 'wactiv',
+            invitationtoken: 'second',
+            uniqueFields: {
+              email: 'wactiv@pryv.io',
+            }
+          }
+
+          try {
+            await request.post(server.url + path)
+              .send(testData)
+              .set('Authorization', defaultAuth);
+            assert.isTrue(false);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, { username: testData.username, email: testData.uniqueFields.email });
+          }
+        });
+ 
+        it('Should not check email and username if invitation token validation fails', async () => {
+          const testData = {
+            "username": 'wactiv',
+            "email": 'wactiv@pryv.io',
+            "invitationtoken": 'abc',
+          }
+
+          try {
+            await request.post(server.url + path)
+              .send(testData)
+              .set('Authorization', defaultAuth);
+            assert.isTrue(false);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.error.id, ErrorIds.InvalidInvitationToken);
+            assert.include(e.response.body.error.data, {});
+          }
+        });
+
+        it('Should fail when additional unique field is not unique', async () => {
+          const userTestData = _.extend({}, defaults());
+          const randomFieldValue = randomuser();
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: 'first',
+            uniqueFields: {
+              email: userTestData.email,
+              RandomField: randomFieldValue
+            },
+            core: 'testing_core1'
+          }
+          try {
+            let userRegistrationData = {
+              user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+              unique: ['email', 'RandomField'],
+              host: { name: 'some-host' }
+            }
+            const userRegistrationRes = await request.post(server.url + '/users').set('Authorization', defaultAuth)
+              .send(userRegistrationData);
+            // make sure registration was successful
+            assert.equal(userRegistrationRes.status, 201);
+            
+            // call validation api and check that RandomField is already existing
+            await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+            (false).equal(true);
+          } catch (err) {
+            assert.equal(err.response.status, 400);
+            assert.equal(err.response.body.reservation, false);
+            assert.include(err.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(err.response.body.error.data, { RandomField: randomFieldValue } );
+          }
         });
       });
     });
@@ -1174,7 +1174,7 @@ describe('User Management', () => {
   describe('POST /users', function () {
     const path = '/users';
 
-    it('Path requires system auth', async () => {
+    it('Should fail with 401 when system auth is not provided', async () => {
       const randomFieldValue = randomuser();
       let userRegistrationData = {
         user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
@@ -1189,7 +1189,7 @@ describe('User Management', () => {
       }
     });
 
-    describe('Successful system registration with additional properties', async () => {
+    describe('When valid input with additional properties is provided', async () => {
       const randomFieldValue = randomuser();
       let userRegistrationData = {
         user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
@@ -1197,11 +1197,11 @@ describe('User Management', () => {
         host: { name: 'some-host' }
       }
 
-      it('Registration process was successful', async () => {
+      it('Response should return status 201', async () => {
         try {
           const userRegistrationRes = await request.post(server.url + path).set('Authorization', defaultAuth)
             .send(userRegistrationData);
-          assert.equal(userRegistrationRes.status, 200);
+          assert.equal(userRegistrationRes.status, 201);
           assert.equal(userRegistrationRes.body.username, userRegistrationData.user.username);
           assert.equal(userRegistrationRes.body.server, userRegistrationData.user.username + '.rec.la');
           assert.equal(userRegistrationRes.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
@@ -1211,11 +1211,11 @@ describe('User Management', () => {
         }
       });
 
-      it('All fields were saved in <username>:users', async () => {
+      it('Should save all provided fields in <username>:users', async () => {
         // TODO IEVA
       });
 
-      it('Unique fields were saved in redis database', async () => {
+      it('Should save unique fields in redis database', async () => {
         const usernameUnique = await  db.isFieldUnique('users', userRegistrationData.user.username);
         const emailUnique = await db.isFieldUnique('email', userRegistrationData.user.email);
         const randomFieldUnique = await db.isFieldUnique('RandomField', userRegistrationData.user.RandomField);
@@ -1225,7 +1225,7 @@ describe('User Management', () => {
       });
     });
 
-    it('Registration without email is successful', async () => {
+    it('Registration should be successful even when email is not provided', async () => {
       const randomFieldValue = randomuser();
       let userData = _.extend({}, defaults(), { RandomField: randomFieldValue });
       delete userData.email;
@@ -1239,7 +1239,7 @@ describe('User Management', () => {
         const res = await request.post(server.url + path)
           .send(userRegistrationData)
           .set('Authorization', defaultAuth);
-        assert.equal(res.status, 200);
+        assert.equal(res.status, 201);
         assert.equal(res.body.username, userRegistrationData.user.username);
         assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
         assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
@@ -1248,7 +1248,7 @@ describe('User Management', () => {
         assert.isTrue(false);
       }
     });
-    describe('Registration when invitation token is required is successful', async () => {
+    describe('When invitation token is required', async () => {
       let defaultConfigInvitationTokens;
 
       before(function () {
@@ -1260,7 +1260,29 @@ describe('User Management', () => {
         config.set('invitationTokens', defaultConfigInvitationTokens);
       });
 
-      it('Registration fails if token is invalid', async () => {
+      it('Should succeed if invitation token is valid', async () => {
+        let userData = _.extend({}, defaults(), { invitationtoken: 'first' });
+        let userRegistrationData = {
+          user: userData,
+          unique: [],
+          host: { name: 'some-host' }
+        }
+
+        try {
+          const res = await request.post(server.url + path)
+            .send(userRegistrationData)
+            .set('Authorization', defaultAuth);
+          assert.equal(res.status, 201);
+          assert.equal(res.body.username, userRegistrationData.user.username);
+          assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
+          assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
+        } catch (e) {
+          console.log(e, 'e');
+          assert.isTrue(false);
+        }
+      });
+
+      it('Should fails if invitation token is invalid', async () => {
         let userData = _.extend({}, defaults(), { invitationtoken: 'random' });
         let userRegistrationData = {
           user: userData,
@@ -1277,34 +1299,13 @@ describe('User Management', () => {
           assert.equal(e.status, 404);
         }
       });
-      it('Registration succeeds when token is valid', async () => {
-        let userData = _.extend({}, defaults(), { invitationtoken: 'first' });
-        let userRegistrationData = {
-          user: userData,
-          unique: [],
-          host: { name: 'some-host' }
-        }
-
-        try {
-          const res = await request.post(server.url + path)
-            .send(userRegistrationData)
-            .set('Authorization', defaultAuth);
-          assert.equal(res.status, 200);
-          assert.equal(res.body.username, userRegistrationData.user.username);
-          assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
-          assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
-        } catch (e) {
-          console.log(e, 'e');
-          assert.isTrue(false);
-        }
-      });
     });
   });
 
   describe('PUT /users', function () {
     const path = '/users';
 
-    it('Path requires system auth', async () => {
+    it('Should fail when system auth is invalid', async () => {
       let userRegistrationData = {
         user: defaults(),
         unique: ['email'],
@@ -1318,108 +1319,9 @@ describe('User Management', () => {
       }
     });
 
-    describe('[CUI9] When fields for update are provided', async () => {
-      describe('When not valid input is provided', async () => {
+    describe('When fields for update are provided', async () => {
 
-        it('[AFD5] Fail if email is not unique', async () => {
-          let userDataUpdate = defaultsForSystemDataUpdate();
-
-          let userRegistrationData1 = defaultsForSystemRegistration();
-          userRegistrationData1.user.username = userDataUpdate.user.username;
-
-          let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
-          try {
-            // seed initial user
-            await request.post(server.url + path)
-              .send(userRegistrationData1)
-              .set('Authorization', defaultAuth);
-
-            // seed the user that will have the same email and random field
-            await request.post(server.url + path)
-              .send(userRegistrationData2)
-              .set('Authorization', defaultAuth);
-
-            await request.put(server.url + path).set('Authorization', defaultAuth)
-              .send(userDataUpdate);
-            assert.equal(false, true);
-          } catch (e) {
-            assert.equal(e.status, 400);
-            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
-            assert.include(e.response.body.error.data, { email: userRegistrationData2.user.email });
-            assert.equal(e.response.body.user, false);
-          }
-        });
-
-        it('[E987] Fail if additional field is not unique', async () => {
-          let userDataUpdate = defaultsForSystemDataUpdate();
-
-          let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
-
-          let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userDataUpdate.user.username;
-          try {
-            // seed initial user
-            await request.post(server.url + path)
-              .send(userRegistrationData3)
-              .set('Authorization', defaultAuth);
-
-            // seed the user that will have the same email and random field
-            await request.post(server.url + path)
-              .send(userRegistrationData2)
-              .set('Authorization', defaultAuth);
-
-            await request.put(server.url + path).set('Authorization', defaultAuth)
-              .send(userDataUpdate);
-            assert.equal(false, true);
-          } catch (e) {
-            assert.equal(e.status, 400);
-            assert.equal(e.response.body.user, false);
-            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
-            assert.include(e.response.body.error.data, { RandomField: userDataUpdate.user.RandomField[0].value });
-            assert.equal(e.response.body.user, false);
-          }
-        });
-
-        it('[7740] Fail with nested error if several fields are not unique', async () => {
-          let userDataUpdate = defaultsForSystemDataUpdate();
-          let userRegistrationData2 = defaultsForSystemRegistration();
-          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
-          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
-          try {
-
-
-            let userRegistrationData3 = defaultsForSystemRegistration();
-            userRegistrationData3.user.username = userDataUpdate.user.username;
-
-            // seed initial user
-            await request.post(server.url + path)
-              .send(userRegistrationData3)
-              .set('Authorization', defaultAuth);
-
-            // seed the user that will have the same email and random field
-            await request.post(server.url + path)
-              .send(userRegistrationData2)
-              .set('Authorization', defaultAuth);
-
-            await request.put(server.url + path).set('Authorization', defaultAuth)
-              .send(userDataUpdate);
-            assert.equal(false, true);
-          } catch (e) {
-            assert.equal(e.status, 400);
-            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
-            assert.include(e.response.body.error.data, {
-              email: userRegistrationData2.user.email,
-              RandomField: userRegistrationData2.user.RandomField }
-            );
-
-            assert.equal(e.response.body.user, false);
-          }
-        });
-      });
-
-      describe('[CAD9] When valid input is provided', async () => {
+      describe('When valid input is provided', async () => {
         describe('When fields have property “creation” set to false', async () => {
           let response;
           let userRegistrationData1;
@@ -1510,8 +1412,107 @@ describe('User Management', () => {
           });
         });
       });
+      describe('When not valid input is provided', async () => {
+
+        it('[AFD5] Should fail if email is not unique', async () => {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+
+          let userRegistrationData1 = defaultsForSystemRegistration();
+          userRegistrationData1.user.username = userDataUpdate.user.username;
+
+          let userRegistrationData2 = defaultsForSystemRegistration();
+          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
+          try {
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData1)
+              .set('Authorization', defaultAuth);
+
+            // seed the user that will have the same email and random field
+            await request.post(server.url + path)
+              .send(userRegistrationData2)
+              .set('Authorization', defaultAuth);
+
+            await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+            assert.equal(false, true);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, { email: userRegistrationData2.user.email });
+            assert.equal(e.response.body.user, false);
+          }
+        });
+
+        it('[E987] Should fail if additional field is not unique', async () => {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+
+          let userRegistrationData2 = defaultsForSystemRegistration();
+          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+
+          let userRegistrationData3 = defaultsForSystemRegistration();
+          userRegistrationData3.user.username = userDataUpdate.user.username;
+          try {
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData3)
+              .set('Authorization', defaultAuth);
+
+            // seed the user that will have the same email and random field
+            await request.post(server.url + path)
+              .send(userRegistrationData2)
+              .set('Authorization', defaultAuth);
+
+            await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+            assert.equal(false, true);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.equal(e.response.body.user, false);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, { RandomField: userDataUpdate.user.RandomField[0].value });
+            assert.equal(e.response.body.user, false);
+          }
+        });
+
+        it('[7740] Should fail with nested error if several fields are not unique', async () => {
+          let userDataUpdate = defaultsForSystemDataUpdate();
+          let userRegistrationData2 = defaultsForSystemRegistration();
+          userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
+          userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
+          try {
+
+
+            let userRegistrationData3 = defaultsForSystemRegistration();
+            userRegistrationData3.user.username = userDataUpdate.user.username;
+
+            // seed initial user
+            await request.post(server.url + path)
+              .send(userRegistrationData3)
+              .set('Authorization', defaultAuth);
+
+            // seed the user that will have the same email and random field
+            await request.post(server.url + path)
+              .send(userRegistrationData2)
+              .set('Authorization', defaultAuth);
+
+            await request.put(server.url + path).set('Authorization', defaultAuth)
+              .send(userDataUpdate);
+            assert.equal(false, true);
+          } catch (e) {
+            assert.equal(e.status, 400);
+            assert.include(e.response.body.error.id, ErrorIds.ItemAlreadyExists);
+            assert.include(e.response.body.error.data, {
+              email: userRegistrationData2.user.email,
+              RandomField: userRegistrationData2.user.RandomField }
+            );
+
+            assert.equal(e.response.body.user, false);
+          }
+        });
+      });
       describe('When field "fieldsToDelete" are provided', async () => {
-        describe('[2T6H] When not valid input is provided', async () => {
+        describe('When not valid input is provided', async () => {
           describe('When username is provided for the deletion', async () => {
             let response;
             let userRegistrationData1;
@@ -1538,7 +1539,7 @@ describe('User Management', () => {
                 response = err.response;
               }
             });
-            it('Response is successful when all fields are unique', async () => {
+            it('Should fail with 400 status', async () => {
               assert.equal(response.status, 400);
               assert.equal(response.body.user, false);
             });
@@ -1549,7 +1550,7 @@ describe('User Management', () => {
             });
           });
         });
-        describe('[MML3] When valid input is provided', async () => {
+        describe('When valid input is provided', async () => {
           let response;
           let userRegistrationData1;
           let userDataUpdate;
@@ -1572,18 +1573,18 @@ describe('User Management', () => {
             response = await request.put(server.url + path).set('Authorization', defaultAuth)
               .send(userDataUpdate);
           });
-          it('[DAE0] Response is successful when all fields are unique', async () => {
+          it('[DAE0] Response should be successful when all fields are unique', async () => {
             assert.equal(response.status, 200);
             assert.equal(response.body.user, true);
           });
-          it('[AB25] Information in username:users is not changed', async () => {
+          it('[AB25] Information in username:users should not changed', async () => {
             const userInfo = await bluebird.fromCallback(cb =>
               db.getSet(`${userRegistrationData1.user.username}:users`, cb));
             assert.equal(userRegistrationData1.user.email, userInfo['email']);
             assert.equal(userRegistrationData1.user.RandomField, userInfo['RandomField']);
           });
 
-          it('[0C62] Succeed deleting unique fields information', async () => {
+          it('[0C62] Should succeed deleting unique fields information', async () => {
             const uniqueEmailField = await bluebird.fromCallback(cb =>
               db.get(`${userRegistrationData1.user.email}:email`, cb));
 
