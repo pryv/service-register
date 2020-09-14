@@ -99,7 +99,7 @@ module.exports = function (app: any) {
     });
   });
 
-  app.get('/admin/users/:username', requireRoles('admin'), function (req, res, next) {
+  app.get('/admin/users/:username', requireRoles('system'), function (req, res, next) {
     users.getUserInfos(req.params.username, function (errors, user) {
       if (errors.length !== 0) {
         if(errors.find(err => err.user.includes('users is empty'))) {

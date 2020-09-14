@@ -273,7 +273,7 @@ describe('/admin/users/:username', function () {
   
   describe('GET', function () {
     it('should get a user', function (done) {
-      request.get(server.url + '/admin/users/' + username +'?auth=' + authAdminKey)
+      request.get(server.url + '/admin/users/' + username +'?auth=' + authSystemKey)
       .end((err, res) => {
         dataValidation.check(res, {status: 200});
         res.body.should.have.property('username');
@@ -292,7 +292,7 @@ describe('/admin/users/:username', function () {
     });
     it('should respond with 404 when requested not existing user', function (done) {
       const notExistingUsername = 'some_name_x';
-      request.get(server.url + '/admin/users/' + notExistingUsername +'?auth=' + authAdminKey)
+      request.get(server.url + '/admin/users/' + notExistingUsername +'?auth=' + authSystemKey)
       .end((err, res) => {
         dataValidation.check(res, {status: 404});
         done();
