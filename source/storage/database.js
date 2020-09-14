@@ -899,7 +899,7 @@ async function setReservations(uniqueFields: object, core: string, time: number)
     }
     await bluebird.fromCallback(cb => multi.exec(cb));
   } catch(error){
-    logger.error(`Database#setReservation: ${registrationIndexedValues} e: ${error}`, error);
+    logger.error(`Database#setReservation: ${error}`, error);
     throw error;
   }
 

@@ -6,12 +6,11 @@
  */
 const config = require('../config');
 const url = require('url');
-const ProjectVersion = require('../utils/project-version').ProjectVersion;
 
 // get version from the file that is in the container
 const info = Object.assign({}, config.get('service'));
-const pv = new ProjectVersion();
-info['version'] = pv.version();
+const reportingSettings = config.get('reporting');
+info['version'] = reportingSettings.templateVersion;
 
 // add eventual missing '/';
 ['access', 'api', 'register'].forEach((key) => {

@@ -17,7 +17,8 @@
     "eventTypes": "https://api.pryv.com/event-types/flat.json",
     "assets": {
       "definitions": "https://pryv.github.io/assets-pryv.me/index.json"
-    }
+    },
+    "register": "http://localhost:8080/"
   },
   "redis": {
     "password": "MyRecordedLife",
