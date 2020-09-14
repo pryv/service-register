@@ -2,6 +2,10 @@
 
 ## 1.3.X
 
+### 1.3.65
+
+ - GET /admin/users/:username enpoint - authorization with role 'system' instead of 'admin'
+
 ### 1.3.64
 
  - GET /admin/users/:username enpoint
