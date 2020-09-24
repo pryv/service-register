@@ -1268,7 +1268,7 @@ describe('User Management', () => {
               assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
               assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
           });
-          it('[0C62] Succeed updating unique fields information', async () => {
+          it('[0C63] Succeed updating unique fields information', async () => {
             const oldEmail = await bluebird.fromCallback(cb =>
               db.get(`${userRegistrationData1.user.email}:email`, cb));
             const uniqueEmail = await bluebird.fromCallback(cb =>
@@ -1431,44 +1431,6 @@ describe('User Management', () => {
         });
       });
       describe('When field "fieldsToDelete" are provided', async () => {
-        describe('When not valid input is provided', async () => {
-          describe('When username is provided for the deletion', async () => {
-            let response;
-            let userRegistrationData1;
-            let userDataUpdate;
-
-            before(async function () {
-              userRegistrationData1 = defaultsForSystemRegistration();
-              userDataUpdate = {
-                user: { username: userRegistrationData1.user.username, },
-                fieldsToDelete: {
-                  username: userRegistrationData1.user.username
-                }
-              };
-
-              // seed initial user
-              try{
-                await request.post(server.url + path)
-                  .send(userRegistrationData1)
-                  .set('Authorization', defaultAuth);
-
-                response = await request.put(server.url + path).set('Authorization', defaultAuth)
-                  .send(userDataUpdate);
-              } catch (err) {
-                response = err.response;
-              }
-            });
-            it('Should fail with 400 status', async () => {
-              assert.equal(response.status, 400);
-              assert.equal(response.body.user, false);
-            });
-            it('Information in username:users should not be changed', async () => {
-              const userInfo = await bluebird.fromCallback(cb =>
-                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
-              assert.equal(userRegistrationData1.user.email, userInfo['email']);
-            });
-          });
-        });
         describe('When valid input is provided', async () => {
           let response;
           let userRegistrationData1;
@@ -1509,8 +1471,49 @@ describe('User Management', () => {
 
             const uniqueRandomField = await bluebird.fromCallback(cb =>
               db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
+
             assert.equal(uniqueEmailField, null);
             assert.equal(uniqueRandomField, null);
+          });
+        });
+        describe('When not valid input is provided', async () => {
+          describe('[UU2U] When username is provided for the deletion', async () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate;
+
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              userDataUpdate = {
+                user: {
+                  username: userRegistrationData1.user.username,
+                },
+                fieldsToDelete: {
+                  username: userRegistrationData1.user.username
+                }
+              };
+
+              // seed initial user
+              try{
+                await request.post(server.url + path)
+                  .send(userRegistrationData1)
+                  .set('Authorization', defaultAuth);
+
+                response = await request.put(server.url + path).set('Authorization', defaultAuth)
+                  .send(userDataUpdate);
+              } catch (err) {
+                response = err.response;
+              }
+            });
+            it('Should fail with 400 status', async () => {
+              assert.equal(response.status, 400);
+              assert.equal(response.body.user, false);
+            });
+            it('Information in username:users should not be changed', async () => {
+              const userInfo = await bluebird.fromCallback(cb =>
+                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+              assert.equal(userRegistrationData1.user.email, userInfo['email']);
+            });
           });
         });
       });

@@ -262,9 +262,10 @@ exports.validateUpdateFields = async (
       }
     ]
   }
- * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
+ * @param object fieldsToDelete
  * Example:
  * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
+ * TODO IEVA - create types for fields and fieldsToDelete
  */
 exports.updateFields = async (
   username: string,
@@ -272,29 +273,45 @@ exports.updateFields = async (
   fieldsToDelete: object,
 ) => {
   // get update action and execute them in parallel
-  let fieldsForUpdate = [];
   try {
-    // save all fields
-    for (const [key, valuesList] of Object.entries(fields)) {
-      // because each key could have many values, iterate them
-      valuesList.forEach(valueObject => {
-        fieldsForUpdate.push(db.updateField(username, key, valueObject));
-      });
-    }
-
-    // delete all not needed unique fields
-    for (const [key, value] of Object.entries(fieldsToDelete)) {
-      fieldsForUpdate.push(db.deleteUniqueField(username, key, value));
-    }
-    const response = await Promise.all(fieldsForUpdate);
-
-    if (response.length === 0) {
-      return false;
-    } else {
-      return true;
-    }
+    const fieldsToDeleteVerified = await verifyFieldForDeletion(username, fieldsToDelete);
+    return await db.updateUserData(username, fields, fieldsToDeleteVerified);
   } catch (error) {
     logger.debug(`users#updateFields: e: ${error}`, error);
+    throw error;
+  }
+};
+
+/**
+ * Validate if field should be deleted - if validation fails,
+ * (username under the unique field value matches our username)
+ * don't throw any error, just skip the deletion
+ * 
+ * @param string username
+ * @param object fieldsToDelete
+ * Example:
+ * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
+ */
+async function verifyFieldForDeletion (
+  username: string,
+  fieldsToDelete: object,
+) {
+  // get update action and execute them in parallel
+  try {
+    const fieldsToDeleteVerified = {};
+    for (const [key, value] of Object.entries(fieldsToDelete)) {
+      // Get username: users: <fieldname> value if username exists
+      const previousValue = await bluebird.fromCallback(cb =>
+        db.get(`${value}:${key}`, cb));
+
+      // if user field should be unique, save the value as a key separately
+      if (previousValue === username) {
+        fieldsToDeleteVerified[key] = value;
+      }
+    }
+    return fieldsToDeleteVerified;
+  } catch (error) {
+    logger.debug(`users#verifyFieldForDeletion: e: ${error}`, error);
     throw error;
   }
 };

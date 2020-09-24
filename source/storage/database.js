@@ -11,10 +11,7 @@ const async = require('async');
 const semver = require('semver');
 const logger = require('winston');
 const lodash = require('lodash');
-
-const config = require('../config');  
-const messages = require('../utils/messages');
-
+const config = require('../config');
 const redis = require('redis').createClient(
   config.get('redis:port'),
   config.get('redis:host'), {});
@@ -472,6 +469,45 @@ function setServerAndInfos(
 }
 exports.setServerAndInfos = setServerAndInfos;
 
+/**
+ * Update indexed and update, create, delete unique values in
+ * one transaction
+ * @param string username
+ * @param object fields
+ * @param object fieldsToDelete
+ */
+exports.updateUserData = async (
+  username: string,
+  fields: object,
+  fieldsToDelete: object,
+) => {
+  // get old user data
+  const oldUserData = await bluebird.fromCallback(cb =>
+    redis.hgetall(ns(username, 'users'), cb));
+
+  let multi = redis.multi();
+
+  // save all fields
+  for (const [key, valuesList] of Object.entries(fields)) {
+    // because each key could have many values, iterate them
+    valuesList.forEach(valueObject => {
+      multi = this.updateField(username, key, valueObject, oldUserData[key], multi);
+    });
+  }
+
+  // delete unique fields
+  for (const [key, value] of Object.entries(fieldsToDelete)) {
+    multi = this.deleteUniqueField(key, value, multi);
+  }
+  // execute the transaction
+  const results = await bluebird.fromCallback(cb => multi.exec(cb));
+
+  if (results.length == 0 || results.some((e) => { return !['OK', 1].includes(e) })) {
+    return false;
+  }
+  return true;
+};
+
 const EMAIL_FIELD = 'email';
 
 /// Deletes the user identified by `username` from redis. 
@@ -535,13 +571,15 @@ exports.isFieldUniqueForUser = async function (
  * (as it was done for username and email before)
  * @param string username 
  * @param string fieldName
- * @param string fieldValue
- * @param boolean unique 
+ * @param string dataObject
+ * @param object multi
  */
-exports.updateField = async function (
+exports.updateField = function (
   username: string,
   fieldName: string,
-  dataObject: object
+  dataObject: object,
+  oldValue: object,
+  multi: object
 ) {
   let fieldValue = dataObject.value;
   const unique = dataObject.isUnique;
@@ -550,71 +588,43 @@ exports.updateField = async function (
 
   // check if anything should be updated
   if(! unique && !active){
-    return;
+    return multi;
   }
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
   
-  try {
-    // Get username:users:<fieldname> value if username exists
-    const previousValue = await bluebird.fromCallback(cb =>
-      redis.hget(ns(username, 'users'), fieldName, cb));
-
-    // Race condition: If two requests enter here at the same time, the
-    //  last one to enter will win, writing the values. The verification we
-    //  do above is not protected / linked to what follows.
-              
-    const multi = redis.multi();
-    if(active){
-      multi.hmset(ns(username, 'users'), fieldName, fieldValue);
-    }
-
-    // if user field should be unique, save the value as a key separately
-    if (unique){
-      multi.set(ns(fieldValue, fieldName), username);
-      // Remove previous user field value
-      if(previousValue && ! creation){
-        multi.del(ns(previousValue, fieldName));
-      }
-    }
-
-    await bluebird.fromCallback(cb => multi.exec(cb));
-    // TODO, better to return true only after checking the response from the redis
-    return true;
-  } catch (error) {
-    throw error;
+  if(active){
+    multi.hmset(ns(username, 'users'), fieldName, fieldValue);
   }
+
+  // if user field should be unique, save the value as a key separately
+  if (unique){
+    multi.set(ns(fieldValue, fieldName), username);
+  }
+
+  // Remove previous user unique field value if needed
+  if (!creation && oldValue) {
+    multi.del(ns(oldValue, fieldName));
+  }
+
+  return multi;
 };
 
 /**
- * Validate that field belongs to the user
- * and delete it
- * @param {*} username 
+ * Delete unique field using given transaction
  * @param {*} fieldName 
  * @param {*} fieldValue 
+ * @param {*} multi
  */
-exports.deleteUniqueField = async function (
-  username: string,
+exports.deleteUniqueField = function (
   fieldName: string,
-  fieldValue: string
+  fieldValue: string,
+  multi: object,
 ) {
   fieldValue = fieldValue.toLowerCase();
-  username = username.toLowerCase();
-
-  try {
-    // Get username:users:<fieldname> value if username exists
-    const previousValue = await bluebird.fromCallback(cb =>
-      redis.get(ns(fieldValue, fieldName), cb));
-
-    // if user field should be unique, save the value as a key separately
-    if (previousValue === username) {
-      // Remove unique value
-      await bluebird.fromCallback(cb => redis.del(ns(fieldValue, fieldName), cb));
-    }
-    return true;
-  } catch (error) {
-    throw error;
-  }
+  // Remove unique value
+  multi.del(ns(fieldValue, fieldName));
+  return multi;
 };
 
 exports.isFieldUnique = async (
