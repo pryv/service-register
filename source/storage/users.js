@@ -191,6 +191,60 @@ const asyncForEach = async (array, callback) => {
   }
 }
 
+
+/**
+ *
+ * Validate all fields for the user
+ * @param string username 
+ * @param object fields {fieldname: fieldvalue}
+ * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
+ */
+exports.validateUpdateFields = async (
+  username: string,
+  fields: object,
+) => {
+  // get update action and execute them in parallel
+  let uniquenessErrorTemplate = {
+    id: ErrorIds.ItemAlreadyExists,
+    data: {}
+  };
+  let unique;
+  try {
+    const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
+
+    if (!exists) {
+      throw (new messages.REGError(404, {
+        id: 'UNKNOWN_USER_NAME',
+        message: 'No such user',
+      }));
+    }
+
+    // validate all unique fields
+    for (const [key, valuesList] of Object.entries(fields)) {
+      // because each key could have many values, iterate them
+      const checkUniqueness = async () => {
+        await asyncForEach(valuesList, async (valueObject) => {
+          if (valueObject.isUnique == true) {
+            unique = await db.isFieldUniqueForUser(username, key, valueObject.value);
+            if (!unique) {
+              uniquenessErrorTemplate.data[key] = valueObject.value;
+            }
+          }
+        });
+      }
+      await checkUniqueness();
+    }
+
+    if (Object.keys(uniquenessErrorTemplate.data).length > 0) {
+      throw uniquenessErrorTemplate;
+    }
+  } catch (error) {
+    logger.debug(`users#validateUpdateFields: e: ${error}`, error);
+    throw error;
+  }
+};
+
+
 /**
  *
  * Update all fields for the user
@@ -205,41 +259,7 @@ exports.updateFields = async (
 ) => {
   // get update action and execute them in parallel
   let fieldsForUpdate = [];
-  let uniquenessErrorTemplate = {
-    id: ErrorIds.ItemAlreadyExists,
-    data: {}
-  };
-  let unique;
   try {
-    const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
-
-    if (!exists) {
-      throw(new messages.REGError(404, {
-        id: 'UNKNOWN_USER_NAME',
-        message: 'No such user',
-      }));
-    }
-
-    // validate all unique fields
-    for (const [key, valuesList] of Object.entries(fields)) {
-      // because each key could have many values, iterate them
-      const checkUniqueness = async () => {
-        await asyncForEach(valuesList, async (valueObject) => {
-          if(valueObject.isUnique == true){
-            unique = await db.isFieldUniqueForUser(username, key, valueObject.value);
-            if (! unique) {
-              uniquenessErrorTemplate.data[key] = valueObject.value;
-            }
-          }
-        });
-      }
-      await checkUniqueness();
-    }
-
-    if (Object.keys(uniquenessErrorTemplate.data).length > 0) {
-      throw uniquenessErrorTemplate;
-    }
-
     // save all fields
     for (const [key, valuesList] of Object.entries(fields)) {
       // because each key could have many values, iterate them

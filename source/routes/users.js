@@ -163,7 +163,6 @@ module.exports = function (app: express$Application) {
   app.put('/users',
     requireRoles('system'),
     async (req: express$Request, res, next) => {
-      // FLOW Assume body has this type.
       let body = req.body;
       // Allow update and delete for all fields except for username
       let username = body.user.username;
@@ -172,6 +171,7 @@ module.exports = function (app: express$Application) {
       let fieldsToDelete = (body.fieldsToDelete) ? body.fieldsToDelete : {};
       delete fieldsToDelete.username;
       try {
+        await users.validateUpdateFields(username, body.user);
         const response = await users.updateFields(username, body.user, fieldsToDelete);
 
         // dummy successful response for the system call
@@ -180,11 +180,11 @@ module.exports = function (app: express$Application) {
         } else {
           res.status(200).json({ user: true });
         }
-      } catch (errors) {
-        if (typeof errors === 'object') {
-          return res.status(400).json({ user: false, error: errors });
+      } catch (error) {
+        if (typeof error === 'object') {
+          return res.status(400).json({ user: false, error: error });
         }
-        next(errors);
+        next(error);
       }
   });
 
@@ -266,7 +266,6 @@ module.exports = function (app: express$Application) {
           // 2. Check if Uid already exists
           const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
           if (uidExists === true) {
-          // TODO IEVA - reuse id somewhere globally
             error = errorTemplate;
             error.id = ErrorIds.ItemAlreadyExists;
             error.data['username'] = body.username;
