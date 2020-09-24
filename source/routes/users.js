@@ -161,14 +161,17 @@ module.exports = function (app: express$Application) {
     async (req: express$Request, res, next) => {
       let body = req.body;
       // Allow update and delete for all fields except for username
-      let username = body.user.username;
-      delete body.user.username;
+      let username = body.username;
 
-      let fieldsToDelete = (body.fieldsToDelete) ? body.fieldsToDelete : {};
-      delete fieldsToDelete.username;
+      let fieldsforDeletion = (body.fieldsToDelete) ? body.fieldsToDelete : {};
+      let fieldsforUpdate = (body.user) ? body.user : {};
+
+      // just make sure that username would not be changed
+      delete fieldsforDeletion.username;
+      delete fieldsforUpdate.username;
       try {
-        await users.validateUpdateFields(username, body.user);
-        const response = await users.updateFields(username, body.user, fieldsToDelete);
+        await users.validateUpdateFields(username, fieldsforUpdate);
+        const response = await users.updateFields(username, fieldsforUpdate, fieldsforDeletion);
 
         // dummy successful response for the system call
         if (response === false) {

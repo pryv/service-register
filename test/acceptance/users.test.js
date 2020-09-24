@@ -64,8 +64,12 @@ function defaults (newRegsitration: Boolean) {
 
 function defaultsForSystemRegistration () {
    const randomFieldValue = randomuser();
-   return {
-    user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+  return {
+    user: {
+      username: randomuser(),
+      email: randomuser(),
+      RandomField: randomFieldValue
+    },
     unique: ['email', 'RandomField'],
     host: { name: 'some-host' }
   }
@@ -75,8 +79,8 @@ function defaultsForSystemDataUpdate () {
   const randomFieldValue = randomuser();
 
   return {
+    username: randomuser(),
     user:{
-      username: randomuser(),
       email: [
         {
           value: randomuser() + '@wactiv.chx',
@@ -1257,7 +1261,7 @@ describe('User Management', () => {
           before(async function () {
             userRegistrationData1 = defaultsForSystemRegistration();
             userDataUpdate = defaultsForSystemDataUpdate();
-            userDataUpdate.user.username = userRegistrationData1.user.username;
+            userDataUpdate.username = userRegistrationData1.user.username;
             // seed initial user
             await request.post(server.url + path)
               .send(userRegistrationData1)
@@ -1265,7 +1269,7 @@ describe('User Management', () => {
 
             // just generating inactive fields
             let userDataUpdate0 = defaultsForSystemDataUpdate();
-            userDataUpdate0.user.username = userRegistrationData1.user.username;
+            userDataUpdate0.username = userRegistrationData1.user.username;
             response = await request.put(server.url + path)
               .set('Authorization', defaultAuth)
               .send(userDataUpdate0);
@@ -1301,8 +1305,8 @@ describe('User Management', () => {
               db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
             assert.equal(oldEmail, null);
             assert.equal(oldRandomField, null);
-            assert.equal(uniqueEmail, userDataUpdate.user.username);
-            assert.equal(uniqueRandomField, userDataUpdate.user.username);
+            assert.equal(uniqueEmail, userDataUpdate.username);
+            assert.equal(uniqueRandomField, userDataUpdate.username);
           });
           it('[HHXS] Not active unique field should be updated', async () => {
             const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
@@ -1318,7 +1322,7 @@ describe('User Management', () => {
             before(async function () {
               userRegistrationData1 = defaultsForSystemRegistration();
               userDataUpdate = defaultsForSystemDataUpdate();
-              userDataUpdate.user.username = userRegistrationData1.user.username;
+              userDataUpdate.username = userRegistrationData1.user.username;
               userDataUpdate.user.email[0].creation = true;
               userDataUpdate.user.RandomField[0].creation = true;
 
@@ -1355,25 +1359,20 @@ describe('User Management', () => {
                 db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
               const uniqueRandomField = await bluebird.fromCallback(cb =>
                 db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
-              assert.equal(uniqueEmail, userDataUpdate.user.username);
-              assert.equal(uniqueRandomField, userDataUpdate.user.username);
+              assert.equal(uniqueEmail, userDataUpdate.username);
+              assert.equal(uniqueRandomField, userDataUpdate.username);
             });
           });
-          describe('[637G] Not active unique user information is updated', () => {
+          describe('Not active unique user information is updated', () => {
             let response;
             let userRegistrationData1;
             let userDataUpdate;
-            let initialInactiveData;
 
             before(async function () {
               userRegistrationData1 = defaultsForSystemRegistration();
-              // userDataUpdate = defaultsForSystemDataUpdate();
-              // userDataUpdate.user.username = userRegistrationData1.user.username;
-              // userDataUpdate.user.email[0].creation = true;
-              // userDataUpdate.user.RandomField[0].creation = true;
               userDataUpdate = {
+                username: userRegistrationData1.user.username,
                 user: {
-                  username: userRegistrationData1.user.username,
                   email: [
                     {
                       value: userRegistrationData1.user.email,
@@ -1423,7 +1422,7 @@ describe('User Management', () => {
           let userDataUpdate = defaultsForSystemDataUpdate();
 
           let userRegistrationData1 = defaultsForSystemRegistration();
-          userRegistrationData1.user.username = userDataUpdate.user.username;
+          userRegistrationData1.user.username = userDataUpdate.username;
 
           let userRegistrationData2 = defaultsForSystemRegistration();
           userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
@@ -1451,12 +1450,11 @@ describe('User Management', () => {
 
         it('[E987] Should fail if additional field is not unique', async () => {
           let userDataUpdate = defaultsForSystemDataUpdate();
-
           let userRegistrationData2 = defaultsForSystemRegistration();
           userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
 
           let userRegistrationData3 = defaultsForSystemRegistration();
-          userRegistrationData3.user.username = userDataUpdate.user.username;
+          userRegistrationData3.user.username = userDataUpdate.username;
           try {
             // seed initial user
             await request.post(server.url + path)
@@ -1486,10 +1484,8 @@ describe('User Management', () => {
           userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
           userRegistrationData2.user.RandomField = userDataUpdate.user.RandomField[0].value;
           try {
-
-
             let userRegistrationData3 = defaultsForSystemRegistration();
-            userRegistrationData3.user.username = userDataUpdate.user.username;
+            userRegistrationData3.user.username = userDataUpdate.username;
 
             // seed initial user
             await request.post(server.url + path)
@@ -1525,7 +1521,8 @@ describe('User Management', () => {
           before(async function () {
             userRegistrationData1 = defaultsForSystemRegistration();
             userDataUpdate = {
-              user: { username: userRegistrationData1.user.username, },
+              username: userRegistrationData1.user.username,
+              user: {},
               fieldsToDelete: {
                 email: userRegistrationData1.user.email,
                 RandomField: userRegistrationData1.user.RandomField
@@ -1571,9 +1568,8 @@ describe('User Management', () => {
             before(async function () {
               userRegistrationData1 = defaultsForSystemRegistration();
               userDataUpdate = {
-                user: {
-                  username: userRegistrationData1.user.username,
-                },
+                username: userRegistrationData1.user.username,
+                user: {},
                 fieldsToDelete: {
                   username: userRegistrationData1.user.username
                 }
