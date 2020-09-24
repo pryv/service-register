@@ -94,12 +94,11 @@ describe('POST /access/:key', function () {
           username: 'tototp',
           token: 'token'
         };
-    
-        const res = await request.post(accessState.poll).send(data);
-    
-        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-        data.username.should.equal(res.body.username);
-        data.token.should.equal(res.body.token);
+
+      const res = await request.post(accessState.poll).send(data);
+      'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+       data.username.should.equal(res.body.username);
+       data.token.should.equal(res.body.token);
       });
     });
 

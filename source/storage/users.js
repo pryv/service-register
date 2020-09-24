@@ -274,44 +274,11 @@ exports.updateFields = async (
 ) => {
   // get update action and execute them in parallel
   try {
-    const fieldsToDeleteVerified = await verifyFieldForDeletion(username, fieldsToDelete);
+    username = username.toLowerCase();
+    const fieldsToDeleteVerified = await db.verifyFieldForDeletion(username, fieldsToDelete);
     return await db.updateUserData(username, fields, fieldsToDeleteVerified);
   } catch (error) {
     logger.debug(`users#updateFields: e: ${error}`, error);
-    throw error;
-  }
-};
-
-/**
- * Validate if field should be deleted - if validation fails,
- * (username under the unique field value matches our username)
- * don't throw any error, just skip the deletion
- * 
- * @param string username
- * @param object fieldsToDelete
- * Example:
- * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
- */
-async function verifyFieldForDeletion (
-  username: string,
-  fieldsToDelete: object,
-) {
-  // get update action and execute them in parallel
-  try {
-    const fieldsToDeleteVerified = {};
-    for (const [key, value] of Object.entries(fieldsToDelete)) {
-      // Get username: users: <fieldname> value if username exists
-      const previousValue = await bluebird.fromCallback(cb =>
-        db.get(`${value}:${key}`, cb));
-
-      // if user field should be unique, save the value as a key separately
-      if (previousValue === username) {
-        fieldsToDeleteVerified[key] = value;
-      }
-    }
-    return fieldsToDeleteVerified;
-  } catch (error) {
-    logger.debug(`users#verifyFieldForDeletion: e: ${error}`, error);
     throw error;
   }
 };

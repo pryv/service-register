@@ -77,12 +77,20 @@ function defaultsForSystemDataUpdate () {
   return {
     user:{
       username: randomuser(),
-      email: [{
-        value: randomuser() + '@wactiv.chx',
-        isUnique: true,
-        isActive: true,
-        creation: false
-      }],
+      email: [
+        {
+          value: randomuser() + '@wactiv.chx',
+          isUnique: true,
+          isActive: true,
+          creation: false
+        },
+        {
+          value: randomuser() + '@wactiv.chx',
+          isUnique: true,
+          isActive: false,
+          creation: true
+        }
+      ],
       RandomField: [{
        value: randomFieldValue,
        isUnique: true,
@@ -439,7 +447,7 @@ describe('User Management', () => {
           });
       });
 
-      it('should fail if the "invitationToken" is missing', function (done) {
+      it('[L3LP] should fail if the "invitationToken" is missing', function (done) {
         const test = {
           data: _.extend({}, defaults()),
           status: 400,
@@ -447,7 +455,7 @@ describe('User Management', () => {
           JSchema: schemas.error,
           JValues: { 'id': 'INVALID_INVITATION' }
         };
-
+        console.log(test.data,'test.data');
         delete test.data.invitationtoken;
 
         request.post(server.url + basePath).send(test.data)
@@ -1255,8 +1263,22 @@ describe('User Management', () => {
               .send(userRegistrationData1)
               .set('Authorization', defaultAuth);
 
-            response = await request.put(server.url + path).set('Authorization', defaultAuth)
+            // just generating inactive fields
+            let userDataUpdate0 = defaultsForSystemDataUpdate();
+            userDataUpdate0.user.username = userRegistrationData1.user.username;
+            response = await request.put(server.url + path)
+              .set('Authorization', defaultAuth)
+              .send(userDataUpdate0);
+            
+            // verify inactive fields exists before the user data update
+            const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+            assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+
+            // The update that we will validate
+            response = await request.put(server.url + path)
+              .set('Authorization', defaultAuth)
               .send(userDataUpdate);
+            
           });
           it('[DAE0] Response is successful when all fields are unique', async () => {
             assert.equal(response.status, 200);
@@ -1282,52 +1304,116 @@ describe('User Management', () => {
             assert.equal(uniqueEmail, userDataUpdate.user.username);
             assert.equal(uniqueRandomField, userDataUpdate.user.username);
           });
+          it('[HHXS] Not active unique field should be updated', async () => {
+            const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+            assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+          });
         });
-        describe('[637G] When fields have property “creation” set to true', async () => {
-          let response;
-          let userRegistrationData1;
-          let userDataUpdate;
+        describe('When fields have property “creation” set to true', () => {
+          describe('Active and unique user information is updated', () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate;
 
-          before(async function () {
-            userRegistrationData1 = defaultsForSystemRegistration();
-            userDataUpdate = defaultsForSystemDataUpdate();
-            userDataUpdate.user.username = userRegistrationData1.user.username;
-            userDataUpdate.user.email[0].creation = true;
-            userDataUpdate.user.RandomField[0].creation = true;
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              userDataUpdate = defaultsForSystemDataUpdate();
+              userDataUpdate.user.username = userRegistrationData1.user.username;
+              userDataUpdate.user.email[0].creation = true;
+              userDataUpdate.user.RandomField[0].creation = true;
 
-            // seed initial user
-            await request.post(server.url + path)
-              .send(userRegistrationData1)
-              .set('Authorization', defaultAuth);
+              // seed initial user
+              await request.post(server.url + path)
+                .send(userRegistrationData1)
+                .set('Authorization', defaultAuth);
+              
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate);
+              console.log(userDataUpdate.user.email,'userDataUpdateeeeeeeeeee');
+            });
+            it('Should return status 200', async () => {
+              assert.equal(response.status, 200);
+              assert.equal(response.body.user, true);
+            });
+            it('Should update username:users information', async () => {
+              const userInfo = await bluebird.fromCallback(cb =>
+                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+                assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
+                assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
+            });
+            it('Old unique field should be not modified', async () => {
+              const dbEmailValue = await bluebird.fromCallback(cb =>
+                db.get(`${userRegistrationData1.user.email}:email`, cb));
+              const dbRandomFieldValue = await bluebird.fromCallback(cb =>
+                db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
+              assert.equal(userRegistrationData1.user.username, dbEmailValue);
+              assert.equal(userRegistrationData1.user.username, dbRandomFieldValue);
+            });
+            it('New unique field should be created', async () => {
+              const uniqueEmail = await bluebird.fromCallback(cb =>
+                db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
+              const uniqueRandomField = await bluebird.fromCallback(cb =>
+                db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
+              assert.equal(uniqueEmail, userDataUpdate.user.username);
+              assert.equal(uniqueRandomField, userDataUpdate.user.username);
+            });
+          });
+          describe('[637G] Not active unique user information is updated', () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate;
+            let initialInactiveData;
 
-            response = await request.put(server.url + path).set('Authorization', defaultAuth)
-              .send(userDataUpdate);
-          });
-          it('Should return status 200', async () => {
-            assert.equal(response.status, 200);
-            assert.equal(response.body.user, true);
-          });
-          it('Should update username:users information', async () => {
-            const userInfo = await bluebird.fromCallback(cb =>
-              db.getSet(`${userRegistrationData1.user.username}:users`, cb));
-              assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
-              assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
-          });
-          it('Old unique field should be not modified', async () => {
-            const oldEmail = await bluebird.fromCallback(cb =>
-              db.get(`${userRegistrationData1.user.email}:email`, cb));
-            const oldRandomField = await bluebird.fromCallback(cb =>
-              db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
-            assert.equal(oldEmail, userRegistrationData1.user.username);
-            assert.equal(oldRandomField, userRegistrationData1.user.username);
-          });
-          it('New unique field should be created', async () => {
-            const uniqueEmail = await bluebird.fromCallback(cb =>
-              db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
-            const uniqueRandomField = await bluebird.fromCallback(cb =>
-              db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
-            assert.equal(uniqueEmail, userDataUpdate.user.username);
-            assert.equal(uniqueRandomField, userDataUpdate.user.username);
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              // userDataUpdate = defaultsForSystemDataUpdate();
+              // userDataUpdate.user.username = userRegistrationData1.user.username;
+              // userDataUpdate.user.email[0].creation = true;
+              // userDataUpdate.user.RandomField[0].creation = true;
+              userDataUpdate = {
+                user: {
+                  username: userRegistrationData1.user.username,
+                  email: [
+                    {
+                      value: userRegistrationData1.user.email,
+                      isUnique: true,
+                      isActive: false,
+                      creation: false
+                    }
+                  ]
+                },
+                fieldsToDelete: {},
+              };
+              // seed initial user
+              await request.post(server.url + path)
+                .send(userRegistrationData1)
+                .set('Authorization', defaultAuth);
+
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate);
+            });
+            it('Should return status 200', async () => {
+              assert.equal(response.status, 200);
+              assert.equal(response.body.user, true);
+            });
+            it('Should NOT update username:users information', async () => {
+              const userInfo = await bluebird.fromCallback(cb =>
+                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+              assert.equal(userRegistrationData1.user.email, userInfo['email']);
+            });
+            it('Old unique field should be not modified', async () => {
+              const oldEmailValueExists = await bluebird.fromCallback(cb =>
+                 db.get(`${userRegistrationData1.user.email}:email`, cb));
+
+              assert.equal(userRegistrationData1.user.username, oldEmailValueExists);
+            });
+            it('Active unique field should become inactive unique field', async () => {
+              const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+              assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              assert.deepEqual(inactiveData.email, [userRegistrationData1.user.email]);
+            });
           });
         });
       });

@@ -16,7 +16,6 @@ const redis = require('redis').createClient(
   config.get('redis:port'),
   config.get('redis:host'), {});
 
-
 type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed; 
 type Callback = GenericCallback<mixed>;
 
@@ -131,6 +130,14 @@ function checkConnection() {
     }
   });
 }
+
+const NOT_ACTIVE_FOLDER_NAME = 'inactive';
+/**
+ * Inactive user properties are stored in
+ * <username>:NOT_ACTIVE_FOLDER_NAME:<fieldname>: values list
+ */
+exports.NOT_ACTIVE_FOLDER_NAME = NOT_ACTIVE_FOLDER_NAME;
+
 
 /**
  * Simply map redis.set
@@ -318,9 +325,13 @@ function doOnKeysMatching(
       logger.error('Redis getAllKeysMatchingValue: ' + keyMask + ' e: ' + error, error);
       return  done(error, 0);
     }
+
     var i, len;
     for (i = 0, len = replies.length; i < len; i++) {
-      action(replies[i]);
+      // skip inactive fields that have a type 'list'
+      if (!replies[i].includes(`:${NOT_ACTIVE_FOLDER_NAME}:`)) {
+        action(replies[i]);
+      }
     }
     done(null, i);
   });
@@ -339,7 +350,6 @@ function doOnKeysValuesMatching(
   action: (key: string, value: string) => mixed, 
   done: ?GenericCallback<number>,
 ) {
-
   let receivedCount = 0;
   let waitFor = -1;
   let firstError = null; 
@@ -362,7 +372,6 @@ function doOnKeysValuesMatching(
       redis.get(key, function (error, result) {
         if (error) {
           if (firstError == null) firstError = error; 
-
           logger.error('doOnKeysValuesMatching: ' + keyMask + ' ' + valueMask + ' e: ' + error,
             error);
         } else {
@@ -469,6 +478,35 @@ function setServerAndInfos(
 }
 exports.setServerAndInfos = setServerAndInfos;
 
+async function getUserData(username): object {
+  return await bluebird.fromCallback(cb =>
+    redis.hgetall(`${username}:users`, cb));
+}
+
+/**
+ * Get all inactive fields for the username
+ * @param string username 
+ */
+async function getAllInactiveData (username): object {
+  const keys = await bluebird.fromCallback(cb =>
+    redis.keys(`${username}:${NOT_ACTIVE_FOLDER_NAME}:*`, cb));
+  
+  const queries = keys.map(key => {
+    return bluebird.fromCallback(cb =>
+      redis.lrange(`${key}`, 0, -1, cb));
+  });
+  let results = await Promise.all(queries);
+
+  // form key -> list object
+  let inactiveData = {};
+  results.forEach((result, i) => {
+    let params = keys[i].split(':');
+    inactiveData[params[params.length - 1]] = result;
+  });
+  return inactiveData;
+}
+exports.getAllInactiveData = getAllInactiveData;
+
 /**
  * Update indexed and update, create, delete unique values in
  * one transaction
@@ -482,57 +520,123 @@ exports.updateUserData = async (
   fieldsToDelete: object,
 ) => {
   // get old user data
-  const oldUserData = await bluebird.fromCallback(cb =>
-    redis.hgetall(ns(username, 'users'), cb));
-
+  const oldUserData = await getUserData(username);
+  const inactiveData = await getAllInactiveData(username);
   let multi = redis.multi();
 
   // save all fields
   for (const [key, valuesList] of Object.entries(fields)) {
     // because each key could have many values, iterate them
     valuesList.forEach(valueObject => {
-      multi = this.updateField(username, key, valueObject, oldUserData[key], multi);
+      multi = updateField(username, key, valueObject, oldUserData[key], inactiveData, multi);
     });
   }
 
   // delete unique fields
   for (const [key, value] of Object.entries(fieldsToDelete)) {
-    multi = this.deleteUniqueField(key, value, multi);
+    multi = deleteUniqueField(key, value, multi);
   }
+
   // execute the transaction
   const results = await bluebird.fromCallback(cb => multi.exec(cb));
-
-  if (results.length == 0 || results.some((e) => { return !['OK', 1].includes(e) })) {
+  if (
+    results.length === 0 ||
+    // any unsuccessful response
+    results.some(res => {return !(res === 'OK' || parseInt(res) > 0) })) {
     return false;
   }
   return true;
 };
 
-const EMAIL_FIELD = 'email';
-
-/// Deletes the user identified by `username` from redis. 
-/// 
-async function deleteUser(username: string): Promise<mixed> {
+/**
+ * Deletes the user identified by `username` from redis.
+ * Deletion is done with a transaction so that is server or user
+ * deletion fails, the request could be repeated
+ * 
+ * @param {*} username 
+ */
+async function deleteUser (username: string): Promise<mixed> {
   const saneUsername = username.toLowerCase(); 
 
-  const recordKey = ns(saneUsername, 'users');
-  const keysToDelete = [
-    recordKey, 
-    ns(saneUsername, 'server'),
-  ]; 
+  // Get user data
+  const fieldsToDelete = await getUserData(username);
 
-  const currentEmail = await bluebird.fromCallback(
-    cb => redis.hget(recordKey, EMAIL_FIELD, cb));
+  // check which fields were saved as unique and should be deleted
+  const fieldsToDeleteVerified = await verifyFieldForDeletion(
+    saneUsername,
+    fieldsToDelete
+  );
 
-  if (currentEmail != null) keysToDelete.push(
-    ns(currentEmail, 'email'));  
+  let multi = redis.multi();
 
-  // Now try to delete all of these, not stopping when one of them fails. 
-  return bluebird.fromCallback(
-    cb => redis.del(...keysToDelete, cb));
+  // delete unique fields
+  for (const [key, value] of Object.entries(fieldsToDeleteVerified)) {
+    multi = deleteUniqueField(key, value, multi);
+  }
+
+  // delete inactive unique fields
+  const inactiveValuesData = await getAllInactiveData(saneUsername);
+  console.log(inactiveValuesData, 'inactiveValuesData');
+  for (const [key, list] of Object.entries(inactiveValuesData)) {
+    list.forEach(value => {
+      multi = deleteUniqueField(key, value, multi);
+    });
+    multi.del(`${saneUsername}:${NOT_ACTIVE_FOLDER_NAME}:${key}`)
+  }
+  
+  // delete user info
+  multi.del(ns(saneUsername, 'users'));
+
+  // delete dns entry
+  multi.del(ns(saneUsername, 'server'));
+
+  // execute the transaction
+  const results = await bluebird.fromCallback(cb => multi.exec(cb));
+
+  if (results.length === 0 ||
+    // any unsuccessful response
+    results.some(res => { return !(res === 'OK' || parseInt(res) > 0) })) {
+    return false;
+  }
+  return true
 }
 exports.deleteUser = deleteUser;
 
+
+/**
+ * Validate if field should be deleted - if validation fails,
+ * (username under the unique field value matches our username)
+ * don't throw any error, just skip the deletion
+ * 
+ * @param string username
+ * @param object fieldsToDelete
+ * Example:
+ * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
+ */
+async function verifyFieldForDeletion (
+  username: string,
+  fieldsToDelete: object,
+) {
+  // get update action and execute them in parallel
+  try {
+    const fieldsforDeletionVerified = {};
+    for (const [key, value] of Object.entries(fieldsToDelete)) {
+      // Get username: users: <fieldname> value if username exists
+      const previousValue = await bluebird.fromCallback(cb =>
+        redis.get(`${value}:${key}`, cb));
+
+      // if user field should be unique, save the value as a key separately
+      if (previousValue === username) {
+        fieldsforDeletionVerified[key] = value;
+      }
+    }
+    return fieldsforDeletionVerified;
+  } catch (error) {
+    logger.debug(`users#verifyFieldForDeletion: e: ${error}`, error);
+    throw error;
+  }
+};
+exports.verifyFieldForDeletion = verifyFieldForDeletion;
 /**
  * Validate if field (that has to be unique) has a unique value
  * @param string username 
@@ -574,11 +678,12 @@ exports.isFieldUniqueForUser = async function (
  * @param string dataObject
  * @param object multi
  */
-exports.updateField = function (
+function updateField(
   username: string,
   fieldName: string,
   dataObject: object,
   oldValue: object,
+  inactiveData: object,
   multi: object
 ) {
   let fieldValue = dataObject.value;
@@ -587,28 +692,49 @@ exports.updateField = function (
   const creation = dataObject.creation;
 
   // check if anything should be updated
-  if(! unique && !active){
+  if (!unique && !active) {
     return multi;
   }
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
-  
-  if(active){
+
+  if (active) {
     multi.hmset(ns(username, 'users'), fieldName, fieldValue);
   }
 
   // if user field should be unique, save the value as a key separately
-  if (unique){
-    multi.set(ns(fieldValue, fieldName), username);
-  }
+  if (unique) {
+    multi.set(`${fieldValue}:${fieldName}`, username);
 
-  // Remove previous user unique field value if needed
-  if (!creation && oldValue) {
-    multi.del(ns(oldValue, fieldName));
-  }
+    // handle active field property change
+    if (oldValue !== fieldValue) {
+      if (
+        creation &&
+        (!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue))) { 
+        // create new non active records
+        multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
+      } else if (!creation) {
+        // delete old unique reference
+        multi = deleteUniqueField(fieldName, oldValue, multi);
 
+        // delete field
+        if (inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)) {
+          multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
+        }
+      }
+    } else if(!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue)) {
+      if (active && inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)) {
+        // if active non active was changed to active
+        multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
+      } else {
+        // if active value was changed to inactive
+        multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
+      } 
+    }
+  }
   return multi;
 };
+exports.updateField = updateField;
 
 /**
  * Delete unique field using given transaction
@@ -616,16 +742,17 @@ exports.updateField = function (
  * @param {*} fieldValue 
  * @param {*} multi
  */
-exports.deleteUniqueField = function (
+function deleteUniqueField(
   fieldName: string,
   fieldValue: string,
   multi: object,
 ) {
   fieldValue = fieldValue.toLowerCase();
   // Remove unique value
-  multi.del(ns(fieldValue, fieldName));
+  multi.del(`${fieldValue}:${fieldName}`);
   return multi;
 };
+exports.deleteUniqueField = deleteUniqueField;
 
 exports.isFieldUnique = async (
   fieldName: string,
@@ -657,9 +784,6 @@ function _findGhostsEmails() {
         // redis.del(key);
       } else if (user.email == null) {
         e = ' cannot find email for:' + username;
-      } else if (email !== user.email) {
-        e = ' != ' + username + ':user.email -> "' + user.email + '"';
-        // redis.del(key);
       }
 
       if (e) {
