@@ -539,8 +539,9 @@ exports.updateUserData = async (
 
   // execute the transaction
   const results = await bluebird.fromCallback(cb => multi.exec(cb));
-  if (
-    results.length === 0 ||
+  if (results.length === 0) {
+    return null;
+  } else if(
     // any unsuccessful response
     results.some(res => {return !(res === 'OK' || parseInt(res) > 0) })) {
     return false;
@@ -703,33 +704,31 @@ function updateField(
   }
 
   // if user field should be unique, save the value as a key separately
-  if (unique) {
+  if (unique && active) {
     multi.set(`${fieldValue}:${fieldName}`, username);
+    // handle active field property update
+    if (oldValue !== fieldValue && !creation) {
+      // delete old unique reference
+      multi = deleteUniqueField(fieldName, oldValue, multi);
 
-    // handle active field property change
-    if (oldValue !== fieldValue) {
-      if (
-        creation &&
-        (!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue))) { 
-        // create new non active records
-        multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
-      } else if (!creation) {
-        // delete old unique reference
-        multi = deleteUniqueField(fieldName, oldValue, multi);
-
-        // delete field
-        if (inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)) {
-          multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
-        }
-      }
-    } else if(!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue)) {
-      if (active && inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)) {
-        // if active non active was changed to active
+      // delete inactive field if it exists field
+      if (inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)) {
         multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
-      } else {
-        // if active value was changed to inactive
-        multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
-      } 
+      }
+    } else if (oldValue !== fieldValue && creation) { // new active replaces old active
+      multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, oldValue);
+    } else if ( //if inactive was changed to active
+      // inactive record does not exist
+      inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)
+    ) {
+      multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
+    }
+  } else if (unique && !active) {
+    if (
+      // inactive record does not exist
+      (!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue))) {
+      // create new non active record
+      multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
     }
   }
   return multi;

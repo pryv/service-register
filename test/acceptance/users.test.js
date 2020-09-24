@@ -1589,7 +1589,8 @@ describe('User Management', () => {
             });
             it('Should fail with 400 status', async () => {
               assert.equal(response.status, 400);
-              assert.equal(response.body.user, false);
+              // no data was updated
+              assert.equal(response.body.user, null);
             });
             it('Information in username:users should not be changed', async () => {
               const userInfo = await bluebird.fromCallback(cb =>

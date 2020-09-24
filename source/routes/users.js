@@ -174,8 +174,8 @@ module.exports = function (app: express$Application) {
         const response = await users.updateFields(username, fieldsforUpdate, fieldsforDeletion);
 
         // dummy successful response for the system call
-        if (response === false) {
-          res.status(400).json({ user: false });
+        if (!response) {
+          res.status(400).json({ user: response });
         } else {
           res.status(200).json({ user: true });
         }
