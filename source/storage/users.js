@@ -20,6 +20,7 @@ const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
 const messages = require('../utils/messages');
 const ErrorIds = require('../utils/errors-ids');
+const helpers = require('../utils/helpers');
 
 const info = require('../business/service-info');
 const Pryv = require('pryv');
@@ -184,14 +185,6 @@ exports.createUserReservation = async (
   }
 };
 
-// TODO IEVA - move to global helpers
-const asyncForEach = async (array, callback) => {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array)
-  }
-}
-
-
 /**
  *
  * Validate all fields for the user
@@ -223,7 +216,7 @@ exports.validateUpdateFields = async (
     for (const [key, valuesList] of Object.entries(fields)) {
       // because each key could have many values, iterate them
       const checkUniqueness = async () => {
-        await asyncForEach(valuesList, async (valueObject) => {
+        await helpers.asyncForEach(valuesList, async (valueObject) => {
           if (valueObject.isUnique == true) {
             unique = await db.isFieldUniqueForUser(username, key, valueObject.value);
             if (!unique) {

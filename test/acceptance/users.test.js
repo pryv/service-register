@@ -80,7 +80,6 @@ function defaultsForSystemDataUpdate () {
 }
 
 const defaultUsername = 'wactiv';
-const defaultEmail = 'wactiv@pryv.io';
 const defaultAuth = 'test-system-key';
 
 describe('User Management', () => {
@@ -1107,21 +1106,24 @@ describe('User Management', () => {
       }
 
       it('Response should return status 201', async () => {
-        try {
-          const userRegistrationRes = await request.post(server.url + path).set('Authorization', defaultAuth)
-            .send(userRegistrationData);
-          assert.equal(userRegistrationRes.status, 201);
-          assert.equal(userRegistrationRes.body.username, userRegistrationData.user.username);
-          assert.equal(userRegistrationRes.body.server, userRegistrationData.user.username + '.rec.la');
-          assert.equal(userRegistrationRes.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
-        } catch (e) {
-          console.log(e,'e');
-          assert.equal(false, true);
-        }
+        const userRegistrationRes = await request.post(server.url + path).set('Authorization', defaultAuth)
+          .send(userRegistrationData);
+        assert.equal(userRegistrationRes.status, 201);
+        assert.equal(userRegistrationRes.body.username, userRegistrationData.user.username);
+        assert.equal(userRegistrationRes.body.server, userRegistrationData.user.username + '.rec.la');
+        assert.equal(userRegistrationRes.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
       });
 
       it('Should save all provided fields in <username>:users', async () => {
-        // TODO IEVA
+        const user = await bluebird.fromCallback(cb =>
+          db.getSet(`${userRegistrationData.user.username}:users`, cb));
+        assert.exists(user.registeredTimestamp);
+        delete user.registeredTimestamp;
+        // compatibility with old implemnetation
+        userRegistrationData.user.invitationToken = userRegistrationData.user.invitationtoken;
+        delete userRegistrationData.user.invitationtoken;
+
+        assert.deepEqual(user, userRegistrationData.user);
       });
 
       it('Should save unique fields in redis database', async () => {

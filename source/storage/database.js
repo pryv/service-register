@@ -498,62 +498,6 @@ async function deleteUser(username: string): Promise<mixed> {
 exports.deleteUser = deleteUser;
 
 /**
- * Update the email address linked with provided user
- * 
- * @param username: the name of the user
- * @param email: the new email address
- * @param callback: function(error)
- */
-exports.changeEmail = function (
-  username: string, email: string, 
-  callback: Callback, 
-) {
-  email = email.toLowerCase();
-  username = username.toLowerCase();
-
-  // Check that email does not exists
-  redis.get(ns(email, 'email'), function (error, email_username) {
-    if (error != null) return callback(error);
-
-    if (email_username === username) {
-      logger.debug('trying to update an e-mail to the same value ' + username + ' ' + email);
-      return callback();
-    }
-
-    if (email_username != null) {
-      logger.debug(`#changeEmail: Cannot set, in use: ${email}, current ${email_username}, new ${username}`);
-      return callback(new messages.REGError(400, {
-        id: 'DUPLICATE_EMAIL',
-        message: `Cannot set e-mail: ${email} (email is in use)`,
-      }));
-    }
-
-    // assert: email index says we don't currently use this email.
-
-    // Remove previous user e-mail
-    redis.hget(ns(username, 'users'), 'email', function (error, previous_email) {
-      if (error != null) return callback(error);
-
-      // BUG Race condition: If two requests enter here at the same time, the 
-      //  last one to enter will win, writing the values. The verification we
-      //  do above is not protected / linked to what follows. 
-
-      const multi = redis.multi();
-      multi.hmset(ns(username, 'users'), 'email', email);
-      multi.set(ns(email, 'email'), username);
-      multi.del(ns(previous_email, 'email'));
-      multi.exec(function (error) {
-        if (error != null) 
-          logger.error(
-            `Database#changeEmail: ${username} email: ${email} e: ${error}`, error);
-
-        return callback(error);
-      });
-    });
-  });
-};
-
-/**
  * Validate if field (that has to be unique) has a unique value
  * @param string username 
  * @param string fieldName
