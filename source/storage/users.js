@@ -236,8 +236,19 @@ exports.validateUpdateFields = async (
     throw error;
   }
 };
-
-
+type UpdateFieldsSet = {
+  [name: string]: [
+    {
+      value: string,
+      isUnique: boolean,
+      isActive: boolean,
+      creation: boolean
+    }
+  ]
+};
+type DeleteFieldsSet = {
+  [name: string]: string
+};
 /**
  *
  * Update all fields for the user
@@ -265,12 +276,11 @@ exports.validateUpdateFields = async (
  * @param object fieldsToDelete
  * Example:
  * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
- * TODO IEVA - create types for fields and fieldsToDelete
  */
 exports.updateFields = async (
   username: string,
-  fields: object,
-  fieldsToDelete: object,
+  fields: UpdateFieldsSet,
+  fieldsToDelete: DeleteFieldsSet,
 ) => {
   // get update action and execute them in parallel
   try {

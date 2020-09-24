@@ -451,7 +451,7 @@ function setServerAndInfos(
       });
     },
     async function _storeUser () {
-      try{
+      try {
         const multi = redis.multi();
         multi.hmset(ns(username, 'users'), attrs);
         multi.set(ns(username, 'server'), server);
@@ -470,7 +470,7 @@ function setServerAndInfos(
         callback();
       } catch (error) {
         logger.error(`Database#setServerAndInfos: ${username} e: ${error}`, error);
-        return callback(error); //TODO IEVA -make sure it is handled
+        return callback(error);
       }
     }
   ],
