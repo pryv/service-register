@@ -245,36 +245,6 @@ module.exports = function (app: express$Application) {
     _check(req, res, next, false);
   });
 
-
-  // START - CLEAN FOR OPENSOURCE
-  /**
-   * POST /users/:username/change-email: change the email address for a given user
-   */
-  app.post('/users/:username/change-email', 
-    requireRoles('system'), 
-    (req: express$Request, res, next) => {
-      // FLOW Assume body has this type.
-      const body: { [string]: ?(string | number | boolean) } = req.body; 
-
-      var email = checkAndConstraints.email(body.email);
-      if (!email) {
-        return next(new messages.REGError(400, {
-          id: 'INVALID_EMAIL',
-          message: `${body.email} is not a valid e-mail address`,
-        }));
-      }
-
-      users.setEmail(req.params.username, email, function(error, result) {
-        if (error != null) {
-          return next(error);
-        }
-
-        res.json(result);
-      });
-    });
-
-  // END - CLEAN FOR OPENSOURCE
-
   // do username, email and invitation token validations (system call)
   app.post('/users/validate',
     requireRoles('system'),

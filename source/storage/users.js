@@ -93,14 +93,6 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
       if (result == null)
         return callback(new Error('Core answered empty, unknown error.'));
 
-      if (result.id == null) {
-        const err = 'findServer, invalid data from admin server: ' + JSON.stringify(result);
-        logger.error(err);
-
-        return callback(new Error(err));
-      }
-
-      user.id = result.id;
       createUserOnServiceRegister(host, user, ['email'], callback);
     });
   };
@@ -190,35 +182,6 @@ exports.createUserReservation = async (
   } catch(error){
     throw error;
   }
-};
-
-
-/**
- * Update the email address for an user
- * @param username: the user
- * @param email: the new email address
- * @param callback: function(error,result), result being a json object containing success boolean
- */
-exports.setEmail = function create(username: string, email: string, callback: Callback) {
-
-  db.uidExists(username, function (error, exists) {
-    if (error) {
-      return callback(error);
-    }
-
-    if (! exists) 
-      return callback(new messages.REGError(404, {
-        id: 'UNKNOWN_USER_NAME',
-        message: 'No such user',
-      }));
-
-    db.changeEmail(username, email, function (error) {
-      if (error) {
-        return callback(error);
-      }
-      callback(null, {success: true});
-    });
-  });
 };
 
 // TODO IEVA - move to global helpers
