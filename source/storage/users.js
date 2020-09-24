@@ -151,13 +151,13 @@ function isReservationStillValid(reservationTime){
  */
 exports.createUserReservation = async (
   uniqueFields: String,
-  core: String): string => {
-
+  core: String): string | boolean =>
+{
   try{
     // Get reservations for all uniqueFields
     const reservations = await db.getReservations(uniqueFields);
     let reservation;
-    let reservedField;
+    let reservedField = '';
     let reservationExists = false;
     for (reservation of reservations) {
       if (reservation !== null) {
@@ -242,8 +242,29 @@ exports.validateUpdateFields = async (
  *
  * Update all fields for the user
  * @param string username 
- * @param object fields {fieldname: fieldvalue}
+ * @param object fields 
+ * Example :
+ * {
+    email: [
+      {
+        value: 'testpfx5537@wactiv.chx',
+        isUnique: true,
+        isActive: true,
+        creation: true
+      }
+    ],
+    RandomField: [
+      {
+        value: 'testpfx91524',
+        isUnique: true,
+        isActive: true,
+        creation: true
+      }
+    ]
+  }
  * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
+ * Example:
+ * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
  */
 exports.updateFields = async (
   username: string,

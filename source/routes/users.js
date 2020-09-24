@@ -127,33 +127,29 @@ module.exports = function (app: express$Application) {
     });
   });
 
-
   // POST /users: create a new user only in service-register (system call)
   app.post('/users',
     requireRoles('system'),
-    (req: express$Request, res, next) => {
+    async (req: express$Request, res, next) => {
       // form user data to match previous format
       let userData = req.body.user;
+      // compatibility with old structure
       if (userData.appId) {
         userData.appid = userData.appId;
         delete userData.appId;
       }
-
-      if (userData.invitationtoken) {
-        userData.invitationToken = userData.invitationtoken;
-        delete userData.invitationtoken;
-      }
       const host = Object.assign({}, req.body.host);
-      users.createUserOnServiceRegister(host, userData, req.body.unique, function(creationError, result) {
-        if (creationError) {
-          if (creationError.httpCode && creationError.data) {
-            return next(creationError);
-          } else {
-            return next(messages.ei(creationError));
-          }
-        }
+      try{
+        const result = await bluebird.fromCallback(cb =>
+          users.createUserOnServiceRegister(host, userData, req.body.unique, cb));
         return res.status(201).json(result);
-      });
+      } catch (creationError) {
+        if (creationError.httpCode && creationError.data) {
+          return next(creationError);
+        } else {
+          return next(messages.ei(creationError));
+        }
+      }
     }
   );
 
@@ -255,7 +251,7 @@ module.exports = function (app: express$Application) {
       try {
         // 1. Validate invitation toke
         const invitationTokenValid = await bluebird.fromCallback(cb => 
-              invitationToken.checkIfTokenIsValid(body.invitationtoken, cb));
+              invitationToken.checkIfTokenIsValid(body.invitationToken, cb));
         let uniqueFields = body.uniqueFields;
         if (!invitationTokenValid) {
           error = errorTemplate;

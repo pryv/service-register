@@ -34,17 +34,32 @@ require('../support/mock-core-server');
 
 const db = require('../../source/storage/database');
 
-function randomuser() { return 'testpfx' + Math.floor(Math.random() * (100000)); }
-function defaults() {
-  return {
-    hosting: 'mock-api-server',
-    appid: 'pryv-test',
-    username: randomuser(),
-    email: randomuser() + '@wactiv.chx', // should not be necessary
-    password: 'abcdefgh',
-    invitationtoken: 'enjoy',
-    referer: 'pryv'
-  };
+function randomuser () { return 'testpfx' + Math.floor(Math.random() * (100000)); }
+
+function defaults (newRegsitration: Boolean) {
+  newRegsitration = (!newRegsitration) ? false : true;
+  if (newRegsitration) {
+    return {
+      hosting: 'mock-api-server',
+      appId: 'pryv-test',
+      username: randomuser(),
+      email: randomuser() + '@wactiv.chx', // should not be necessary
+      password: 'abcdefgh',
+      invitationToken: 'enjoy',
+      referer: 'pryv'
+    };
+  } else {
+    return {
+      hosting: 'mock-api-server',
+      appid: 'pryv-test',
+      username: randomuser(),
+      email: randomuser() + '@wactiv.chx', // should not be necessary
+      password: 'abcdefgh',
+      invitationtoken: 'enjoy',
+      referer: 'pryv'
+    };
+  }
+  
 }
 
 function defaultsForSystemRegistration () {
@@ -724,7 +739,7 @@ describe('User Management', () => {
       const testData = {
         username: userTestData.username,
         email: userTestData.email,
-        invitationtoken: userTestData.invitationtoken,
+        invitationToken: userTestData.invitationtoken,
       }
       try{
         await request.post(server.url + path).send(testData);
@@ -752,7 +767,7 @@ describe('User Management', () => {
           const randomFieldValue = randomuser();
           const testData = {
             username: userTestData.username,
-            invitationtoken: 'first',
+            invitationToken: 'first',
             uniqueFields: {
               email: userTestData.email,
               RandomField: randomFieldValue
@@ -785,23 +800,21 @@ describe('User Management', () => {
         });
 
         it('Should successfully validate ONLY username and invitation token when email is not provided', async () => {
-          const userTestData = _.extend({}, defaults());
+          const userTestData = _.extend({}, defaults(true));
           const randomFieldValue = randomuser();
           const testData = {
             username: userTestData.username,
-            invitationtoken: 'first',
+            invitationToken: 'first',
             uniqueFields: {
               RandomField: randomFieldValue
             },
             core: 'testing_core1'
           }
-          try {
-            const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-            assert.equal(res.status, 200);
-            assert.equal(res.body.reservation, true);
-          } catch (err) {
-            (false).equal(true);
-          }
+          const res = await request.post(server.url + path)
+            .send(testData)
+            .set('Authorization', defaultAuth);
+          assert.equal(res.status, 200);
+          assert.equal(res.body.reservation, true);
 
           // check the reservation in the database
           const storedReservation = await db.getReservations({
@@ -840,7 +853,7 @@ describe('User Management', () => {
         it('Should fail when invitation token is ok, but username, email are not unique', async () => {
           const testData = {
             username: 'wactiv',
-            invitationtoken: 'second',
+            invitationToken: 'second',
             uniqueFields: {
               email: 'wactiv@pryv.io',
             }
@@ -862,7 +875,7 @@ describe('User Management', () => {
           const testData = {
             "username": 'wactiv',
             "email": 'wactiv@pryv.io',
-            "invitationtoken": 'abc',
+            "invitationToken": 'abc',
           }
 
           try {
@@ -878,11 +891,11 @@ describe('User Management', () => {
         });
 
         it('Should fail when additional unique field is not unique', async () => {
-          const userTestData = _.extend({}, defaults());
+          const userTestData = _.extend({}, defaults(true));
           const randomFieldValue = randomuser();
           const testData = {
             username: userTestData.username,
-            invitationtoken: 'first',
+            invitationToken: 'first',
             uniqueFields: {
               email: userTestData.email,
               RandomField: randomFieldValue
@@ -891,7 +904,7 @@ describe('User Management', () => {
           }
           try {
             let userRegistrationData = {
-              user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+              user: _.extend({}, defaults(true), { RandomField: randomFieldValue }),
               unique: ['email', 'RandomField'],
               host: { name: 'some-host' }
             }
@@ -1100,7 +1113,7 @@ describe('User Management', () => {
     describe('When valid input with additional properties is provided', async () => {
       const randomFieldValue = randomuser();
       let userRegistrationData = {
-        user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
+        user: _.extend({}, defaults(true), { RandomField: randomFieldValue }),
         unique: ['email', 'RandomField'],
         host: { name: 'some-host' }
       }
@@ -1117,11 +1130,12 @@ describe('User Management', () => {
       it('Should save all provided fields in <username>:users', async () => {
         const user = await bluebird.fromCallback(cb =>
           db.getSet(`${userRegistrationData.user.username}:users`, cb));
+        console.log(user, 'user', userRegistrationData.user,'userRegistrationData.user');
         assert.exists(user.registeredTimestamp);
         delete user.registeredTimestamp;
         // compatibility with old implemnetation
-        userRegistrationData.user.invitationToken = userRegistrationData.user.invitationtoken;
-        delete userRegistrationData.user.invitationtoken;
+        userRegistrationData.user.appid = userRegistrationData.user.appId;
+        delete userRegistrationData.user.appId;
 
         assert.deepEqual(user, userRegistrationData.user);
       });
@@ -1172,25 +1186,19 @@ describe('User Management', () => {
       });
 
       it('Should succeed if invitation token is valid', async () => {
-        let userData = _.extend({}, defaults(), { invitationtoken: 'first' });
+        let userData = _.extend({}, defaults(true), { invitationToken: 'first' });
         let userRegistrationData = {
           user: userData,
           unique: [],
           host: { name: 'some-host' }
         }
-
-        try {
-          const res = await request.post(server.url + path)
-            .send(userRegistrationData)
-            .set('Authorization', defaultAuth);
-          assert.equal(res.status, 201);
-          assert.equal(res.body.username, userRegistrationData.user.username);
-          assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
-          assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
-        } catch (e) {
-          console.log(e, 'e');
-          assert.isTrue(false);
-        }
+        const res = await request.post(server.url + path)
+          .send(userRegistrationData)
+          .set('Authorization', defaultAuth);        
+        assert.equal(res.status, 201);
+        assert.equal(res.body.username, userRegistrationData.user.username);
+        assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
+        assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
       });
 
       it('Should fails if invitation token is invalid', async () => {
