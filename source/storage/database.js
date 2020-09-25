@@ -539,6 +539,7 @@ exports.updateUserData = async (
 
   // execute the transaction
   const results = await bluebird.fromCallback(cb => multi.exec(cb));
+  console.log(multi.queue, 'multi', results,'results');
   if (results.length === 0) {
     return null;
   } else if(
@@ -705,36 +706,27 @@ function updateField(
 
   // if user field should be unique, save the value as a key separately
   if (unique) {
-    multi.set(`${fieldValue}:${fieldName}`, username);
-  }
-
-  if (unique && active) {
-    // handle active field property update
+    multi = setUniqueField(fieldName, fieldValue, username, multi);
     if (oldValue !== fieldValue && !creation) {
+      console.log(oldValue, 'oldValue', fieldValue,'fieldValue');
       // delete old unique reference
       multi = deleteUniqueField(fieldName, oldValue, multi);
-
-      // delete inactive field if it exists field
-      if (inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)) {
-        multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
-      }
-    } else if (oldValue !== fieldValue && creation) { // new active replaces old active
-      multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, oldValue);
-    } else if ( //if inactive was changed to active
-      // inactive record does not exist
-      inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)
-    ) {
-      multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
     }
-  } else if (
-    unique &&
-    !active &&
-    // inactive record does not exist
-    (!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue))
-  ) {
-    // create new non active record
-    multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
+
+    // update inactive list
+    multi = updateInactiveUniqueFieldsList(
+      fieldName,
+      fieldValue,
+      oldValue,
+      username,
+      active,
+      inactiveData,
+      multi
+    );
+    
   }
+
+  
   return multi;
 };
 exports.updateField = updateField;
@@ -750,12 +742,62 @@ function deleteUniqueField(
   fieldValue: string,
   multi: object,
 ) {
-  fieldValue = fieldValue.toLowerCase();
+  fieldValue = fieldValue.toLowerCase(); //TODO IEVA
   // Remove unique value
   multi.del(`${fieldValue}:${fieldName}`);
   return multi;
 };
-exports.deleteUniqueField = deleteUniqueField;
+
+/**
+ * Set unique field using given transaction
+ * @param {*} fieldName 
+ * @param {*} fieldValue 
+ * @param {*} username 
+ * @param {*} multi
+ */
+function setUniqueField (
+  fieldName: string,
+  fieldValue: string,
+  username: string,
+  multi: object,
+) {
+  multi.set(`${fieldValue}:${fieldName}`, username);
+  return multi;
+};
+
+function updateInactiveUniqueFieldsList (
+  fieldName: string,
+  fieldValue: string,
+  oldValue: string,
+  username: string,
+  active: Boolean,
+  inactiveData: object,
+  multi: object,
+) {
+  function fieldExistsInInactiveList () {
+    return inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue);
+  }
+  function removeFromInactiveList (value) {
+    multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, value);
+  }
+  function addToInactiveList (value) {
+    multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, value);
+  }
+  if (active) {
+    // new active replaces old active
+    if (oldValue !== fieldValue) { 
+      addToInactiveList(oldValue);
+    }
+    //if inactive was changed to active
+    if (fieldExistsInInactiveList()) {
+      removeFromInactiveList(fieldValue);
+    }
+  } else if (!fieldExistsInInactiveList()) {
+    // new inactive record was created
+    addToInactiveList(fieldValue);
+  }
+  return multi;
+};
 
 exports.isFieldUnique = async (
   fieldName: string,

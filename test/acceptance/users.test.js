@@ -9,7 +9,7 @@ const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const config = require('../../source/config');
 const ErrorIds = require('../../source/utils/errors-ids');
-
+const faker = require('faker');
 const _ = require('lodash');
 const request = require('superagent');
 const chai = require('chai');
@@ -67,7 +67,7 @@ function defaultsForSystemRegistration () {
   return {
     user: {
       username: randomuser(),
-      email: randomuser(),
+      email: faker.lorem.word().toLowerCase() + '@wactiv.chx',
       RandomField: randomFieldValue
     },
     unique: ['email', 'RandomField'],
@@ -87,12 +87,6 @@ function defaultsForSystemDataUpdate () {
           isUnique: true,
           isActive: true,
           creation: false
-        },
-        {
-          value: randomuser() + '@wactiv.chx',
-          isUnique: true,
-          isActive: false,
-          creation: true
         }
       ],
       RandomField: [{
@@ -1253,64 +1247,247 @@ describe('User Management', () => {
     describe('When fields for update are provided', async () => {
 
       describe('When valid input is provided', async () => {
-        describe('When fields have property “creation” set to false', async () => {
-          let response;
-          let userRegistrationData1;
-          let userDataUpdate;
+        describe('When unique field has property “creation” set to false', async () => {
+          describe('When active fields value is changed', async () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate;
 
-          before(async function () {
-            userRegistrationData1 = defaultsForSystemRegistration();
-            userDataUpdate = defaultsForSystemDataUpdate();
-            userDataUpdate.username = userRegistrationData1.user.username;
-            // seed initial user
-            await request.post(server.url + path)
-              .send(userRegistrationData1)
-              .set('Authorization', defaultAuth);
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              userDataUpdate = defaultsForSystemDataUpdate();
+              userDataUpdate.username = userRegistrationData1.user.username;
+              // seed initial user
+              await request.post(server.url + path)
+                .send(userRegistrationData1)
+                .set('Authorization', defaultAuth);
 
-            // just generating inactive fields
-            let userDataUpdate0 = defaultsForSystemDataUpdate();
-            userDataUpdate0.username = userRegistrationData1.user.username;
-            response = await request.put(server.url + path)
-              .set('Authorization', defaultAuth)
-              .send(userDataUpdate0);
-            
-            // verify inactive fields exists before the user data update
-            const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
-            assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              // The update that we will validate
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate);
+            });
+            it('[DAE0] Response is successful when all fields are unique', async () => {
+              assert.equal(response.status, 200);
+              assert.equal(response.body.user, true);
+            });
+            it('[AB25] Succeed updating username:users information', async () => {
+              const userInfo = await bluebird.fromCallback(cb =>
+                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+                assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
+                assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
+            });
+            it('[0C63] Old unique fields are deleted', async () => {
+              const oldEmail = await bluebird.fromCallback(cb =>
+                db.get(`${userRegistrationData1.user.email}:email`, cb));
+              const uniqueEmail = await bluebird.fromCallback(cb =>
+                db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
+              const oldRandomField = await bluebird.fromCallback(cb =>
+                db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
+              const uniqueRandomField = await bluebird.fromCallback(cb =>
+                db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
+              assert.equal(oldEmail, null);
+              assert.equal(oldRandomField, null);
+              assert.equal(uniqueEmail, userDataUpdate.username);
+              assert.equal(uniqueRandomField, userDataUpdate.username);
+            });
+          });
+          describe('When inactive field value is change', async () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate1;
+            let userDataUpdate2;
 
-            // The update that we will validate
-            response = await request.put(server.url + path)
-              .set('Authorization', defaultAuth)
-              .send(userDataUpdate);
-            
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              // create inactive record
+              userDataUpdate1 = {
+                username: userRegistrationData1.user.username,
+                user: {
+                  email: [
+                    {
+                      value: userRegistrationData1.user.email,
+                      isUnique: true,
+                      isActive: false,
+                      creation: false
+                    }
+                  ]
+                },
+                fieldsToDelete: {},
+              }; 
+              
+              // seed initial user
+              await request.post(server.url + path)
+                .send(userRegistrationData1)
+                .set('Authorization', defaultAuth);
+
+              // just generating inactive field
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate1);
+
+              // verify inactive fields exists before the user data update
+              const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+              assert.isTrue(Object.keys(inactiveData.email).length > 0,
+                `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME}:email exists`);
+
+              // update inactive fields value
+              userDataUpdate2 = Object.assign({}, userDataUpdate1);
+              userDataUpdate2.user.email[0].value = faker.lorem.word().toLowerCase();
+
+              // The update that we will validate
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate2);
+
+            });
+            it('Response is successful', async () => {
+              assert.equal(response.status, 200);
+              assert.equal(response.body.user, true);
+            });
+            it('Should update unique fields value', async () => {
+              const oldEmail = await bluebird.fromCallback(cb =>
+                db.get(`${userRegistrationData1.user.email}:email`, cb));
+              const newEmail = await bluebird.fromCallback(cb =>
+                db.get(`${userDataUpdate2.user.email[0].value}:email`, cb));
+              assert.equal(oldEmail, null);
+              assert.equal(newEmail, userDataUpdate2.username);
+            });
+            it('Inactive field should be updated', async () => {
+              const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+              assert.isTrue(Object.keys(inactiveData).length === 1,
+                `after the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              assert.equal(inactiveData.email[0], userDataUpdate2.user.email[0].value);
+            });
           });
-          it('[DAE0] Response is successful when all fields are unique', async () => {
-            assert.equal(response.status, 200);
-            assert.equal(response.body.user, true);
+          describe('When active field is changed to inactive', async () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate;
+
+            before(async function () {
+              userRegistrationData1 = defaultsForSystemRegistration();
+              userDataUpdate = {
+                username: userRegistrationData1.user.username,
+                user: {
+                  email: [
+                    {
+                      value: userRegistrationData1.user.email,
+                      isUnique: true,
+                      isActive: false,
+                      creation: false
+                    }
+                  ]
+                },
+                fieldsToDelete: {},
+              };
+
+              // seed initial user
+              await request.post(server.url + path)
+                .send(userRegistrationData1)
+                .set('Authorization', defaultAuth);
+
+              // verify inactive fields exists before the user data update
+              const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+              assert.isTrue(Object.keys(inactiveData).length === 0,
+                `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} is empty`);
+
+              // The update that we will validate
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate);
+
+            });
+            it('Response is successful when all fields are unique', async () => {
+              assert.equal(response.status, 200);
+              assert.equal(response.body.user, true);
+            });
+            it('Unique record still exists', async () => {
+              const uniqueEailRecord = await bluebird.fromCallback(cb =>
+                db.get(`${userRegistrationData1.user.email}:email`, cb));
+              assert.equal(uniqueEailRecord, userRegistrationData1.user.username);
+            });
+            it('Not active unique field should be created', async () => {
+              const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+              assert.isTrue(Object.keys(inactiveData.email).length > 0,
+                `after the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              assert.equal(inactiveData.email[0], userRegistrationData1.user.email);
+            });
           });
-          it('[AB25] Succeed updating username:users information', async () => {
-            const userInfo = await bluebird.fromCallback(cb =>
-              db.getSet(`${userRegistrationData1.user.username}:users`, cb));
-              assert.equal(userDataUpdate.user.email[0].value, userInfo['email']);
-              assert.equal(userDataUpdate.user.RandomField[0].value, userInfo['RandomField']);
-          });
-          it('[0C63] Succeed updating unique fields information', async () => {
-            const oldEmail = await bluebird.fromCallback(cb =>
-              db.get(`${userRegistrationData1.user.email}:email`, cb));
-            const uniqueEmail = await bluebird.fromCallback(cb =>
-              db.get(`${userDataUpdate.user.email[0].value}:email`, cb));
-            const oldRandomField = await bluebird.fromCallback(cb =>
-              db.get(`${userRegistrationData1.user.RandomField}:RandomField`, cb));
-            const uniqueRandomField = await bluebird.fromCallback(cb =>
-              db.get(`${userDataUpdate.user.RandomField[0].value}:RandomField`, cb));
-            assert.equal(oldEmail, null);
-            assert.equal(oldRandomField, null);
-            assert.equal(uniqueEmail, userDataUpdate.username);
-            assert.equal(uniqueRandomField, userDataUpdate.username);
-          });
-          it('[HHXS] Not active unique field should be updated', async () => {
-            const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
-            assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+          describe('When inactive field is changed to active', async () => {
+            let response;
+            let userRegistrationData1;
+            let userDataUpdate1;
+            let userDataUpdate2;
+            let inactiveData;
+
+            before(async function () {
+              // seed initial user
+              userRegistrationData1 = defaultsForSystemRegistration();
+              await request.post(server.url + path)
+                .send(userRegistrationData1)
+                .set('Authorization', defaultAuth);
+
+              // create new inactive value
+              userDataUpdate1 = {
+                username: userRegistrationData1.user.username,
+                user: {
+                  email: [
+                    {
+                      value: faker.lorem.word().toLowerCase(),
+                      isUnique: true,
+                      isActive: false,
+                      creation: true
+                    }
+                  ]
+                },
+                fieldsToDelete: {},
+              }; 
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate1);
+
+              // verify inactive fields exists before the user data update
+              let initialInactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+              assert.isTrue(initialInactiveData.email.includes(userDataUpdate1.user.email[0].value), `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+
+              // update inactive value to active
+              userDataUpdate2 = {
+                username: userRegistrationData1.user.username,
+                user: {
+                  email: [
+                    {
+                      value: userDataUpdate1.user.email[0].value,
+                      isUnique: true,
+                      isActive: true,
+                      creation: false
+                    }
+                  ]
+                },
+                fieldsToDelete: {},
+              }; 
+              response = await request.put(server.url + path)
+                .set('Authorization', defaultAuth)
+                .send(userDataUpdate2);
+              inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
+            });
+            it('Should return successful response', async () => {
+              assert.equal(response.status, 200);
+              assert.equal(response.body.user, true);
+            });
+            it('Should update username:users information', async () => {
+              const userInfo = await bluebird.fromCallback(cb =>
+                db.getSet(`${userRegistrationData1.user.username}:users`, cb));
+              assert.equal(userDataUpdate2.user.email[0].value, userInfo['email']);
+            });
+            it('Should save old value to inactive list', async () => {
+              assert.isTrue(Object.keys(inactiveData.email).length === 1,
+                `after the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              assert.equal(inactiveData.email[0], userRegistrationData1.user.email);
+            });
+            it('New email should be removed from inactive list', async () => {
+              assert.isFalse(inactiveData.email.includes(userDataUpdate1.user.email[0].value));
+            });
           });
         });
         describe('When fields have property “creation” set to true', () => {
