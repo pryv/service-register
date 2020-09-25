@@ -704,8 +704,11 @@ function updateField(
   }
 
   // if user field should be unique, save the value as a key separately
-  if (unique && active) {
+  if (unique) {
     multi.set(`${fieldValue}:${fieldName}`, username);
+  }
+
+  if (unique && active) {
     // handle active field property update
     if (oldValue !== fieldValue && !creation) {
       // delete old unique reference
@@ -723,13 +726,14 @@ function updateField(
     ) {
       multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, fieldValue);
     }
-  } else if (unique && !active) {
-    if (
-      // inactive record does not exist
-      (!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue))) {
-      // create new non active record
-      multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
-    }
+  } else if (
+    unique &&
+    !active &&
+    // inactive record does not exist
+    (!inactiveData[fieldName] || !inactiveData[fieldName].includes(fieldValue))
+  ) {
+    // create new non active record
+    multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, fieldValue);
   }
   return multi;
 };
