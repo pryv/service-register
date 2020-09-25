@@ -9,7 +9,7 @@
 /**
  * Extension of database.js dedicated to user management
  */
-
+const bluebird = require('bluebird');
 const db = require('../storage/database');
 const async = require('async');
 const lodash = require('lodash');
@@ -19,6 +19,8 @@ const dataservers = require('../business/dataservers');
 const domain = '.' + config.get('dns:domain');
 const invitationToken = require('./invitations');
 const messages = require('../utils/messages');
+const ErrorIds = require('../utils/errors-ids');
+const helpers = require('../utils/helpers');
 
 const info = require('../business/service-info');
 const Pryv = require('pryv');
@@ -92,54 +94,203 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
       if (result == null)
         return callback(new Error('Core answered empty, unknown error.'));
 
-      if (result.id == null) {
-        const err = 'findServer, invalid data from admin server: ' + JSON.stringify(result);
-        logger.error(err);
-
-        return callback(new Error(err));
-      }
-
-      user.id = result.id;
-      db.setServerAndInfos(user.username, host.name, user, function (error) {
-        if (error != null) return callback(error);
-
-        invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
-          if (error != null) return callback(error);
-
-          return callback(null, {
-            username: user.username, 
-            server: user.username + domain,
-            apiEndpoint: Pryv.Service.buildAPIEndpoint(info, user.username, null)});
-        });
-      });
+      createUserOnServiceRegister(host, user, ['email'], callback);
     });
   };
-/**
- * Update the email address for an user
- * @param username: the user
- * @param email: the new email address
- * @param callback: function(error,result), result being a json object containing success boolean
- */
-exports.setEmail = function create(username: string, email: string, callback: Callback) {
 
-  db.uidExists(username, function (error, exists) {
-    if (error) {
-      return callback(error);
+
+/**
+ * Create a new user in the service-register
+ * (not on the service-core)
+ *
+ * @param host the hosting for this user
+ * @param user the user data, a json object containing: username, password hash, language and email
+ * @param callback function(error,result), result being a json object containing new user data
+ */
+function createUserOnServiceRegister(
+  host: ServerConfig,
+  user: UserInformation,
+  uniqueFields: array<string>,
+  callback: GenericCallback<CreateResult>) {
+
+  // Construct the request for core, including the password.
+  db.setServerAndInfos(user.username, host.name, user, uniqueFields, function (error) {
+    if (error != null) return callback(error);
+    invitationToken.consumeToken(user.invitationToken, user.username, function (error) {
+      if (error != null) return callback(error);
+
+      return callback(null, {
+        username: user.username,
+        server: user.username + domain,
+        apiEndpoint: Pryv.Service.buildAPIEndpoint(info, user.username, null)
+      });
+    });
+  });
+}
+exports.createUserOnServiceRegister = createUserOnServiceRegister;
+
+/**
+ * Check if reservation still is valid (by default it is valid for 10 minutes)
+ *
+ * @param reservationTime timestamp of saved reservation
+ */
+function isReservationStillValid(reservationTime){
+  if (reservationTime >= (Date.now() - 10 * 60 * 1000)) {
+    return true;
+  }else{
+    return false;
+  }
+}
+/**
+ * Create user reservation or return error with field name that was
+ * already reserved
+ *
+ * @param host the hosting for this user
+ * @param user the user data, a json object containing: username, password hash, language and email
+ * @param callback function(error,result), result being a json object containing new user data
+ */
+exports.createUserReservation = async (
+  uniqueFields: String,
+  core: String): string | boolean =>
+{
+  try{
+    // Get reservations for all uniqueFields
+    const reservations = await db.getReservations(uniqueFields);
+    let reservation;
+    let reservedField = '';
+    let reservationExists = false;
+    for (reservation of reservations) {
+      if (reservation !== null) {
+        // if reservation was done in the last 10 minutes
+        if (isReservationStillValid(reservation.time)) {
+
+          // a) return success if core is the same
+          // b) if in last 10 minutes reservation was made from different core, return false
+          if (reservation.core != core) {
+            reservationExists = true;
+            reservedField = reservation.field;
+            break;
+          }
+        }
+      }
     }
 
-    if (! exists) 
-      return callback(new messages.REGError(404, {
+    if(reservationExists === true){
+      return reservedField;
+    }
+    await db.setReservations(uniqueFields, core, Date.now());
+    return true;
+  } catch(error){
+    throw error;
+  }
+};
+
+/**
+ *
+ * Validate all fields for the user
+ * @param string username 
+ * @param object fields {fieldname: fieldvalue}
+ * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
+ */
+exports.validateUpdateFields = async (
+  username: string,
+  fields: object,
+) => {
+  // get update action and execute them in parallel
+  let uniquenessErrorTemplate = {
+    id: ErrorIds.ItemAlreadyExists,
+    data: {}
+  };
+  let unique;
+  try {
+    const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
+
+    if (!exists) {
+      throw (new messages.REGError(404, {
         id: 'UNKNOWN_USER_NAME',
         message: 'No such user',
       }));
+    }
 
-    db.changeEmail(username, email, function (error) {
-      if (error) {
-        return callback(error);
+    // validate all unique fields
+    for (const [key, valuesList] of Object.entries(fields)) {
+      // because each key could have many values, iterate them
+      const checkUniqueness = async () => {
+        await helpers.asyncForEach(valuesList, async (valueObject) => {
+          if (valueObject.isUnique == true) {
+            unique = await db.isFieldUniqueForUser(username, key, valueObject.value);
+            if (!unique) {
+              uniquenessErrorTemplate.data[key] = valueObject.value;
+            }
+          }
+        });
       }
-      callback(null, {success: true});
-    });
-  });
+      await checkUniqueness();
+    }
+
+    if (Object.keys(uniquenessErrorTemplate.data).length > 0) {
+      throw uniquenessErrorTemplate;
+    }
+  } catch (error) {
+    logger.debug(`users#validateUpdateFields: e: ${error}`, error);
+    throw error;
+  }
+};
+type UpdateFieldsSet = {
+  [name: string]: [
+    {
+      value: string,
+      isUnique: boolean,
+      isActive: boolean,
+      creation: boolean
+    }
+  ]
+};
+type DeleteFieldsSet = {
+  [name: string]: string
+};
+/**
+ *
+ * Update all fields for the user
+ * @param string username 
+ * @param object fields 
+ * Example :
+ * {
+    email: [
+      {
+        value: 'testpfx5537@wactiv.chx',
+        isUnique: true,
+        isActive: true,
+        creation: true
+      }
+    ],
+    RandomField: [
+      {
+        value: 'testpfx91524',
+        isUnique: true,
+        isActive: true,
+        creation: true
+      }
+    ]
+  }
+ * @param object fieldsToDelete
+ * Example:
+ * { email: 'testpfx28600@wactiv.chx', RandomField: 'testpfx22989' }
+ */
+exports.updateFields = async (
+  username: string,
+  fields: UpdateFieldsSet,
+  fieldsToDelete: DeleteFieldsSet,
+) => {
+  // get update action and execute them in parallel
+  try {
+    username = username.toLowerCase();
+    const fieldsToDeleteVerified = await db.verifyFieldForDeletion(username, fieldsToDelete);
+    return await db.updateUserData(username, fields, fieldsToDeleteVerified);
+  } catch (error) {
+    logger.debug(`users#updateFields: e: ${error}`, error);
+    throw error;
+  }
 };
 
 type ServerUsageStats = {

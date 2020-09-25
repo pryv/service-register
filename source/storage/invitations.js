@@ -71,7 +71,7 @@ exports.checkIfValid = function checkIfValid(token, callback) {
   // No tokens defined, let everyone sign up
   if (invitationTokens == null) return callback(true);
 
-  // Tokens set to empty, let no one sign up 
+  // Tokens set to empty, let no one sign up
   if (invitationTokens.length === 0) return callback(false);
 
   // Tokens are a list, accept valid ones
@@ -117,3 +117,11 @@ exports.consumeToken = function (token, username, callback) {
   });
 };
 
+/**
+ * Dummy function to form normal callback out of checkIfValid response
+ **/
+exports.checkIfTokenIsValid = (token, callback) => {
+  this.checkIfValid(token, function (isValid) {
+    return callback(null, isValid);
+  });
+};

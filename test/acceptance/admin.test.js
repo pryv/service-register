@@ -264,7 +264,7 @@ describe('/admin/users/:username', function () {
       email: 'jsmith@test.com',
     };
 
-    db.setServerAndInfos(username, 'server.name.at.tld', userInfos, done);
+    db.setServerAndInfos(username, 'server.name.at.tld', userInfos, ['email'], done);
   });
 
   after(async function () {

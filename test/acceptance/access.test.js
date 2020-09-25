@@ -94,12 +94,11 @@ describe('POST /access/:key', function () {
           username: 'tototp',
           token: 'token'
         };
-    
-        const res = await request.post(accessState.poll).send(data);
-    
-        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-        data.username.should.equal(res.body.username);
-        data.token.should.equal(res.body.token);
+
+      const res = await request.post(accessState.poll).send(data);
+      'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+       data.username.should.equal(res.body.username);
+       data.token.should.equal(res.body.token);
       });
     });
 
@@ -439,8 +438,8 @@ describe('POST /access', function () {
       };
 
       try {
-        const res = await request.post(server.url + path).send(payload);
-        assert.isNull(res);
+        await request.post(server.url + path).send(payload);
+        throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_EXPIRE_AFTER');
@@ -474,7 +473,7 @@ describe('POST /access', function () {
 
       try {
         const res = await request.post(server.url + path).send(payload);
-        assert.isNull(res);
+        throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_DEVICE_NAME');
@@ -508,7 +507,7 @@ describe('POST /access', function () {
 
       try {
         const res = await request.post(server.url + path).send(payload);
-        assert.isNull(res);
+        throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_REFERER');

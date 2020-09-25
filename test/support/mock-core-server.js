@@ -3,9 +3,7 @@ const express = require('express');
 const app = express();
 
 const config = require('../../source/config');
-
-const serverUrl = url.parse(config.get('net:aaservers:mock-api-server')[0].base_url);
-const port = serverUrl.port;
+const port = config.get('net:hostings:local-api-server:localhost:port');
 
 app.post('/register/create-user', (req, res) => {
   res.status(201)

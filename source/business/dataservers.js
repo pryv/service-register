@@ -6,6 +6,7 @@
  */
 // @flow
 
+const bluebird = require('bluebird');
 const url = require('url');
 const http = require('http');
 const https = require('https');
@@ -24,23 +25,36 @@ function getHostings(): ?HostingDefinition {
     memoizedHostings = produceHostings();
   }
   return memoizedHostings;
-  
+
   function produceHostings(): HostingDefinition {
     const aaservers = config.get('net:aaservers');
     const configHostings = config.get('net:aahostings');
-        
+
     Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
       const region = configHostings.regions[name];
-      
+
       Object.keys(region.zones).forEach((name) => { // zones
         const zone = region.zones[name];
         const hostings = zone.hostings; 
-        
+
         Object.keys(hostings).forEach((name) => {
           const hosting = hostings[name];
           const servers = aaservers[name];
           
           hosting.available = computeAvailability(servers);
+
+          // get least occupied core
+          getCoreForHosting(name, (hostError, host) => {
+            let core_url = '';
+            if (hostError == null && host != null) {
+              if (host.base_url) {
+                core_url = host.base_url;
+              } else if (host.base_name) { //support for old type of servers
+                core_url = host.base_name;
+              }
+            }
+            hosting.availableCore = core_url;
+          });
         });
       });
     });
@@ -226,8 +240,6 @@ function postToAdmin(
   jsonData: any, callback: PostToAdminCallback, 
 ) {
   var postData = JSON.stringify(jsonData);
-  //console.log(postData);
-
   var httpCall = getAdminClient(host, path, postData);
 
   var onError = function (reason) {

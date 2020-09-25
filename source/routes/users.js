@@ -19,6 +19,7 @@ const dataservers = require('../business/dataservers');
 const reservedWords = require('../storage/reserved-userid');
 // START - CLEAN FOR OPENSOURCE
 const invitationToken = require('../storage/invitations');
+const ErrorIds = require('../utils/errors-ids');
 // END - CLEAN FOR OPENSOURCE
 
 /**
@@ -26,6 +27,10 @@ const invitationToken = require('../storage/invitations');
  * @param app
  */
 module.exports = function (app: express$Application) {
+  const errorTemplate = {
+        id: '',
+        data: {}
+      };
   // POST /user: create a new user
   app.post('/user', (req: express$Request, res, next) => {
     // FLOW Assume body has this type.
@@ -122,6 +127,66 @@ module.exports = function (app: express$Application) {
     });
   });
 
+  // POST /users: create a new user only in service-register (system call)
+  app.post('/users',
+    requireRoles('system'),
+    async (req: express$Request, res, next) => {
+      // form user data to match previous format
+      let userData = req.body.user;
+      // compatibility with old structure
+      if (userData.appId) {
+        userData.appid = userData.appId;
+        delete userData.appId;
+      }
+      const host = Object.assign({}, req.body.host);
+      try{
+        const result = await bluebird.fromCallback(cb =>
+          users.createUserOnServiceRegister(host, userData, req.body.unique, cb));
+        return res.status(201).json(result);
+      } catch (creationError) {
+        if (creationError.httpCode && creationError.data) {
+          return next(creationError);
+        } else {
+          return next(messages.ei(creationError));
+        }
+      }
+    }
+  );
+
+  /** PUT /users: update the user only in service-register (system call)
+   * no validation is applied because it is system call
+   */
+  app.put('/users',
+    requireRoles('system'),
+    async (req: express$Request, res, next) => {
+      let body = req.body;
+      // Allow update and delete for all fields except for username
+      let username = body.username;
+
+      let fieldsforDeletion = (body.fieldsToDelete) ? body.fieldsToDelete : {};
+      let fieldsforUpdate = (body.user) ? body.user : {};
+
+      // just make sure that username would not be changed
+      delete fieldsforDeletion.username;
+      delete fieldsforUpdate.username;
+      try {
+        await users.validateUpdateFields(username, fieldsforUpdate);
+        const response = await users.updateFields(username, fieldsforUpdate, fieldsforDeletion);
+
+        // null if 0 fields were updated and false if something went wrong
+        if (!response) {
+          res.status(400).json({ user: response });
+        } else {
+          res.status(200).json({ user: true });
+        }
+      } catch (error) {
+        if (typeof error === 'object') {
+          return res.status(400).json({ user: false, error: error });
+        }
+        next(error);
+      }
+  });
+
   // START - CLEAN FOR OPENSOURCE
   /// DELETE /username/:username: Delete an existing user
   /// 
@@ -179,36 +244,64 @@ module.exports = function (app: express$Application) {
     _check(req, res, next, false);
   });
 
-  // START - CLEAN FOR OPENSOURCE
-  /**
-   * POST /users/:username/change-email: change the email address for a given user
-   */
-  app.post('/users/:username/change-email', 
-    requireRoles('system'), 
-    (req: express$Request, res, next) => {
-      // FLOW Assume body has this type.
-      const body: { [string]: ?(string | number | boolean) } = req.body; 
+  // do username, email and invitation token validations (system call)
+  app.post('/users/validate',
+    requireRoles('system'),
+    async (req: express$Request, res, next) => {
+      const body: {[string]: ?(string | number | boolean)} = req.body;
+      let error = null;
 
-      var email = checkAndConstraints.email(body.email);
-      if (!email) {
-        return next(new messages.REGError(400, {
-          id: 'INVALID_EMAIL',
-          message: `"${body.email}" is not a valid e-mail address`,
-        }));
-      }
+      try {
+        // 1. Validate invitation toke
+        const invitationTokenValid = await bluebird.fromCallback(cb => 
+              invitationToken.checkIfTokenIsValid(body.invitationToken, cb));
+        let uniqueFields = body.uniqueFields;
+        if (!invitationTokenValid) {
+          error = errorTemplate;
+          error.id = ErrorIds.InvalidInvitationToken;
+        } else {
+          // continue validation only if invitation token is valid
 
-      users.setEmail(req.params.username, email, function(error, result) {
-        if (error != null) {
-          return next(error);
+          // 2. Check if Uid already exists
+          const uidExists = await bluebird.fromCallback(cb => db.uidExists(body.username, cb));
+          if (uidExists === true) {
+            error = errorTemplate;
+            error.id = ErrorIds.ItemAlreadyExists;
+            error.data['username'] = body.username;
+          }
+
+          // 3. check if each field is unique
+          // just in case username is here, remove it , because it was already checked
+          delete uniqueFields.username;
+          for (const [key, value] of Object.entries(uniqueFields)) {
+            const unique = await db.isFieldUnique(key, value);
+            if(! unique){
+              if(! error ) error = errorTemplate;
+              error.id = error.id = ErrorIds.ItemAlreadyExists;;
+              error.data[key] = value;
+            }
+          }
         }
 
-        res.json(result);
-      });
-    });
-
-  // END - CLEAN FOR OPENSOURCE
+        if (error) {
+          return res.status(400).json({ reservation: false, error: error });
+        }else{
+          // if there are no validation errors, do the reservation for the core
+          // username should always be unique, so lets add it to unique Fields
+          uniqueFields.username = body.username;
+          const result = await users.createUserReservation(uniqueFields, body.core);
+          if(result === true){
+            return res.status(200).json({ reservation: true });
+          }else {
+            error = errorTemplate;
+            error.id = ErrorIds.ItemAlreadyExists;
+            error.data[result] = uniqueFields[result];
+            return res.status(400).json({ reservation: false, error: ['Existing_' + result] });
+          }
+        }
+      } catch (err) { return next(err); }
+  });
 };
-
 // Checks if the username is valid. If `raw` is set to true, this will respond
 // to the request directly, sending a 'text/plain' boolean response ('true' or
 // 'false'). If `raw` is false, it will either call `next` with an error or 
