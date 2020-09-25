@@ -131,12 +131,12 @@ function checkConnection() {
   });
 }
 
-const NOT_ACTIVE_FOLDER_NAME = 'inactive';
+const INACTIVE_FOLDER_NAME = 'inactive';
 /**
  * Inactive user properties are stored in
- * <username>:NOT_ACTIVE_FOLDER_NAME:<fieldname>: values list
+ * <username>:INACTIVE_FOLDER_NAME:<fieldname>: values list
  */
-exports.NOT_ACTIVE_FOLDER_NAME = NOT_ACTIVE_FOLDER_NAME;
+exports.INACTIVE_FOLDER_NAME = INACTIVE_FOLDER_NAME;
 
 
 /**
@@ -329,7 +329,7 @@ function doOnKeysMatching(
     var i, len;
     for (i = 0, len = replies.length; i < len; i++) {
       // skip inactive fields that have a type 'list'
-      if (!replies[i].includes(`:${NOT_ACTIVE_FOLDER_NAME}:`)) {
+      if (!replies[i].includes(`:${INACTIVE_FOLDER_NAME}:`)) {
         action(replies[i]);
       }
     }
@@ -489,7 +489,7 @@ async function getUserData(username): object {
  */
 async function getAllInactiveData (username): object {
   const keys = await bluebird.fromCallback(cb =>
-    redis.keys(`${username}:${NOT_ACTIVE_FOLDER_NAME}:*`, cb));
+    redis.keys(`${username}:${INACTIVE_FOLDER_NAME}:*`, cb));
   
   const queries = keys.map(key => {
     return bluebird.fromCallback(cb =>
@@ -539,7 +539,6 @@ exports.updateUserData = async (
 
   // execute the transaction
   const results = await bluebird.fromCallback(cb => multi.exec(cb));
-  console.log(multi.queue, 'multi', results,'results');
   if (results.length === 0) {
     return null;
   } else if(
@@ -578,12 +577,11 @@ async function deleteUser (username: string): Promise<mixed> {
 
   // delete inactive unique fields
   const inactiveValuesData = await getAllInactiveData(saneUsername);
-  console.log(inactiveValuesData, 'inactiveValuesData');
   for (const [key, list] of Object.entries(inactiveValuesData)) {
     list.forEach(value => {
       multi = deleteUniqueField(key, value, multi);
     });
-    multi.del(`${saneUsername}:${NOT_ACTIVE_FOLDER_NAME}:${key}`)
+    multi.del(`${saneUsername}:${INACTIVE_FOLDER_NAME}:${key}`)
   }
   
   // delete user info
@@ -708,7 +706,6 @@ function updateField(
   if (unique) {
     multi = setUniqueField(fieldName, fieldValue, username, multi);
     if (oldValue !== fieldValue && !creation) {
-      console.log(oldValue, 'oldValue', fieldValue,'fieldValue');
       // delete old unique reference
       multi = deleteUniqueField(fieldName, oldValue, multi);
     }
@@ -778,10 +775,10 @@ function updateInactiveUniqueFieldsList (
     return inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue);
   }
   function removeFromInactiveList (value) {
-    multi.lrem(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, 0, value);
+    multi.lrem(`${username}:${INACTIVE_FOLDER_NAME}:${fieldName}`, 0, value);
   }
   function addToInactiveList (value) {
-    multi.lpush(`${username}:${NOT_ACTIVE_FOLDER_NAME}:${fieldName}`, value);
+    multi.lpush(`${username}:${INACTIVE_FOLDER_NAME}:${fieldName}`, value);
   }
   if (active) {
     // new active replaces old active
@@ -1013,8 +1010,6 @@ async function setReservations(uniqueFields: object, core: string, time: number)
   const multi = redis.multi();
   try{
     for(let [key, value] of Object.entries(uniqueFields)){
-      //key = key.toLowerCase();
-      //value = value.toLowerCase();
       multi.hmset(ns(key + '-reservations', value), {
         core: core,
         time: time

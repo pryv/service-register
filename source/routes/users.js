@@ -173,7 +173,7 @@ module.exports = function (app: express$Application) {
         await users.validateUpdateFields(username, fieldsforUpdate);
         const response = await users.updateFields(username, fieldsforUpdate, fieldsforDeletion);
 
-        // dummy successful response for the system call
+        // null if 0 fields were updated and false if something went wrong
         if (!response) {
           res.status(400).json({ user: response });
         } else {
@@ -270,7 +270,6 @@ module.exports = function (app: express$Application) {
             error.data['username'] = body.username;
           }
 
-          // manually remove username from the unique list because other rules could be applied to it
           // 3. check if each field is unique
           // just in case username is here, remove it , because it was already checked
           delete uniqueFields.username;

@@ -1329,7 +1329,7 @@ describe('User Management', () => {
               // verify inactive fields exists before the user data update
               const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
               assert.isTrue(Object.keys(inactiveData.email).length > 0,
-                `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME}:email exists`);
+                `before the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME}:email exists`);
 
               // update inactive fields value
               userDataUpdate2 = Object.assign({}, userDataUpdate1);
@@ -1356,7 +1356,7 @@ describe('User Management', () => {
             it('Inactive field should be updated', async () => {
               const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
               assert.isTrue(Object.keys(inactiveData).length === 1,
-                `after the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+                `after the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME} exists`);
               assert.equal(inactiveData.email[0], userDataUpdate2.user.email[0].value);
             });
           });
@@ -1390,7 +1390,7 @@ describe('User Management', () => {
               // verify inactive fields exists before the user data update
               const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
               assert.isTrue(Object.keys(inactiveData).length === 0,
-                `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} is empty`);
+                `before the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME} is empty`);
 
               // The update that we will validate
               response = await request.put(server.url + path)
@@ -1410,7 +1410,7 @@ describe('User Management', () => {
             it('Not active unique field should be created', async () => {
               const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
               assert.isTrue(Object.keys(inactiveData.email).length > 0,
-                `after the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+                `after the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME} exists`);
               assert.equal(inactiveData.email[0], userRegistrationData1.user.email);
             });
           });
@@ -1449,7 +1449,7 @@ describe('User Management', () => {
 
               // verify inactive fields exists before the user data update
               let initialInactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
-              assert.isTrue(initialInactiveData.email.includes(userDataUpdate1.user.email[0].value), `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              assert.isTrue(initialInactiveData.email.includes(userDataUpdate1.user.email[0].value), `before the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME} exists`);
 
               // update inactive value to active
               userDataUpdate2 = {
@@ -1482,7 +1482,7 @@ describe('User Management', () => {
             });
             it('Should save old value to inactive list', async () => {
               assert.isTrue(Object.keys(inactiveData.email).length === 1,
-                `after the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+                `after the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME} exists`);
               assert.equal(inactiveData.email[0], userRegistrationData1.user.email);
             });
             it('New email should be removed from inactive list', async () => {
@@ -1587,7 +1587,7 @@ describe('User Management', () => {
             });
             it('Active unique field should become inactive unique field', async () => {
               const inactiveData = await db.getAllInactiveData(userRegistrationData1.user.username);
-              assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+              assert.isTrue(Object.keys(inactiveData).length > 0, `before the tests, ${userRegistrationData1.user.username}:${db.INACTIVE_FOLDER_NAME} exists`);
               assert.deepEqual(inactiveData.email, [userRegistrationData1.user.email]);
             });
           });

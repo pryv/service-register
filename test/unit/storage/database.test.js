@@ -64,8 +64,8 @@ describe('Redis Database', () => {
         assert.isTrue(await redisExists(`${info.randomField}:randomField`), `before the tests, ${info.randomField}:randomfield exists`);
         assert.isTrue(await redisExists(`${info.email}:email`), `before the tests, ${info.email}:email exists`);
         const keys = await bluebird.fromCallback(cb =>
-          redis.keys(`${username}:${db.NOT_ACTIVE_FOLDER_NAME}:*`, cb));
-        assert.isTrue(keys.length > 0, `before the tests, ${username}:${db.NOT_ACTIVE_FOLDER_NAME} exists`);
+          redis.keys(`${username}:${db.INACTIVE_FOLDER_NAME}:*`, cb));
+        assert.isTrue(keys.length > 0, `before the tests, ${username}:${db.INACTIVE_FOLDER_NAME} exists`);
       });
 
       it('[55G5] deletes the user', async () => {
@@ -79,9 +79,9 @@ describe('Redis Database', () => {
       });
       it('[777Y] deletes user non-active unique fields', async () => {
         const keys = await bluebird.fromCallback(cb =>
-          redis.keys(`${info.username}:${db.NOT_ACTIVE_FOLDER_NAME}:*`, cb));
+          redis.keys(`${info.username}:${db.INACTIVE_FOLDER_NAME}:*`, cb));
         assert.isFalse(await redisExists(`${inactiveEmailValue}:email`), 'inactive email link is gone');
-        assert.isTrue(keys.length === 0, `after deletion, ${info.username}:${db.NOT_ACTIVE_FOLDER_NAME} doesn't exist`);
+        assert.isTrue(keys.length === 0, `after deletion, ${info.username}:${db.INACTIVE_FOLDER_NAME} doesn't exist`);
       });
     });
   });

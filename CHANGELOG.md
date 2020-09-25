@@ -1,7 +1,5 @@
 # CHANGES in 1.X
 
-## 1.6.X
-
 ### 1.6.0
 
  - POST /users system endpoint to register new user only in service-register
