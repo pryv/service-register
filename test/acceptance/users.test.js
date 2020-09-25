@@ -879,9 +879,9 @@ describe('User Management', () => {
  
         it('Should not check email and username if invitation token validation fails', async () => {
           const testData = {
-            "username": 'wactiv',
-            "email": 'wactiv@pryv.io',
-            "invitationToken": 'abc',
+            username: 'wactiv',
+            email: 'wactiv@pryv.io',
+            invitationToken: 'abc',
           }
 
           try {
@@ -932,6 +932,72 @@ describe('User Management', () => {
       });
     });
     describe('Reservation', () => {
+
+      it('Success when reservation is made from the same server in 10 minutes', async () => {
+        const userTestData = _.extend({}, defaults());
+        const testData = {
+          username: userTestData.username,
+          invitationtoken: userTestData.invitationtoken,
+          uniqueFields: {
+            email: userTestData.email,
+          },
+          core: 'testing_core2'
+        }
+
+        const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+        assert.equal(res1.status, 200);
+        assert.equal(res1.body.reservation, true);
+
+        const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+        assert.equal(res2.status, 200);
+        assert.equal(res2.body.reservation, true);
+      });
+
+      it('Success when reservation is made from different core after more than 10 minutes', async () => {
+        try {
+          const userTestData = _.extend({}, defaults());
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: userTestData.invitationtoken,
+            uniqueFields: {
+              email: userTestData.email,
+              username: userTestData.username,
+            },
+            core: 'core2'
+          }
+
+          await db.setReservations({
+            username: userTestData.username,
+            email: userTestData.email,
+          }, 'core_new', Date.now() - 11 * 60 * 1000);
+          const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+          assert.equal(res2.status, 200);
+          assert.equal(res2.body.reservation, true);
+        } catch (error) {
+          assert.isTrue(false);
+        }
+      });
+
+      it('Success reservation without email', async () => {
+        try {
+          const userTestData = _.extend({}, defaults());
+          const testData = {
+            username: userTestData.username,
+            invitationtoken: userTestData.invitationtoken,
+            uniqueFields: {},
+            core: 'core2'
+          }
+
+          await db.setReservations({
+            username: userTestData.username
+          }, 'core_new', Date.now() - 11 * 60 * 1000);
+          const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
+          assert.equal(res.status, 200);
+          assert.equal(res.body.reservation, true);
+        } catch (error) {
+          assert.isTrue(false);
+        }
+      });
       it('Reservation for email fails when done from different core in 10 minutes', async () => {
         const userTestData1 = _.extend({}, defaults());
         const userTestData2 = _.extend({}, defaults());
@@ -1027,72 +1093,6 @@ describe('User Management', () => {
         } catch (e) {
           assert.equal(e.status, 400);
           assert.equal(e.response.body.reservation, false);
-        }
-      });
-
-      it('Success when reservation is made from the same server in 10 minutes', async () => {
-        const userTestData = _.extend({}, defaults());
-        const testData = {
-          username: userTestData.username,
-          invitationtoken: userTestData.invitationtoken,
-          uniqueFields: {
-            email: userTestData.email,
-          },
-          core: 'testing_core2'
-        }
-
-        const res1 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-        assert.equal(res1.status, 200);
-        assert.equal(res1.body.reservation, true);
-
-        const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-        assert.equal(res2.status, 200);
-        assert.equal(res2.body.reservation, true);
-      });
-
-      it('Success when reservation is made from different core after more than 10 minutes', async () => {
-        try {
-          const userTestData = _.extend({}, defaults());
-          const testData = {
-            username: userTestData.username,
-            invitationtoken: userTestData.invitationtoken,
-            uniqueFields: {
-              email: userTestData.email,
-              username: userTestData.username,
-            },
-            core: 'core2'
-          }
-
-          await db.setReservations({
-            username: userTestData.username,
-            email: userTestData.email,
-          }, 'core_new', Date.now() - 11 * 60 * 1000);
-          const res2 = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-          assert.equal(res2.status, 200);
-          assert.equal(res2.body.reservation, true);
-        } catch (error) {
-          assert.isTrue(false);
-        }
-      });
-
-      it('Success reservation without email', async () => {
-        try {
-          const userTestData = _.extend({}, defaults());
-          const testData = {
-            username: userTestData.username,
-            invitationtoken: userTestData.invitationtoken,
-            uniqueFields: {},
-            core: 'core2'
-          }
-
-          await db.setReservations({
-            username: userTestData.username
-          }, 'core_new', Date.now() - 11 * 60 * 1000);
-          const res = await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
-          assert.equal(res.status, 200);
-          assert.equal(res.body.reservation, true);
-        } catch (error) {
-          assert.isTrue(false);
         }
       });
     });

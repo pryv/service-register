@@ -438,8 +438,8 @@ describe('POST /access', function () {
       };
 
       try {
-        const res = await request.post(server.url + path).send(payload);
-        assert.isNull(res);
+        await request.post(server.url + path).send(payload);
+        throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_EXPIRE_AFTER');
@@ -473,7 +473,7 @@ describe('POST /access', function () {
 
       try {
         const res = await request.post(server.url + path).send(payload);
-        assert.isNull(res);
+        throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_DEVICE_NAME');
@@ -507,7 +507,7 @@ describe('POST /access', function () {
 
       try {
         const res = await request.post(server.url + path).send(payload);
-        assert.isNull(res);
+        throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
         assert.equal(e.response.body.id, 'INVALID_REFERER');
