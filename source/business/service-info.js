@@ -10,7 +10,7 @@ const url = require('url');
 // get version from the file that is in the container
 const info = Object.assign({}, config.get('service'));
 const reportingSettings = config.get('reporting');
-info['version'] = reportingSettings.templateVersion;
+info['version'] = '1.0.0';
 
 // add eventual missing '/';
 ['access', 'api', 'register'].forEach((key) => {
