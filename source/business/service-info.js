@@ -7,7 +7,7 @@
 const config = require('../config');
 const url = require('url');
 
-const STUB_VALUE_FOR_OPEN_SOURCE = '1.0.0';
+const STUB_VALUE_FOR_OPEN_SOURCE = '1.6.0';
 
 // get version from the file that is in the container
 const info = Object.assign({}, config.get('service'));
