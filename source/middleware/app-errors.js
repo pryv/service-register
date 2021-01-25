@@ -9,11 +9,18 @@
 var logger = require('winston');
 var messages = require('./../utils/messages');
 
+const config = require('../config');
+
 /**
  * Error middleware, may be used for user management
  */
 function app_errors(app: express$Application) {
-  app.use(function (error, req: express$Request, res, next) { // eslint-disable-line no-unused-vars
+
+  const isDnsLess = config.get('dnsLess:isActive');
+
+  const path = isDnsLess ? '/reg' : '/*';
+
+  app.use(path, function (error, req: express$Request, res, next) { // eslint-disable-line no-unused-vars
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
       return res.status(error.httpCode).json(error.data);
