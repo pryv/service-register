@@ -9,23 +9,18 @@
 var logger = require('winston');
 var messages = require('./../utils/messages');
 
-const config = require('../config');
-
 /**
  * Error middleware, may be used for user management
  */
 function app_errors(app: express$Application) {
 
-  const isDnsLess = config.get('dnsLess:isActive');
-
-  const path = isDnsLess ? '/reg' : '/*';
-
-  app.use(path, function (error, req: express$Request, res, next) { // eslint-disable-line no-unused-vars
+  app.use(function (error, req: express$Request, res, next) { // eslint-disable-line no-unused-vars
+   
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
       return res.status(error.httpCode).json(error.data);
     }
-    
+
     // do not log and handle malformed input JSON errors
     if (error instanceof SyntaxError) {
         // custom error format that matches the one used in the core but not in
