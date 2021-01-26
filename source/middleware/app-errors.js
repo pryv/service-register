@@ -33,7 +33,19 @@ function app_errors(app: express$Application) {
                     }
                 });
     }
-    
+
+    // API error from core - used in Open Pryv.io for /reg routes
+    // same as done by components/errors/src/errorHandling.js#getPublicErrorData()
+    if (error.id && error.httpStatus) {
+      return res.status(error.httpStatus).json({
+        error: {
+          id: error.id,
+          message: error.message,
+          data: error.data,
+        }
+      });
+    }
+
     if (! (error instanceof Error)) {
       logger.error('app_errors unknown object : ' + error);
       logger.error((new Error()).stack);
