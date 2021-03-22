@@ -303,6 +303,16 @@ exports.setServer = function (uid: string, serverName: string, callback: Callbac
   });
 };
 
+exports.getServerByEmail = async function (email: string): Promise<{}> {
+  try {
+    const username = await bluebird.fromCallback(cb => getUIDFromMail(email, cb));
+    const server = await bluebird.fromCallback(cb => getServer(username, cb));
+    return server;
+  } catch (error) {
+    return error;
+  }
+};
+
 /** Search through keys in the database using a mask and apply a mapping function 
  * on them.
  * 
