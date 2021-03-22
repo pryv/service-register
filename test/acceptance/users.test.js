@@ -1164,7 +1164,7 @@ describe('User Management', () => {
         user: userData,
         unique: ['RandomField'],
         host: { name: 'some-host' }
-      }
+      };
 
       try {
         const res = await request.post(server.url + path)

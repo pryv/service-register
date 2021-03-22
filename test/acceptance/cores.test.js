@@ -1,37 +1,73 @@
 /* global describe, before, beforeEach, after, it */
 
-const request = require('superagent');
+const supertest = require('supertest');
+const faker = require('faker');
+const bluebird = require('bluebird');
+const assert = require('chai').assert;
 
 const config = require('../../source/config');
 const Server = require('../../source/server.js');
+const userStorage = require('../../source/storage/users');
+const dataservers = require('../../source/business/dataservers');
 const db = require('../../source/storage/database');
 
 require('readyness/wait/mocha');
 
-const domain = config.get('dns:domain');
-
 describe('cores', () => {
 
-  let server;
+  let server, request;
 
-    before(async function () {
-      server = new Server();
-      await server.start();
-    });
-  
-    after(async function () {
-      await server.stop();
-    });
+  before(async function () {
+    server = new Server();
+    await server.start();
+    request = supertest(server.server);
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
+  const path = '/cores';
 
   describe('GET /', () => {
+
+    let username, email, coreUrl;
+    before(async () => {
+      username = faker.random.alphaNumeric(10);
+      email = faker.internet.email();
+
+      // just take first one
+      const hostings = config.get('net:aaservers');
+      const firstKey = Object.keys(hostings)[0];
+      coreUrl = hostings[firstKey][0].base_url;
+      const hostname = coreUrl.split('//')[1];
+
+      // core forwards the "Host" header of the request
+      await bluebird.fromCallback(cb => userStorage.createUserOnServiceRegister({ name: hostname }, { username, email, }, ['username', 'email'], cb));
+    });
     
     describe('by username', () => {
-      it('must return the right core when the account exists');
-      it('must return 404 core when the account does not exists');
+      it('must return the right core when the account exists', async () => {
+        const res = await request.get(path).query({ username });
+        assert.equal(res.status, 200);
+        const core = res.body.core;
+        assert.exists(core);
+        assert.equal(core.url, coreUrl);
+      });
+      it('must return 404 core when the account does not exists', async () => {
+        const res = await request.get(path).query({ username: 'doesnt-exist'});
+        assert.equal(res.status, 404);
+      });
     });
 
     describe('by email', () => {
-      it('must return the right core when the account exists');
+      it('must return the right core when the account exists', async () => {
+        const res = await request.get(path).query({ email });
+        assert.equal(res.status, 200);
+        const core = res.body.core;
+        assert.exists(core);
+        assert.equal(core.url, coreUrl);
+      });
       it('must return the a core at random when the account does not exist');
     });
 

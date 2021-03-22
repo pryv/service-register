@@ -49,6 +49,8 @@ require('./routes/access')(app);
 //records
 require('./routes/records')(app);
 
+require('./routes/cores')(app);
+
 //error management (evolution)
 activateAirbrake(app);
 require('./middleware/app-errors')(app);

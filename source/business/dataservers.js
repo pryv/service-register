@@ -15,7 +15,8 @@ const users = require('../storage/users');
 
 import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} from './config';
 
-var memoizedHostings: ?HostingDefinition = null;
+let memoizedHostings: ?HostingDefinition = null;
+const memoizedServerNameForCore: {} = {};
 
 // Returns the hostings list from the configuration file. This list is immutable 
 // and memoized, so you can call this function wherever you need the list. 
@@ -278,7 +279,50 @@ function postToAdmin(
   req.end();
 }
 
+/**
+ * Returns a simple map of hostings:
+ * {
+ *    hostingName: [{
+ *        base_url: https://coreUrl,
+ *        authorization: coreSystemToken,
+ *      },
+ *      ...
+ *    ]
+ * }
+ */
+function getFlatHostings() {
+  return config.get('net:aaservers');
+}
+
+/**
+ * Returns the core URL based on the server name
+ * The server name is the one that is provided at user creation, namely the hostname of the core server, such as co1.pryv.li
+ * We look for its URL in the hostings object.
+ * 
+ * returns coreObject with properties:
+ * - base_url
+ * - authorization
+ * 
+ * Works by memoization
+ */
+function getCore(serverName) {
+  if (memoizedServerNameForCore[serverName] != null) return memoizedServerNameForCore[serverName];
+
+  const hostings = getFlatHostings();
+
+  // build urls
+  const hostingKeys = Object.keys(hostings);
+  hostingKeys.forEach(k => {
+    const coresPerHosting = hostings[k];
+    coresPerHosting.forEach(core => {
+      if (core.base_url.includes(serverName)) memoizedServerNameForCore[serverName] = core;
+    });
+  });
+  return memoizedServerNameForCore[serverName];
+}
+
 exports.getAdminClient = getAdminClient;
 exports.postToAdmin = postToAdmin;
 exports.getHostings = getHostings; 
 exports.getCoreForHosting = getCoreForHosting;
+exports.getCore = getCore;
