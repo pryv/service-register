@@ -17,6 +17,7 @@ import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} f
 
 let memoizedHostings: ?HostingDefinition = null;
 const memoizedServerNameForCore: {} = {};
+const memoizedCoreUrls: Array<{}> = [];
 
 // Returns the hostings list from the configuration file. This list is immutable 
 // and memoized, so you can call this function wherever you need the list. 
@@ -295,6 +296,22 @@ function getFlatHostings() {
 }
 
 /**
+ * Return an array of core URLs
+ */
+function getCoresUrls() {
+  if (memoizedCoreUrls.length > 0) return memoizedCoreUrls;
+  const hostings = getFlatHostings();
+  const hostingKeys = Object.keys(hostings);
+  hostingKeys.forEach(k => {
+    const coresPerHosting = hostings[k];
+    coresPerHosting.forEach(core => {
+      memoizedCoreUrls.push(core.base_url);
+    });
+  });
+  return memoizedCoreUrls;
+}
+
+/**
  * Returns the core URL based on the server name
  * The server name is the one that is provided at user creation, namely the hostname of the core server, such as co1.pryv.li
  * We look for its URL in the hostings object.
@@ -326,3 +343,4 @@ exports.postToAdmin = postToAdmin;
 exports.getHostings = getHostings; 
 exports.getCoreForHosting = getCoreForHosting;
 exports.getCore = getCore;
+exports.getCoresUrls = getCoresUrls;

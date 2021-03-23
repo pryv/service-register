@@ -68,9 +68,42 @@ describe('cores', () => {
         assert.exists(core);
         assert.equal(core.url, coreUrl);
       });
-      it('must return the a core at random when the account does not exist');
+      it('must return the a core at random when the account does not exist', async () => {
+        const res = await request.get(path).query({ email: 'whatever@mail.com' });
+        assert.equal(res.status, 200);
+        const core = res.body.core;
+        assert.exists(core);
+        assert.include(dataservers.getCoresUrls(), core.url);
+      });
     });
 
-    it('must return an error when both are provided');
+    it('must return an error when no parameters are provided', async () => {
+      const res = await request.get(path);
+      assert.equal(res.status, 400);
+      const error = res.body;
+      assert.exists(error);
+      assert.equal(error.id, 'INVALID_PARAMETERS');
+    });
+    it('must return an error when both are provided', async () => {
+      const res = await request.get(path).query({ email: 'whatever@mail.com', username: 'hellothere' });
+      assert.equal(res.status, 400);
+      const error = res.body;
+      assert.exists(error);
+      assert.equal(error.id, 'INVALID_PARAMETERS');
+    });
+    it('must return an error when an invalid username is provided', async () => {
+      const res = await request.get(path).query({ username: 'abc' });
+      assert.equal(res.status, 400);
+      const error = res.body;
+      assert.exists(error);
+      assert.equal(error.id, 'INVALID_USER_NAME');
+    });
+    it('must return an error when an invalid email is provided', async () => {
+      const res = await request.get(path).query({ email: null });
+      assert.equal(res.status, 400);
+      const error = res.body;
+      assert.exists(error);
+      assert.equal(error.id, 'INVALID_EMAIL');
+    });
   });
 });

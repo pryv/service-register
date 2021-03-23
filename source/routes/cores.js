@@ -12,7 +12,6 @@ const checkAndConstraints = require('../utils/check-and-constraints');
 const db = require('../storage/database');
 const dataservers = require('../business/dataservers');
 const messages = require('../utils/messages');
-const config = require('../config');
 
 const logger = require('winston');
 
@@ -34,7 +33,18 @@ function registerCoresRoutes(app) {
    */
   app.get('/cores', async (req, res, next) => {
     
-    const params = validateParameters(req.query, next);
+    const params = req.query;
+
+    if (params.username == null && params.email == null) return next(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide "username" or "email" as query parameters.'}));
+    if (params.username != null && params.email != null) return next(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide only "username" or "email" as query parameter, not both.'}));
+    if (params.username != null) {
+      const username = checkAndConstraints.uid(params.username);
+      if (!username) return next(messages.e(400, 'INVALID_USER_NAME'));
+    }
+    if (params.email != null) {
+      const email = checkAndConstraints.email(params.email);
+      if (!email) return next(messages.e(400, 'INVALID_EMAIL'));
+    }
 
     let username;
     if (params.username != null) {
@@ -43,6 +53,15 @@ function registerCoresRoutes(app) {
       // retrieve username from email
       try {
         username = await bluebird.fromCallback(cb => db.getUIDFromMail(params.email, cb));
+
+        if (username == null) {
+          return res.status(200).json({
+            core: {
+              url: getRandomCoreUrl(),
+            },
+          });
+        }
+
       } catch (error) { 
         logger.error(error);
         return next(messages.ei()); 
@@ -70,18 +89,7 @@ function registerCoresRoutes(app) {
 }
 module.exports = registerCoresRoutes;
 
-
-function validateParameters(params, callback) {
-  if (params == null) return callback(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide "username" or "email" as query parameters.'}));
-  if (params.username != null && params.email != null) return callback(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide only "username" or "email" as query parameter, not both.'}));
-  if (params.username != null) {
-    const username = checkAndConstraints.uid(params.username);
-    if (!username) return callback(messages.e(400, 'INVALID_USER_NAME'));
-    return { username };
-  }
-  if (params.email != null) {
-    const email = checkAndConstraints.email(params.email);
-    if (!email) return callback(messages.e(400, 'INVALID_EMAIL'));
-    return { email };
-  }
+function getRandomCoreUrl() {
+  const urls = dataservers.getCoresUrls();
+  return urls[Math.floor(Math.random() * urls.length)];
 }
