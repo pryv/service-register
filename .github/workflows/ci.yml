@@ -25,6 +25,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         
+    # there is one private package (lib-release) used as npm package, so we need 
+    # to authenticate
+    - name: Login to github
+      uses: webfactory/ssh-agent@v0.4.1
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRYV_PRIVATE_KEY }}
+
     - name: yarn setup
       run: yarn setup
       
