@@ -1,13 +1,12 @@
-name: Pryv-registration-server deployment workflow
+name: Pryv.io register release
 
 on: 
   push:
-    branches:
-      - master
     tags:
       - '*'
+
 jobs:
-  build:
+  release:
 
     runs-on: ubuntu-latest
     
@@ -31,19 +30,19 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.TECH_PRYV_SSH_KEY }}
 
-    - name: yarn install
-      run: yarn install
-      
-    - name: yarn setup
-      run: yarn setup
+    - name: Download dependencies
+      run: yarn
 
-    - name: yarn database
+    - name: Download Redis
+      run: yarn setup
+      
+    - name: Start database
       run: yarn database
     
-    - name: yarn test - This should never fail and could be skipped
+    - name: Run tests
       run: yarn test
       
-    - name: yarn release
+    - name: Transpile flowtype
       run: yarn release
 
     - name: Login to the docker containers registry
