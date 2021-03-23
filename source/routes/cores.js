@@ -57,7 +57,7 @@ function registerCoresRoutes(app) {
         if (username == null) {
           return res.status(200).json({
             core: {
-              url: getRandomCoreUrl(),
+              url: getFirstCore(),
             },
           });
         }
@@ -89,7 +89,6 @@ function registerCoresRoutes(app) {
 }
 module.exports = registerCoresRoutes;
 
-function getRandomCoreUrl() {
-  const urls = dataservers.getCoresUrls();
-  return urls[Math.floor(Math.random() * urls.length)];
+function getFirstCore() {
+  return dataservers.getCoresUrls()[0];
 }

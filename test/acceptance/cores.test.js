@@ -68,12 +68,12 @@ describe('cores', () => {
         assert.exists(core);
         assert.equal(core.url, coreUrl);
       });
-      it('must return the a core at random when the account does not exist', async () => {
+      it('must return the first core when the account does not exist', async () => {
         const res = await request.get(path).query({ email: 'whatever@mail.com' });
         assert.equal(res.status, 200);
         const core = res.body.core;
         assert.exists(core);
-        assert.include(dataservers.getCoresUrls(), core.url);
+        assert.equal(dataservers.getCoresUrls()[0], core.url);
       });
     });
 
