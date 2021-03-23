@@ -35,7 +35,6 @@ tar cf build/release.tar \
   --exclude dev-config.json \
   --exclude test \
   --exclude .git \
-  --exclude node_modules \
   --exclude build \
   .
 popd
