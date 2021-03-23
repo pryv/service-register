@@ -453,7 +453,6 @@ describe('User Management', () => {
           JSchema: schemas.error,
           JValues: { 'id': 'INVALID_INVITATION' }
         };
-        console.log(test.data,'test.data');
         delete test.data.invitationtoken;
 
         request.post(server.url + basePath).send(test.data)
@@ -1056,7 +1055,6 @@ describe('User Management', () => {
           assert.equal(res1.status, 200);
           assert.equal(res1.body.reservation, true);
         } catch (e) {
-          console.log(e, 'e');
           assert.equal(false, true);
         }
         try {
@@ -1136,7 +1134,6 @@ describe('User Management', () => {
       it('Should save all provided fields in <username>:users', async () => {
         const user = await bluebird.fromCallback(cb =>
           db.getSet(`${userRegistrationData.user.username}:users`, cb));
-        console.log(user, 'user', userRegistrationData.user,'userRegistrationData.user');
         assert.exists(user.registeredTimestamp);
         delete user.registeredTimestamp;
         // compatibility with old implemnetation
@@ -1175,7 +1172,6 @@ describe('User Management', () => {
         assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
         assert.equal(res.body.apiEndpoint, 'https://' + userRegistrationData.user.username + '.pryv.me/');
       } catch (e) {
-        console.log(e, 'e');
         assert.isTrue(false);
       }
     });
@@ -1511,7 +1507,6 @@ describe('User Management', () => {
               response = await request.put(server.url + path)
                 .set('Authorization', defaultAuth)
                 .send(userDataUpdate);
-              console.log(userDataUpdate.user.email,'userDataUpdateeeeeeeeeee');
             });
             it('Should return status 200', async () => {
               assert.equal(response.status, 200);
