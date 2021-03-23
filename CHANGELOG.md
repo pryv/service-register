@@ -1,5 +1,9 @@
 # CHANGES in 1.X
 
+### 1.6.1
+
+- GET /cores: new route to fetch core by username or email
+
 ### 1.6.0
 
  - POST /users system endpoint to register new user only in service-register
