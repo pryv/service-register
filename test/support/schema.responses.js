@@ -112,6 +112,10 @@ exports.userCreated = {
     server: {
       type: 'string',
       required: true
+    },
+    apiEndpoint: {
+      type: 'string',
+      required: true
     }
   }
 };

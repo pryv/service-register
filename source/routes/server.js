@@ -1,10 +1,27 @@
+/**
+ * @license
+ * Copyright (C) 2020 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 'use strict';
 
 var checkAndConstraints = require('../utils/check-and-constraints'),
     db = require('../storage/database'),
     messages = require('../utils/messages'),
-    config = require('../config'),
-    pryv = require('../business/service-info');
+    config = require('../config');
+
+var logger = require('winston'); 
+
+// patch compatibility issue with winston
+// there is a difference between v2.3 and 2.4: .warn() vs .warning()
+// forcing the version number in package.json does not seem to fix the issue
+// we suspect yarn to load the wrong version
+if (logger.warn == null) {
+  logger.warn = function(...args) {
+    logger.warning(...args);  
+  };
+}
 
 /** Routes to discover server assignations.
  */

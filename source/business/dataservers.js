@@ -1,5 +1,12 @@
+/**
+ * @license
+ * Copyright (C) 2020 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 // @flow
 
+const bluebird = require('bluebird');
 const url = require('url');
 const http = require('http');
 const https = require('https');
@@ -8,7 +15,9 @@ const users = require('../storage/users');
 
 import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} from './config';
 
-var memoizedHostings: ?HostingDefinition = null;
+let memoizedHostings: ?HostingDefinition = null;
+const memoizedServerNameForCore: {} = {};
+const memoizedCoreUrls: Array<{}> = [];
 
 // Returns the hostings list from the configuration file. This list is immutable 
 // and memoized, so you can call this function wherever you need the list. 
@@ -18,23 +27,36 @@ function getHostings(): ?HostingDefinition {
     memoizedHostings = produceHostings();
   }
   return memoizedHostings;
-  
+
   function produceHostings(): HostingDefinition {
     const aaservers = config.get('net:aaservers');
     const configHostings = config.get('net:aahostings');
-        
+
     Object.keys(configHostings.regions).forEach((name) => {    // for each region(default config)
       const region = configHostings.regions[name];
-      
+
       Object.keys(region.zones).forEach((name) => { // zones
         const zone = region.zones[name];
         const hostings = zone.hostings; 
-        
+
         Object.keys(hostings).forEach((name) => {
           const hosting = hostings[name];
           const servers = aaservers[name];
           
           hosting.available = computeAvailability(servers);
+
+          // get least occupied core
+          getCoreForHosting(name, (hostError, host) => {
+            let core_url = '';
+            if (hostError == null && host != null) {
+              if (host.base_url) {
+                core_url = host.base_url;
+              } else if (host.base_name) { //support for old type of servers
+                core_url = host.base_name;
+              }
+            }
+            hosting.availableCore = core_url;
+          });
         });
       });
     });
@@ -220,8 +242,6 @@ function postToAdmin(
   jsonData: any, callback: PostToAdminCallback, 
 ) {
   var postData = JSON.stringify(jsonData);
-  //console.log(postData);
-
   var httpCall = getAdminClient(host, path, postData);
 
   var onError = function (reason) {
@@ -260,7 +280,67 @@ function postToAdmin(
   req.end();
 }
 
+/**
+ * Returns a simple map of hostings:
+ * {
+ *    hostingName: [{
+ *        base_url: https://coreUrl,
+ *        authorization: coreSystemToken,
+ *      },
+ *      ...
+ *    ]
+ * }
+ */
+function getFlatHostings() {
+  return config.get('net:aaservers');
+}
+
+/**
+ * Return an array of core URLs
+ */
+function getCoresUrls() {
+  if (memoizedCoreUrls.length > 0) return memoizedCoreUrls;
+  const hostings = getFlatHostings();
+  const hostingKeys = Object.keys(hostings);
+  hostingKeys.forEach(k => {
+    const coresPerHosting = hostings[k];
+    coresPerHosting.forEach(core => {
+      memoizedCoreUrls.push(core.base_url);
+    });
+  });
+  return memoizedCoreUrls;
+}
+
+/**
+ * Returns the core URL based on the server name
+ * The server name is the one that is provided at user creation, namely the hostname of the core server, such as co1.pryv.li
+ * We look for its URL in the hostings object.
+ * 
+ * returns coreObject with properties:
+ * - base_url
+ * - authorization
+ * 
+ * Works by memoization
+ */
+function getCore(serverName) {
+  if (memoizedServerNameForCore[serverName] != null) return memoizedServerNameForCore[serverName];
+
+  const hostings = getFlatHostings();
+
+  // build urls
+  const hostingKeys = Object.keys(hostings);
+  hostingKeys.forEach(k => {
+    const coresPerHosting = hostings[k];
+    coresPerHosting.forEach(core => {
+      if (core.base_url.includes(serverName)) memoizedServerNameForCore[serverName] = core;
+    });
+  });
+  return memoizedServerNameForCore[serverName];
+}
+
 exports.getAdminClient = getAdminClient;
 exports.postToAdmin = postToAdmin;
 exports.getHostings = getHostings; 
 exports.getCoreForHosting = getCoreForHosting;
+exports.getCore = getCore;
+exports.getCoresUrls = getCoresUrls;

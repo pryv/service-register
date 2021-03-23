@@ -25,6 +25,9 @@
     "ssl": false,
     "port": 9000
   },
+  "routes": {
+    "disableGetUsernameByEmail": false
+  },
   "net": {
     "aaservers": {
       "pilot": [

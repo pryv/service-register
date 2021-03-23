@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright (C) 2020 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 // @flow
 
 const ndns = require('./ndns'),
@@ -96,7 +102,7 @@ function onDnsRequest(dynamic_call: DnsDynamicHandler, req: any, res: any) {
     // This should be rare. If it is not, we'll need to investigate why this 
     // happens. 
     if (name == null) {
-      logger.warning('Received empty request, treating as if it was empty.');
+      logger.warn('Received empty request, treating as if it was empty.');
       return '';
     }
       

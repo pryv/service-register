@@ -1,11 +1,12 @@
 
-/* global describe, before, after, it */
+/* global describe, before, beforeEach, after, it */
 const request = require('superagent');
 
 const config = require('../../source/config');
 const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
+const db = require('../../source/storage/database');
 
 require('readyness/wait/mocha');
 
@@ -142,7 +143,7 @@ describe('GET /admin/servers', function () {
   });
 });
 
-describe('/admin/users/invitations', function () {
+describe('/admin/invitations', function () {
   let server;
 
   before(async function () {
@@ -155,7 +156,7 @@ describe('/admin/users/invitations', function () {
   });
   describe('GET ', function () {
     it('should send a list of current tokens', function (done) {
-      request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey)
+      request.get(server.url + '/admin/invitations' + '?auth=' + authAdminKey)
       .end((err, res) => {
         dataValidation.check(res, {status: 200});
 
@@ -169,7 +170,7 @@ describe('/admin/users/invitations', function () {
       });
     });
     it('should send a list of current tokens as html tables', function (done) {
-      request.get(server.url + '/admin/users/invitations' + '?auth=' + authAdminKey + '&toHTML=true')
+      request.get(server.url + '/admin/invitations' + '?auth=' + authAdminKey + '&toHTML=true')
       .end((err, res) => {
         dataValidation.check(res, {status: 200});
         res.text.should.containEql('<th>Created At</th>');
@@ -185,7 +186,7 @@ describe('/admin/users/invitations', function () {
   });
   describe('future POST ', function () {
     it('should create a list of token', function (done) {
-      request.get(server.url + '/admin/users/invitations/post' +
+      request.get(server.url + '/admin/invitations/post' +
           '?auth=' + authAdminKey +
           '&count=2&message=testx'
         ).end((err, res) => {
@@ -242,6 +243,59 @@ describe('/admin/users', function () {
         res.text.should.containEql('<th>Errors</th>');
         res.text.should.containEql('</table>');
         done(); 
+      });
+    });
+  });
+});
+
+describe('/admin/users/:username', function () {
+  let server;
+  const username = 'jsmith';
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  beforeEach((done) => {
+    const userInfos = {
+      username: 'jsmith', 
+      password: 'foobar', 
+      email: 'jsmith@test.com',
+    };
+
+    db.setServerAndInfos(username, 'server.name.at.tld', userInfos, ['email'], done);
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+  
+  describe('GET', function () {
+    it('should get a user', function (done) {
+      request.get(server.url + '/admin/users/' + username +'?auth=' + authSystemKey)
+      .end((err, res) => {
+        dataValidation.check(res, {status: 200});
+        res.body.should.have.property('username');
+        res.body.should.have.property('registeredTimestamp');
+        res.body.should.have.property('server');
+        res.body.should.have.property('registeredDate');
+        done();
+      });
+    });
+    it('should respond with 401 when invalid auth key provided', function (done) {
+      request.get(server.url + '/admin/users/' + username +'?auth=xoxo')
+      .end((err, res) => {
+        dataValidation.check(res, {status: 401});
+        done();
+      });
+    });
+    it('should respond with 404 when requested not existing user', function (done) {
+      const notExistingUsername = 'some_name_x';
+      request.get(server.url + '/admin/users/' + notExistingUsername +'?auth=' + authSystemKey)
+      .end((err, res) => {
+        dataValidation.check(res, {status: 404});
+        done();
       });
     });
   });

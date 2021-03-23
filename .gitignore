@@ -15,3 +15,10 @@ build/service-register/release.tar
 .idea
 lib
 yarn-error.log
+
+# code tree structure visualization
+mindMap.mmd
+
+# ide
+nbproject/
+.vscode/

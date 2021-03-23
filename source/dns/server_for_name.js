@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright (C) 2020 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 // @flow
 
 const util = require('util');
@@ -113,7 +119,7 @@ function serverForName(
     resourceName = checkAndConstraints.extractResourceFromHostname(keyName, domains);
   }
   catch (err) {
-    logger.warning('DNS: ' + err);
+    logger.warn('DNS: ' + err);
   }
 
   if (resourceName == null) {
@@ -128,7 +134,7 @@ function serverForName(
   }
   
   if (! checkAndConstraints.isLegalUsername(resourceName)) {
-    logger.warning(`DNS: ${util.inspect(resourceName)} is no legal username.`);
+    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
     return callback(req, res, nullRecord);
   }
   

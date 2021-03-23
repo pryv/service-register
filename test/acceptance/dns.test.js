@@ -30,7 +30,7 @@ describe('DNS', function () {
       const info = { email: 'foo@bar.ch' };
 
       // FLOW Not really a full user info, but it doesn't matter here.
-      db.setServerAndInfos('dns-test', 'dummy.pryv.net', info, function (error) {
+      db.setServerAndInfos('dns-test', 'dummy.pryv.net', info, ['email'], function (error) {
         done(error);
       });
     });

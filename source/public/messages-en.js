@@ -1,8 +1,17 @@
+/**
+ * @license
+ * Copyright (C) 2020 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 /*global window*/
 
 var messages = {
   'INTERNAL_ERROR' : {'message' : 'Internal Error',
     'detail' : 'Something went bad on our side, sorry for this inconvenience.'},
+  'INVALID_PARAMETERS': {
+    message: 'Invalid parameters',
+  },
   'INVALID_DATA' : {'message' : 'Invalid Data',
     'detail' : 'Some of the data transmited is invalid.'},
   'INVALID_JSON_REQUEST' : {'message' : 'Invalid Data',
@@ -63,7 +72,16 @@ var messages = {
   'INVALID_AUTH_URL' : { 'message' : 'Authentication URL is invalid',
       'detail' : ''},
   'INVALID_SERVICE_INFO_URL' : { 'message' : 'Service information URL is invalid',
-      'detail' : ''}
+      'detail' : ''},
+  'INVALID_DEVICE_NAME' : { 'message' : 'Device name is invalid',
+    'detail' : ''},
+  'INVALID_EXPIRE_AFTER' : { 'message' : 'ExpireAfter is invalid',
+    'detail' : ''},
+  'INVALID_REFERER' : { 'message' : 'referer is invalid',
+    'detail' : ''},
+  'DISABLED_METHOD' : {'message' : 'The action you are trying to execute has been disabled. Please contact the platform admin to activate it.',
+    'detail' : ''
+  }
 };
 
 if (module && module.exports) {

@@ -13,7 +13,6 @@ import type { ServerDefinition } from '../../source/config';
 
 /* global describe, it, before */
 describe('utils/dataservers', function () {
-
   describe('getAdminClient', function () {
     const getAdminClient = dataservers.getAdminClient;
     const url = function (url) {
@@ -126,13 +125,10 @@ describe('utils/dataservers', function () {
         if (host == null)
           throw new Error('AF: Should have selected a host.');
           
-        if (host.base_name == null) 
-          throw new Error('AF: Should have an old-style host here.');
-        
-        const name = host.base_name; 
+        const url = host.base_url; 
         
         // Localhost was setup as containing the less users (only one)
-        should(name).be.equal('localhost');
+        should(url).be.equal('https://localhost.rec.la');
         done();
       });
     });

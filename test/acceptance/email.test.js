@@ -45,8 +45,8 @@ describe('Email', function () {
       beforeEach((done) => {
         // FLOW Ignore the missing attributes in the user attr hash.
         db.setServerAndInfos('foobar', 'somewhere.place.com', {
-          email: 'taken@pryv.com',
-        }, done);
+          email: 'taken@pryv.com'
+        }, ['email'], done);
       });
 
       it('rejects emails that are already part of the user base', async () => {
@@ -99,7 +99,12 @@ describe('Email', function () {
 
   describe('GET /:email/username', () => {
 
+    it('throws an error when the call is disabled in config', async () => {
+      config.set('routes:disableGetUsernameByEmail', true);
+      await getUsername('x'.repeat(10), false, 405);
+    });
     it('throws an error when the provided email has invalid format', async () => {
+      config.set('routes:disableGetUsernameByEmail', false);
       await getUsername('x'.repeat(301), false, 400);
     });
     it('throws an error when the provided email is not registered', async () => {
@@ -113,7 +118,7 @@ describe('Email', function () {
         // FLOW Ignore the missing attributes in the user attr hash.
         db.setServerAndInfos(username, 'somewhere.place.com', {
           email: email,
-        }, done);
+        }, ['email'], done);
       });
 
       it('returns the username corresponding to the provided email', async () => {

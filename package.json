@@ -7,10 +7,12 @@
   "scripts": {
     "setup": "./scripts/setup-dev-environment.bash",
     "database": "./scripts/start-database.sh",
-    "release": "node_modules/.bin/babel source --out-dir lib --copy-files",
+    "release": "node_modules/.bin/babel source --out-dir lib --copy-files && yarn license",
     "watch": "babel --watch source --out-dir lib --copy-files",
     "test": "node_modules/.bin/mocha --recursive test/",
-    "start": "./node_modules/.bin/babel-node bin/server"
+    "start": "./node_modules/.bin/babel-node bin/server",
+    "local": "nodemon ./node_modules/.bin/babel-node bin/server",
+    "license": "cd licenser ; yarn install; yarn apply"
   },
   "dependencies": {
     "airbrake": "^2.1.1",
@@ -33,7 +35,7 @@
     "redis": "0.12.x",
     "semver": "1.1.4",
     "serve-favicon": "^2.5.0",
-    "winston": "0.6.x"
+    "winston": "^2.3.0"
   },
   "devDependencies": {
     "awaiting": "^3.0",
@@ -51,13 +53,18 @@
     "jsdoc-babel": "^0.3.0",
     "mocha": "^3.2.0",
     "nock": "^11.7.2",
-    "rec-la": "^0.1.2",
+    "rec-la": "^0.1.13",
     "should": "3.3.1",
     "superagent": "^3.5.0",
-    "supertest": "^3.3.0"
+    "supertest": "^3.3.0",
+    "pre-commit": "^1.2.2"
   },
   "engines": {
     "node": "12.x",
     "yarn": "1.x"
-  }
+  },
+  "pre-commit": [
+    "license"
+  ],
+  "license": "UNLICENSED"
 }

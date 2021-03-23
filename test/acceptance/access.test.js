@@ -94,12 +94,11 @@ describe('POST /access/:key', function () {
           username: 'tototp',
           token: 'token'
         };
-    
-        const res = await request.post(accessState.poll).send(data);
-    
-        'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
-        data.username.should.equal(res.body.username);
-        data.token.should.equal(res.body.token);
+
+      const res = await request.post(accessState.poll).send(data);
+      'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
+       data.username.should.equal(res.body.username);
+       data.token.should.equal(res.body.token);
       });
     });
 
@@ -412,8 +411,108 @@ describe('POST /access', function () {
         assert.equal(e.response.body.id, 'INVALID_SERVICE_INFO_URL');
         assert.include(e.response.body.detail, serviceInfo);
       }
+    });
+  });
 
+  describe('expireAfter', function() {
+    it('should accept a valid value', async function() {
+      const expireAfter = 53453463243425;
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        expireAfter: expireAfter,
+      };
 
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.expireAfter, expireAfter);
+    });
+    it('should refuse an invalid value', async function() {
+      const expireAfter = 'invalid_value';
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        expireAfter: expireAfter,
+      };
+
+      try {
+        await request.post(server.url + path).send(payload);
+        throw new Error('request should never succeed');
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_EXPIRE_AFTER');
+        assert.include(e.response.body.detail, expireAfter);
+      }
+    });
+  });
+
+  describe('deviceName', function() {
+    it('should accept a valid value', async function() {
+      const deviceName = 'some_name';
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        deviceName: deviceName,
+      };
+
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.deviceName, deviceName);
+    });
+    it('should refuse an invalid value', async function() {
+      const deviceName = 67;
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        deviceName: deviceName,
+      };
+
+      try {
+        const res = await request.post(server.url + path).send(payload);
+        throw new Error('request should never succeed');
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_DEVICE_NAME');
+        assert.include(e.response.body.detail, deviceName);
+      }
+    });
+  });
+
+  describe('referer', function() {
+    it('should accept a valid value', async function() {
+      const referer = faker.lorem.word();
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        referer: referer,
+      };
+
+      const res = await request.post(server.url + path).send(payload);
+      assert.equal(res.status, 201);
+      const body = res.body;
+      assert.isNotNull(body);
+      assert.equal(body.referer, referer);
+    });
+    it('should refuse an invalid value', async function() {
+      const referer = {};
+      const payload = {
+        requestingAppId: 'reg-test',
+        requestedPermissions: [{ streamId: faker.lorem.word(), level: 'contribute', defaultName: faker.lorem.word() }],
+        referer: referer,
+      };
+
+      try {
+        const res = await request.post(server.url + path).send(payload);
+        throw new Error('request should never succeed');
+      } catch (e) {
+        assert.equal(e.response.status, 400);
+        assert.equal(e.response.body.id, 'INVALID_REFERER');
+        assert.include(e.response.body.detail, referer);
+      }
     });
   });
 });

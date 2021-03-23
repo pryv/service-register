@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright (C) 2020 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 //@flow
 
 var logger = require('winston');
@@ -7,10 +13,37 @@ var messages = require('./../utils/messages');
  * Error middleware, may be used for user management
  */
 function app_errors(app: express$Application) {
+
   app.use(function (error, req: express$Request, res, next) { // eslint-disable-line no-unused-vars
+   
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
       return res.status(error.httpCode).json(error.data);
+    }
+
+    // do not log and handle malformed input JSON errors
+    if (error instanceof SyntaxError) {
+        // custom error format that matches the one used in the core but not in
+        // the service-registry
+        return res.status(error.status, messages.say('INVALID_JSON_REQUEST')).json(
+                {
+                    "error": {
+                        "id": 'invalid-parameters-format',
+                        "message": error.toString()
+                    }
+                });
+    }
+
+    // API error from core - used in Open Pryv.io for /reg routes
+    // same as done by components/errors/src/errorHandling.js#getPublicErrorData()
+    if (error.id && error.httpStatus) {
+      return res.status(error.httpStatus).json({
+        error: {
+          id: error.id,
+          message: error.message,
+          data: error.data,
+        }
+      });
     }
 
     if (! (error instanceof Error)) {

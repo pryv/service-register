@@ -6,6 +6,8 @@ const schemas = require('../support/schema.responses');
 const request = require('superagent');
 const config = require('../../source/config');
 const Server = require('../../source/server.js');
+const chai = require('chai');
+const assert = chai.assert; 
 
 require('readyness/wait/mocha');
 
@@ -86,11 +88,58 @@ describe('/service', function () {
   describe('GET /hostings', function () {
 
     it('valid', function (done) {
-      var test = { status: 200, desc : 'validSchema',  JSchema : schemas.hostings };
+      var test =  {
+                    regions: {
+                      region1: {
+                        name: 'Region 1',
+                        localizedName: { fr: 'Region 1' },
+                        zones: {
+                          zone1: {
+                            name: 'Zone 1',
+                            localizedName: { fr: 'Zone 1' },
+                            hostings: {
+                              'exoscale.ch-ch': {
+                                url: 'http://www.exoscale.ch',
+                                name: 'Exoscale',
+                                description: 'Swiss quality',
+                                available: true,
+                                availableCore: 'https://co2.rec.la'
+                              },
+                              'local-api-server': {
+                                url: 'http://localhost',
+                                name: 'Switzerland',
+                                description: 'Switzerland',
+                                available: true,
+                                availableCore: 'http://localhost:3000'
+                              },
+                              'test.ch-ch': {
+                                available: true,
+                                description: 'Hosting provider slogan',
+                                localizedDescription: {},
+                                name: 'Hosting provider name',
+                                url: 'https://hostingprovider.com'
+                              },
+                              "mock-api-server": {
+                                "available": true,
+                                "availableCore": "http://localhost:3000",
+                                "description": "Hosting provider slogan",
+                                "localizedDescription": {},
+                                "name": "Hosting provider name",
+                                "url": "https://hostingprovider.com"
+                              }
+                          
+                            }
+                          }
+                        }
+                      }
+                    }
+                };
       var path = '/hostings';
 
       request.get(server.url + path).end(function(err,res) {
-        validation.jsonResponse(err, res, test, done);
+        assert.deepEqual(res.status, 200);
+        assert.deepEqual(res.body, test);
+       done();
       });
     });
 
