@@ -1,5 +1,9 @@
 # CHANGES in 1.X
 
+### 1.6.2
+
+- Add lib-reporting
+
 ### 1.6.1
 
 - GET /cores: new route to fetch core by username or email
