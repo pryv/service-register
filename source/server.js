@@ -112,17 +112,18 @@ class ServerWithUrl {
       this.config.get('reporting:licenseName'),
       this.config.get('reporting:role'),
       this.config.get('reporting:templateVersion'),
-      this.collectClientData,
+      this.collectClientData.bind(this),
       logger.info
       );
   }
 
   async collectClientData(): Object {
     const usersStorage = require('./storage/users');
-    let numUsers = await bluebird.fromCallback(cb => {
+
+    const users = await bluebird.fromCallback(cb => {
       usersStorage.getAllUsersInfos(cb);
     });
-    numUsers = numUsers.length;
+    const numUsers = users.length;
     return { numUsers: numUsers, domain: this.config.get('dns:domain')};
   }
 

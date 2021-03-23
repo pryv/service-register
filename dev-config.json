@@ -160,7 +160,7 @@
   },
   "invitationTokens": null,
   "reporting": {
-    "licenseName": "OVERRIDE ME",
+    "licenseName": "pryv.io-test-license",
     "role": "reg-master",
     "templateVersion": "1.0.0",
     "optOut": "false"

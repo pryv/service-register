@@ -24,7 +24,7 @@
     "express": "^4",
     "freelist": "^1.0.3",
     "json-schema": "0.2.x",
-    "lib-reporting": "git+ssh://git@github.com/pryv/lib-reporting.git",
+    "lib-reporting": "git+ssh://git@github.com/pryv/lib-reporting",
     "lodash": "^4",
     "multer": "^1.4.1",
     "nconf": "0.6.x",

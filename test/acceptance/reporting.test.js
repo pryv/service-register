@@ -34,7 +34,7 @@ describe('service-reporting ON', function () {
 
   const reportingSettings = {
     optOut: false,
-    licenseName: 'OVERRIDE ME',
+    licenseName: 'pryv.io-test-license',
     role: 'reg-master',
     templateVersion: '1.0.0',
     hostname: hostname(),
