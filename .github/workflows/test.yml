@@ -1,4 +1,4 @@
-name: Pryv-registration-server CI
+name: Pryv.io register tests
 
 on: 
   pull_request:
@@ -8,7 +8,7 @@ on:
     branches:
       - master
 jobs:
-  build:
+  run-tests:
 
     runs-on: ubuntu-latest
     
@@ -32,14 +32,14 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.TECH_PRYV_SSH_KEY }}
 
-    - name: yarn setup
+    - name: Download dependencies
+      run: yarn
+
+    - name: Download Redis
       run: yarn setup
       
-    - name: yarn install
-      run: yarn install
-      
-    - name: yarn database
+    - name: Start database
       run: yarn database
     
-    - name: yarn test
+    - name: Run tests
       run: yarn test
