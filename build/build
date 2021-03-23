@@ -33,7 +33,6 @@ tar cf build/release.tar \
   --exclude scripts \
   --exclude .github \
   --exclude dev-config.json \
-  --exclude redis* \
   --exclude test \
   --exclude .git \
   --exclude node_modules \
