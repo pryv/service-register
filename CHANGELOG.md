@@ -1,5 +1,9 @@
 # CHANGES in 1.X
 
+### 1.6.3
+
+- ensure trailing slash on core URLs
+
 ### 1.6.2
 
 - Add lib-reporting
