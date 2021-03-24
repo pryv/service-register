@@ -18,11 +18,9 @@ function release {
   local local_name="$service_name:$version"
   local remote_name="$host/$service_name:$version"
 
-  if [ -e ../release_build ]; then
-    # Publication to registry:
-    sudo docker tag $local_name $remote_name
-    sudo docker push $remote_name
-  fi
+  # Publication to registry:
+  docker tag $local_name $remote_name
+  docker push $remote_name
 }
 
 pushd ..
@@ -43,14 +41,14 @@ popd
 echo "---------------------------- building register ------------------------------"
 pushd register
 cp ../release.tar .
-sudo docker build -f Dockerfile -t pryvio/register:$version .
+docker build -f Dockerfile -t pryvio/register:$version .
 release "pryvio/register" $version
 popd
 
 echo "---------------------------- building dns -----------------------------------"
 pushd dns
 cp ../release.tar .
-sudo docker build -f Dockerfile -t pryvio/dns:$version .
+docker build -f Dockerfile -t pryvio/dns:$version .
 release "pryvio/dns" $version
 popd
 
