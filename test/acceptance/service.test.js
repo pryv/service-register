@@ -4,7 +4,6 @@ const should = require('should');
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const request = require('superagent');
-const config = require('../../source/config');
 const Server = require('../../source/server.js');
 const chai = require('chai');
 const assert = chai.assert; 
@@ -138,7 +137,7 @@ describe('/service', function () {
       request.get(server.url + path).end(function(err,res) {
         assert.deepEqual(res.status, 200);
         assert.deepEqual(res.body, test);
-       done();
+        done();
       });
     });
 

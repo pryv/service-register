@@ -6,14 +6,13 @@
  */
 // @flow
 
-const bluebird = require('bluebird');
 const url = require('url');
 const http = require('http');
 const https = require('https');
 const config = require('../config');
 const users = require('../storage/users');
 
-import type {HostingDefinition, ServerList, ServerConfig, OldServerDefinition} from './config';
+import type { HostingDefinition, ServerList, ServerConfig, OldServerDefinition } from '../config';
 
 let memoizedHostings: ?HostingDefinition = null;
 const memoizedServerNameForCore: {} = {};
