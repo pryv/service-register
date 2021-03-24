@@ -9,3 +9,9 @@ exports.asyncForEach = async (array, callback) => {
     await callback(array[index], index, array);
   }
 };
+
+exports.ensureTrailingSlash = (url) => {
+  if (url.charAt(url.length - 1) === '/') return url;
+  return url + '/';
+};
+

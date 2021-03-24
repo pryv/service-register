@@ -12,6 +12,8 @@ const nconf = require('nconf');
 const logger = require('winston');
 const fs = require('fs');
 
+const { ensureTrailingSlash } = require('./utils/helpers');
+
 //Exports
 
 module.exports = nconf;
@@ -220,7 +222,7 @@ function translateConfiguration() {
         }
         
         aaservers[hostingKey].push({
-          base_url: base_url,
+          base_url: ensureTrailingSlash(base_url),
           authorization: nconf.get('auth:coreSystemKey')
         });
 

@@ -12,7 +12,7 @@ const async = require('async');
 import type { ServerDefinition } from '../../source/config';
 
 /* global describe, it, before */
-describe('utils/dataservers', function () {
+describe('business/dataservers', function () {
   describe('getAdminClient', function () {
     const getAdminClient = dataservers.getAdminClient;
     const url = function (url) {
@@ -128,7 +128,7 @@ describe('utils/dataservers', function () {
         const url = host.base_url; 
         
         // Localhost was setup as containing the less users (only one)
-        should(url).be.equal('https://localhost.rec.la');
+        should(url).be.equal('https://localhost.rec.la/');
         done();
       });
     });

@@ -102,14 +102,14 @@ describe('/service', function () {
                     name: 'Exoscale',
                     description: 'Swiss quality',
                     available: true,
-                    availableCore: 'https://co2.rec.la'
+                    availableCore: 'https://co2.rec.la/'
                   },
                   'local-api-server': {
                     url: 'http://localhost',
                     name: 'Switzerland',
                     description: 'Switzerland',
                     available: true,
-                    availableCore: 'http://localhost:3000'
+                    availableCore: 'http://localhost:3000/'
                   },
                   'test.ch-ch': {
                     available: true,
@@ -120,7 +120,7 @@ describe('/service', function () {
                   },
                   'mock-api-server': {
                     available: true,
-                    availableCore: 'http://localhost:3000',
+                    availableCore: 'http://localhost:3000/',
                     description: 'Hosting provider slogan',
                     localizedDescription: {},
                     name: 'Hosting provider name',
