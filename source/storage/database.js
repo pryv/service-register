@@ -898,6 +898,32 @@ exports.getAccessState = function (key: string, callback: GenericCallback<Access
   getJSON(key + ':access', mixedCallback);
 };
 
+exports.setNSEntry = function (key: string, value: DnsData, callback) {
+  redis.set(ns(key,'nsentry'), JSON.stringify(value), callback);
+}
+
+exports.getNSEntry = function (key: string, callback) {
+  getJSON(ns(key,'nsentry'), callback);
+}
+
+exports.getNSEntries = function (callback) {
+  const mask = '*:nsentry';
+  const maskLength = mask.length - 1;
+  const result = {};
+  doOnKeysValuesMatching(mask, '*', function(key, value) { 
+    const k = key.slice(0, - maskLength);
+    let v;
+    try { 
+      v = JSON.parse(value);
+    } catch (e) {
+      v = {error: e.message}
+    }
+    result[k] = v;
+  }, function() {
+    callback(null, result);
+  });
+}
+
 //----------------- Reserved words --------------//
 
 var RESERVED_WORDS_VERSION = 'reservedwords:version';
@@ -976,7 +1002,7 @@ exports.reservedWordExists = function (word: string, callback: GenericCallback<b
 /// Given a value (`a`) and a namespace kind (`b`): Assembles and returns the 
 /// redis namespace for accessing that value. 
 /// 
-type NamespaceKind = 'users' | 'server' | 'email';
+type NamespaceKind = 'users' | 'server' | 'email' | 'nsentry';
 function ns(a: string, b: NamespaceKind): string {
   return `${a}:${b}`;
 }

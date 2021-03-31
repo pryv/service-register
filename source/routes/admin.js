@@ -13,11 +13,38 @@ const users = require('../storage/users');
 const messages = require('../utils/messages');
 const invitations = require('../storage/invitations');
 const requireRoles = require('../middleware/requireRoles');
+const db = require('../storage/database');
 
 /**
  * Routes for admin to manage users
  */
 module.exports = function (app: any) {
+
+  app.post('/admin/nsentries', requireRoles('admin'), function (req, res, next) { 
+    const body = req.body;
+    if (! body.key || typeof key !== 'string') return next(messages.e(422, 'INVALID_DATA', "invalid or missing key parameter"));
+
+    db.setNSEntry(body.key, body.value, function(err) {
+      if (err) {
+        return next(err);
+      }
+      res.send({entry: {key: body.key, value: body.value}});
+      return next();
+    });
+  });
+
+  app.get('/admin/nsentries', requireRoles('admin'), function (req, res, next) { 
+    const result = [];
+  
+    db.getNSEntries(function(err, entries) {
+      if (err) {
+        return next(err);
+      }
+      res.send({nsentries: entries});
+      return next();
+    });
+  });
+
   // GET /admin/users: get the user list
   app.get('/admin/users', requireRoles('admin'), function (req, res, next) {
     const headers = {

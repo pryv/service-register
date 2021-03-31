@@ -7,6 +7,8 @@ const Server = require('../../source/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 const db = require('../../source/storage/database');
+const async = require('async');
+const { assert }  = require('chai'); 
 
 require('readyness/wait/mocha');
 
@@ -120,6 +122,9 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
   });
 });
 
+
+
+
 describe('GET /admin/servers', function () {
   let server;
 
@@ -142,6 +147,70 @@ describe('GET /admin/servers', function () {
     });
   });
 });
+
+
+describe('/admin/nsentries', function () {
+  let server;
+
+  before(async function () {
+    server = new Server();
+    await server.start();
+  });
+
+  after(async function () {
+    await server.stop();
+  });
+
+  describe('GET ', function () {
+    const entries = [
+      {key: '_testip', value: {ip: '120.120.120.120'}},
+      {key: '_testtxt', value: {description: 'asjdshahgdsahgdghasdhgas'}},
+    ];
+
+    before((done) => { 
+      async.mapSeries(entries, function(item, callback) { 
+        db.setNSEntry(item.key, item.value, callback);
+      }, done);
+    });
+
+
+    it('should send a list of nsentries', function (done) {
+      request.get(server.url + '/admin/nsentries' + '?auth=' + authAdminKey)
+      .end((err, res) => {
+        assert.exists(res.body.nsentries);
+        for (let entry of entries) {
+          assert.deepEqual(res.body.nsentries[entry.key], entry.value)
+        }
+        done(); 
+      });
+    });
+  });
+
+
+  describe('POST ', function () {
+
+    it('should store an entry', function (done) {
+      const entry = {
+        key: '_testrrandom', 
+        value: {
+          description: 'asjdshahgdsahgdghasdhgas' + Math.round(Math.random() * 100000)
+        }
+      };
+      request.post(server.url + '/admin/nsentries' + '?auth=' + authAdminKey).send(entry).end((errRequest, resRequest) => {
+        assert.notExists(errRequest);
+        assert.exists(resRequest.body.entry);
+        assert.deepEqual(resRequest.body.entry, entry);
+        db.getNSEntry(entry.key, function(err, res) { 
+          assert.notExists(err);
+          assert.deepEqual(entry.value, res);
+          done();
+        })
+      });
+    });
+  });
+
+});
+
 
 describe('/admin/invitations', function () {
   let server;
