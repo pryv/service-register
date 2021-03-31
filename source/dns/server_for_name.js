@@ -132,28 +132,12 @@ function serverForName(
     const staticData = staticDataInDomain[resourceName];
     return callback(req, res, dns.getRecords(staticData, reqName));
   }
-  
-  if (! checkAndConstraints.isLegalUsername(resourceName)) {
-    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
-    return callback(req, res, nullRecord);
-  }
-  
-  // assert: resourceName fulfills the character level constraints for a username.
-  const uid = resourceName;
-
-  // 0 to 4 char length are reserved
-  if (uid.length < 5) {
-    // nothing found
-    return callback(req, res, nullRecord);
-  }
 
 
-  db.getServer(uid, function (error, result) {
-    //console.log('*** FOUND :'+ result);
-    if (error || ! result) { return callback(req, res, nullRecord); }
 
-    var dyn: DnsData = {
-      'alias': [ { name: result } ]};
+  getEntryFromDB(resourceName, function (error, dyn) {
+    if (error || ! dyn) { return callback(req, res, nullRecord); }
+
       
     // add Authority or Nameservers
     switch (req.q[0].typeName) {
@@ -169,6 +153,49 @@ function serverForName(
     return callback(req, res, rec); // ndns-warper.sendresponse
   });
 }
+
+function getEntryFromDB(resourceName, callback) {
+  
+  getEntryFromKey(resourceName, function (err, dbEntry) {
+    if (err) return callback(err, null); 
+    if (dbEntry) return callback(null, dbEntry);
+
+    getAliasForuser(resourceName, callback);
+  });
+}
+
+function getEntryFromKey(resourceName, callback) {
+  db.getNSEntry(resourceName, callback);
+}
+
+function getAliasForuser(resourceName, callback) {
+  // username 
+  if (! checkAndConstraints.isLegalUsername(resourceName)) {
+    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
+    return callback(null, null);
+  }
+  
+  // assert: resourceName fulfills the character level constraints for a username.
+  const uid = resourceName;
+
+  // 0 to 4 char length are reserved
+  if (uid.length < 5) {
+    // nothing found
+    return callback(null, null);
+  }
+
+
+  db.getServer(uid, function (error, result) {
+    if (error || ! result) { return callback(error, null); }
+
+    var dyn: DnsData = {
+      'alias': [ { name: result } ]
+    };
+    callback(null, dyn);
+  });
+}
+
+
 module.exports = {
   serverForName: serverForName, 
   logger: logger 

@@ -16,6 +16,8 @@ var db = require('../../source/storage/database');
 const ndns = require('../../source/dns/ndns');
 const Client = ndns.Client;
 
+const async = require('async');
+
 require('../../source/app-dns');
 
 require('readyness/wait/mocha');
@@ -117,6 +119,38 @@ describe('DNS', function () {
     });
   });
 
+
+  describe('NS entries in DB', () => {
+    const entries = [
+      {key: '_testip', value: {ip: '120.120.120.120'}},
+      {key: '_testtxt', value: {description: 'asjdshahgdsahgdghasdhgas'}},
+    ];
+
+    before((done) => { 
+      async.mapSeries(entries, function(item, callback) { 
+        db.setNSEntry(item.key, item.value, callback);
+      }, done);
+    });
+
+    it('DNS answers to A NSentry in DB', (done) => { 
+      const entry = entries[0];
+      dig('A', entry.key + '.' + config.get('dns:domain'), function (error, result) {
+        if (error) { return done(error); }
+        assert.strictEqual(result, entry.value.ip);
+        done();
+      });
+    });
+
+    it('DNS answers to TXT NSentry in DB', (done) => { 
+      const entry = entries[1];
+      dig('TXT', entry.key + '.' + config.get('dns:domain'), function (error, result) {
+        if (error) { return done(error); }
+        assert.strictEqual(result, '"' + entry.value.description + '"' );
+        done();
+      });
+    });
+
+  });
 
   describe('CAA records', () => {
     it('work', (done) => {
