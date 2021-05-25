@@ -1,5 +1,9 @@
 # CHANGES in 1.X
 
+### 1.6.4
+
+- Username length up to 60 characters
+
 ### 1.6.3
 
 - ensure trailing slash on core URLs
