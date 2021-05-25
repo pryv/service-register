@@ -133,8 +133,8 @@ function serverForName(
     return callback(req, res, dns.getRecords(staticData, reqName));
   }
   
-  if (! checkAndConstraints.isLegalUsername(resourceName)) {
-    logger.warn(`DNS: ${util.inspect(resourceName)} is no legal username.`);
+  if (! checkAndConstraints.isValidUsername(resourceName)) {
+    logger.warn(`DNS: ${util.inspect(resourceName)} is not a valid username.`);
     return callback(req, res, nullRecord);
   }
   

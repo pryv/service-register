@@ -2,6 +2,8 @@
 
 const cac = require('../../../source/utils/check-and-constraints.js');
 
+const {USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH} = require('../../../source/utils/check-and-constraints');
+
 const assert = require('chai').assert;
 
 /* global describe, it */
@@ -29,18 +31,25 @@ describe('Checks And Constraints', function () {
     });
   });
   
-  describe('#isLegalUsername', function () {
+  describe('#isValidUsername', function () {
     ok('foobar');
+    ok('a'.repeat(USERNAME_MIN_LENGTH));
+    ok('a'.repeat(USERNAME_MAX_LENGTH));
+
+    not_ok('a'.repeat(USERNAME_MIN_LENGTH - 1));
+    not_ok('a'.repeat(USERNAME_MAX_LENGTH + 1));
     not_ok('_acme-challenge');
     
     function ok(name) {
       it(`should accept ${name} as username`, function () {
-        assert.isOk(cac.isLegalUsername(name));
+        assert.isOk(cac.isValidUsername(name));
       });
     }
+    
+
     function not_ok(name) {
       it(`should NOT accept ${name} as username`, function () {
-        assert.isNotOk(cac.isLegalUsername(name));
+        assert.isNotOk(cac.isValidUsername(name));
       });
     }
   });
