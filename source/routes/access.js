@@ -61,7 +61,7 @@ module.exports = function (app: express$Application) {
       let accessState = {
         status: 'ERROR',
         id: body.id,
-        message: 'Unkown status code : ' + body.status,
+        message: 'Unknown status code : ' + body.status,
         detail: '',
         code: 403
       };
@@ -91,7 +91,7 @@ module.exports = function (app: express$Application) {
             if (!apiEndpoint) {
               return next(messages.e(400, 'INVALID_API_ENDPOINT'));
             }
-          } 
+          }
 
           // TO be deprecated
           var username = checkAndConstraints.uid(body.username);
@@ -138,7 +138,7 @@ function _setAccessState(res, next, key, accessState, previousValue) {
     accessState.serviceInfo = previousValue.serviceInfo;
   }
 
-  
+
 
   accessCommon.setAccessState(key, accessState, function (accessState) {
     if (accessState.code != null) res.status(accessState.code);

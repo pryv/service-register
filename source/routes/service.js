@@ -57,7 +57,7 @@ module.exports = function (app) {
     var appData = {id : appid};
     _.extend(appData, appsList[appid]);
     if (! appData) {
-      return next(messages.e(400, 'INVALID_DATA', {'message': 'unkown appid : ' + appid}));
+      return next(messages.e(400, 'INVALID_DATA', {'message': 'unknown appid : ' + appid}));
     }
 
     res.json({ app: appData });

@@ -34,7 +34,7 @@ const assert = chai.assert;
  * do a a test.
  * test is expected to have the following properties:
  * it: textual description of test
- * path: path, of the ressource
+ * path: path, of the resource
  * method: GET, POST, ...
  * status: expected status
  * JSchema: jscon-schema for validation
@@ -89,9 +89,9 @@ exports.jsonResponse = jsonResponse;
  */
 function jsonResponse(err, res, test, callback_done) {
   // NOTE We used to check err and res here, but really we don't want to depend
-  // on superagents definition of an error. 
+  // on superagents definition of an error.
   should.exist(res);
-  
+
   assert.equal(res.status, test.status, 'Status code must be correct');
 
   // test headers?
