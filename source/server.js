@@ -12,27 +12,24 @@
 
 const app = require('./app');
 const logger = require('winston');
-    
+
 const http = require('http');
-const superagent = require('superagent');
 const bluebird = require('bluebird');
-const child_process = require('child_process');
-const url = require('url');
 
 const ready = require('readyness');
 
 const info = require('./business/service-info');
 const config = require('./config');
-const Reporting = require('lib-reporting');
+const reporting = require('lib-reporting');
 
 
 ready.setLogger(logger.info);
 
 // server: http.Server;
 // Produces the server instance for listening to HTTP/HTTPS traffic, depending
-// on the configuration. 
+// on the configuration.
 //
-// NOTE Since we depend on there being an url property in the server, we don't 
+// NOTE Since we depend on there being an url property in the server, we don't
 //    return vanilla servers from this function but a subtype. Make sure
 //    the code knows about the `url`.
 //
@@ -55,7 +52,7 @@ class ServerWithUrl {
     }
 
     const appListening = ready.waitFor('register:listening:' + this.config.get('server:ip') + ':' + this.config.get('server:port'));
-    
+
     const opts = {
       port: this.config.get('server:port'),
       host: this.config.get('server:ip'),
@@ -76,10 +73,10 @@ class ServerWithUrl {
     const protocol = 'http';
 
     const server_url = protocol + '://' + address.address + ':' + address.port;
-    
-    // Tests access 'server.url' for now. Deprecated. 
+
+    // Tests access 'server.url' for now. Deprecated.
     this.url = this.server.url = server_url;
-    
+
     // Use this instead.
     this.config.set('server:url', this.server.url);
 
@@ -97,7 +94,6 @@ class ServerWithUrl {
   }
 
   async collectUsageAndSendReport() {
-
     // Check if the PRYV_REPORTING_OFF environment variable is set to true.
     // If it is, don't collect data and don't send report
     const optOutReporting = this.config.get('reporting:optOut');
@@ -107,14 +103,13 @@ class ServerWithUrl {
       return;
     }
 
-
-    new Reporting(
+    reporting.start(
       this.config.get('reporting:licenseName'),
       this.config.get('reporting:role'),
       this.config.get('reporting:templateVersion'),
       this.collectClientData.bind(this),
       logger.info
-      );
+    );
   }
 
   async collectClientData(): Object {
