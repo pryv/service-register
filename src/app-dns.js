@@ -11,10 +11,10 @@ const dns = require('./dns/ndns-wrapper');
 
 const { serverForName, logger } = require('./dns/server_for_name');
 
-var ready = require('readyness');
+const ready = require('readyness');
 ready.setLogger(logger.info);
 
-var readyListening = ready.waitFor('app_dns:listening');
+const readyListening = ready.waitFor('app_dns:listening');
 dns.start(
   'udp4',
   config.get('dns:port'),

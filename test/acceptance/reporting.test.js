@@ -1,17 +1,18 @@
-/* global describe, before, after, it */
 const awaiting = require('awaiting');
 const chai = require('chai');
 const assert = chai.assert;
 const _ = require('lodash');
-const Promise = require('bluebird');
+const BluebirdPromise = require('bluebird');
 const supertest = require('supertest');
 const EventEmitter = require('events');
 const hostname = require('os').hostname;
+
 const config = require('../../src/config');
 const Server = require('../../src/server.js');
 const DEFAULT_USERNAME = 'wactiv';
 const Mock = require('../support/Mock');
 const eventEmitter = new EventEmitter();
+
 let lastReport;
 const mock = new Mock(
   'https://reporting.pryv.com',
@@ -27,9 +28,10 @@ const mock = new Mock(
 let server;
 let request;
 /** @returns {Promise<void>} */
-async function assertServerStarted() {
+async function assertServerStarted () {
   await request.get(`/${DEFAULT_USERNAME}/check_username`);
 }
+
 describe('service-reporting ON', function () {
   const reportingSettings = {
     optOut: false,
@@ -96,7 +98,7 @@ describe('service-reporting ON and optOut ON', function () {
     await server.stop();
   });
   it('server must start and not send a report when opting-out reporting', async () => {
-    await new Promise(async function (resolve) {
+    await new BluebirdPromise(async function (resolve) {
       await awaiting.event(eventEmitter, 'report_received');
       resolve();
     })
@@ -105,7 +107,7 @@ describe('service-reporting ON and optOut ON', function () {
         throw new Error('Should not have received a report');
       })
       .catch(async (error) => {
-        if (error instanceof Promise.TimeoutError) {
+        if (error instanceof BluebirdPromise.TimeoutError) {
           // Everything is ok, the promise should have timeouted
           // since the report has not been sent.
           await assertServerStarted();
@@ -130,7 +132,7 @@ describe('service-reporting OFF', function () {
     await server.stop();
   });
   it('server must start and not send a report when service-reporting is OFF', async function () {
-    await new Promise(async function (resolve) {
+    await new BluebirdPromise(async function (resolve) {
       await awaiting.event(eventEmitter, 'report_received');
       resolve();
     })
@@ -139,7 +141,7 @@ describe('service-reporting OFF', function () {
         throw new Error('Should not have received a report');
       })
       .catch(async (error) => {
-        if (error instanceof Promise.TimeoutError) {
+        if (error instanceof BluebirdPromise.TimeoutError) {
           // Everything is ok, the promise should have timeouted
           // since the report has not been sent.
           await assertServerStarted();

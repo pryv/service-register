@@ -4,15 +4,17 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-//maybe there is a module arround that can clear up this file
+
+// HACK: maybe there is a module around that can clear up this file
+/* eslint-disable no-extend-native */
 
 try {
   Object.defineProperties(String.prototype, {
     rainbow: {
       get: function () {
-        var rainbowcolors = ['red', 'yellow', 'green', 'blue', 'magenta']; //RoY G BiV
-        var exploded = this.split('');
-        var i = 0;
+        const rainbowcolors = ['red', 'yellow', 'green', 'blue', 'magenta']; // RoY G BiV
+        let exploded = this.split('');
+        let i = 0;
         exploded = exploded.map(function (letter) {
           if (letter === ' ') {
             return letter;
@@ -27,12 +29,12 @@ try {
     },
     stripColors: {
       get: function () {
-        return ('' + this).replace(/\u001b\[\d+m/g, '');
+        return ('' + this).replace(/\u001b\[\d+m/g, ''); /* eslint-disable-line no-control-regex */
       },
       enumerable: false,
       configurable: false
     },
-    //styles
+    // styles
     bold: {
       get: function () {
         return ['\x1B[1m', this, '\x1B[22m'].join('');
@@ -61,7 +63,7 @@ try {
       enumerable: false,
       configurable: false
     },
-    //grayscale
+    // grayscale
     white: {
       get: function () {
         return ['\x1B[37m', this, '\x1B[39m'].join('');
@@ -83,7 +85,7 @@ try {
       enumerable: false,
       configurable: false
     },
-    //colors
+    // colors
     blue: {
       get: function () {
         return ['\x1B[34m', this, '\x1B[39m'].join('');

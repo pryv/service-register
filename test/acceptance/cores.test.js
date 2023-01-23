@@ -1,5 +1,3 @@
-/* global describe, before, beforeEach, after, it */
-
 const supertest = require('supertest');
 const faker = require('faker');
 const bluebird = require('bluebird');
@@ -9,7 +7,6 @@ const config = require('../../src/config');
 const Server = require('../../src/server.js');
 const userStorage = require('../../src/storage/users');
 const dataservers = require('../../src/business/dataservers');
-const db = require('../../src/storage/database');
 
 require('readyness/wait/mocha');
 

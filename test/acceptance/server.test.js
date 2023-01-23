@@ -1,5 +1,3 @@
-/* global describe, before, after, it */
-
 const request = require('superagent');
 const should = require('should');
 
@@ -13,8 +11,8 @@ const schema = require('../support/schema.responses');
 
 require('readyness/wait/mocha');
 
-var domain = config.get('dns:domain');
-var path = '/server';
+const domain = config.get('dns:domain');
+const path = '/server';
 
 describe('POST /:uid/server', function () {
   let server;
@@ -53,7 +51,7 @@ describe('POST /:uid/server', function () {
       });
   });
   it('known', function (done) {
-    var test = {
+    const test = {
       uid: 'wactiv',
       status: 200,
       desc: 'known',
@@ -86,7 +84,7 @@ describe('GET /:uid/server', function () {
     request
       .get(server.url + '/abcd/server')
       .redirects(0)
-      .end((err, res) => {
+      .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
         assert.equal(res.statusCode, 400, 'Should have status code 400');
         done();
       });
@@ -95,7 +93,7 @@ describe('GET /:uid/server', function () {
     request
       .get(server.url + '/abcdefghijkl/server')
       .redirects(0)
-      .end((err, res) => {
+      .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
         assert.equal(res.statusCode, 404, 'Should have status code 404');
         done();
       });
@@ -104,7 +102,7 @@ describe('GET /:uid/server', function () {
     request
       .get(server.url + '/wactiv/server')
       .redirects(0)
-      .end((err, res) => {
+      .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
         assert.equal(res.statusCode, 302, 'Should have status code 302');
         res.header.location.should.match('https://rec.la/?username=wactiv');
         done();

@@ -3,7 +3,7 @@ const nock = require('nock');
 class Mock {
   /** */
   scope = undefined;
-  constructor(endpoint, path, method, status, res, cb) {
+  constructor (endpoint, path, method, status, res, cb) {
     this.scope = nock(endpoint)
       .persist()
       .intercept(path, method)
@@ -12,8 +12,9 @@ class Mock {
         return [status, res || reqBody];
       });
   }
+
   /** @returns {void} */
-  stop() {
+  stop () {
     // Should work but doesn't
     // https://www.npmjs.com/package/nock#persist
     // this.scope.persist(false);

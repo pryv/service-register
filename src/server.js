@@ -45,7 +45,7 @@ class ServerWithUrl {
    */
   config;
 
-  constructor(customConfig) {
+  constructor (customConfig) {
     this.config = customConfig || config;
     this.server = http.createServer(app);
   }
@@ -53,7 +53,7 @@ class ServerWithUrl {
   /**
    * @returns {Promise<void>}
    */
-  async start() {
+  async start () {
     logger.info('Register  server :' + info.register);
     if (this.config.get('server:port') <= 0) {
       logger.info('** HTTP server is off !');
@@ -79,16 +79,16 @@ class ServerWithUrl {
     }
     const address = this.server.address();
     const protocol = 'http';
-    const server_url = protocol + '://' + address.address + ':' + address.port;
+    const serverURL = protocol + '://' + address.address + ':' + address.port;
     // Tests access 'server.url' for now. Deprecated.
-    this.url = this.server.url = server_url;
+    this.url = this.server.url = serverURL;
     // Use this instead.
     this.config.set('server:url', this.server.url);
     const readyMessage =
       'Registration server v' +
       require('../package.json').version +
       ' listening on ' +
-      server_url +
+      serverURL +
       '\n Serving main domain: ' +
       this.config.get('dns:domain') +
       ' extras: ' +
@@ -96,14 +96,14 @@ class ServerWithUrl {
     logger.info(readyMessage);
     appListening(readyMessage);
     this.collectUsageAndSendReport();
-    //start dns
+    // start dns
     require('./app-dns');
   }
 
   /**
    * @returns {Promise<void>}
    */
-  async collectUsageAndSendReport() {
+  async collectUsageAndSendReport () {
     // Check if the PRYV_REPORTING_OFF environment variable is set to true.
     // If it is, don't collect data and don't send report
     const optOutReporting = this.config.get('reporting:optOut');
@@ -123,19 +123,19 @@ class ServerWithUrl {
   /**
    * @returns {any}
    */
-  async collectClientData() {
+  async collectClientData () {
     const usersStorage = require('./storage/users');
     const users = await bluebird.fromCallback((cb) => {
       usersStorage.getAllUsersInfos(cb);
     });
     const numUsers = users.length;
-    return { numUsers: numUsers, domain: this.config.get('dns:domain') };
+    return { numUsers, domain: this.config.get('dns:domain') };
   }
 
   /**
    * @returns {Promise<void>}
    */
-  async stop() {
+  async stop () {
     await this.server.close();
   }
 }

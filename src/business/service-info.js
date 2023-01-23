@@ -12,9 +12,9 @@ const STUB_VALUE_FOR_OPEN_SOURCE = '1.6.0';
 const info = Object.assign({}, config.get('service'));
 const reportingSettings = config.get('reporting');
 if (reportingSettings == null) {
-  info['version'] = STUB_VALUE_FOR_OPEN_SOURCE;
+  info.version = STUB_VALUE_FOR_OPEN_SOURCE;
 } else {
-  info['version'] = reportingSettings.templateVersion;
+  info.version = reportingSettings.templateVersion;
 }
 
 // add eventual missing '/';

@@ -1,6 +1,5 @@
 'use strict';
 
-/* global describe, it, before, beforeEach, after */
 const Server = require('../../src/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
@@ -29,10 +28,10 @@ describe('POST /access/invitationtoken/check', function () {
     await server.stop();
   });
 
-  var path = '/access/invitationtoken/check/';
+  const path = '/access/invitationtoken/check/';
 
   it('invalid', function (done) {
-    var test = {
+    const test = {
       invitationtoken: 'facebook',
       status: 200,
       value: 'false',
@@ -47,7 +46,7 @@ describe('POST /access/invitationtoken/check', function () {
   });
 
   it('valid', function (done) {
-    var test = {
+    const test = {
       invitationtoken: 'enjoy',
       status: 200,
       value: 'true',
@@ -177,7 +176,7 @@ describe('POST /access', function () {
       });
   });
   it('invalid', function (done) {
-    var test = {
+    const test = {
       url: '/access',
       method: 'POST',
       data: {
@@ -327,7 +326,7 @@ describe('POST /access', function () {
             defaultName: faker.internet.domainWord()
           }
         ],
-        authUrl: authUrl
+        authUrl
       },
       contenttype: 'JSON',
       status: 201,
@@ -369,7 +368,7 @@ describe('POST /access', function () {
             defaultName: faker.internet.domainWord()
           }
         ],
-        authUrl: authUrl
+        authUrl
       },
       contenttype: 'JSON',
       status: 201,
@@ -405,7 +404,7 @@ describe('POST /access', function () {
             defaultName: faker.internet.domainWord()
           }
         ],
-        authUrl: authUrl
+        authUrl
       }
     };
 
@@ -439,7 +438,7 @@ describe('POST /access', function () {
             defaultName: faker.internet.domainWord()
           }
         ],
-        authUrl: authUrl
+        authUrl
       }
     };
 
@@ -473,7 +472,7 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        serviceInfo: serviceInfo
+        serviceInfo
       };
 
       const res = await request.post(server.url + path).send(payload);
@@ -493,7 +492,7 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        serviceInfo: serviceInfo
+        serviceInfo
       };
       try {
         await request.post(server.url + path).send(payload);
@@ -517,7 +516,7 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        expireAfter: expireAfter
+        expireAfter
       };
 
       const res = await request.post(server.url + path).send(payload);
@@ -537,7 +536,7 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        expireAfter: expireAfter
+        expireAfter
       };
 
       try {
@@ -563,7 +562,7 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        deviceName: deviceName
+        deviceName
       };
 
       const res = await request.post(server.url + path).send(payload);
@@ -583,11 +582,11 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        deviceName: deviceName
+        deviceName
       };
 
       try {
-        const res = await request.post(server.url + path).send(payload);
+        await request.post(server.url + path).send(payload);
         throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);
@@ -609,7 +608,7 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        referer: referer
+        referer
       };
 
       const res = await request.post(server.url + path).send(payload);
@@ -629,11 +628,11 @@ describe('POST /access', function () {
             defaultName: faker.lorem.word()
           }
         ],
-        referer: referer
+        referer
       };
 
       try {
-        const res = await request.post(server.url + path).send(payload);
+        await request.post(server.url + path).send(payload);
         throw new Error('request should never succeed');
       } catch (e) {
         assert.equal(e.response.status, 400);

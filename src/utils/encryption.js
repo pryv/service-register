@@ -9,11 +9,11 @@
  * THIS FILE IS A COPY FROM ACTIVITY SERVER: don't modify one without the other.
  */
 
-var bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 
-var envIsDevelopment =
+const envIsDevelopment =
   !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
-var salt = bcrypt.genSaltSync(envIsDevelopment ? 1 : 10);
+const salt = bcrypt.genSaltSync(envIsDevelopment ? 1 : 10);
 
 /**
  * Generate a hash from provided value

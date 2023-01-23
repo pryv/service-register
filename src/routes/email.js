@@ -76,7 +76,7 @@ module.exports = function (app) {
   app.get('/:email/username', function (req, res, next) {
     getUsernameFromEmail(req.params.email)
       .then((username) => {
-        return res.json({ username: username });
+        return res.json({ username });
       })
       .catch((err) => {
         return next(err);
@@ -90,7 +90,7 @@ module.exports = function (app) {
  * @throws {Error} if email has invalid format or not in use.
  * @return {Promise<string>} resolves the corresponding username if the email is valid and in use.
  */
-function getUsernameFromEmail(email) {
+function getUsernameFromEmail (email) {
   if (config.get('routes:disableGetUsernameByEmail')) {
     return Promise.reject(messages.e(405, 'DISABLED_METHOD'));
   }
@@ -112,7 +112,7 @@ function getUsernameFromEmail(email) {
  * @throws {Error} if the string doesn't look like an email address.
  * @return {Promise<boolean>} resolves to true if the email is valid and already in use by a user.
  */
-function isEmailTaken(email) {
+function isEmailTaken (email) {
   if (!checkAndConstraints.email(email)) {
     return Promise.reject(new Error('invalid email'));
   }

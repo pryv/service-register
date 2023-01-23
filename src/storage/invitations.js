@@ -14,11 +14,11 @@ const _ = require('lodash');
 const async = require('async');
 const config = require('../config');
 
-var randtoken = require('rand-token').generator({
+const randtoken = require('rand-token').generator({
   chars: 'a-z'
 });
 
-function dbKey(token) {
+function dbKey (token) {
   return token + ':invitation';
 }
 
@@ -27,7 +27,7 @@ function dbKey(token) {
  * @param callback: function(error,result), result being the set of invitations
  */
 exports.getAll = function (callback) {
-  var cutI = ':invitation'.length;
+  const cutI = ':invitation'.length;
 
   db.getMatchingSets(
     '*:invitation',
@@ -48,18 +48,18 @@ exports.getAll = function (callback) {
  * @param callback: function(error, result), result being the set of new tokens
  */
 exports.generate = function (number, adminId, description, callback) {
-  var createdAt = new Date().getTime();
+  const createdAt = new Date().getTime();
 
   async.times(
     number,
     function (n, next) {
       // Generate a 5 characters token:
-      var token = randtoken.generate(5);
+      const token = randtoken.generate(5);
 
-      var data = {
-        createdAt: createdAt,
+      const data = {
+        createdAt,
         createdBy: adminId,
-        description: description
+        description
       };
       db.setSet(dbKey(token), data, function (error) {
         _.extend(data, { id: token });
@@ -77,27 +77,27 @@ exports.generate = function (number, adminId, description, callback) {
  * @param token: the token to be validated
  * @param callback: function(result), result being 'true' if the token is valid, false otherwise
  */
-exports.checkIfValid = function checkIfValid(token, callback) {
+exports.checkIfValid = function checkIfValid (token, callback) {
   const invitationTokens = config.get('invitationTokens');
 
   // No tokens defined, let everyone sign up
-  if (invitationTokens == null) return callback(true);
+  if (invitationTokens == null) return callback(true); /* eslint-disable-line n/no-callback-literal */
 
   // Tokens set to empty, let no one sign up
-  if (invitationTokens.length === 0) return callback(false);
+  if (invitationTokens.length === 0) return callback(false); /* eslint-disable-line n/no-callback-literal */
 
   // Tokens are a list, accept valid ones
   for (let i = 0; i < invitationTokens.length; i++) {
     if (token === invitationTokens[i]) {
-      return callback(true);
+      return callback(true); /* eslint-disable-line n/no-callback-literal */
     }
   }
 
   db.getSet(dbKey(token), function (error, result) {
     if (error || !result || result.consumedAt) {
-      return callback(false);
+      return callback(false); /* eslint-disable-line n/no-callback-literal */
     }
-    return callback(true);
+    return callback(true); /* eslint-disable-line n/no-callback-literal */
   });
 };
 

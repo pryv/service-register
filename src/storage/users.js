@@ -4,6 +4,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
+
 /**
  * Extension of database.js dedicated to user management
  */
@@ -20,6 +21,7 @@ const messages = require('../utils/messages');
 const ErrorIds = require('../utils/errors-ids');
 const helpers = require('../utils/helpers');
 const info = require('../business/service-info');
+
 /**
  * Create (register) a new user
  *
@@ -27,7 +29,7 @@ const info = require('../business/service-info');
  * @param user the user data, a json object containing: username, password hash, language and email
  * @param callback function(error,result), result being a json object containing new user data
  */
-exports.create = function create(host, inUser, callback) {
+exports.create = function create (host, inUser, callback) {
   const user = lodash.clone(inUser);
   // We store usernames and emails as lower case, allowing comparison with any
   // other lowercase string.
@@ -61,12 +63,12 @@ exports.create = function create(host, inUser, callback) {
         if (typeof error === 'string') error = new Error(error);
         return callback(error);
       }
-      if (result == null)
-        return callback(new Error('Core answered empty, unknown error.'));
+      if (result == null) { return callback(new Error('Core answered empty, unknown error.')); }
       createUserOnServiceRegister(host, user, ['email'], callback);
     }
   );
 };
+
 /**
  * Create a new user in the service-register
  * (not on the service-core)
@@ -77,7 +79,7 @@ exports.create = function create(host, inUser, callback) {
  * @param {array<string>} uniqueFields
  * @returns {void}
  */
-function createUserOnServiceRegister(host, user, uniqueFields, callback) {
+function createUserOnServiceRegister (host, user, uniqueFields, callback) {
   // Construct the request for core, including the password.
   db.setServerAndInfos(
     user.username,
@@ -102,19 +104,21 @@ function createUserOnServiceRegister(host, user, uniqueFields, callback) {
   );
 }
 exports.createUserOnServiceRegister = createUserOnServiceRegister;
+
 /**
  * Check if reservation still is valid (by default it is valid for 10 minutes)
  *
  * @param reservationTime timestamp of saved reservation
  * @returns {boolean}
  */
-function isReservationStillValid(reservationTime) {
+function isReservationStillValid (reservationTime) {
   if (reservationTime >= Date.now() - 10 * 60 * 1000) {
     return true;
   } else {
     return false;
   }
 }
+
 /**
  * Create user reservation or return error with field name that was
  * already reserved
@@ -124,35 +128,32 @@ function isReservationStillValid(reservationTime) {
  * @param callback function(error,result), result being a json object containing new user data
  */
 exports.createUserReservation = async (uniqueFields, core) => {
-  try {
-    // Get reservations for all uniqueFields
-    const reservations = await db.getReservations(uniqueFields);
-    let reservation;
-    let reservedField = '';
-    let reservationExists = false;
-    for (reservation of reservations) {
-      if (reservation !== null) {
-        // if reservation was done in the last 10 minutes
-        if (isReservationStillValid(reservation.time)) {
-          // a) return success if core is the same
-          // b) if in last 10 minutes reservation was made from different core, return false
-          if (reservation.core != core) {
-            reservationExists = true;
-            reservedField = reservation.field;
-            break;
-          }
+  // Get reservations for all uniqueFields
+  const reservations = await db.getReservations(uniqueFields);
+  let reservation;
+  let reservedField = '';
+  let reservationExists = false;
+  for (reservation of reservations) {
+    if (reservation !== null) {
+      // if reservation was done in the last 10 minutes
+      if (isReservationStillValid(reservation.time)) {
+        // a) return success if core is the same
+        // b) if in last 10 minutes reservation was made from different core, return false
+        if (reservation.core !== core) {
+          reservationExists = true;
+          reservedField = reservation.field;
+          break;
         }
       }
     }
-    if (reservationExists === true) {
-      return reservedField;
-    }
-    await db.setReservations(uniqueFields, core, Date.now());
-    return true;
-  } catch (error) {
-    throw error;
   }
+  if (reservationExists === true) {
+    return reservedField;
+  }
+  await db.setReservations(uniqueFields, core, Date.now());
+  return true;
 };
+
 /**
  *
  * Validate all fields for the user
@@ -162,7 +163,7 @@ exports.createUserReservation = async (uniqueFields, core) => {
  */
 exports.validateUpdateFields = async (username, fields) => {
   // get update action and execute them in parallel
-  let uniquenessErrorTemplate = {
+  const uniquenessErrorTemplate = {
     id: ErrorIds.ItemAlreadyExists,
     data: {}
   };
@@ -182,7 +183,7 @@ exports.validateUpdateFields = async (username, fields) => {
       // because each key could have many values, iterate them
       const checkUniqueness = async () => {
         await helpers.asyncForEach(valuesList, async (valueObject) => {
-          if (valueObject.isUnique == true) {
+          if (valueObject.isUnique === true) {
             unique = await db.isFieldUniqueForUser(
               username,
               key,
@@ -204,6 +205,7 @@ exports.validateUpdateFields = async (username, fields) => {
     throw error;
   }
 };
+
 /**
  *
  * Update all fields for the user
@@ -246,6 +248,7 @@ exports.updateFields = async (username, fields, fieldsToDelete) => {
     throw error;
   }
 };
+
 /// Get a list of servers currently in use on this registry.
 ///
 /// @param callback: function(error, result) with result of the form: {serverName : usage count}
@@ -255,7 +258,7 @@ exports.getServers = function (callback) {
   db.doOnKeysValuesMatching(
     '*:server',
     '*',
-    function _countUserForServer(key, serverName) {
+    function _countUserForServer (key, serverName) {
       result[serverName] = (result[serverName] || 0) + 1;
     },
     function (error) {
@@ -263,13 +266,14 @@ exports.getServers = function (callback) {
     }
   );
 };
+
 /**
  * Get a list of users on a specific server
  * @param serverName: the name of the server
  * @param callback: function(error, result), result being an array of users
  */
 exports.getUsersOnServer = function (serverName, callback) {
-  var result = [];
+  const result = [];
   db.doOnKeysValuesMatching(
     '*:server',
     serverName,
@@ -281,6 +285,7 @@ exports.getUsersOnServer = function (serverName, callback) {
     }
   );
 };
+
 /**
  * Rename a server
  * @param srcServerName: the old server name
@@ -298,7 +303,7 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
       return callback(null, receivedCount);
     }
   };
-  var done = function (error) {
+  const done = function (error) {
     if (error) {
       errors.push(error);
     }
@@ -309,7 +314,7 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
     '*:server',
     srcServerName,
     function (key) {
-      var uid = key.split(':')[0];
+      const uid = key.split(':')[0];
       actionThrown++;
       checkDone();
       db.setServer(uid, dstServerName, function (error) {
@@ -323,6 +328,7 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
     done
   );
 };
+
 /**
  * Get a list of all user's information (see getUserInfos)
  * @param callback: function(error, result), result being a list of information for all users
@@ -330,7 +336,7 @@ exports.renameServer = function (srcServerName, dstServerName, callback) {
 exports.getAllUsersInfos = function (callback) {
   const userlist = [];
   let waiter = 1;
-  function done() {
+  function done () {
     waiter--;
     if (waiter === 0) {
       callback(null, userlist);
@@ -349,20 +355,21 @@ exports.getAllUsersInfos = function (callback) {
         done();
       });
     }.bind(this),
-    function (/*error, count*/) {
+    function (/* error, count */) {
       done();
     }
   );
 };
+
 /**
  * Get information about an user
  * @param {string} username  : the name of requested user
  * @param {Callback} callback  : function(error, result), result being an object containing user information
  * @returns {void}
  */
-function getUserInfos(username, callback) {
+function getUserInfos (username, callback) {
   let result;
-  let errors = [];
+  const errors = [];
   async.parallel(
     [
       function (stepDone) {

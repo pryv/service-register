@@ -8,12 +8,12 @@
  * Extension of database.js dedicated to reserved user id
  */
 
-var logger = require('winston'),
-  db = require('./database'),
-  config = require('../config');
+const logger = require('winston');
+const db = require('./database');
+const config = require('../config');
 
 // Reserved words
-var wordsLoaded = require('readyness').waitFor('reservedWords');
+const wordsLoaded = require('readyness').waitFor('reservedWords');
 
 load(function (error) {
   if (error) {
@@ -26,12 +26,12 @@ load(function (error) {
  * Load an up-to-date version of reserved words
  * @param callback: function(error)
  */
-function load(callback) {
+function load (callback) {
   db.reservedWordsVersion(function (error, currentVersion) {
     if (error) {
       return callback(error);
     }
-    var words = require('../public/reserved-words.json');
+    let words = require('../public/reserved-words.json');
     if (currentVersion === words.version) {
       logger.info(
         'Reserved word list version: ' + words.version + ' is up to date'

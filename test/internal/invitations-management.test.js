@@ -1,15 +1,14 @@
-/*global describe, it, before, after*/
-
 /*
  * test for generic behaviour of the app
  */
 
 require('../../src/server');
-var should = require('should');
+const { assert } = require('chai');
+const should = require('should');
 const config = require('../../src/config');
 require('readyness/wait/mocha');
 
-var invitations = require('../../src/storage/invitations');
+const invitations = require('../../src/storage/invitations');
 
 describe('INTERNAL invitations managements', function () {
   let defaultConfigInvitationTokens;
@@ -40,13 +39,14 @@ describe('INTERNAL invitations managements', function () {
   });
 
   describe('consumeToken', function () {
-    var generatedToken = null;
+    let generatedToken = null;
     before(function (done) {
       invitations.generate(
         1,
         'test',
         'too counsume token',
         function (error, result) {
+          assert.notExists(error);
           generatedToken = result;
           done();
         }
@@ -106,7 +106,7 @@ describe('INTERNAL invitations managements', function () {
         should.not.exist(error);
         should.exist(result);
         result.should.be.instanceOf(Array);
-        for (var i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.length; i++) {
           result[0].should.have.property('id');
         }
 

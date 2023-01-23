@@ -51,7 +51,7 @@ let dbversion = null;
 
 const connectionChecked = require('readyness').waitFor('database');
 
-//PASSWORD CHECKING
+// PASSWORD CHECKING
 if (config.get('redis:password')) {
   redis.auth(config.get('redis:password'), function () {
     logger.info('Redis client authentified');
@@ -68,10 +68,10 @@ if (config.get('redis:password')) {
  * Check redis database connectivity
  * @returns {void}
  */
-function checkConnection() {
+function checkConnection () {
   async.series(
     [
-      function _addWactivFixtureToDatabase(nextStep) {
+      function _addWactivFixtureToDatabase (nextStep) {
         // Do not remove, 'wactiv.server' is used by tests
         // NOTE Eventually, we will want to move the 'wactiv' user to a proper
         //  test fixture - and not have it here in production anymore.
@@ -85,7 +85,7 @@ function checkConnection() {
           nextStep
         );
       },
-      function _getDatabaseVersion(nextStep) {
+      function _getDatabaseVersion (nextStep) {
         redis.get(DBVERSION_KEY, function (error, result) {
           if (error) {
             return nextStep(error);
@@ -100,7 +100,7 @@ function checkConnection() {
           }
         });
       },
-      function _updateDatabaseVersion(nextStep) {
+      function _updateDatabaseVersion (nextStep) {
         if (semver.lt(dbversion, LASTEST_DB_VERSION)) {
           return nextStep();
         }
@@ -111,16 +111,17 @@ function checkConnection() {
           '*',
           function (key, value) {
             try {
-              var res_json = JSON.parse(value);
-              var username = res_json.username;
-              delete res_json.username;
-              redis.hmset(username + ':users', res_json);
+              const resJSON = JSON.parse(value);
+              const username = resJSON.username;
+              delete resJSON.username;
+              redis.hmset(username + ':users', resJSON);
               redis.del(key);
             } catch (e) {
               logger.info(' failed to parse json :' + key + ' ' + value);
             }
           },
           function (error, count) {
+            if (error) { return nextStep(error); }
             logger.info('  change ' + (count || 'n/a') + ' *:infos references');
           }
         );
@@ -168,7 +169,7 @@ exports.get = function (key, callback) {
  * @param {Callback} callback
  * @returns {void}
  */
-function getSet(key, callback) {
+function getSet (key, callback) {
   redis.hgetall(key, callback);
 }
 exports.getSet = getSet;
@@ -231,7 +232,7 @@ exports.setSetValue = function (keySet, key, value, callback) {
  * @param {Callback} callback  : function(error,result), result being the JSON database entry
  * @returns {void}
  */
-function getJSON(key, callback) {
+function getJSON (key, callback) {
   redis.get(key, function (error, result) {
     if (error != null) {
       logger.error('Redis getJSON: ' + key + ' e: ' + error.toString(), error);
@@ -257,11 +258,10 @@ exports.getJSON = getJSON;
  * @param {GenericCallback<boolean>} callback  : function(error,result), result being 'true' if it exists, 'false' otherwise
  * @returns {void}
  */
-function emailExists(email, callback) {
+function emailExists (email, callback) {
   email = email.toLowerCase();
   redis.exists(email + ':email', function (error, result) {
-    if (error != null)
-      logger.error('Redis emailExists: ' + email + ' e: ' + error, error);
+    if (error != null) { logger.error('Redis emailExists: ' + email + ' e: ' + error, error); }
     callback(error, result === 1);
   });
 }
@@ -282,12 +282,13 @@ exports.uidExists = function (uid, callback) {
   });
 };
 
+exports.getServer = getServer;
 /**
  * Get the server linked with provided user id
  * @param uid: the user id
  * @param callback: function(error,result), result being the server name
  */
-exports.getServer = function (uid, callback) {
+function getServer (uid, callback) {
   uid = uid.toLowerCase();
   redis.get(ns(uid, 'server'), function (error, result) {
     if (error != null) {
@@ -296,7 +297,7 @@ exports.getServer = function (uid, callback) {
     }
     return callback(null, result);
   });
-};
+}
 
 /**
  * Update the server for provided user id
@@ -341,7 +342,7 @@ exports.getServerByEmail = async function (email) {
  * @param {GenericCallback<number>} done  - function(error,result), result being the number of entries mapped
  * @returns {void}
  */
-function doOnKeysMatching(keyMask, action, done) {
+function doOnKeysMatching (keyMask, action, done) {
   redis.keys(keyMask, function (error, replies) {
     if (error) {
       logger.error(
@@ -350,7 +351,7 @@ function doOnKeysMatching(keyMask, action, done) {
       );
       return done(error, 0);
     }
-    var i, len;
+    let i, len;
     for (i = 0, len = replies.length; i < len; i++) {
       // skip inactive fields that have a type 'list'
       if (!replies[i].includes(`:${INACTIVE_FOLDER_NAME}:`)) {
@@ -370,18 +371,18 @@ exports.doOnKeysMatching = doOnKeysMatching;
  * @param {GenericCallback<number> | null} done  : function(error,result), result being the number of entries mapped
  * @returns {void}
  */
-function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
+function doOnKeysValuesMatching (keyMask, valueMask, action, done) {
   let receivedCount = 0;
   let waitFor = -1;
   let firstError = null;
-  var checkDone = function () {
+  const checkDone = function () {
     if (waitFor > 0 && waitFor === receivedCount) {
       if (done != null) {
         done(firstError, receivedCount);
       }
     }
   };
-  var doOnKeysMatchingDone = function (error, count) {
+  const doOnKeysMatchingDone = function (error, count) { /* eslint-disable-line n/handle-callback-err */
     if (count != null) waitFor = count;
     checkDone();
   };
@@ -414,12 +415,13 @@ function doOnKeysValuesMatching(keyMask, valueMask, action, done) {
 }
 exports.doOnKeysValuesMatching = doOnKeysValuesMatching;
 
+exports.getUIDFromMail = getUIDFromMail;
 /**
  * Get user id linked with provided email address
  * @param mail: the email address
  * @param callback: function(error,result), result being the requested user id
  */
-exports.getUIDFromMail = function (mail, callback) {
+function getUIDFromMail (mail, callback) {
   mail = mail.toLowerCase();
   redis.get(mail + ':email', function (error, uid) {
     if (error) {
@@ -427,7 +429,7 @@ exports.getUIDFromMail = function (mail, callback) {
     }
     return callback(null, uid);
   });
-};
+}
 
 /**
  * Update server and information linked with provided user
@@ -438,7 +440,7 @@ exports.getUIDFromMail = function (mail, callback) {
  * @param {Callback} callback No actual success value is being generated except error == null.
  * @returns {unknown}
  */
-function setServerAndInfos(username, server, infos, uniqueFields, callback) {
+function setServerAndInfos (username, server, infos, uniqueFields, callback) {
   const attrs = lodash.clone(infos);
   // This user will never be created for real
   if (username === 'recla') return callback();
@@ -455,14 +457,14 @@ function setServerAndInfos(username, server, infos, uniqueFields, callback) {
   let previousEmail = null;
   async.series(
     [
-      function _getPreviousEmailValue(stepDone) {
+      function _getPreviousEmailValue (stepDone) {
         redis.hget(ns(username, 'users'), 'email', function (error, email) {
           if (error != null) return stepDone(error);
           if (email != null) previousEmail = email.toLowerCase();
           return stepDone();
         });
       },
-      async function _storeUser() {
+      async function _storeUser () {
         try {
           const multi = redis.multi();
           multi.hmset(ns(username, 'users'), attrs);
@@ -471,10 +473,10 @@ function setServerAndInfos(username, server, infos, uniqueFields, callback) {
           if (previousEmail != null && previousEmail !== attrs.email) {
             multi.del(ns(previousEmail, 'email'));
           }
-          for (field of uniqueFields) {
+          for (const field of uniqueFields) {
             // make sure that the field has any value
             if (!attrs[field]) continue;
-            value = attrs[field].toLowerCase();
+            const value = attrs[field].toLowerCase();
             multi.set(ns(value, field), username);
           }
           await bluebird.fromCallback((cb) => multi.exec(cb));
@@ -496,7 +498,7 @@ exports.setServerAndInfos = setServerAndInfos;
 /**
  * @returns {object}
  */
-async function getUserData(username) {
+async function getUserData (username) {
   return await bluebird.fromCallback((cb) =>
     redis.hgetall(`${username}:users`, cb)
   );
@@ -507,18 +509,18 @@ async function getUserData(username) {
  * @param string username
  * @returns {object}
  */
-async function getAllInactiveData(username) {
+async function getAllInactiveData (username) {
   const keys = await bluebird.fromCallback((cb) =>
     redis.keys(`${username}:${INACTIVE_FOLDER_NAME}:*`, cb)
   );
   const queries = keys.map((key) => {
     return bluebird.fromCallback((cb) => redis.lrange(`${key}`, 0, -1, cb));
   });
-  let results = await Promise.all(queries);
+  const results = await Promise.all(queries);
   // form key -> list object
-  let inactiveData = {};
+  const inactiveData = {};
   results.forEach((result, i) => {
-    let params = keys[i].split(':');
+    const params = keys[i].split(':');
     inactiveData[params[params.length - 1]] = result;
   });
   return inactiveData;
@@ -578,7 +580,7 @@ exports.updateUserData = async (username, fields, fieldsToDelete) => {
  * @param {string} username  undefined
  * @returns {Promise<unknown>}
  */
-async function deleteUser(username) {
+async function deleteUser (username) {
   const saneUsername = username.toLowerCase();
   // Get user data
   const fieldsToDelete = await getUserData(username);
@@ -632,7 +634,7 @@ exports.deleteUser = deleteUser;
  * @param {object} fieldsToDelete
  * @returns {Promise<{}>}
  */
-async function verifyFieldForDeletion(username, fieldsToDelete) {
+async function verifyFieldForDeletion (username, fieldsToDelete) {
   // get update action and execute them in parallel
   try {
     const fieldsforDeletionVerified = {};
@@ -667,24 +669,20 @@ exports.isFieldUniqueForUser = async function (
 ) {
   fieldValue = fieldValue.toLowerCase();
   username = username.toLowerCase();
-  try {
-    const currentValueBelongsToUsername = await bluebird.fromCallback((cb) =>
-      redis.get(ns(fieldValue, fieldName), cb)
+  const currentValueBelongsToUsername = await bluebird.fromCallback((cb) =>
+    redis.get(ns(fieldValue, fieldName), cb)
+  );
+  if (currentValueBelongsToUsername === username) {
+    logger.debug(
+      `trying to update an ${fieldName} to the same value ${username} ${currentValueBelongsToUsername}`
     );
-    if (currentValueBelongsToUsername === username) {
-      logger.debug(
-        `trying to update an ${fieldName} to the same value ${username} ${currentValueBelongsToUsername}`
-      );
-      return true;
-    }
-    if (currentValueBelongsToUsername != null) {
-      logger.debug(
-        `#validateUniqueField: Cannot set, in use: ${fieldValue}, current ${currentValueBelongsToUsername}, new ${username}`
-      );
-      return false;
-    }
-  } catch (error) {
-    throw error;
+    return true;
+  }
+  if (currentValueBelongsToUsername != null) {
+    logger.debug(
+      `#validateUniqueField: Cannot set, in use: ${fieldValue}, current ${currentValueBelongsToUsername}, new ${username}`
+    );
+    return false;
   }
   return true;
 };
@@ -704,7 +702,7 @@ exports.isFieldUniqueForUser = async function (
  * @param {object} multi
  * @returns {object}
  */
-function updateField(
+function updateField (
   username,
   fieldName,
   dataObject,
@@ -754,8 +752,8 @@ exports.updateField = updateField;
  * @param {object} multi  undefined
  * @returns {object}
  */
-function deleteUniqueField(fieldName, fieldValue, multi) {
-  fieldValue = fieldValue.toLowerCase(); //TODO IEVA
+function deleteUniqueField (fieldName, fieldValue, multi) {
+  fieldValue = fieldValue.toLowerCase(); // TODO IEVA
   // Remove unique value
   multi.del(`${fieldValue}:${fieldName}`);
   return multi;
@@ -769,7 +767,7 @@ function deleteUniqueField(fieldName, fieldValue, multi) {
  * @param {object} multi  undefined
  * @returns {object}
  */
-function setUniqueField(fieldName, fieldValue, username, multi) {
+function setUniqueField (fieldName, fieldValue, username, multi) {
   multi.set(`${fieldValue}:${fieldName}`, username);
   return multi;
 }
@@ -784,7 +782,7 @@ function setUniqueField(fieldName, fieldValue, username, multi) {
  * @param {object} multi
  * @returns {object}
  */
-function updateInactiveUniqueFieldsList(
+function updateInactiveUniqueFieldsList (
   fieldName,
   fieldValue,
   oldValue,
@@ -793,15 +791,15 @@ function updateInactiveUniqueFieldsList(
   inactiveData,
   multi
 ) {
-  function fieldExistsInInactiveList() {
+  function fieldExistsInInactiveList () {
     return (
       inactiveData[fieldName] && inactiveData[fieldName].includes(fieldValue)
     );
   }
-  function removeFromInactiveList(value) {
+  function removeFromInactiveList (value) {
     multi.lrem(`${username}:${INACTIVE_FOLDER_NAME}:${fieldName}`, 0, value);
   }
-  function addToInactiveList(value) {
+  function addToInactiveList (value) {
     multi.lpush(`${username}:${INACTIVE_FOLDER_NAME}:${fieldName}`, value);
   }
   if (active) {
@@ -809,7 +807,7 @@ function updateInactiveUniqueFieldsList(
     if (oldValue !== fieldValue) {
       addToInactiveList(oldValue);
     }
-    //if inactive was changed to active
+    // if inactive was changed to active
     if (fieldExistsInInactiveList()) {
       removeFromInactiveList(fieldValue);
     }
@@ -823,24 +821,20 @@ function updateInactiveUniqueFieldsList(
 exports.isFieldUnique = async (fieldName, fieldValue) => {
   fieldValue = fieldValue.toLowerCase();
   // Check that email does not exists
-  try {
-    const exists = await bluebird.fromCallback((cb) =>
-      redis.exists(fieldValue + ':' + fieldName, cb)
-    );
-    return exists !== 1;
-  } catch (error) {
-    throw error;
-  }
+  const exists = await bluebird.fromCallback((cb) =>
+    redis.exists(fieldValue + ':' + fieldName, cb)
+  );
+  return exists !== 1;
 };
 
 /**
  * Private database index structural check for inconsistent email/user
  * @returns {void}
  */
-function _findGhostsEmails() {
+function _findGhostsEmails () {
   doOnKeysValuesMatching('*:email', '*', function (key, username) {
     const email = key.substring(0, key.lastIndexOf(':'));
-    redis.hgetall(username + ':users', function (error, user) {
+    redis.hgetall(username + ':users', function (error, user) { /* eslint-disable-line n/handle-callback-err */
       let e;
       if (user == null) {
         e = ' cannot find user:' + username;
@@ -859,10 +853,10 @@ function _findGhostsEmails() {
  * Private database index structural check for inconsistent server/user
  * @returns {void}
  */
-function _findGhostsServer() {
+function _findGhostsServer () {
   doOnKeysValuesMatching('*:server', '*', function (key, server) {
-    var username = key.substring(0, key.lastIndexOf(':'));
-    redis.hgetall(username + ':users', function (error, user) {
+    const username = key.substring(0, key.lastIndexOf(':'));
+    redis.hgetall(username + ':users', function (error, user) { /* eslint-disable-line n/handle-callback-err */
       if (!user) {
         logger.warn(
           'Db structure _findGhostsServer ' +
@@ -870,7 +864,7 @@ function _findGhostsServer() {
             ' cannot find user :' +
             username
         );
-        //redis.del(key);
+        // redis.del(key);
       }
     });
   });
@@ -907,9 +901,9 @@ exports.getAccessState = function (key, callback) {
   getJSON(key + ':access', mixedCallback);
 };
 
-//----------------- Reserved words --------------//
-var RESERVED_WORDS_VERSION = 'reservedwords:version';
-var RESERVED_WORDS_LIST = 'reservedwords:list';
+// ----------------- Reserved words --------------//
+const RESERVED_WORDS_VERSION = 'reservedwords:version';
+const RESERVED_WORDS_LIST = 'reservedwords:list';
 
 /**
  * Get the current version of the reserved words list in the database
@@ -988,7 +982,7 @@ exports.reservedWordExists = function (word, callback) {
  * @param {NamespaceKind} b
  * @returns {string}
  */
-function ns(a, b) {
+function ns (a, b) {
   return `${a}:${b}`;
 }
 
@@ -1000,23 +994,19 @@ function ns(a, b) {
  * @param {object} uniqueFields
  * @returns {Promise<any[]>}
  */
-async function getReservations(uniqueFields) {
-  let results = [];
+async function getReservations (uniqueFields) {
+  const results = [];
   let result;
-  try {
-    for (let [key, value] of Object.entries(uniqueFields)) {
-      result = await bluebird.fromCallback((cb) =>
-        getSet(ns(key + '-reservations', value), cb)
-      );
-      if (result) {
-        result['field'] = key;
-        results.push(result);
-      }
+  for (const [key, value] of Object.entries(uniqueFields)) {
+    result = await bluebird.fromCallback((cb) =>
+      getSet(ns(key + '-reservations', value), cb)
+    );
+    if (result) {
+      result.field = key;
+      results.push(result);
     }
-    return results;
-  } catch (error) {
-    throw error;
   }
+  return results;
 }
 exports.getReservations = getReservations;
 
@@ -1033,13 +1023,13 @@ exports.getReservations = getReservations;
  * @param {number} time
  * @returns {Promise<void>}
  */
-async function setReservations(uniqueFields, core, time) {
+async function setReservations (uniqueFields, core, time) {
   const multi = redis.multi();
   try {
-    for (let [key, value] of Object.entries(uniqueFields)) {
+    for (const [key, value] of Object.entries(uniqueFields)) {
       multi.hmset(ns(key + '-reservations', value), {
-        core: core,
-        time: time
+        core,
+        time
       });
     }
     await bluebird.fromCallback((cb) => multi.exec(cb));

@@ -1,4 +1,3 @@
-/*global describe, it, before, after, beforeEach */
 const bluebird = require('bluebird');
 const lodash = require('lodash');
 const dataValidation = require('../support/data-validation');
@@ -13,26 +12,30 @@ const assert = chai.assert;
 const async = require('async');
 const registerKeys = config.get('auth:authorizedKeys');
 const authAdminKey = retrieveAdminKey(registerKeys);
+
 /** @returns {string} */
-function retrieveAdminKey(authKeys) {
+function retrieveAdminKey (authKeys) {
   return Object.keys(authKeys).filter((k) => {
     return registerKeys[k].roles.indexOf('admin') >= 0;
   })[0];
 }
+
 // Load and start our web server
 const Server = require('../../src/server.js');
 // Mocks out a core server.
 require('../support/mock-core-server');
 const db = require('../../src/storage/database');
+
 /** @returns {string} */
-function randomuser() {
+function randomuser () {
   return 'testpfx' + Math.floor(Math.random() * 100000);
 }
+
 /** @param {Boolean} newRegsitration
  * @returns {{ hosting: string; appId: string; username: string; email: string; password: string; invitationToken: string; referer: string; appid?: undefined; invitationtoken?: undefined; } | { hosting: string; appid: string; username: string; email: string; password: string; invitationtoken: string; referer: string; appId?: undefined; invitationToken?: undefined; }}
  */
-function defaults(newRegsitration) {
-  newRegsitration = !newRegsitration ? false : true;
+function defaults (newRegsitration) {
+  newRegsitration = !!newRegsitration;
   if (newRegsitration) {
     return {
       hosting: 'mock-api-server',
@@ -55,8 +58,9 @@ function defaults(newRegsitration) {
     };
   }
 }
+
 /** @returns {{ user: { username: string; email: string; RandomField: string; }; unique: string[]; host: { name: string; }; }} */
-function defaultsForSystemRegistration() {
+function defaultsForSystemRegistration () {
   const randomFieldValue = randomuser();
   return {
     user: {
@@ -68,8 +72,9 @@ function defaultsForSystemRegistration() {
     host: { name: 'some-host' }
   };
 }
+
 /** @returns {{ username: string; user: { email: { value: string; isUnique: boolean; isActive: boolean; creation: boolean; }[]; RandomField: { value: string; isUnique: boolean; isActive: boolean; creation: boolean; }[]; }; fieldsToDelete: {}; }} */
-function defaultsForSystemDataUpdate() {
+function defaultsForSystemDataUpdate () {
   const randomFieldValue = randomuser();
   return {
     username: randomuser(),
@@ -94,8 +99,10 @@ function defaultsForSystemDataUpdate() {
     fieldsToDelete: {}
   };
 }
+
 const defaultUsername = 'wactiv';
 const defaultAuth = 'test-system-key';
+
 describe('User Management', () => {
   let server;
   before(async function () {
@@ -109,7 +116,7 @@ describe('User Management', () => {
     const basePath = '/user';
     // fixes missing appId PR#104
     it('user creation should store all provided fields', function (done) {
-      let testData = _.extend({}, defaults());
+      const testData = _.extend({}, defaults());
       const test = {
         data: testData,
         status: 200,
@@ -120,7 +127,7 @@ describe('User Management', () => {
       };
       async.series(
         [
-          function doRequest(stepDone) {
+          function doRequest (stepDone) {
             request
               .post(server.url + basePath)
               .send(_.extend({}, defaults(), test.data))
@@ -128,10 +135,11 @@ describe('User Management', () => {
                 dataValidation.jsonResponse(err, res, test, stepDone);
               });
           },
-          function checkUser(stepDone) {
+          function checkUser (stepDone) {
             request
               .get(server.url + '/admin/users' + '?auth=' + authAdminKey)
               .end((err, res) => {
+                assert.notExists(err);
                 res.body.users.forEach(function (user) {
                   if (user.username === testData.username) {
                     delete testData.hosting;
@@ -151,7 +159,7 @@ describe('User Management', () => {
       );
     });
     it('invalid hosting', function (done) {
-      var test = {
+      const test = {
         data: { hosting: '' },
         status: 400,
         desc: 'Invalid hosting',
@@ -166,7 +174,7 @@ describe('User Management', () => {
         });
     });
     it('invalid appid', function (done) {
-      var test = {
+      const test = {
         data: { appid: '' },
         status: 400,
         desc: 'Invalid app Id',
@@ -181,7 +189,7 @@ describe('User Management', () => {
         });
     });
     it('invalid username', function (done) {
-      var test = {
+      const test = {
         data: { username: 'wa' },
         status: 400,
         desc: 'Invalid user',
@@ -196,7 +204,7 @@ describe('User Management', () => {
         });
     });
     it('reserved username', function (done) {
-      var test = {
+      const test = {
         data: { username: 'pryvwa' },
         status: 400,
         desc: 'Reserved user starting by pryv',
@@ -211,7 +219,7 @@ describe('User Management', () => {
         });
     });
     it('listed username', function (done) {
-      var test = {
+      const test = {
         data: { username: 'facebook' },
         status: 400,
         desc: 'Reserved user starting from list',
@@ -226,7 +234,7 @@ describe('User Management', () => {
         });
     });
     it('invalid email', function (done) {
-      var test = {
+      const test = {
         data: { email: null },
         status: 400,
         desc: 'Invalid email',
@@ -241,7 +249,7 @@ describe('User Management', () => {
         });
     });
     it('invalid language', function (done) {
-      var test = {
+      const test = {
         data: { languageCode: 'abcdef' },
         status: 400,
         desc: 'Invalid language',
@@ -256,7 +264,7 @@ describe('User Management', () => {
         });
     });
     it('existing user', function (done) {
-      var test = {
+      const test = {
         data: { username: 'wactiv' },
         status: 400,
         desc: 'Existing user',
@@ -271,7 +279,7 @@ describe('User Management', () => {
         });
     });
     it('existing email', function (done) {
-      var test = {
+      const test = {
         data: { email: 'wactiv@pryv.io' },
         status: 400,
         desc: 'Existing e-mail',
@@ -286,7 +294,7 @@ describe('User Management', () => {
         });
     });
     it('existing user and email', function (done) {
-      var test = {
+      const test = {
         data: { username: 'wactiv', email: 'wactiv@pryv.io' },
         status: 400,
         desc: 'Existing e-mail & username',
@@ -458,7 +466,7 @@ describe('User Management', () => {
     });
   });
   describe('POST /username/check', function () {
-    var path = '/username/check';
+    const path = '/username/check';
     const defaults = {
       hosting: 'test.ch-ch',
       appid: 'pryv-test',
@@ -469,7 +477,7 @@ describe('User Management', () => {
       referer: 'pryv'
     };
     it('reserved list', function (done) {
-      var test = {
+      const test = {
         username: 'facebook',
         status: 200,
         desc: 'reserved from list',
@@ -484,7 +492,7 @@ describe('User Management', () => {
         });
     });
     it('reserved pryv', function (done) {
-      var test = {
+      const test = {
         username: 'pryvtoto',
         status: 200,
         desc: 'reserved for pryv',
@@ -499,7 +507,7 @@ describe('User Management', () => {
         });
     });
     it('available', function (done) {
-      var test = {
+      const test = {
         username: 'asdfhgsdkfewg',
         status: 200,
         desc: 'available',
@@ -515,11 +523,11 @@ describe('User Management', () => {
     });
   });
   describe('GET /:username/check_username', function () {
-    function getPath(username) {
+    function getPath (username) {
       return '/' + (username || defaultUsername) + '/check_username';
     }
     it('too short', function (done) {
-      var test = {
+      const test = {
         username: 'abcd',
         status: 400,
         desc: 'too short ',
@@ -531,7 +539,7 @@ describe('User Management', () => {
       });
     });
     it('invalid username', function (done) {
-      var test = {
+      const test = {
         username:
           'abcdefghijklmnopqrstuvwxyzasaasaaas' +
           'abcdefghijklmnopqrstuvwxyzasaasaaas' +
@@ -547,7 +555,7 @@ describe('User Management', () => {
       });
     });
     it('invalid character 1', function (done) {
-      var test = {
+      const test = {
         username: 'abc%20def',
         status: 400,
         desc: 'invalid character 1',
@@ -559,7 +567,7 @@ describe('User Management', () => {
       });
     });
     it('invalid character 2', function (done) {
-      var test = {
+      const test = {
         username: 'abc.def',
         status: 400,
         desc: 'invalid character 2',
@@ -571,7 +579,7 @@ describe('User Management', () => {
       });
     });
     it('authorized', function (done) {
-      var test = {
+      const test = {
         username: 'abcd-ef',
         status: 200,
         desc: '- authorized ',
@@ -582,7 +590,7 @@ describe('User Management', () => {
       });
     });
     it('correct', function (done) {
-      var test = {
+      const test = {
         username: 'wactiv',
         status: 200,
         desc: 'correct ',
@@ -593,7 +601,7 @@ describe('User Management', () => {
       });
     });
     it('always available', function (done) {
-      var test = {
+      const test = {
         username: 'recla',
         status: 200,
         desc: 'always available ',
@@ -604,7 +612,7 @@ describe('User Management', () => {
       });
     });
     it('reserved for pryv', function (done) {
-      var test = {
+      const test = {
         username: 'pryvtoto',
         status: 200,
         desc: 'reserved for pryv',
@@ -616,7 +624,7 @@ describe('User Management', () => {
       });
     });
     it('reserved from list', function (done) {
-      var test = {
+      const test = {
         username: 'facebook',
         status: 200,
         desc: 'reserved from list',
@@ -628,7 +636,7 @@ describe('User Management', () => {
       });
     });
     it('reserved dns', function (done) {
-      var test = {
+      const test = {
         username: 'access',
         status: 200,
         desc: 'reserved dns',
@@ -733,7 +741,7 @@ describe('User Management', () => {
       assert.isFalse(exists);
     });
   });
-  function resourcePath(username) {
+  function resourcePath (username) {
     return `${server.url}/users/${username}`;
   }
   describe('POST /users/validate', function () {
@@ -909,7 +917,7 @@ describe('User Management', () => {
             core: 'testing_core1'
           };
           try {
-            let userRegistrationData = {
+            const userRegistrationData = {
               user: _.extend({}, defaults(true), {
                 RandomField: randomFieldValue
               }),
@@ -1134,7 +1142,7 @@ describe('User Management', () => {
     const path = '/users';
     it('Should fail with 401 when system auth is not provided', async () => {
       const randomFieldValue = randomuser();
-      let userRegistrationData = {
+      const userRegistrationData = {
         user: _.extend({}, defaults(), { RandomField: randomFieldValue }),
         unique: ['email', 'RandomField'],
         host: { name: 'some-host' }
@@ -1148,7 +1156,7 @@ describe('User Management', () => {
     });
     describe('When valid input with additional properties is provided', async () => {
       const randomFieldValue = randomuser();
-      let userRegistrationData = {
+      const userRegistrationData = {
         user: _.extend({}, defaults(true), { RandomField: randomFieldValue }),
         unique: ['email', 'RandomField'],
         host: { name: 'some-host' }
@@ -1203,11 +1211,11 @@ describe('User Management', () => {
     });
     it('Registration should be successful even when email is not provided', async () => {
       const randomFieldValue = randomuser();
-      let userData = _.extend({}, defaults(), {
+      const userData = _.extend({}, defaults(), {
         RandomField: randomFieldValue
       });
       delete userData.email;
-      let userRegistrationData = {
+      const userRegistrationData = {
         user: userData,
         unique: ['RandomField'],
         host: { name: 'some-host' }
@@ -1241,10 +1249,10 @@ describe('User Management', () => {
         config.set('invitationTokens', defaultConfigInvitationTokens);
       });
       it('Should succeed if invitation token is valid', async () => {
-        let userData = _.extend({}, defaults(true), {
+        const userData = _.extend({}, defaults(true), {
           invitationToken: 'first'
         });
-        let userRegistrationData = {
+        const userRegistrationData = {
           user: userData,
           unique: [],
           host: { name: 'some-host' }
@@ -1265,8 +1273,8 @@ describe('User Management', () => {
         );
       });
       it('Should fails if invitation token is invalid', async () => {
-        let userData = _.extend({}, defaults(), { invitationtoken: 'random' });
-        let userRegistrationData = {
+        const userData = _.extend({}, defaults(), { invitationtoken: 'random' });
+        const userRegistrationData = {
           user: userData,
           unique: [],
           host: { name: 'some-host' }
@@ -1286,7 +1294,7 @@ describe('User Management', () => {
   describe('PUT /users', function () {
     const path = '/users';
     it('Should fail when system auth is invalid', async () => {
-      let userRegistrationData = {
+      const userRegistrationData = {
         user: defaults(),
         unique: ['email'],
         host: { name: 'some-host' }
@@ -1330,11 +1338,11 @@ describe('User Management', () => {
               );
               assert.equal(
                 userDataUpdate.user.email[0].value,
-                userInfo['email']
+                userInfo.email
               );
               assert.equal(
                 userDataUpdate.user.RandomField[0].value,
-                userInfo['RandomField']
+                userInfo.RandomField
               );
             });
             it('[0C63] Old unique fields are deleted', async () => {
@@ -1540,7 +1548,7 @@ describe('User Management', () => {
                 .set('Authorization', defaultAuth)
                 .send(userDataUpdate1);
               // verify inactive fields exists before the user data update
-              let initialInactiveData = await db.getAllInactiveData(
+              const initialInactiveData = await db.getAllInactiveData(
                 userRegistrationData1.user.username
               );
               assert.isTrue(
@@ -1582,7 +1590,7 @@ describe('User Management', () => {
               );
               assert.equal(
                 userDataUpdate2.user.email[0].value,
-                userInfo['email']
+                userInfo.email
               );
             });
             it('Should save old value to inactive list', async () => {
@@ -1633,11 +1641,11 @@ describe('User Management', () => {
               );
               assert.equal(
                 userDataUpdate.user.email[0].value,
-                userInfo['email']
+                userInfo.email
               );
               assert.equal(
                 userDataUpdate.user.RandomField[0].value,
-                userInfo['RandomField']
+                userInfo.RandomField
               );
             });
             it('Old unique field should be not modified', async () => {
@@ -1708,7 +1716,7 @@ describe('User Management', () => {
               const userInfo = await bluebird.fromCallback((cb) =>
                 db.getSet(`${userRegistrationData1.user.username}:users`, cb)
               );
-              assert.equal(userRegistrationData1.user.email, userInfo['email']);
+              assert.equal(userRegistrationData1.user.email, userInfo.email);
             });
             it('Old unique field should be not modified', async () => {
               const oldEmailValueExists = await bluebird.fromCallback((cb) =>
@@ -1736,10 +1744,10 @@ describe('User Management', () => {
       });
       describe('When not valid input is provided', async () => {
         it('[AFD5] Should fail if email is not unique', async () => {
-          let userDataUpdate = defaultsForSystemDataUpdate();
-          let userRegistrationData1 = defaultsForSystemRegistration();
+          const userDataUpdate = defaultsForSystemDataUpdate();
+          const userRegistrationData1 = defaultsForSystemRegistration();
           userRegistrationData1.user.username = userDataUpdate.username;
-          let userRegistrationData2 = defaultsForSystemRegistration();
+          const userRegistrationData2 = defaultsForSystemRegistration();
           userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
           try {
             // seed initial user
@@ -1770,11 +1778,11 @@ describe('User Management', () => {
           }
         });
         it('[E987] Should fail if additional field is not unique', async () => {
-          let userDataUpdate = defaultsForSystemDataUpdate();
-          let userRegistrationData2 = defaultsForSystemRegistration();
+          const userDataUpdate = defaultsForSystemDataUpdate();
+          const userRegistrationData2 = defaultsForSystemRegistration();
           userRegistrationData2.user.RandomField =
             userDataUpdate.user.RandomField[0].value;
-          let userRegistrationData3 = defaultsForSystemRegistration();
+          const userRegistrationData3 = defaultsForSystemRegistration();
           userRegistrationData3.user.username = userDataUpdate.username;
           try {
             // seed initial user
@@ -1806,13 +1814,13 @@ describe('User Management', () => {
           }
         });
         it('[7740] Should fail with nested error if several fields are not unique', async () => {
-          let userDataUpdate = defaultsForSystemDataUpdate();
-          let userRegistrationData2 = defaultsForSystemRegistration();
+          const userDataUpdate = defaultsForSystemDataUpdate();
+          const userRegistrationData2 = defaultsForSystemRegistration();
           userRegistrationData2.user.email = userDataUpdate.user.email[0].value;
           userRegistrationData2.user.RandomField =
             userDataUpdate.user.RandomField[0].value;
           try {
-            let userRegistrationData3 = defaultsForSystemRegistration();
+            const userRegistrationData3 = defaultsForSystemRegistration();
             userRegistrationData3.user.username = userDataUpdate.username;
             // seed initial user
             await request
@@ -1876,10 +1884,10 @@ describe('User Management', () => {
             const userInfo = await bluebird.fromCallback((cb) =>
               db.getSet(`${userRegistrationData1.user.username}:users`, cb)
             );
-            assert.equal(userRegistrationData1.user.email, userInfo['email']);
+            assert.equal(userRegistrationData1.user.email, userInfo.email);
             assert.equal(
               userRegistrationData1.user.RandomField,
-              userInfo['RandomField']
+              userInfo.RandomField
             );
           });
           it('[0C62] Should succeed deleting unique fields information', async () => {
@@ -1933,7 +1941,7 @@ describe('User Management', () => {
               const userInfo = await bluebird.fromCallback((cb) =>
                 db.getSet(`${userRegistrationData1.user.username}:users`, cb)
               );
-              assert.equal(userRegistrationData1.user.email, userInfo['email']);
+              assert.equal(userRegistrationData1.user.email, userInfo.email);
             });
           });
         });

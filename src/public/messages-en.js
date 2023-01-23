@@ -4,14 +4,14 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-/*global window*/
+/* global window */
 
 const {
   USERNAME_MIN_LENGTH,
   USERNAME_MAX_LENGTH
 } = require('../utils/check-and-constraints');
 
-var messages = {
+const messages = {
   INTERNAL_ERROR: {
     message: 'Internal Error',
     detail: 'Something went bad on our side, sorry for this inconvenience.'

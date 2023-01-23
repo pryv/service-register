@@ -4,7 +4,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-var info = require('../business/service-info');
+const info = require('../business/service-info');
 
 /**
  * Load index.html, redirect to register Home page

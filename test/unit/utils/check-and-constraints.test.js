@@ -4,7 +4,7 @@ const {
   USERNAME_MAX_LENGTH
 } = require('../../../src/utils/check-and-constraints');
 const assert = require('chai').assert;
-/* global describe, it */
+
 describe('Checks And Constraints', function () {
   describe('#extractResourceFromHostname', function () {
     it('should extract resource name from fqdn with respect to domains array', function () {
@@ -31,15 +31,15 @@ describe('Checks And Constraints', function () {
     ok('foobar');
     ok('a'.repeat(USERNAME_MIN_LENGTH));
     ok('a'.repeat(USERNAME_MAX_LENGTH));
-    not_ok('a'.repeat(USERNAME_MIN_LENGTH - 1));
-    not_ok('a'.repeat(USERNAME_MAX_LENGTH + 1));
-    not_ok('_acme-challenge');
-    function ok(name) {
+    notOK('a'.repeat(USERNAME_MIN_LENGTH - 1));
+    notOK('a'.repeat(USERNAME_MAX_LENGTH + 1));
+    notOK('_acme-challenge');
+    function ok (name) {
       it(`should accept ${name} as username`, function () {
         assert.isOk(cac.isValidUsername(name));
       });
     }
-    function not_ok(name) {
+    function notOK (name) {
       it(`should NOT accept ${name} as username`, function () {
         assert.isNotOk(cac.isValidUsername(name));
       });

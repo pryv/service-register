@@ -5,25 +5,25 @@
  * Proprietary and confidential
  */
 
-//frameworks
-var logger = require('winston');
-var express = require('express');
+const path = require('path');
+const logger = require('winston');
+const express = require('express');
 const config = require('./config');
 
 const errorhandler = require('errorhandler');
 const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 
-//Dependencies
+// Dependencies
 /**
  * @type {express$Application}
  */
 const app = (module.exports = express());
 
-logger['default'].transports.console.level = 'info';
+logger.default.transports.console.level = 'info';
 app.use(errorhandler({ log: false }));
 
-app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(path.join(__dirname, '/public/favicon.ico')));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -45,19 +45,19 @@ require('./routes/server')(app);
 require('./routes/users')(app);
 require('./routes/admin')(app);
 
-//access
+// access
 require('./routes/access')(app);
 
-//records
+// records
 require('./routes/records')(app);
 
 require('./routes/cores')(app);
 
-//error management (evolution)
+// error management (evolution)
 activateAirbrake(app);
 require('./middleware/app-errors')(app);
 
-function activateAirbrake(app) {
+function activateAirbrake (app) {
   /*
   Quick guide on how to test Airbrake notifications (under logs entry):
   1. Update configuration file with Airbrake information:

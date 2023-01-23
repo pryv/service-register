@@ -4,7 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-const url = require('url');
 const http = require('http');
 const https = require('https');
 const config = require('../config');
@@ -20,13 +19,13 @@ const memoizedCoreUrls = [];
  *
  * @returns {any}
  */
-function getHostings() {
+function getHostings () {
   if (!memoizedHostings) {
     memoizedHostings = produceHostings();
   }
   return memoizedHostings;
 
-  function produceHostings() {
+  function produceHostings () {
     const aaservers = config.get('net:aaservers');
     const configHostings = config.get('net:aahostings');
     Object.keys(configHostings.regions).forEach((name) => {
@@ -40,16 +39,16 @@ function getHostings() {
           hosting.available = computeAvailability(servers);
           // get least occupied core
           getCoreForHosting(name, (hostError, host) => {
-            let core_url = '';
+            let coreURL = '';
             if (hostError == null && host != null) {
               if (host.base_url) {
-                core_url = host.base_url;
+                coreURL = host.base_url;
               } else if (host.base_name) {
-                //support for old type of servers
-                core_url = host.base_name;
+                // support for old type of servers
+                coreURL = host.base_name;
               }
             }
-            hosting.availableCore = core_url;
+            hosting.availableCore = coreURL;
           });
         });
       });
@@ -57,7 +56,7 @@ function getHostings() {
     return configHostings;
   }
 
-  function computeAvailability(serverList) {
+  function computeAvailability (serverList) {
     return serverList.length > 0;
   }
 }
@@ -73,7 +72,7 @@ function getHostings() {
  * @param {HostForHostingCallback} callback
  * @returns {void}
  */
-function getCoreForHosting(hosting, callback) {
+function getCoreForHosting (hosting, callback) {
   const servers = config.get('net:aaservers');
   // Get the available hosts (from config file)
   const availableCores = servers[hosting];
@@ -88,12 +87,11 @@ function getCoreForHosting(hosting, callback) {
     return;
   }
   findBestCore(availableCores, callback);
-  function findBestCore(availableCores, callback) {
+  function findBestCore (availableCores, callback) {
     // Get the list of active hosts and the users count (from Redis)
     users.getServers((err, redisServers) => {
       if (err != null) return callback(err);
-      if (redisServers == null)
-        return callback(new Error('AF: Expected server usage stats'));
+      if (redisServers == null) { return callback(new Error('AF: Expected server usage stats')); }
       let candidate = null;
       let min = null;
       // We look through available hosts for one good candidate (small users count)
@@ -116,19 +114,17 @@ function getCoreForHosting(hosting, callback) {
    * @param {ServerConfig} server
    * @returns
    */
-  function produceRedisName(server) {
+  function produceRedisName (server) {
     if (typeof server.base_name === 'string') {
       // Legacy config entry:
       return server.base_name + '.' + config.get('net:AAservers_domain');
     }
 
-    if (typeof server.base_url !== 'string')
-      throw new Error('Unknown server configuration format.');
+    if (typeof server.base_url !== 'string') { throw new Error('Unknown server configuration format.'); }
 
-    const serverUrl = url.parse(server.base_url);
+    const serverUrl = new URL(server.base_url);
 
-    if (serverUrl.hostname == null)
-      throw new Error('AF: Hostname must not be null.');
+    if (serverUrl.hostname == null) { throw new Error('AF: Hostname must not be null.'); }
 
     return serverUrl.hostname;
   }
@@ -140,7 +136,7 @@ function getCoreForHosting(hosting, callback) {
  * @param {string} postData
  * @returns {{ client: any; options: { host: any; port: any; path: string; method: string; rejectUnauthorized: boolean; headers: { 'Content-Type': string; authorization: any; 'Content-Length': number; }; }; }}
  */
-function getLegacyAdminClient(host, path, postData) {
+function getLegacyAdminClient (host, path, postData) {
   const useSSL = config.get('net:aaservers_ssl') || true;
   // SIDE EFFECT
   host.name = host.base_name + '.' + config.get('net:AAservers_domain');
@@ -148,7 +144,7 @@ function getLegacyAdminClient(host, path, postData) {
   const httpOptions = {
     host: host.name,
     port: host.port,
-    path: path,
+    path,
     method: 'POST',
     rejectUnauthorized: false,
     headers: {
@@ -178,7 +174,7 @@ function getLegacyAdminClient(host, path, postData) {
  * @param {string} postData
  * @returns {{ client: any; options: { host: any; port: any; path: string; method: string; rejectUnauthorized: boolean; headers: { 'Content-Type': string; authorization: any; 'Content-Length': number; }; }; }}
  */
-function getAdminClient(host, path, postData) {
+function getAdminClient (host, path, postData) {
   if (host.base_name != null) {
     // HACK Is there a better way to make flow realize we're in the clear here?
     const oldHost = host;
@@ -186,16 +182,15 @@ function getAdminClient(host, path, postData) {
     // and net:AAservers_domain. This function implements that as a fallback.
     return getLegacyAdminClient(oldHost, path, postData);
   }
-  if (typeof host.base_url !== 'string')
-    throw new Error('AF: base_url expected to be present in ServerDefinition.');
-  const coreServer = url.parse(host.base_url);
+  if (typeof host.base_url !== 'string') { throw new Error('AF: base_url expected to be present in ServerDefinition.'); }
+  const coreServer = new URL(host.base_url);
   const useSSL = coreServer.protocol === 'https:';
   const port = parseInt(coreServer.port || (useSSL ? 443 : 80));
   const httpClient = useSSL ? https : http;
   const httpOptions = {
     host: coreServer.hostname,
-    port: port,
-    path: path,
+    port,
+    path,
     method: 'POST',
     rejectUnauthorized: false,
     headers: {
@@ -229,11 +224,11 @@ function getAdminClient(host, path, postData) {
  * @param {PostToAdminCallback} callback
  * @returns {void}
  */
-function postToAdmin(host, path, expectedStatus, jsonData, callback) {
-  var postData = JSON.stringify(jsonData);
-  var httpCall = getAdminClient(host, path, postData);
-  var onError = function (reason) {
-    var content =
+function postToAdmin (host, path, expectedStatus, jsonData, callback) {
+  const postData = JSON.stringify(jsonData);
+  const httpCall = getAdminClient(host, path, postData);
+  const onError = function (reason) {
+    const content =
       '\n Request: ' +
       httpCall.options.method +
       ' ' +
@@ -244,11 +239,11 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
       httpCall.options.path +
       '\n Data: ' +
       postData;
-    return callback(reason + content);
+    return callback(new Error(reason + content));
   };
   const req = httpCall.client
     .request(httpCall.options, function (res) {
-      var bodyarr = [];
+      const bodyarr = [];
       res.on('data', function (chunk) {
         bodyarr.push(chunk);
       });
@@ -263,7 +258,7 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
               '\n**end**\n'
           );
         }
-        var resJson = JSON.parse(bodyarr.join(''));
+        const resJson = JSON.parse(bodyarr.join(''));
         return callback(null, resJson);
       });
     })
@@ -276,7 +271,7 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
     socket.setTimeout(5000);
     socket.on('timeout', function () {
       req.abort();
-      return callback('Timeout');
+      return callback(new Error('Timeout'));
     });
   });
   req.write(postData);
@@ -295,7 +290,7 @@ function postToAdmin(host, path, expectedStatus, jsonData, callback) {
  * }
  * @returns {any}
  */
-function getFlatHostings() {
+function getFlatHostings () {
   return config.get('net:aaservers');
 }
 
@@ -303,7 +298,7 @@ function getFlatHostings() {
  * Return an array of core URLs
  * @returns {{}[]}
  */
-function getCoresUrls() {
+function getCoresUrls () {
   if (memoizedCoreUrls.length > 0) return memoizedCoreUrls;
   const hostings = getFlatHostings();
   const hostingKeys = Object.keys(hostings);
@@ -328,17 +323,15 @@ function getCoresUrls() {
  * Works by memoization
  * @returns {any}
  */
-function getCore(serverName) {
-  if (memoizedServerNameForCore[serverName] != null)
-    return memoizedServerNameForCore[serverName];
+function getCore (serverName) {
+  if (memoizedServerNameForCore[serverName] != null) { return memoizedServerNameForCore[serverName]; }
   const hostings = getFlatHostings();
   // build urls
   const hostingKeys = Object.keys(hostings);
   hostingKeys.forEach((k) => {
     const coresPerHosting = hostings[k];
     coresPerHosting.forEach((core) => {
-      if (core.base_url.includes(serverName))
-        memoizedServerNameForCore[serverName] = core;
+      if (core.base_url.includes(serverName)) { memoizedServerNameForCore[serverName] = core; }
     });
   });
   return memoizedServerNameForCore[serverName];

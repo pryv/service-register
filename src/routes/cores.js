@@ -27,25 +27,27 @@ if (logger.warn == null) {
 
 /** Routes to discover server assignations.
  */
-function registerCoresRoutes(app) {
+function registerCoresRoutes (app) {
   /** GET /:uid/server - find the server hosting the provided username (uid).
    */
   app.get('/cores', async (req, res, next) => {
     const params = req.query;
 
-    if (params.username == null && params.email == null)
+    if (params.username == null && params.email == null) {
       return next(
         messages.e(400, 'INVALID_PARAMETERS', {
           message: 'provide "username" or "email" as query parameters.'
         })
       );
-    if (params.username != null && params.email != null)
+    }
+    if (params.username != null && params.email != null) {
       return next(
         messages.e(400, 'INVALID_PARAMETERS', {
           message:
             'provide only "username" or "email" as query parameter, not both.'
         })
       );
+    }
     if (params.username != null) {
       const username = checkAndConstraints.uid(params.username);
       if (!username) return next(messages.e(400, 'INVALID_USER_NAME'));
@@ -101,6 +103,6 @@ function registerCoresRoutes(app) {
 }
 module.exports = registerCoresRoutes;
 
-function getFirstCore() {
+function getFirstCore () {
   return dataservers.getCoresUrls()[0];
 }

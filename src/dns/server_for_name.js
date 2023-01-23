@@ -47,11 +47,11 @@ const caaData = {
     baseData.certificate_authority_authorization || {}
 };
 
-//static entries; matches 'in domains' names
+// static entries; matches 'in domains' names
 
 // Logger setup
-logger['default'].transports.console.level = 'debug';
-logger['default'].transports.console.colorize = true;
+logger.default.transports.console.level = 'debug';
+logger.default.transports.console.colorize = true;
 
 // logger.config.syslog.levels:
 //
@@ -75,14 +75,14 @@ logger.setLevels(logger.config.syslog.levels);
  * @param {DnsResponse} res
  * @returns {void}
  */
-function serverForName(reqName, callback, req, res) {
-  //static entries; matches a fully qualified names
+function serverForName (reqName, callback, req, res) {
+  // static entries; matches a fully qualified names
   const staticDataInDomain = config.get('dns:staticDataInDomain');
   const domains = config.get('dns:domains');
-  var nullRecord = dns.getRecords({}, reqName);
-  //simpler request matching in lower case
-  var keyName = reqName.toLowerCase();
-  //reserved, static records
+  const nullRecord = dns.getRecords({}, reqName);
+  // simpler request matching in lower case
+  const keyName = reqName.toLowerCase();
+  // reserved, static records
   if (keyName in staticDataFull) {
     return callback(req, res, dns.getRecords(staticDataFull[keyName], reqName));
   }
@@ -105,7 +105,7 @@ function serverForName(reqName, callback, req, res) {
     }
   }
   // look for matches within domain .pryv.io
-  var resourceName;
+  let resourceName;
   try {
     resourceName = checkAndConstraints.extractResourceFromHostname(
       keyName,
@@ -135,11 +135,11 @@ function serverForName(reqName, callback, req, res) {
     return callback(req, res, nullRecord);
   }
   db.getServer(uid, function (error, result) {
-    //console.log('*** FOUND :'+ result);
+    // console.log('*** FOUND :'+ result);
     if (error || !result) {
       return callback(req, res, nullRecord);
     }
-    var dyn = {
+    const dyn = {
       alias: [{ name: result }]
     };
     // add Authority or Nameservers
@@ -151,12 +151,12 @@ function serverForName(reqName, callback, req, res) {
         dyn.autority = baseData.autority;
         break;
     }
-    var rec = dns.getRecords(dyn, reqName);
+    const rec = dns.getRecords(dyn, reqName);
     return callback(req, res, rec); // ndns-warper.sendresponse
   });
 }
 
 module.exports = {
-  serverForName: serverForName,
-  logger: logger
+  serverForName,
+  logger
 };

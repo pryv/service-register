@@ -11,7 +11,7 @@ let licenseContent;
  * @param {String} license - content of the license
  * @return {Function} the action to apply;
  */
-async function prepare(actionItem, license) {
+async function prepare (actionItem, license) {
   licenseContent = license;
   actionItem.actionMethod = async function (fullPath) {
     const licensePath = path.resolve(path.dirname(fullPath), 'LICENSE');
@@ -20,6 +20,6 @@ async function prepare(actionItem, license) {
 }
 
 module.exports = {
-  prepare: prepare,
+  prepare,
   key: 'addSibling'
 };

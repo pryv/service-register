@@ -7,17 +7,16 @@ const prepend = require('prepend-file');
  * @param {string} fullPath
  * @param {Object} spec
  */
-async function checkFileHeaderAndClean(fullPath, spec) {
+async function checkFileHeaderAndClean (fullPath, spec) {
   const fd = fs.openSync(fullPath, 'r');
   const buffer = Buffer.alloc(spec.startBlockLength);
   fs.readSync(fd, buffer, 0, spec.startBlockLength, 0);
-  //console.log(buffer, buffer.toString('utf-8'), spec.startBlockLength);
+  // console.log(buffer, buffer.toString('utf-8'), spec.startBlockLength);
   fs.closeSync(fd);
   if (!buffer.equals(spec.startBlockBuffer)) return false; // does not match return
   // startBlock found read all file and rewrite without startBlock
   const fileContent = fs.readFileSync(fullPath, 'utf8');
-  const endBlockPos = fileContent.indexOf(spec.endBlock);
-  //onsole.log('Updated >> ' + fullPath);
+  // onsole.log('Updated >> ' + fullPath);
   fs.writeFileSync(
     fullPath,
     fileContent.substr(
@@ -30,8 +29,8 @@ async function checkFileHeaderAndClean(fullPath, spec) {
 /**
  * Perfoem the action on this file with this spec
  */
-async function action(fullPath, spec) {
-  const cleaned = await checkFileHeaderAndClean(fullPath, spec);
+async function action (fullPath, spec) {
+  await checkFileHeaderAndClean(fullPath, spec);
   prepend.sync(fullPath, spec.license);
 }
 
@@ -42,7 +41,7 @@ async function action(fullPath, spec) {
  * @param {Object} fileSpecs
  * @param {String} license - content of the license
  */
-async function prepare(spec, license) {
+async function prepare (spec, license) {
   spec.startBlockBuffer = Buffer.from(spec.startBlock, 'utf-8'); // save startBlock as Buffer for fast check
   spec.startBlockLength = spec.startBlockBuffer.length;
   let myLicense = '' + license;
@@ -56,6 +55,6 @@ async function prepare(spec, license) {
 }
 
 module.exports = {
-  prepare: prepare,
+  prepare,
   key: 'addHeader'
 };

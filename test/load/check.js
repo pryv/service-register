@@ -1,5 +1,3 @@
-/*global describe,it*/
-
 /*
 
 !!! This test was never run alongside the testsuite and crashes

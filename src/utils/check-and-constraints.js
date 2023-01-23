@@ -19,7 +19,7 @@ const USERNAME_REGEXP_STR =
 module.exports.USERNAME_MIN_LENGTH = USERNAME_MIN_LENGTH;
 module.exports.USERNAME_MAX_LENGTH = USERNAME_MAX_LENGTH;
 // Username regular expression
-var checkUsername = new RegExp(USERNAME_REGEXP_STR);
+const checkUsername = new RegExp(USERNAME_REGEXP_STR);
 // Returns true if `candidate` could be a username, which means it fulfills the
 // character level constraints we impose.
 //
@@ -32,7 +32,7 @@ module.exports.isValidUsername = function (candidate) {
  * @returns {boolean} : 'true' if containing the suffix, 'false' otherwise
  * @param {string} str
  */
-function endsWith(str, suffix) {
+function endsWith (str, suffix) {
   return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 /**
@@ -72,7 +72,7 @@ exports.uid = function (str) {
 exports.hosting = function (str) {
   if (!str) return null;
   str = str.trim();
-  var filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-.]){2,68})([a-zA-Z0-9])$/;
+  const filter = /^([a-zA-Z0-9])(([a-zA-Z0-9-.]){2,68})([a-zA-Z0-9])$/;
   return filter.test(str) ? str : null;
 };
 // Any chars between 6 and 99 chars, with no trailing spaces.
@@ -115,7 +115,7 @@ exports.challenge = function (str) {
     return null;
   }
   str = _(str).trim();
-  var filter = /^([a-zA-Z0-9]{5,200})$/;
+  const filter = /^([a-zA-Z0-9]{5,200})$/;
   return filter.test(str) ? str : null;
 };
 exports.hostname = function (str) {
@@ -123,7 +123,7 @@ exports.hostname = function (str) {
     return null;
   }
   str = _(str).trim();
-  var filter = /^([a-zA-Z0-9_.-]{3,256})$/;
+  const filter = /^([a-zA-Z0-9_.-]{3,256})$/;
   return filter.test(str) ? str : null;
 };
 exports.lang = function (str) {
@@ -153,7 +153,7 @@ exports.appAuthorization = function (str) {
     return null;
   }
   str = _(str).trim();
-  var filter = /^([a-zA-Z0-9]{10,200})$/;
+  const filter = /^([a-zA-Z0-9]{10,200})$/;
   return filter.test(str) ? str : null;
 };
 exports.appToken = function (str) {
@@ -174,7 +174,7 @@ exports.accesskey = function (str) {
     return null;
   }
   str = _(str).trim();
-  var filter = /^([a-zA-Z0-9]{10,200})$/;
+  const filter = /^([a-zA-Z0-9]{10,200})$/;
   return filter.test(str) ? str : null;
 };
 exports.access = function (json) {
@@ -184,6 +184,7 @@ exports.access = function (json) {
 };
 exports.url = function (str) {
   try {
+    /* eslint-disable-next-line no-new */
     new URL(str);
   } catch (error) {
     return false;

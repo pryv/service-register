@@ -1,4 +1,3 @@
-/* global describe, it, before, beforeEach, after */
 require('../../src/server');
 const config = require('../../src/config');
 const Server = require('../../src/server.js');
@@ -8,6 +7,7 @@ const db = require('../../src/storage/database');
 const supertest = require('supertest');
 const chai = require('chai');
 const assert = chai.assert;
+
 describe('Email', function () {
   // Obtains the server url and specialise supertest to call it.
   let request, server;
@@ -45,22 +45,22 @@ describe('Email', function () {
         await taken('taken@pryv.com');
       });
     });
-    async function taken(email) {
+    async function taken (email) {
       assert.isFalse(
         await checkEmail(email),
         `Expected ${email} to be taken, but it was not.`
       );
     }
-    async function free(email) {
+    async function free (email) {
       assert.isTrue(
         await checkEmail(email),
         `Expected ${email} to be free, but it was not.`
       );
     }
-    async function checkEmail(email) {
+    async function checkEmail (email) {
       const res = await request
         .post('/email/check/')
-        .send({ email: email })
+        .send({ email })
         .expect(200);
       if (res.text === 'true') return true;
       if (res.text === 'false') return false;
@@ -71,7 +71,7 @@ describe('Email', function () {
     it('does not exist', function (done) {
       request
         .get('/abcd.efg_ijkl@bobby.com/check_email')
-        .end(function (err, res) {
+        .end(function (err, res) { /* eslint-disable-line n/handle-callback-err */
           validation.check(
             res,
             {
@@ -84,7 +84,7 @@ describe('Email', function () {
         });
     });
     it('does exist', function (done) {
-      request.get('/wactiv@pryv.io/check_email').end(function (err, res) {
+      request.get('/wactiv@pryv.io/check_email').end(function (err, res) { /* eslint-disable-line n/handle-callback-err */
         validation.check(
           res,
           {
@@ -118,7 +118,7 @@ describe('Email', function () {
           username,
           'somewhere.place.com',
           {
-            email: email
+            email
           },
           ['email'],
           done
@@ -131,12 +131,12 @@ describe('Email', function () {
         assert.equal(await getUsername(email, true, 200), username);
       });
     });
-    async function getUsername(email, oldEndpoint, expectedStatus) {
+    async function getUsername (email, oldEndpoint, expectedStatus) {
       let endpoint = `/${email}/`;
       endpoint += oldEndpoint ? 'uid' : 'username';
       const res = await request
         .get(endpoint)
-        .send({ email: email })
+        .send({ email })
         .expect(expectedStatus);
       return oldEndpoint ? res.body.uid : res.body.username;
     }

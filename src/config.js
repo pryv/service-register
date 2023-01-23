@@ -4,7 +4,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-//Dependencies
+// Dependencies
 
 const nconf = require('nconf');
 const logger = require('winston');
@@ -12,20 +12,20 @@ const fs = require('fs');
 
 const { ensureTrailingSlash } = require('./utils/helpers');
 
-//Exports
+// Exports
 
 module.exports = nconf;
 
-//Setup nconf to use (in-order):
-//1. Command-line arguments
-//2. Environment variables
+// Setup nconf to use (in-order):
+// 1. Command-line arguments
+// 2. Environment variables
 
 nconf.argv().env({
   separator: '_'
 });
 
-//3. A file located at ..
-var configFile = 'dev-config.json';
+// 3. A file located at ..
+let configFile = 'dev-config.json';
 if (typeof nconf.get('config') !== 'undefined') {
   configFile = nconf.get('config');
 }
@@ -39,7 +39,7 @@ if (fs.existsSync(configFile)) {
 
 nconf.file({ file: configFile });
 
-//Set default values
+// Set default values
 nconf.defaults({
   domain: 'pryv.li',
   dns: {
@@ -75,8 +75,8 @@ nconf.defaults({
   },
   server: {
     // see http:register for public url
-    port: 2443, //x
-    ip: '0.0.0.0' //x
+    port: 2443, // x
+    ip: '0.0.0.0' // x
   },
   persistence: {
     'init-ttl': 86400, // seconds should be 86400 for a day
@@ -188,7 +188,7 @@ validateConfiguration();
 /**
  * @returns {void}
  */
-function translateConfiguration() {
+function translateConfiguration () {
   // Merge customDnsEntries in staticDataInDomain
   const staticDataInDomain = nconf.get('dns:staticDataInDomain');
   const customDnsEntries = nconf.get('dns:customEntries');
@@ -220,13 +220,13 @@ function translateConfiguration() {
       Object.entries(hosting).forEach(([coreKey, core]) => {
         // Add entry in aaservers
         if (aaservers[hostingKey] == null) aaservers[hostingKey] = [];
-        let base_url = `https://${coreKey}.${nconf.get('dns:domain')}`;
+        let baseURL = `https://${coreKey}.${nconf.get('dns:domain')}`;
         // with port there will be only local and testing env
         if (core.port) {
-          base_url = `http://${coreKey}:${core.port}`;
+          baseURL = `http://${coreKey}:${core.port}`;
         }
         aaservers[hostingKey].push({
-          base_url: ensureTrailingSlash(base_url),
+          base_url: ensureTrailingSlash(baseURL),
           authorization: nconf.get('auth:coreSystemKey')
         });
         // Save entry in staticDataInDomain
@@ -260,11 +260,11 @@ function translateConfiguration() {
 /**
  * @returns {void}
  */
-function validateConfiguration() {
+function validateConfiguration () {
   const ipRegexp =
     /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
   const hostnameRegexp =
-    /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+    /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/; /* eslint-disable-line no-useless-escape */
   // Check the DNS MX entries
   const mxEntries = nconf.get('dns:mail');
   if (mxEntries == null || !Array.isArray(mxEntries)) {
@@ -278,43 +278,43 @@ function validateConfiguration() {
       mxName == null ||
       typeof mxName !== 'string' ||
       !hostnameRegexp.test(mxName)
-    )
+    ) {
       throw parseError(
         'Invalid MX entry found: "name" attribute invalid: ' +
           mxName +
           '\n Expecting a name in the form: "mailserver.domain.tld".'
       );
+    }
     const mxIp = mxEntry.ip;
     if (mxIp != null) {
-      if (typeof mxIp !== 'string' || !ipRegexp.test(mxIp))
+      if (typeof mxIp !== 'string' || !ipRegexp.test(mxIp)) {
         throw parseError(
           'Invalid MX entry found: "ip" attribute invalid: ' +
             mxIp +
             '\n Expecting an ip in the form: "127.0.0.1".'
         );
+      }
     }
     const mxPriority = mxEntry.priority;
-    if (mxPriority == null || typeof mxPriority !== 'number')
+    if (mxPriority == null || typeof mxPriority !== 'number') {
       throw parseError(
         'Invalid MX entry found: "priority" attribute invalid: ' + mxPriority
       );
+    }
   }
   // Check the hosting entries
   const hostings = nconf.get('net:aahostings');
   const hosturlRegexp = /^http(s?):\/\/([a-zA-Z0-9.-])+$/;
-  if (hostings == null || hostings.regions == null)
-    throw parseError('No net:aahostings key found in configuration');
+  if (hostings == null || hostings.regions == null) { throw parseError('No net:aahostings key found in configuration'); }
   for (const name of Object.keys(hostings.regions)) {
     const region = hostings.regions[name];
     const zones = region.zones;
-    if (zones == null || Object.keys(zones).length <= 0)
-      throw parseError(`Region ${name} has no zones defined.`);
+    if (zones == null || Object.keys(zones).length <= 0) { throw parseError(`Region ${name} has no zones defined.`); }
     // assert: Object.keys(zones).length > 0
     for (const zoneName of Object.keys(zones)) {
       const zone = zones[zoneName];
       const hostings = zone.hostings;
-      if (hostings == null || Object.keys(hostings).length <= 0)
-        throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`);
+      if (hostings == null || Object.keys(hostings).length <= 0) { throw parseError(`Zone ${zoneName} (region ${name}) has no hostings.`); }
       for (const hostingName of Object.keys(hostings)) {
         const hosting = hostings[hostingName];
         const hostingUrl = hosting.url;
@@ -322,7 +322,7 @@ function validateConfiguration() {
           hostingUrl == null ||
           typeof hostingUrl !== 'string' ||
           !hosturlRegexp.test(hostingUrl)
-        )
+        ) {
           throw parseError(
             'Hosting ' +
               hostingName +
@@ -330,6 +330,7 @@ function validateConfiguration() {
               hostingUrl +
               '\n Expecting an url in the form: "http(s)://server.domain.tld".'
           );
+        }
       }
     }
   }
@@ -375,6 +376,6 @@ function validateConfiguration() {
  * @param {string} msg
  * @returns {Error}
  */
-function parseError(msg) {
+function parseError (msg) {
   return new Error('Configuration error: ' + msg);
 }

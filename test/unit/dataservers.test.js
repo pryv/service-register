@@ -5,7 +5,7 @@ const https = require('https');
 const assert = require('assert');
 const should = require('should');
 const async = require('async');
-/* global describe, it, before */
+
 describe('business/dataservers', function () {
   describe('getAdminClient', function () {
     const getAdminClient = dataservers.getAdminClient;
@@ -16,7 +16,7 @@ describe('business/dataservers', function () {
       };
     };
     it('should set .name as a side effect on the host structure', function () {
-      // FLOW Missing 'name' - mock.
+      // Missing 'name' - mock.
       const host = {
         base_url: 'http://foo.com:9000',
         authorization: 'foooo'
@@ -29,20 +29,20 @@ describe('business/dataservers', function () {
       }
     });
     it('should return port 80 for http urls', function () {
-      // FLOW For test purposes:
-      var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
+      // For test purposes:
+      const given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
       should(given.options.port).be.equal(80);
       should(given.client).be.equal(http);
     });
     it('should return port 443 for https urls', function () {
-      // FLOW For test purposes:
-      var given = getAdminClient(url('https://foo.com/'), '/path', 'foobar');
+      // For test purposes:
+      const given = getAdminClient(url('https://foo.com/'), '/path', 'foobar');
       should(given.options.port).be.equal(443);
       should(given.client).be.equal(https);
     });
     it('should return port 9000 for an url with custom port', function () {
-      var given = getAdminClient(
-        // FLOW For test purposes:
+      const given = getAdminClient(
+        // For test purposes:
         url('http://foo.com:9000/'),
         '/path',
         'foobar'
@@ -51,16 +51,16 @@ describe('business/dataservers', function () {
       should(given.client).be.equal(http);
     });
     it('should return the hostname from the base_url', function () {
-      // FLOW For test purposes:
-      var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
+      // For test purposes:
+      const given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
       should(given.options.host).be.equal('foo.com');
     });
     it('should include authorization header', function () {
-      // FLOW For test purposes:
-      var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
+      // For test purposes:
+      const given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
       const headers = given.options.headers;
       should(headers['Content-Type']).equal('application/json');
-      should.exist(headers['authorization']);
+      should.exist(headers.authorization);
       should(headers['Content-Length']).be.above(0);
     });
     describe('fallback to old behaviour', function () {
@@ -70,8 +70,8 @@ describe('business/dataservers', function () {
         authorization: 'lkajsflsajflj'
       };
       it('still uses old fields if base_url is absent', function () {
-        // FLOW For test purposes:
-        var given = getAdminClient(oldHost, '/path', 'foobar');
+        // For test purposes:
+        const given = getAdminClient(oldHost, '/path', 'foobar');
         // 'pryv.net' is read from net:AAservers_domain. This is the current
         // default.
         should(given.options.host).be.equal('stact-gandi-fr-01.pryv.net');

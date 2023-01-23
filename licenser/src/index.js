@@ -33,7 +33,7 @@ const fileSpecs = {
       defaults: {
         homepage: 'http://pryv.com',
         description: 'This package is part of Open Pryv.io',
-        version: version
+        version
       },
       sortPackage: true
     },
@@ -43,7 +43,7 @@ const fileSpecs = {
   ]
 };
 
-async function start() {
+async function start () {
   await loadAction(require('./actions/addHeader'));
   await loadAction(require('./actions/json'));
   await loadAction(require('./actions/addSibling'));
@@ -63,7 +63,7 @@ const license =
 
 const specKeys = Object.keys(fileSpecs);
 // -- load actions
-async function loadAction(action) {
+async function loadAction (action) {
   // -- prepare actions
   for (const specKey of specKeys) {
     for (const actionItem of fileSpecs[specKey]) {
@@ -76,7 +76,7 @@ async function loadAction(action) {
 }
 
 // throw an error if some handlers have not been initalizes
-function checkInit() {
+function checkInit () {
   for (const specKey of specKeys) {
     for (const actionItem of fileSpecs[specKey]) {
       if (!actionItem.actionMethod) {
@@ -97,7 +97,7 @@ function checkInit() {
  * Helper to find the corresponding specs for a file
  * @param {String} fullPath
  */
-function getFileSpec(fullPath) {
+function getFileSpec (fullPath) {
   for (const specKey of specKeys) {
     if (fullPath.endsWith(specKey)) {
       return fileSpecs[specKey];
@@ -109,7 +109,7 @@ function getFileSpec(fullPath) {
  * Return true is this file or directory should be ignored
  * @param {String} fullPath
  */
-function ignore(fullPath) {
+function ignore (fullPath) {
   for (const i of ignores) {
     if (fullPath.indexOf(i) >= 0) return true;
   }
@@ -121,7 +121,7 @@ function ignore(fullPath) {
  * @param {String} fullPath a file Path
  * @param {Object} spec the Specifications from fileSpecs matching this file
  */
-async function handleMatchingFile(fullPath, spec) {
+async function handleMatchingFile (fullPath, spec) {
   for (const actionItem of spec) {
     actionItem.actionMethod(fullPath);
   }
@@ -135,8 +135,8 @@ async function handleMatchingFile(fullPath, spec) {
  * - call handleMatchingFile each time a file matching a fileSpec is found
  * @param {String} dir
  */
-async function loop(dir) {
-  //console.log('>' + dir);
+async function loop (dir) {
+  // console.log('>' + dir);
   const files = await fs.promises.readdir(dir);
   for (const file of files) {
     const fullPath = path.resolve(dir, file);

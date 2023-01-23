@@ -56,7 +56,7 @@ module.exports = function (app) {
     const existsList = [];
     async.parallel([
       // START - CLEAN FOR OPENSOURCE
-      function _isInvitationTokenValid(callback) {
+      function _isInvitationTokenValid (callback) {
         invitationToken.checkIfValid(
           givenInvitationToken,
           function (valid, error) {
@@ -68,7 +68,7 @@ module.exports = function (app) {
         );
       },
       // END - CLEAN FOR OPENSOURCE
-      function _isUserIdReserved(callback) {
+      function _isUserIdReserved (callback) {
         reservedWords.useridIsReserved(username, function (error, reserved) {
           if (reserved) {
             existsList.push('RESERVED_USER_NAME');
@@ -76,7 +76,7 @@ module.exports = function (app) {
           callback(error);
         });
       },
-      function _doesUidAlreadyExist(callback) {
+      function _doesUidAlreadyExist (callback) {
         db.uidExists(username, function (error, exists) {
           if (exists) {
             existsList.push('EXISTING_USER_NAME');
@@ -84,7 +84,7 @@ module.exports = function (app) {
           callback(error);
         });
       },
-      function _doesEmailAlreadyExist(callback) {
+      function _doesEmailAlreadyExist (callback) {
         db.emailExists(email, function (error, exists) {
           if (exists) {
             existsList.push('EXISTING_EMAIL');
@@ -94,8 +94,7 @@ module.exports = function (app) {
       }
     ], function (error) {
       if (existsList.length > 0) {
-        if (existsList.length === 1)
-          return next(messages.e(400, existsList[0]));
+        if (existsList.length === 1) { return next(messages.e(400, existsList[0])); }
         return next(messages.ex(400, 'INVALID_DATA', existsList));
       }
       if (error != null) return next(messages.ei(error));
@@ -104,16 +103,15 @@ module.exports = function (app) {
         // Create user
         dataservers.getCoreForHosting(hosting, (hostError, host) => {
           if (hostError != null) return next(messages.ei(hostError));
-          if (host == null)
-            return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
+          if (host == null) { return next(messages.e(400, 'UNAVAILABLE_HOSTING')); }
           const userAttrs = {
-            username: username,
-            email: email,
-            language: language,
-            password: password,
-            passwordHash: passwordHash,
+            username,
+            email,
+            language,
+            password,
+            passwordHash,
             invitationToken: givenInvitationToken,
-            referer: referer,
+            referer,
             appid: appID
           };
           users.create(host, userAttrs, function (creationError, result) {
@@ -130,7 +128,7 @@ module.exports = function (app) {
   // POST /users: create a new user only in service-register (system call)
   app.post('/users', requireRoles('system'), async (req, res, next) => {
     // form user data to match previous format
-    let userData = req.body.user;
+    const userData = req.body.user;
     // compatibility with old structure
     if (userData.appId) {
       userData.appid = userData.appId;
@@ -156,12 +154,12 @@ module.exports = function (app) {
    * no validation is applied because it is system call
    */
   app.put('/users', requireRoles('system'), async (req, res, next) => {
-    let body = req.body;
+    const body = req.body;
     // Allow update and delete for all fields except for username
-    let username = body.username;
+    const username = body.username;
 
-    let fieldsforDeletion = body.fieldsToDelete ? body.fieldsToDelete : {};
-    let fieldsforUpdate = body.user ? body.user : {};
+    const fieldsforDeletion = body.fieldsToDelete ? body.fieldsToDelete : {};
+    const fieldsforUpdate = body.user ? body.user : {};
 
     // just make sure that username would not be changed
     delete fieldsforDeletion.username;
@@ -178,7 +176,7 @@ module.exports = function (app) {
       }
     } catch (error) {
       if (typeof error === 'object') {
-        return res.status(400).json({ user: false, error: error });
+        return res.status(400).json({ user: false, error });
       }
       next(error);
     }
@@ -201,9 +199,10 @@ module.exports = function (app) {
         const username = req.params.username;
         // NOTE We might permit actual deletion via this route someday. This
         //  will allow staying compatible.
-        if (!onlyReg)
+        if (!onlyReg) {
           throw produceError('NO_SUCH_FUNCTION',
             'This method needs onlyReg=true for now (query).');
+        }
 
         await checkDeletion(username);
         if (!dryRun) {
@@ -213,7 +212,7 @@ module.exports = function (app) {
 
         const result = {
           dryRun: !!dryRun,
-          deleted: deleted
+          deleted
         };
         res.status(200).json({ result });
       } catch (err) {
@@ -251,7 +250,7 @@ module.exports = function (app) {
         const invitationTokenValid = await bluebird.fromCallback((cb) =>
           invitationToken.checkIfTokenIsValid(body.invitationToken, cb)
         );
-        let uniqueFields = body.uniqueFields;
+        const uniqueFields = body.uniqueFields;
         if (!invitationTokenValid) {
           error = errorTemplate;
           error.id = ErrorIds.InvalidInvitationToken;
@@ -265,7 +264,7 @@ module.exports = function (app) {
           if (uidExists === true) {
             error = errorTemplate;
             error.id = ErrorIds.ItemAlreadyExists;
-            error.data['username'] = body.username;
+            error.data.username = body.username;
           }
 
           // 3. check if each field is unique
@@ -282,7 +281,7 @@ module.exports = function (app) {
         }
 
         if (error) {
-          return res.status(400).json({ reservation: false, error: error });
+          return res.status(400).json({ reservation: false, error });
         } else {
           // if there are no validation errors, do the reservation for the core
           // username should always be unique, so lets add it to unique Fields
@@ -321,7 +320,7 @@ module.exports = function (app) {
  * @param {boolean} raw
  * @returns {any}
  */
-function _check(req, res, next, raw) {
+function _check (req, res, next, raw) {
   const username = checkAndConstraints.uid(req.params.username);
   if (!username) {
     if (raw) {
@@ -366,12 +365,11 @@ function _check(req, res, next, raw) {
  * @param {string} username
  * @returns {Promise<unknown>}
  */
-async function checkDeletion(username) {
+async function checkDeletion (username) {
   const exists = await bluebird.fromCallback((cb) =>
     db.uidExists(username, cb)
   );
-  if (!exists)
-    throw produceError('NO_SUCH_USER', `No such user ('${username}')`);
+  if (!exists) { throw produceError('NO_SUCH_USER', `No such user ('${username}')`); }
 }
 
 /**
@@ -380,7 +378,7 @@ async function checkDeletion(username) {
  * @param {string} username
  * @returns {Promise<unknown>}
  */
-async function performDeletion(username) {
+async function performDeletion (username) {
   return db.deleteUser(username);
 }
 
@@ -393,7 +391,7 @@ async function performDeletion(username) {
  * @param {string} msg
  * @returns {Error}
  */
-function produceError(errorId, msg) {
+function produceError (errorId, msg) {
   const idToStatusCodeMap = {
     NO_SUCH_USER: 404,
     NO_SUCH_FUNCTION: 421

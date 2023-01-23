@@ -11,12 +11,12 @@ const fs = require('fs');
  * @param {string} fullPath
  * @param {Object} spec
  */
-async function checkFileAndClean(fullPath, spec) {
+async function checkFileAndClean (fullPath, spec) {
   let fileContent = fs.readFileSync(fullPath, 'utf8');
   const endBlockPos = fileContent.lastIndexOf(spec.startBlock);
   if (endBlockPos > 1) {
-    //const toBeRemoved = fileContent.substr(fileContent.indexOf(spec.startBlock) + spec.startBlock.length)
-    //console.log('toBeRemoved >> ' + fullPath, toBeRemoved);
+    // const toBeRemoved = fileContent.substr(fileContent.indexOf(spec.startBlock) + spec.startBlock.length)
+    // console.log('toBeRemoved >> ' + fullPath, toBeRemoved);
     fileContent = fileContent.substr(0, fileContent.indexOf(spec.startBlock));
   }
   fs.writeFileSync(fullPath, fileContent + spec.license);
@@ -31,7 +31,7 @@ async function checkFileAndClean(fullPath, spec) {
  * @param {Object} fileSpecs
  * @param {String} license - content of the license
  */
-async function prepare(spec, license) {
+async function prepare (spec, license) {
   spec.license =
     '\n' +
     spec.startBlock +
@@ -43,6 +43,6 @@ async function prepare(spec, license) {
 }
 
 module.exports = {
-  prepare: prepare,
+  prepare,
   key: 'addTrailer'
 };

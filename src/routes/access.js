@@ -28,7 +28,7 @@ module.exports = function (app) {
     // We're assuming that body will be JSON encoded.
     const body = req.body;
 
-    invitationToken.checkIfValid(body.invitationtoken, function (isValid /*, error*/) {
+    invitationToken.checkIfValid(body.invitationtoken, function (isValid /*, error */) {
       res.header('Content-Type', 'text/plain');
       res.send(isValid ? 'true' : 'false');
     });
@@ -61,50 +61,51 @@ module.exports = function (app) {
         code: 403
       };
       switch (body.status) {
-      case 'REFUSED':
-        accessState = {
-          status: 'REFUSED',
-          reasonID: body.reasonID || 'REASON_UNDEFINED',
-          message: body.message || '',
-          code: 403
-        };
-        break;
-      case 'ERROR':
-        accessState = {
-          status: 'ERROR',
-          id: body.id || 'INTERNAL_ERROR',
-          message: body.message || '',
-          detail: body.detail || '',
-          code: 403
-        };
-        break;
-      case 'ACCEPTED':
-        var apiEndpoint = null;
-        if (body.apiEndpoint) {
-          apiEndpoint = checkAndConstraints.apiEndpoint(body.apiEndpoint);
-          if (!apiEndpoint) {
-            return next(messages.e(400, 'INVALID_API_ENDPOINT'));
+        case 'REFUSED':
+          accessState = {
+            status: 'REFUSED',
+            reasonID: body.reasonID || 'REASON_UNDEFINED',
+            message: body.message || '',
+            code: 403
+          };
+          break;
+        case 'ERROR':
+          accessState = {
+            status: 'ERROR',
+            id: body.id || 'INTERNAL_ERROR',
+            message: body.message || '',
+            detail: body.detail || '',
+            code: 403
+          };
+          break;
+        case 'ACCEPTED': {
+          let apiEndpoint = null;
+          if (body.apiEndpoint) {
+            apiEndpoint = checkAndConstraints.apiEndpoint(body.apiEndpoint);
+            if (!apiEndpoint) {
+              return next(messages.e(400, 'INVALID_API_ENDPOINT'));
+            }
           }
+          // TO be deprecated
+          const username = checkAndConstraints.uid(body.username);
+          if (!username) {
+            return next(messages.e(400, 'INVALID_USER_NAME'));
+          }
+          if (!checkAndConstraints.appToken(body.token)) {
+            return next(messages.e(400, 'INVALID_DATA'));
+          }
+          if (!apiEndpoint) {
+            apiEndpoint = info.getAPIEndpoint(username, body.token);
+          }
+          accessState = {
+            status: 'ACCEPTED',
+            apiEndpoint,
+            username,
+            token: body.token,
+            code: 200
+          };
+          break;
         }
-        // TO be deprecated
-        var username = checkAndConstraints.uid(body.username);
-        if (!username) {
-          return next(messages.e(400, 'INVALID_USER_NAME'));
-        }
-        if (!checkAndConstraints.appToken(body.token)) {
-          return next(messages.e(400, 'INVALID_DATA'));
-        }
-        if (!apiEndpoint) {
-          apiEndpoint = info.getAPIEndpoint(username, body.token);
-        }
-        accessState = {
-          status: 'ACCEPTED',
-          apiEndpoint: apiEndpoint,
-          username: username,
-          token: body.token,
-          code: 200
-        };
-        break;
       }
       _setAccessState(res, next, key, accessState, previousValue);
     }, next);
@@ -115,7 +116,7 @@ module.exports = function (app) {
  * @param {express$Request} req
  * @returns {void}
  */
-function _requestAccess(req, res, next) {
+function _requestAccess (req, res, next) {
   // We're assuming that body will be JSON encoded.
   const body = req.body;
 
@@ -128,7 +129,7 @@ function _requestAccess(req, res, next) {
 /**
  * @returns {void}
  */
-function _setAccessState(res, next, key, accessState, previousValue) {
+function _setAccessState (res, next, key, accessState, previousValue) {
   if (previousValue && previousValue.serviceInfo) {
     accessState.serviceInfo = previousValue.serviceInfo;
   }

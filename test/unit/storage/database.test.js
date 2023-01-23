@@ -1,4 +1,3 @@
-/* global describe, it, beforeEach */
 const chai = require('chai');
 const assert = chai.assert;
 const bluebird = require('bluebird');
@@ -14,8 +13,9 @@ const redis = require('redis').createClient(
   config.get('redis:host'),
   {}
 );
+
 /** @returns {any} */
-function userFixture(attrs) {
+function userFixture (attrs) {
   const baseAttributes = {
     username: 'baseUserName',
     password: '01234',
@@ -24,11 +24,12 @@ function userFixture(attrs) {
   };
   return lodash.merge({}, attrs, baseAttributes);
 }
+
 describe('Redis Database', () => {
   describe('#deleteUser(username)', () => {
     describe('user data should be deleted', () => {
       let info;
-      let inactiveEmailValue = faker.lorem.word().toLowerCase();
+      const inactiveEmailValue = faker.lorem.word().toLowerCase();
       before(async () => {
         const username = faker.lorem.word().toLowerCase();
         info = userFixture({
@@ -255,7 +256,7 @@ describe('Redis Database', () => {
       assert.equal(storedReservation2.time, now);
     });
   });
-  async function redisExists(key) {
+  async function redisExists (key) {
     const res = await bluebird.fromCallback((cb) => redis.exists(key, cb));
     return res === 1;
   }

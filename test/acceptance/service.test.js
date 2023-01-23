@@ -1,4 +1,3 @@
-/*global describe, before, after, it*/
 const should = require('should');
 
 const validation = require('../support/data-validation');
@@ -25,6 +24,8 @@ describe('/service', function () {
   describe('GET /info', function () {
     it('info', function (done) {
       request.get(server.url + '/service/info').end(function (err, res) {
+        assert.notExists(err);
+
         validation.check(res, {
           status: 200,
           schema: schemas.serviceInfo
@@ -49,6 +50,8 @@ describe('/service', function () {
   describe('GET /apps', function () {
     it('appList', function (done) {
       request.get(server.url + '/apps').end(function (err, res) {
+        assert.notExists(err);
+
         validation.check(res, {
           status: 200,
           schema: schemas.appsList
@@ -68,6 +71,8 @@ describe('/service', function () {
   describe('GET /apps/:appid', function () {
     it('valid appId', function (done) {
       request.get(server.url + '/apps/test-a').end(function (err, res) {
+        assert.notExists(err);
+
         validation.check(res, {
           status: 200,
           schema: schemas.appsSingle
@@ -130,6 +135,7 @@ describe('/service', function () {
       const path = '/hostings';
 
       request.get(server.url + path).end(function (err, res) {
+        assert.notExists(err);
         assert.deepEqual(res.status, 200);
         assert.deepEqual(res.body, test);
         done();
@@ -137,7 +143,7 @@ describe('/service', function () {
     });
   });
 
-  function checkApp(appData) {
+  function checkApp (appData) {
     appData.should.have.property('id');
     appData.should.have.property('description');
     appData.should.have.property('iconURL');

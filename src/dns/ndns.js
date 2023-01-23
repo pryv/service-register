@@ -4,12 +4,14 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-var util = require('util');
+const util = require('util');
 
+// TODO: update this piece of legacy code (disabling code checks until then)
+/* eslint-disable */
 // https://github.com/Lennie/ndns/
 
-var debug;
-var debugLevel = parseInt(process.env.NODE_DEBUG, 16);
+let debug;
+const debugLevel = parseInt(process.env.NODE_DEBUG, 16);
 if (debugLevel & 0x4) {
   debug = function (x) {
     util.error('NDNS: ' + x);
@@ -19,36 +21,36 @@ if (debugLevel & 0x4) {
   debug = function () {};
 }
 
-var dgram = require('dgram');
-var events = require('events');
-var Buffer = require('buffer').Buffer;
+const dgram = require('dgram');
+const events = require('events');
+const Buffer = require('buffer').Buffer;
 
-var FreeList = require('freelist').FreeList;
+const FreeList = require('freelist').FreeList;
 
-var ns_packsiz = 512; // Default UDP Packet size
-var ns_maxdname = 1025; // Maximum domain name
-var ns_maxmsg = 65535; // Maximum message size
-var ns_maxcdname = 255; // Maximum compressed domain name
-var ns_maxlabel = 63; // Maximum compressed domain label
-var ns_hfixedsz = 12; // Bytes of fixed data in header
-var ns_qfixedsz = 4; // Bytes of fixed data in query
-var ns_rrfixedsz = 10; // Bytes of fixed data in r record
-var ns_int32sz = 4; // Bytes of data in a u_int32_t
-var ns_int16sz = 2; // Bytes of data in a u_int16_t
-var ns_int8sz = 1; // Bytes of data in a u_int8_t
-var ns_inaddrsz = 4; // IPv4 T_A
-var ns_in6addrsz = 16; // IPv6 T_AAAA
-var ns_cmprsflgs = 0xc0; // Flag bits indicating name compression.
-var ns_defaultport = 53; // For both UDP and TCP.
+const ns_packsiz = 512; // Default UDP Packet size
+const ns_maxdname = 1025; // Maximum domain name
+const ns_maxmsg = 65535; // Maximum message size
+const ns_maxcdname = 255; // Maximum compressed domain name
+const ns_maxlabel = 63; // Maximum compressed domain label
+const ns_hfixedsz = 12; // Bytes of fixed data in header
+const ns_qfixedsz = 4; // Bytes of fixed data in query
+const ns_rrfixedsz = 10; // Bytes of fixed data in r record
+const ns_int32sz = 4; // Bytes of data in a u_int32_t
+const ns_int16sz = 2; // Bytes of data in a u_int16_t
+const ns_int8sz = 1; // Bytes of data in a u_int8_t
+const ns_inaddrsz = 4; // IPv4 T_A
+const ns_in6addrsz = 16; // IPv6 T_AAAA
+const ns_cmprsflgs = 0xc0; // Flag bits indicating name compression.
+const ns_defaultport = 53; // For both UDP and TCP.
 
-function enumeration(obj) {
+function enumeration (obj) {
   for (key in obj) {
     global[key] = obj[key];
   }
   return obj;
 }
 
-var ns_sect = enumeration({
+const ns_sect = enumeration({
   ns_s_qd: 0, // Query: Question.
   ns_s_zn: 0, // Update: Zone.
   ns_s_an: 1, // Query: Answer.
@@ -59,7 +61,7 @@ var ns_sect = enumeration({
   ns_s_max: 4
 });
 
-var ns_flag = enumeration({
+const ns_flag = enumeration({
   ns_f_qr: 0, // Question/Response.
   ns_f_opcode: 1, // Operation code.
   ns_f_aa: 2, // Authorative Answer.
@@ -74,7 +76,7 @@ var ns_flag = enumeration({
 });
 
 // Currently defined opcodes.
-var ns_opcode = enumeration({
+const ns_opcode = enumeration({
   ns_o_query: 0, // Standard query.
   ns_o_iquery: 1, // Inverse query (deprecated/unsupported).
   ns_o_status: 2, // Name server status query (unsupported).
@@ -84,7 +86,7 @@ var ns_opcode = enumeration({
 });
 
 // Currently defined response codes
-var ns_rcode = enumeration({
+const ns_rcode = enumeration({
   ns_r_noerror: 0, // No error occured.
   ns_r_formerr: 1, // Format error.
   ns_r_servfail: 2, // Server failure.
@@ -107,13 +109,13 @@ var ns_rcode = enumeration({
 });
 
 // BIND_UPDATE
-var ns_update_operation = enumeration({
+const ns_update_operation = enumeration({
   ns_oup_delete: 0,
   ns_oup_add: 1,
   ns_oup_max: 2
 });
 
-var NS_TSIG = enumeration({
+const NS_TSIG = enumeration({
   NS_TSIG_FUDGE: 300,
   NS_TSIG_TCP_COUNT: 100,
   NS_TSIG_ALG_HMAC_MD5: 'HMAC-MD5.SIG-ALG.REG.INT',
@@ -124,7 +126,7 @@ var NS_TSIG = enumeration({
 });
 
 // Currently defined type values for resources and queries.
-var ns_type = enumeration({
+const ns_type = enumeration({
   ns_t_invalid: 0, // Cookie.
   ns_t_a: 1, // Host address.
   ns_t_ns: 2, // Authoritative server.
@@ -193,7 +195,7 @@ var ns_type = enumeration({
 exports.ns_type = ns_type;
 
 // Values for class field
-var ns_class = enumeration({
+const ns_class = enumeration({
   ns_c_invalid: 0, // Cookie.
   ns_c_in: 1, // Internet.
   ns_c_2: 2, // unallocated/unsupported.
@@ -207,14 +209,14 @@ var ns_class = enumeration({
 exports.ns_class = ns_class;
 
 // DNSSEC constants.
-var ns_key_types = enumeration({
+const ns_key_types = enumeration({
   ns_kt_rsa: 1, // key type RSA/MD5
   ns_kt_dh: 2, // Diffie Hellman
   ns_kt_dsa: 3, // Digital Signature Standard (MANDATORY)
   ns_kt_private: 4 // Private key type starts with OID
 });
 
-var ns_cert_type = enumeration({
+const ns_cert_type = enumeration({
   cert_t_pkix: 1, // PKIX (X.509v3)
   cert_t_spki: 2, // SPKI
   cert_t_pgp: 3, // PGP
@@ -224,9 +226,9 @@ var ns_cert_type = enumeration({
 
 // Flags field of the KEY RR rdata
 
-var ns_type_elt = 0x40; //edns0 extended label type
-var dns_labeltype_bitstring = 0x41;
-var digitvalue = [
+const ns_type_elt = 0x40; // edns0 extended label type
+const dns_labeltype_bitstring = 0x41;
+const digitvalue = [
   -1,
   -1,
   -1,
@@ -485,7 +487,7 @@ var digitvalue = [
   -1 // 256
 ];
 
-var hexvalue = [
+const hexvalue = [
   '00',
   '01',
   '02',
@@ -744,8 +746,8 @@ var hexvalue = [
   'ff'
 ];
 
-var digits = '0123456789';
-var ns_flagdata = [
+const digits = '0123456789';
+const ns_flagdata = [
   { mask: 0x8000, shift: 15 }, // qr.
   { mask: 0x7800, shift: 11 }, // opcode.
   { mask: 0x0400, shift: 10 }, // aa.
@@ -764,7 +766,7 @@ var ns_flagdata = [
   { mask: 0x0000, shift: 0 } // expansion (6/6).
 ];
 
-var res_opcodes = [
+const res_opcodes = [
   'QUERY',
   'IQUERY',
   'CQUERYM',
@@ -782,9 +784,9 @@ var res_opcodes = [
   'ZONEINIT',
   'ZONEREF'
 ];
-var res_sectioncodes = ['ZONE', 'PREREQUISITES', 'UPDATE', 'ADDITIONAL'];
+const res_sectioncodes = ['ZONE', 'PREREQUISITES', 'UPDATE', 'ADDITIONAL'];
 
-var p_class_syms = {
+const p_class_syms = {
   1: 'IN',
   3: 'CHAOS',
   4: 'HESOID',
@@ -792,21 +794,21 @@ var p_class_syms = {
   255: 'NONE'
 };
 
-var p_default_section_syms = {
+const p_default_section_syms = {
   0: 'QUERY',
   1: 'ANSWER',
   2: 'AUTHORITY',
   3: 'ADDITIONAL'
 };
 
-var p_key_syms = {
+const p_key_syms = {
   1: ['RSA', 'RSA KEY with MD5 hash'],
   2: ['DH', 'Diffie Hellman'],
   3: ['DSA', 'Digital Signature Algorithm'],
   4: ['PRIVATE', 'Algorithm obtained from OID']
 };
 
-var p_cert_syms = {
+const p_cert_syms = {
   1: ['PKIX', 'PKIX (X.509v3) Certificate'],
   2: ['SKPI', 'SPKI Certificate'],
   3: ['PGP', 'PGP Certificate'],
@@ -814,7 +816,7 @@ var p_cert_syms = {
   254: ['OID', 'OID Private']
 };
 
-var p_type_syms = {
+const p_type_syms = {
   1: 'A',
   2: 'NS',
   3: 'MD',
@@ -880,7 +882,7 @@ var p_type_syms = {
   257: 'CAA'
 };
 
-var p_rcode_syms = {
+const p_rcode_syms = {
   0: ['NOERROR', 'no error'],
   1: ['FORMERR', 'format error'],
   2: ['SERVFAIL', 'server failed'],
@@ -901,13 +903,13 @@ var p_rcode_syms = {
   18: ['BADTIME', 'bad time']
 };
 
-var n_type_syms = {};
+const n_type_syms = {};
 for (var k in p_type_syms) n_type_syms[p_type_syms[k]] = k;
 
-var n_class_syms = {};
+const n_class_syms = {};
 for (var k in p_class_syms) n_class_syms[p_class_syms[k]] = k;
 
-function Ptr() {
+function Ptr () {
   this.p = arguments.length == 1 ? arguments[0] : null;
 }
 exports.Ptr = Ptr;
@@ -920,12 +922,12 @@ Ptr.prototype.set = function (val) {
   return (this.p = val);
 };
 
-function ns_name_ntop(src, dst, dstsiz) {
-  var cp;
-  var dn, eom;
-  var c;
-  var n;
-  var l;
+function ns_name_ntop (src, dst, dstsiz) {
+  let cp;
+  let dn, eom;
+  let c;
+  let n;
+  let l;
 
   cp = 0;
   dn = 0;
@@ -963,7 +965,7 @@ function ns_name_ntop(src, dst, dstsiz) {
         return -1;
       }
 
-      var cpp = new Ptr(cp);
+      const cpp = new Ptr(cp);
       if ((m = decode_bitstring(src, cpp, dst, dn, eom)) < 0) {
         errno.set('EMSGSIZE');
         return -1;
@@ -1023,26 +1025,26 @@ function ns_name_ntop(src, dst, dstsiz) {
 }
 exports.ns_name_ntop = ns_name_ntop;
 
-function ns_name_pton(src, dst, dstsiz) {
+function ns_name_pton (src, dst, dstsiz) {
   return ns_name_pton2(src, dst, dstsiz, null);
 }
 exports.ns_name_pton = ns_name_pton;
 
-function ns_name_pton2(src, dst, dstsiz, dstlenp) {
-  var label, bp, epm;
-  var c,
-    n,
-    escaped,
-    e = 0;
-  var cp;
+function ns_name_pton2 (src, dst, dstsiz, dstlenp) {
+  let label, bp, epm;
+  let c;
+  let n;
+  let escaped;
+  let e = 0;
+  let cp;
 
   escaped = 0;
   bp = 0;
   eom = dstsiz;
   label = bp++;
 
-  var srcn = 0;
-  var done = false; // instead of goto
+  let srcn = 0;
+  let done = false; // instead of goto
   while ((c = src[srcn++]) != 0) {
     if (escaped) {
       if (c == 91) {
@@ -1053,9 +1055,9 @@ function ns_name_pton2(src, dst, dstsiz, dstlenp) {
           return -1;
         }
 
-        var srcp = new Ptr(srcn);
-        var bpp = new Ptr(bp);
-        var labelp = new Ptr(label);
+        const srcp = new Ptr(srcn);
+        const bpp = new Ptr(bp);
+        const labelp = new Ptr(label);
         if (
           (e = encode_bitstring(src, srcp, cp + 2, labelp, dst, bpp, eom) != 0)
         ) {
@@ -1194,7 +1196,7 @@ function ns_name_pton2(src, dst, dstsiz, dstlenp) {
   return 0;
 }
 
-function strchr(src, off, n) {
+function strchr (src, off, n) {
   while (off < buf.length && buf[off] != 0) {
     if (buf[off] == n) return off;
 
@@ -1204,20 +1206,20 @@ function strchr(src, off, n) {
   return null;
 }
 
-function ns_name_unpack(msg, offset, len, dst, dstsiz) {
+function ns_name_unpack (msg, offset, len, dst, dstsiz) {
   return ns_name_unpack2(msg, offset, len, dst, dstsiz, null);
 }
 exports.ns_name_unpack = ns_name_unpack;
 
-function ns_name_unpack2(msg, offset, len, dst, dstsiz, dstlenp) {
-  var n, l;
+function ns_name_unpack2 (msg, offset, len, dst, dstsiz, dstlenp) {
+  let n, l;
 
-  var llen = -1;
-  var checked = 0;
-  var dstn = 0;
-  var srcn = offset;
-  var dstlim = dstsiz;
-  var eom = offset + len;
+  let llen = -1;
+  let checked = 0;
+  let dstn = 0;
+  let srcn = offset;
+  const dstlim = dstsiz;
+  const eom = offset + len;
 
   if (srcn < 0 || srcn >= eom) {
     errno.set('EMSGSIZE');
@@ -1288,26 +1290,26 @@ function ns_name_unpack2(msg, offset, len, dst, dstsiz, dstlenp) {
   return llen;
 }
 
-function ns_name_pack(src, dst, dstn, dstsiz, dnptrs, lastdnptr) {
-  var dstp;
-  var cpp, lpp, eob, msgp;
-  var srcp;
-  var n,
-    l,
-    first = 1;
+function ns_name_pack (src, dst, dstn, dstsiz, dnptrs, lastdnptr) {
+  let dstp;
+  let cpp, lpp, eob, msgp;
+  let srcp;
+  let n;
+  let l;
+  let first = 1;
 
   srcp = 0;
   dstp = dstn;
   eob = dstp + dstsiz;
   lpp = cpp = null;
-  var ndnptr = 0;
+  const ndnptr = 0;
 
   if (dnptrs != null) {
     msg = dst;
-    //if ((msg = dnptrs[ndnptr++]) != null) {
+    // if ((msg = dnptrs[ndnptr++]) != null) {
     for (cpp = 0; dnptrs[cpp] != null; cpp++);
     lpp = cpp; // end of list to search
-    //}
+    // }
   } else msg = null;
 
   // make sure the domain we are about to add is legal
@@ -1338,7 +1340,7 @@ function ns_name_pack(src, dst, dstn, dstsiz, dnptrs, lastdnptr) {
 
   // from here on we need to reset compression pointer array on error
   srcp = 0;
-  var cleanup = false; // instead of goto
+  let cleanup = false; // instead of goto
 
   do {
     // look to see if we can use pointers
@@ -1399,10 +1401,10 @@ function ns_name_pack(src, dst, dstn, dstsiz, dnptrs, lastdnptr) {
 }
 exports.ns_name_pack = ns_name_pack;
 
-function ns_name_skip(b, ptrptr, eom) {
-  var cp;
-  var n;
-  var l;
+function ns_name_skip (b, ptrptr, eom) {
+  let cp;
+  let n;
+  let l;
 
   cp = ptrptr.get();
   while (cp < eom && (n = b[cp++]) != 0) {
@@ -1437,7 +1439,7 @@ function ns_name_skip(b, ptrptr, eom) {
 }
 exports.ns_name_skip = ns_name_skip;
 
-function special(ch) {
+function special (ch) {
   switch (ch) {
     case 0x22: /* '"' */
     case 0x2e: /* '.' */
@@ -1454,22 +1456,22 @@ function special(ch) {
   }
 }
 
-function printable(ch) {
+function printable (ch) {
   return ch > 0x20 && ch < 0x7f;
 }
 
-function mklower(ch) {
+function mklower (ch) {
   if (ch >= 0x41 && ch <= 0x5a) return ch + 0x20;
 
   return ch;
 }
 
-function dn_find(src, domain, msg, dnptrs, ndnptr, lastdnptr) {
-  var dn, cp, sp;
-  var cpp;
-  var n;
+function dn_find (src, domain, msg, dnptrs, ndnptr, lastdnptr) {
+  let dn, cp, sp;
+  let cpp;
+  let n;
 
-  var next = false; // instead of goto
+  let next = false; // instead of goto
   for (cpp = ndnptr; cpp < lastdnptr; cpp++) {
     sp = dnptrs[cpp];
     //
@@ -1536,10 +1538,10 @@ function dn_find(src, domain, msg, dnptrs, ndnptr, lastdnptr) {
 }
 exports.dn_find = dn_find;
 
-function decode_bitstring(b, cpp, d, dn, eom) {
-  var cp = cpp.get();
-  var beg = dn,
-    tc;
+function decode_bitstring (b, cpp, d, dn, eom) {
+  let cp = cpp.get();
+  const beg = dn;
+  let tc;
   var b, blen, plen, i;
 
   if ((blen = b[cp] & 0xff) == 0) blen = 256;
@@ -1560,17 +1562,17 @@ function decode_bitstring(b, cpp, d, dn, eom) {
 }
 exports.decode_bitstring = decode_bitstring;
 
-function encode_bitstring(src, bp, end, labelp, dst, dstp, eom) {
-  var afterslash = 0;
-  var cp = bp.get();
-  var tp;
-  var c;
-  var beg_blen;
-  var end_blen = null;
-  var value = 0,
-    count = 0,
-    tbcount = 0,
-    blen = 0;
+function encode_bitstring (src, bp, end, labelp, dst, dstp, eom) {
+  let afterslash = 0;
+  let cp = bp.get();
+  let tp;
+  let c;
+  let beg_blen;
+  let end_blen = null;
+  let value = 0;
+  let count = 0;
+  let tbcount = 0;
+  let blen = 0;
 
   beg_blen = end_blen = null;
 
@@ -1579,13 +1581,13 @@ function encode_bitstring(src, bp, end, labelp, dst, dstp, eom) {
 
   // currently, only hex strings are supported
   if (src[cp++] != 120)
-    // 'x'
-    return errno.EINVAL;
+  // 'x'
+  { return errno.EINVAL; }
   if (!isxdigit(src[cp] & 0xff))
-    // reject '\[x/BLEN]'
-    return errno.EINVAL;
+  // reject '\[x/BLEN]'
+  { return errno.EINVAL; }
 
-  var done = false;
+  let done = false;
   for (tp = dstp.get() + 1; cp < end && tp < eom; cp++) {
     switch ((c = src[cp++])) {
       case 93: // ']'
@@ -1649,7 +1651,7 @@ function encode_bitstring(src, bp, end, labelp, dst, dstp, eom) {
   // hexadecimal or octal digit, they MUST be zero.
   // RFC2673, Section 3.2
   if (blen && blen > 0) {
-    var traillen;
+    let traillen;
 
     if (((blen + 3) & ~3) != tbcount) return errno.EINVAL;
 
@@ -1671,23 +1673,23 @@ function encode_bitstring(src, bp, end, labelp, dst, dstp, eom) {
 }
 exports.encode_bitstring = encode_bitstring;
 
-function isxdigit(ch) {
+function isxdigit (ch) {
   return (
     (ch >= 48 && ch <= 57) || (ch >= 97 && ch <= 102) || (ch >= 65 && ch <= 70)
   );
 }
 
-function isspace(ch) {
+function isspace (ch) {
   return ch == 32 || ch == 12 || ch == 10 || ch == 13 || ch == 9 || ch == 12;
 }
 
-function strtol(b, off, end, base) {
+function strtol (b, off, end, base) {
   return parseInt(b.toString(off, end), base);
 }
 
-function labellen(b, off) {
-  var bitlen;
-  var l = b[off];
+function labellen (b, off) {
+  let bitlen;
+  const l = b[off];
 
   if ((l & ns_cmprsflgs) == ns_cmprsflgs) {
     return -1;
@@ -1725,7 +1727,7 @@ var errno = {
 };
 exports.errno = errno;
 
-function DNSParser(buf, start, end) {
+function DNSParser (buf, start, end) {
   if (arguments.length < 3) {
     this.initialized = false;
     return;
@@ -1733,7 +1735,7 @@ function DNSParser(buf, start, end) {
 
   if (!(buf instanceof Buffer)) {
     buf = new Buffer(buf);
-    //throw new Error("DNSParser: Argument should be a buffer");
+    // throw new Error("DNSParser: Argument should be a buffer");
   }
 
   if (start > buf.length) {
@@ -1762,7 +1764,7 @@ DNSParser.prototype.reinitialize = function () {
 };
 
 DNSParser.prototype.parseMessage = function () {
-  var qdcount, ancount, nscount, arcount, rrcount;
+  let qdcount, ancount, nscount, arcount, rrcount;
 
   if (typeof this.onMessageBegin === 'function') this.onMessageBegin();
 
@@ -1779,24 +1781,20 @@ DNSParser.prototype.parseMessage = function () {
   arcount = this.buf[this.parseStart - 2] * 256 + this.buf[this.parseStart - 1];
   rrcount = ancount + nscount + arcount;
 
-  for (var i = 0; i < qdcount; i++)
+  for (var i = 0; i < qdcount; i++) {
     try {
       this.skipQuestion(this.onQuestion);
     } catch (err) {
       this.err = err;
       return;
     }
+  }
 
   for (var i = 0; i < rrcount; i++) {
-    if (i == 0 && typeof this.onAnswerBegin === 'function')
-      this.onAnswerBegin();
-    else if (i == ancount && typeof this.onAuthorityBegin === 'function')
-      this.onAuthorityBegin();
-    else if (
+    if (i == 0 && typeof this.onAnswerBegin === 'function') { this.onAnswerBegin(); } else if (i == ancount && typeof this.onAuthorityBegin === 'function') { this.onAuthorityBegin(); } else if (
       i == ancount + nscount &&
       typeof this.onAdditionalBegin === 'function'
-    )
-      this.onAdditionalBegin();
+    ) { this.onAdditionalBegin(); }
 
     try {
       this.skipRR(this.onRR);
@@ -1819,7 +1817,7 @@ DNSParser.prototype.skipHeader = function (cb) {
 };
 
 DNSParser.prototype.skipQuestion = function (cb) {
-  var ptr = new Ptr(this.parseStart);
+  const ptr = new Ptr(this.parseStart);
   if (ns_name_skip(this.buf, ptr, this.bufEnd) != 0) throw new Error();
 
   this.parseEnd = ptr.get() + ns_qfixedsz;
@@ -1831,8 +1829,8 @@ DNSParser.prototype.skipQuestion = function (cb) {
 };
 
 DNSParser.prototype.skipRR = function (cb) {
-  var rrcount;
-  var ptr = new Ptr(this.parseStart);
+  let rrcount;
+  const ptr = new Ptr(this.parseStart);
 
   if (ns_name_skip(this.buf, ptr, this.bufEnd) != 0) throw new Error();
 
@@ -1855,7 +1853,7 @@ DNSParser.prototype._dname = new Buffer(ns_maxdname);
 DNSParser.prototype._string = new Buffer(ns_maxdname);
 
 DNSParser.prototype.parseName = function () {
-  var n, len;
+  let n, len;
 
   if (
     (n = ns_name_unpack(
@@ -1865,13 +1863,11 @@ DNSParser.prototype.parseName = function () {
       this._dname,
       this._dname.length
     )) == -1
-  )
-    throw new Error();
+  ) { throw new Error(); }
 
   if (
     (len = ns_name_ntop(this._dname, this._string, this._string.length)) == -1
-  )
-    throw new Error();
+  ) { throw new Error(); }
 
   this.parseStart += n;
 
@@ -1908,7 +1904,7 @@ DNSParser.prototype.parseUInt32 = function () {
 };
 
 DNSParser.prototype.parseHeader = function (header) {
-  var tmp;
+  let tmp;
 
   header.id = this.parseUInt16();
   tmp = this.parseUInt16();
@@ -1964,8 +1960,8 @@ DNSParser.prototype.parseRRSIGSigner = function () {
   // kinda like unpack of a name, but without compression
   //	debug ('DNSParser.prototype.parseRRSIGSigner');
 
-  var name = new Buffer(ns_maxdname);
-  var start = 0;
+  const name = new Buffer(ns_maxdname);
+  let start = 0;
 
   var signamelen = this.parseUInt8();
   if (signamelen == 0) return ''; // root
@@ -1990,7 +1986,7 @@ DNSParser.prototype.parseRRSIGSigner = function () {
 DNSParser.prototype.parseRRSIG = function (rrsig) {
   debug('DNSParser.prototype.parseRRSIG');
 
-  //http://tools.ietf.org/html/rfc4034#section-3
+  // http://tools.ietf.org/html/rfc4034#section-3
 
   //   The RDATA for an RRSIG RR consists of:
   //	a 2 octet Type Covered field,
@@ -2001,7 +1997,7 @@ DNSParser.prototype.parseRRSIG = function (rrsig) {
   //	a 4 octet Signature Inception field,
   //	a 2 octet Key tag,
   //	the Signer's Name field, -> length[0],name[length],length[0],name[length],0
-  //and the Signature field.[rest ?]
+  // and the Signature field.[rest ?]
 
   rrsig.typeCovered = this.parseUInt16();
   rrsig.algoritm = this.parseUInt8();
@@ -2011,18 +2007,18 @@ DNSParser.prototype.parseRRSIG = function (rrsig) {
   rrsig.sigcreation = this.parseUInt32();
   rrsig.keytag = this.parseUInt16();
 
-  var beforeSigner = this.parseStart;
+  const beforeSigner = this.parseStart;
 
   rrsig.signame = this.parseRRSIGSigner();
 
-  var signerLength = this.parseStart - beforeSigner;
+  const signerLength = this.parseStart - beforeSigner;
 
-  var signame = new Buffer(signerLength);
+  const signame = new Buffer(signerLength);
   this.buf.copy(signame, 0, beforeSigner, beforeSigner + signerLength);
 
-  var len = this.parseEnd - this.parseStart;
+  const len = this.parseEnd - this.parseStart;
 
-  var signature = new Buffer(len);
+  const signature = new Buffer(len);
 
   this.buf.copy(signature, 0, this.parseStart, this.parseStart + len);
 
@@ -2044,7 +2040,7 @@ DNSParser.prototype.parseRRSIG = function (rrsig) {
   return rrsig;
 };
 
-function BufferReference(buf, start, end) {
+function BufferReference (buf, start, end) {
   if (!(buf instanceof Buffer)) {
     throw new Error('BufferReference: Argument should be a buffer');
   }
@@ -2114,12 +2110,12 @@ DNSParser.prototype.parseDS = function (ds) {
   ds.algoritm = this.parseUInt8();
   ds.digesttype = this.parseUInt8();
 
-  var len = this.parseEnd - this.parseStart;
+  const len = this.parseEnd - this.parseStart;
 
   debug('len');
   debug(len);
 
-  var signature = new Buffer(len);
+  const signature = new Buffer(len);
 
   this.buf.copy(signature, 0, this.parseStart, this.parseStart + len);
   ds.signature = signature;
@@ -2173,12 +2169,12 @@ DNSParser.prototype.parseNSEC = function (nsec) {
   this.parseStart = this.parseEnd;
 };
 
-function Rdata() {}
+function Rdata () {}
 
 Rdata.prototype.length = 0;
 
 DNSParser.prototype.parseRR = function (rr) {
-  var parseEnd;
+  let parseEnd;
 
   rr.name = this.parseName();
   rr.type = this.parseUInt16();
@@ -2216,7 +2212,7 @@ DNSParser.prototype.parseRR = function (rr) {
   rr.rdata = new Rdata();
   rr.rdata.length = 1;
 
-  //debug ('type: ' + (rr.type));
+  // debug ('type: ' + (rr.type));
 
   switch (rr.type) {
     case 1: // a
@@ -2247,7 +2243,7 @@ DNSParser.prototype.parseRR = function (rr) {
         this.parseStart,
         this.parseEnd
       );
-      //rr.rdata.txt = this.buf.slice(this.parseStart, this.parseEnd);
+      // rr.rdata.txt = this.buf.slice(this.parseStart, this.parseEnd);
       rr.rdata[0] = rr.rdata.txt;
       this.parseStart += rr.rdlength;
       break;
@@ -2294,12 +2290,13 @@ DNSParser.prototype.parseRR = function (rr) {
         }
       }
 
-      if (this.parseEnd - this.parseStart != 0)
+      if (this.parseEnd - this.parseStart != 0) {
         rr.rdata = new BufferReference(
           this.buf,
           this.parseStart,
           this.parseEnd
         );
+      }
       break;
   }
 
@@ -2315,7 +2312,7 @@ DNSParser.prototype.finish = function () {
   }
 };
 
-function DNSWriter(buf, start, end) {
+function DNSWriter (buf, start, end) {
   if (arguments.length < 3) {
     this.initialized = false;
     return;
@@ -2371,7 +2368,7 @@ DNSWriter.prototype.startRdata = function () {
 DNSWriter.prototype.endRdata = function () {
   if (this.truncated) return;
 
-  var rdlength = this.writeStart - this.rdstart;
+  const rdlength = this.writeStart - this.rdstart;
   debug(rdlength);
   this.buf[this.rdstart - 2] = (rdlength >> 8) & 0xff;
   this.buf[this.rdstart - 1] = rdlength & 0xff;
@@ -2396,7 +2393,7 @@ DNSWriter.prototype._dname = new Buffer(ns_maxdname);
 DNSWriter.prototype.writeNameBuffer = function (name) {
   if (this.truncated) return;
 
-  var n, len;
+  let n, len;
 
   if ((len = ns_name_pton(name, this._dname, this._dname.length)) == -1) {
     if (errno.get() == 'EMSGSIZE') {
@@ -2433,12 +2430,11 @@ DNSWriter.prototype._string = new Buffer(ns_maxdname);
 DNSWriter.prototype.writeNameString = function (name) {
   if (this.truncated) return;
 
-  var len;
+  let len;
   // copy string to buffer
   len = this._string.write(name);
 
-  if (len == this._string.length)
-    throw new Error('writeNameString: Name string is too long');
+  if (len == this._string.length) { throw new Error('writeNameString: Name string is too long'); }
 
   this._string[len] = 0; // terminate string
 
@@ -2484,7 +2480,7 @@ DNSWriter.prototype.writeUInt32 = function (uint) {
 };
 
 DNSWriter.prototype.writeHeader = function (header) {
-  var tmp = 0;
+  let tmp = 0;
   tmp = 0;
   tmp |= (header.qr << 15) & 0x8000;
   tmp |= (header.opcode << 11) & 0x7800;
@@ -2526,15 +2522,13 @@ DNSWriter.prototype.writeBuffer = function (buf) {
 DNSWriter.prototype.writeString = function (str) {
   if (this.truncated) return;
 
-  if (this.writeString + Buffer.byteLength(str, 'ascii') > this.writeEnd)
-    this.truncated = true;
-  else {
+  if (this.writeString + Buffer.byteLength(str, 'ascii') > this.writeEnd) { this.truncated = true; } else {
     this.writeStart += this.buf.write(str, this.writeStart);
   }
 };
 
 DNSWriter.prototype.writeA = function (a) {
-  var tmp;
+  let tmp;
 
   if (this.truncated) return;
 
@@ -2600,7 +2594,7 @@ DNSWriter.prototype.writeCAA = function (caa) {
 DNSWriter.prototype.writeAAAA = function (aaaa) {
   if (this.truncated) return;
 
-  var n, tmp;
+  let n, tmp;
 
   if (this.writeStart + 16 > this.writeEnd) {
     this.truncated = true;
@@ -2608,10 +2602,9 @@ DNSWriter.prototype.writeAAAA = function (aaaa) {
   }
 
   tmp = aaaa.split(':');
-  if (tmp.length != 8)
-    throw new Error('writeAAAAL: IPV6 String must have exactly 7 colons');
+  if (tmp.length != 8) { throw new Error('writeAAAAL: IPV6 String must have exactly 7 colons'); }
 
-  for (var i = 0; i < 8; i++) this.writeUInt16(parseInt(tmp[i], 16));
+  for (let i = 0; i < 8; i++) this.writeUInt16(parseInt(tmp[i], 16));
 };
 
 DNSWriter.prototype.writeRR = function (rr) {
@@ -2696,8 +2689,8 @@ DNSWriter.prototype.writeMessage = function (message) {
   }
 };
 
-var parsers = new FreeList('parsers', 1000, function () {
-  var parser = new DNSParser();
+const parsers = new FreeList('parsers', 1000, function () {
+  const parser = new DNSParser();
 
   parser.onMessageBegin = function () {
     debug('parser.onMessageBegin');
@@ -2756,7 +2749,7 @@ var parsers = new FreeList('parsers', 1000, function () {
   return parser;
 });
 
-function MessageHeader() {}
+function MessageHeader () {}
 
 MessageHeader.prototype.id = 0;
 MessageHeader.prototype.qr = 0;
@@ -2771,26 +2764,26 @@ MessageHeader.prototype.cd = 0;
 MessageHeader.prototype.rcode = 0;
 
 MessageHeader.prototype.set = function (obj) {
-  for (var k in obj) this[k] = obj[k];
+  for (const k in obj) this[k] = obj[k];
 };
 
-function MessageRecord() {}
+function MessageRecord () {}
 
 MessageRecord.prototype.set = MessageHeader.prototype.set;
 
-function MessageObject() {
+function MessageObject () {
   this.length = 0;
 }
 
 MessageObject.prototype.add = function () {
-  var obj = (this[this.length++] = new MessageRecord());
+  const obj = (this[this.length++] = new MessageRecord());
 
   if (arguments.length > 0) obj.set(arguments[0]);
 
   return obj;
 };
 
-function Message(socket, rinfo) {
+function Message (socket, rinfo) {
   events.EventEmitter.call(this);
 
   this.socket = socket;
@@ -2810,7 +2803,7 @@ Message.prototype.addRR = function (name, ttl, className, typeName) {
       n_type_syms.hasOwnProperty(typeName.toUpperCase()) &&
       n_class_syms.hasOwnProperty(className.toUpperCase())
     ) {
-      var rr = this.rr.add();
+      const rr = this.rr.add();
       rr.name = name;
       rr.ttl = ttl;
       rr.type = n_type_syms[typeName.toUpperCase()];
@@ -2826,7 +2819,7 @@ Message.prototype.setHeader = function (obj) {
 };
 
 Message.prototype.addQuestion = function (name, typeName, className) {
-  var question;
+  let question;
   if (arguments.length == 1 && typeof arguments[0] === 'object') {
     this.q.add(arguments[0]);
   } else {
@@ -2846,14 +2839,14 @@ Message.prototype.addQuestion = function (name, typeName, className) {
   }
 };
 
-function IncomingMessage(socket, rinfo) {
+function IncomingMessage (socket, rinfo) {
   Message.call(this, socket, rinfo);
 }
 
 util.inherits(IncomingMessage, Message);
 exports.IncomingMessage = IncomingMessage;
 
-function OutgoingMessage(socket, rinfo) {
+function OutgoingMessage (socket, rinfo) {
   Message.call(this, socket, rinfo);
   this.maxSend = 512;
 }
@@ -2896,15 +2889,15 @@ OutgoingMessage.prototype.send = function (message) {
   );
 };
 
-function ServerResponse(req) {
+function ServerResponse (req) {
   OutgoingMessage.call(this, req.socket, req.rinfo);
 }
 
 util.inherits(ServerResponse, OutgoingMessage);
 exports.ServerResponse = ServerResponse;
 
-function ClientRequest(client, socket, port, host) {
-  OutgoingMessage.call(this, socket, { port: port, address: host });
+function ClientRequest (client, socket, port, host) {
+  OutgoingMessage.call(this, socket, { port, address: host });
 
   this.client = client;
   this.socket = socket;
@@ -2947,7 +2940,7 @@ ClientRequest.prototype.send = function (message) {
   );
 };
 
-function Server(type, requestListener) {
+function Server (type, requestListener) {
   dgram.Socket.call(this, type);
 
   if (requestListener) {
@@ -2975,18 +2968,18 @@ exports.createServer = function (type, listener) {
   return new Server(bindType, requestListener);
 };
 
-function messageListener(msg, rinfo) {
-  var self = this;
+function messageListener (msg, rinfo) {
+  const self = this;
 
-  //debug("NDNS: new message"+msg+":"+require('../utils/dump').bin2hex(msg)+" \n");
-  //require('../utils/dump').hexdump(msg);
+  // debug("NDNS: new message"+msg+":"+require('../utils/dump').bin2hex(msg)+" \n");
+  // require('../utils/dump').hexdump(msg);
 
   this._Parser.reinitialize(msg, 0, msg.length);
   this._Parser.socket = this;
   this._Parser.rinfo = rinfo;
 
   this._Parser.onIncoming = function (req) {
-    var res = new ServerResponse(req);
+    const res = new ServerResponse(req);
     self.emit('request', req, res);
   };
   this._Parser.onError = debug;
@@ -2994,7 +2987,7 @@ function messageListener(msg, rinfo) {
   this._Parser.parseMessage();
 }
 
-function Client(type, responseListener) {
+function Client (type, responseListener) {
   dgram.Socket.call(this, type);
 
   this.pending = [];
@@ -3010,7 +3003,7 @@ util.inherits(Client, dgram.Socket);
 exports.Client = Client;
 
 Client.prototype.request = function (port, host) {
-  var req = new ClientRequest(this, this, port, host);
+  const req = new ClientRequest(this, this, port, host);
   return req;
 };
 
@@ -3019,8 +3012,8 @@ Client.prototype.defaultType = 'udp4';
 Client.prototype.parser = parsers.alloc();
 
 exports.createClient = function () {
-  var type = this.defaultType;
-  var responseListener = null;
+  let type = this.defaultType;
+  let responseListener = null;
 
   if (typeof arguments[0] === 'string') {
     type = arguments[0];
@@ -3034,8 +3027,8 @@ exports.createClient = function () {
   return new Client(type, responseListener);
 };
 
-function clientMessageListener(msg, rinfo) {
-  var self = this;
+function clientMessageListener (msg, rinfo) {
+  const self = this;
 
   debug('new client message');
 
@@ -3044,7 +3037,7 @@ function clientMessageListener(msg, rinfo) {
   this.parser.rinfo = rinfo;
 
   this.parser.onIncoming = function (res) {
-    var i, item;
+    let i, item;
     self.emit('response', res);
     for (i = 0; i < self.pending.length; i++) {
       item = self.pending[i];

@@ -1,15 +1,16 @@
-/* global describe, it, before */
 const lodash = require('lodash');
 const exec = require('child_process').exec;
 const should = require('should');
 const chai = require('chai');
 const assert = chai.assert;
+
 const config = require('../../src/config');
-var db = require('../../src/storage/database');
+const db = require('../../src/storage/database');
 const ndns = require('../../src/dns/ndns');
 const Client = ndns.Client;
 require('../../src/app-dns');
 require('readyness/wait/mocha');
+
 describe('DNS', function () {
   const domain = config.get('dns:domain');
   describe('users', () => {
@@ -30,7 +31,7 @@ describe('DNS', function () {
       dig(
         'CNAME',
         'dns-test.' + config.get('dns:domain'),
-        function (error, result) {
+        function (error, result) { /* eslint-disable-line n/handle-callback-err */
           assert.strictEqual(result, 'dummy.pryv.net.');
           done();
         }
@@ -75,7 +76,7 @@ describe('DNS', function () {
         if (error) {
           return done(error);
         }
-        var t = config.get('dns:staticDataInDomain:sw:alias');
+        const t = config.get('dns:staticDataInDomain:sw:alias');
         should.exist(result);
         if (result) {
           assert.strictEqual(result, t[0].name + '.');
@@ -115,14 +116,14 @@ describe('DNS', function () {
   });
   describe('root TXT record', () => {
     const domain = config.get('dns:domain');
-    const root_TXT_records = config.get('dns:rootTXT');
+    const rootTXTRecords = config.get('dns:rootTXT');
     it('works for multiple entries', (done) => {
       dig('TXT', domain, (err, res) => {
         if (err) {
           return done(err);
         }
         const responseArray = res.split('\n');
-        root_TXT_records.description.forEach((txtRecord) => {
+        rootTXTRecords.description.forEach((txtRecord) => {
           let found = false;
           responseArray.forEach((response) => {
             if ('"' + txtRecord + '"' === response) {
@@ -172,10 +173,10 @@ describe('DNS', function () {
         req.header.qr = 0;
         legitClient.request(port, ip).send(req);
       }, 1000);
-      function legitResponseListener() {
+      function legitResponseListener () {
         done();
       }
-      function attackResponseListener() {
+      function attackResponseListener () {
         throw new Error(
           'DNS just answered to a DNS response, ' +
             'which makes it vulnerable to DOS attacks!'
@@ -186,12 +187,12 @@ describe('DNS', function () {
 });
 /** Helper for dns requests using dig.
  *
- * @param dns_class - A, NS, CNAME (optional)
+ * @param dnsClass - A, NS, CNAME (optional)
  * @param name - the domain to search
  * @param result - function (error, result)
  * @returns {void}
  */
-function dig(dns_class, name, result, useIPv6) {
+function dig (dnsClass, name, result, useIPv6) {
   const type = useIPv6 ? ' -6 ' : ' -4 ';
   const host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip');
   const cmd =
@@ -202,17 +203,17 @@ function dig(dns_class, name, result, useIPv6) {
     ' -p ' +
     config.get('dns:port') +
     ' ' +
-    dns_class +
+    dnsClass +
     ' ' +
     name;
-  exec(cmd, function callback(error, stdout, stderr) {
+  exec(cmd, function callback (error, stdout, stderr) {
     stdout = lodash.trim(stdout, ' \n');
     if (stderr && stderr !== '') {
       throw new Error(stderr + ' | running ' + cmd);
     }
     if (!stdout || stdout === '') {
       throw new Error(
-        'no result for ' + dns_class + ' ' + name + ' (' + stderr + ')'
+        'no result for ' + dnsClass + ' ' + name + ' (' + stderr + ')'
       );
     }
     result(error, stdout);

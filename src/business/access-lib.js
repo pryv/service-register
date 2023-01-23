@@ -113,7 +113,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   if (parameters.authUrl != null) {
     url = parameters.authUrl;
     if (!isAuthURLValid(url)) {
-      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : ' + domain + ' / auth : ' + url}));
+      return errorHandler(messages.e(400, 'INVALID_AUTH_URL', { detail: 'domain : ' + domain + ' / auth : ' + url }));
     }
     if (!isAuthDomainTrusted(url)) {
       return errorHandler(messages.e(400, 'UNTRUSTED_AUTH_URL', { detail: 'domain : ' + domain + ' / auth : ' + url }));
@@ -142,7 +142,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     url = 'https://sw.rec.la' + reclaDevel;
   }
 
-  let firstParamAppender = url.indexOf('?') >= 0 ? '&' : '?';
+  const firstParamAppender = url.indexOf('?') >= 0 ? '&' : '?';
 
   let authUrl;
   authUrl = url + firstParamAppender;
@@ -153,8 +153,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     '&key=' + key +
     '&requestingAppId=' + requestingAppId;
 
-  if (effectiveReturnURL != null)
-    url += '&returnURL=' + encodeURIComponent(effectiveReturnURL);
+  if (effectiveReturnURL != null) { url += '&returnURL=' + encodeURIComponent(effectiveReturnURL); }
 
   url +=
     '&domain=' + domain +
@@ -174,21 +173,21 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
   const accessState = {
     status: 'NEED_SIGNIN',
     code: 201,
-    key: key,
-    requestingAppId: requestingAppId,
-    requestedPermissions: requestedPermissions,
-    url: url,
-    authUrl: authUrl,
+    key,
+    requestingAppId,
+    requestedPermissions,
+    url,
+    authUrl,
     poll: pollURL,
     returnURL: effectiveReturnURL,
     oauthState: cleanOauthState,
     poll_rate_ms: 1000,
-    clientData: clientData,
-    lang: lang,
-    serviceInfo: serviceInfo,
-    deviceName: deviceName,
-    expireAfter: expireAfter,
-    referer: referer
+    clientData,
+    lang,
+    serviceInfo,
+    deviceName,
+    expireAfter,
+    referer
   };
 
   accessLib.setAccessState(key, accessState, successHandler, errorHandler);
@@ -198,7 +197,7 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
  * @param {string} url
  * @returns {boolean}
  */
-function isAuthURLValid(url) {
+function isAuthURLValid (url) {
   return checkAndConstraints.url(url);
 }
 
@@ -209,7 +208,7 @@ trustedAuthUrls.push(config.get('access:defaultAuthUrl'));
  * @param {string} url
  * @returns {boolean}
  */
-function isAuthDomainTrusted(url) {
+function isAuthDomainTrusted (url) {
   for (let i = 0; i < trustedAuthUrls.length; i++) {
     if (url.startsWith(trustedAuthUrls[i])) {
       return true;
@@ -222,8 +221,8 @@ function isAuthDomainTrusted(url) {
  * @param {unknown} serviceInfo
  * @returns {boolean}
  */
-function isServiceInfoValid(serviceInfo) {
-  return serviceInfo && serviceInfo.name ? true : false;
+function isServiceInfoValid (serviceInfo) {
+  return !!(serviceInfo && serviceInfo.name);
 }
 
 /**
@@ -251,10 +250,10 @@ accessLib.testKeyAndGetValue = function (key, success, failed) {
  * @param stringLength: the key length
  * @returns {string} : the generated key
  */
-function randGenerator(stringLength) {
-  var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-  var randomstring = '';
-  for (var i = 0; i < stringLength; i++) {
+function randGenerator (stringLength) {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+  let randomstring = '';
+  for (let i = 0; i < stringLength; i++) {
     randomstring += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return randomstring;

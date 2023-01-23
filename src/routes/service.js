@@ -34,9 +34,9 @@ module.exports = function (app) {
    * GET /apps: retrieve the list of applications linked to this service
    */
   app.get('/apps', function (req, res) {
-    var data = [];
+    const data = [];
     Object.keys(appsList).forEach(function (appid) {
-      var appData = { id: appid };
+      const appData = { id: appid };
       _.extend(appData, appsList[appid]);
       data.push(appData);
     });
@@ -48,14 +48,14 @@ module.exports = function (app) {
    * GET /apps/:appid: retrieve specific information about specified application
    */
   app.get('/apps/:appid', function (req, res, next) {
-    var appid = req.params.appid;
+    const appid = req.params.appid;
     if (!appid) {
       return next(
         messages.e(400, 'INVALID_DATA', { message: 'missing appid' })
       );
     }
 
-    var appData = { id: appid };
+    const appData = { id: appid };
     _.extend(appData, appsList[appid]);
     if (!appData) {
       return next(

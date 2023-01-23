@@ -1,7 +1,7 @@
 const { _rotate, _onDnsRequest } = require('../../../src/dns/ndns-wrapper.js');
-/* global describe, it */
 const chai = require('chai');
 const assert = chai.assert;
+
 describe('_rotate', () => {
   it('should rotate the array right by one position', () => {
     const ary = [1, 2, 3, 4, 5, 6];

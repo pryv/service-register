@@ -1,4 +1,3 @@
-/* global describe, before, beforeEach, after, it */
 const request = require('superagent');
 
 const config = require('../../src/config');
@@ -27,28 +26,28 @@ describe('GET /admin/servers/:serverName/users', function () {
   });
 
   it('invalid', function (done) {
-    var test = {
+    const test = {
       serverName: 'a',
       status: 400,
       desc: 'invalid',
       JSchema: schema.error,
       JValues: { id: 'INVALID_DATA' }
     };
-    var path = `/admin/servers/${test.serverName}/users?auth=${authAdminKey}`;
+    const path = `/admin/servers/${test.serverName}/users?auth=${authAdminKey}`;
 
     request.get(server.url + path).end((err, res) => {
       dataValidation.jsonResponse(err, res, test, done);
     });
   });
   it('empty', function (done) {
-    var test = {
+    const test = {
       serverName: 'ab.cd.ef',
       status: 200,
       desc: 'empty',
       JSchema: schema.userList,
       JValues: { users: [] }
     };
-    var path =
+    const path =
       '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function (err, res) {
@@ -56,14 +55,14 @@ describe('GET /admin/servers/:serverName/users', function () {
     });
   });
   it('good', function (done) {
-    var test = {
+    const test = {
       serverName: domain,
       status: 200,
       desc: 'good',
       JSchema: schema.userList,
       JValues: { users: ['wactiv'] }
     };
-    var path =
+    const path =
       '/admin/servers/' + test.serverName + '/users' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function (err, res) {
@@ -85,7 +84,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
   });
 
   it('invalid src', function (done) {
-    var test = {
+    const test = {
       srcServerName: 'a',
       dstServerName: 'ab.cd.ef',
       status: 400,
@@ -93,7 +92,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       JSchema: schema.error,
       JValues: { id: 'INVALID_DATA' }
     };
-    var path =
+    const path =
       '/admin/servers/' +
       test.srcServerName +
       '/rename/' +
@@ -106,7 +105,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
     });
   });
   it('invalid dst', function (done) {
-    var test = {
+    const test = {
       srcServerName: 'ab.cd.ef',
       dstServerName: 'a',
       status: 400,
@@ -114,7 +113,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       JSchema: schema.error,
       JValues: { id: 'INVALID_DATA' }
     };
-    var path =
+    const path =
       '/admin/servers/' +
       test.srcServerName +
       '/rename/' +
@@ -127,7 +126,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
     });
   });
   it('empty', function (done) {
-    var test = {
+    const test = {
       srcServerName: 'ab.cd.ef',
       dstServerName: 'ab.cd.ef',
       status: 200,
@@ -135,7 +134,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       JSchema: schema.count,
       JValues: { count: 0 }
     };
-    var path =
+    const path =
       '/admin/servers/' +
       test.srcServerName +
       '/rename/' +
@@ -148,7 +147,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
     });
   });
   it('one done', function (done) {
-    var test = {
+    const test = {
       srcServerName: domain,
       dstServerName: 'ab.cd.ef',
       status: 200,
@@ -156,7 +155,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       JSchema: schema.count,
       JValues: { count: 1 }
     };
-    var path =
+    const path =
       '/admin/servers/' +
       test.srcServerName +
       '/rename/' +
@@ -169,7 +168,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
     });
   });
   it('other done', function (done) {
-    var test = {
+    const test = {
       srcServerName: 'ab.cd.ef',
       dstServerName: domain,
       status: 200,
@@ -177,7 +176,7 @@ describe('GET /admin/servers/:srcServerName/rename/:dstServerName', function () 
       JSchema: schema.count,
       JValues: { count: 1 }
     };
-    var path =
+    const path =
       '/admin/servers/' +
       test.srcServerName +
       '/rename/' +
@@ -204,8 +203,8 @@ describe('GET /admin/servers', function () {
   });
 
   it('one done', function (done) {
-    var test = { status: 200, desc: '1 done', JSchema: schema.serverList };
-    var path = '/admin/servers' + '?auth=' + authAdminKey;
+    const test = { status: 200, desc: '1 done', JSchema: schema.serverList };
+    const path = '/admin/servers' + '?auth=' + authAdminKey;
 
     request.get(server.url + path).end(function (err, res) {
       dataValidation.jsonResponse(err, res, test, done);
@@ -228,7 +227,7 @@ describe('/admin/invitations', function () {
     it('should send a list of current tokens', function (done) {
       request
         .get(server.url + '/admin/invitations' + '?auth=' + authAdminKey)
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 200 });
 
           res.body.should.have.property('invitations');
@@ -248,7 +247,7 @@ describe('/admin/invitations', function () {
             authAdminKey +
             '&toHTML=true'
         )
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 200 });
           res.text.should.containEql('<th>Created At</th>');
           res.text.should.containEql('<th>by</th>');
@@ -271,7 +270,7 @@ describe('/admin/invitations', function () {
             authAdminKey +
             '&count=2&message=testx'
         )
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 200 });
 
           res.body.should.have.property('data');
@@ -298,7 +297,7 @@ describe('/admin/users', function () {
     it('should get a users list', function (done) {
       request
         .get(server.url + '/admin/users' + '?auth=' + authAdminKey)
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 200 });
           res.body.should.have.property('users');
           res.body.users.should.be.instanceOf(Array);
@@ -316,7 +315,7 @@ describe('/admin/users', function () {
         .get(
           server.url + '/admin/users' + '?auth=' + authAdminKey + '&toHTML=true'
         )
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 200 });
           res.text.should.containEql('<th>Registered At</th>');
           res.text.should.containEql('<th>Username</th>');
@@ -367,7 +366,7 @@ describe('/admin/users/:username', function () {
     it('should get a user', function (done) {
       request
         .get(server.url + '/admin/users/' + username + '?auth=' + authSystemKey)
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 200 });
           res.body.should.have.property('username');
           res.body.should.have.property('registeredTimestamp');
@@ -379,7 +378,7 @@ describe('/admin/users/:username', function () {
     it('should respond with 401 when invalid auth key provided', function (done) {
       request
         .get(server.url + '/admin/users/' + username + '?auth=xoxo')
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 401 });
           done();
         });
@@ -394,7 +393,7 @@ describe('/admin/users/:username', function () {
             '?auth=' +
             authSystemKey
         )
-        .end((err, res) => {
+        .end((err, res) => { /* eslint-disable-line n/handle-callback-err */
           dataValidation.check(res, { status: 404 });
           done();
         });

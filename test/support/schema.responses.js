@@ -1,4 +1,4 @@
-//success : changeEmail
+// success : changeEmail
 exports.success = {
   type: 'object',
   properties: {
@@ -9,7 +9,7 @@ exports.success = {
   }
 };
 
-//route : service/info
+// route : service/info
 exports.serviceInfo = {
   type: 'object',
   properties: {
@@ -46,7 +46,7 @@ exports.serviceInfo = {
   }
 };
 
-//route : check
+// route : check
 exports.checkExists = {
   type: 'object',
   properties: {
@@ -57,7 +57,7 @@ exports.checkExists = {
   }
 };
 
-//route : check
+// route : check
 exports.checkUID = {
   type: 'object',
   properties: {
@@ -68,7 +68,7 @@ exports.checkUID = {
   }
 };
 
-//route : admin-users
+// route : admin-users
 exports.userList = {
   type: 'object',
   properties: {
@@ -79,7 +79,7 @@ exports.userList = {
   }
 };
 
-//route : admin-users
+// route : admin-users
 exports.serverList = {
   type: 'object',
   properties: {
@@ -90,7 +90,7 @@ exports.serverList = {
   }
 };
 
-//route : admin-users
+// route : admin-users
 exports.count = {
   type: 'object',
   properties: {
@@ -101,7 +101,7 @@ exports.count = {
   }
 };
 
-//route : init
+// route : init
 exports.userCreated = {
   type: 'object',
   properties: {
@@ -120,7 +120,7 @@ exports.userCreated = {
   }
 };
 
-//confirm : server & server : server
+// confirm : server & server : server
 exports.server = {
   type: 'object',
   properties: {
@@ -135,7 +135,7 @@ exports.server = {
   }
 };
 
-//confirm : server (already confirmed)
+// confirm : server (already confirmed)
 exports.alreadyConfirmed = {
   type: 'object',
   properties: {
@@ -162,7 +162,7 @@ exports.alreadyConfirmed = {
   }
 };
 
-//apps
+// apps
 exports.appsList = {
   type: 'object',
   properties: {
@@ -181,7 +181,7 @@ exports.appsSingle = {
   }
 };
 
-//hostings
+// hostings
 exports.hostings = {
   type: 'object',
   properties: {
@@ -191,7 +191,7 @@ exports.hostings = {
   }
 };
 
-//errors
+// errors
 exports.error = {
   type: 'object',
   properties: {
@@ -209,7 +209,7 @@ exports.error = {
   }
 };
 
-//errors multiple
+// errors multiple
 exports.multipleErrors = {
   type: 'object',
   properties: {
@@ -273,6 +273,6 @@ exports.accessPOST = {
       type: 'string', // url?
       required: true
     },
-    serviceInfo: serviceInfo
+    serviceInfo
   }
 };

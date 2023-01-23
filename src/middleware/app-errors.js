@@ -4,17 +4,17 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-var logger = require('winston');
-var messages = require('../utils/messages');
+const logger = require('winston');
+const messages = require('../utils/messages');
 /**
  * Error middleware, may be used for user management
  * @param {express$Application} app
  * @returns {void}
  */
-function app_errors(app) {
+function appErrors (app) {
   app.use(function (error, req, res, next) {
     if (error instanceof messages.REGError) {
-      //logger.debug('app_errors : '+ JSON.stringify(error.data));
+      // logger.debug('app_errors : '+ JSON.stringify(error.data));
       return res.status(error.httpCode).json(error.data);
     }
     // do not log and handle malformed input JSON errors
@@ -52,4 +52,4 @@ function app_errors(app) {
     res.status(err.httpCode).json(err.data);
   });
 }
-module.exports = app_errors;
+module.exports = appErrors;

@@ -51,7 +51,7 @@ module.exports = function (app) {
         })
         .sort((a, b) => b.registeredTimestamp - a.registeredTimestamp);
 
-        if (req.query.toHTML) {
+      if (req.query.toHTML) {
         return res.send(toHtmlTables(headers, outputList));
       }
 
@@ -67,7 +67,7 @@ module.exports = function (app) {
         return next(messages.ei(error));
       }
       if (req.query.toHTML) {
-        var headers = {
+        const headers = {
           createdDate: 'Created At',
           createdBy: 'by',
           description: 'description',
@@ -89,7 +89,7 @@ module.exports = function (app) {
         });
         return res.send(toHtmlTables(headers, invitations));
       }
-      res.json({ invitations: invitations });
+      res.json({ invitations });
     });
   });
 
@@ -119,8 +119,8 @@ module.exports = function (app) {
    * GET /admin/invitations/post: generate an invitation
    */
   app.get('/admin/invitations/post', requireRoles('admin'), function (req, res, next) {
-    var count = parseInt(req.query.count);
-    var message = req.query.message || '';
+    const count = parseInt(req.query.count);
+    const message = req.query.message || '';
     invitations.generate(
       count,
       req.context.access.username,
@@ -168,7 +168,7 @@ module.exports = function (app) {
    * GET /admin/server/:srcServerName/rename/:dstServerName: rename a server
    */
   app.get('/admin/servers/:srcServerName/rename/:dstServerName', requireRoles('system'), function (req, res, next) {
-    var srcServerName = checkAndConstraints.hostname(
+    const srcServerName = checkAndConstraints.hostname(
       req.params.srcServerName
     );
     if (!srcServerName) {
@@ -176,7 +176,7 @@ module.exports = function (app) {
         messages.e(400, 'INVALID_DATA', { message: 'srcServerName invalid' })
       );
     }
-    var dstServerName = checkAndConstraints.hostname(
+    const dstServerName = checkAndConstraints.hostname(
       req.params.dstServerName
     );
     if (!dstServerName) {
@@ -188,7 +188,7 @@ module.exports = function (app) {
       if (error) {
         return next(messages.ei(error));
       }
-      res.json({ count: count });
+      res.json({ count });
     });
   });
   // END - CLEAN FOR OPENSOURCE
@@ -200,8 +200,8 @@ module.exports = function (app) {
  * }} headers
  * @returns {string}
  */
-function toHtmlTables(headers, infoArray) {
-  var result = '<table border="1">\n<tr>';
+function toHtmlTables (headers, infoArray) {
+  let result = '<table border="1">\n<tr>';
   Object.keys(headers).forEach(function (key) {
     result += '<th>' + headers[key] + '</th>';
   });
@@ -210,7 +210,7 @@ function toHtmlTables(headers, infoArray) {
   infoArray.forEach(function (line) {
     result += '<tr>';
     Object.keys(headers).forEach(function (key) {
-      var value = '';
+      let value = '';
       if (line[key]) {
         if (typeof line[key] === 'string') {
           value = line[key];

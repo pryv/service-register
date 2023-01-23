@@ -24,13 +24,13 @@ module.exports = function (app) {
       return next(new Error('Body is malformed or not provided (' + JSON.stringify(dnsUpdate) + ')'));
     }
 
-    let dnsCurrent = config.get('dns') || {};
+    const dnsCurrent = config.get('dns') || {};
     if (dnsCurrent.staticDataInDomain == null) {
       dnsCurrent.staticDataInDomain = {};
     }
     dnsCurrent.staticDataInDomain = _.merge(dnsCurrent.staticDataInDomain, dnsUpdate);
 
-    let result = [];
+    const result = [];
     const dnsKeys = Object.keys(dnsUpdate);
 
     // Return only the provided parameters, updated
@@ -49,7 +49,7 @@ module.exports = function (app) {
  * @param {any} dns
  * @returns {boolean}
  */
-function validateDns(dns) {
+function validateDns (dns) {
   const dnsKeys = Object.keys(dns);
   if (dns == null || dnsKeys.length === 0) {
     return false;

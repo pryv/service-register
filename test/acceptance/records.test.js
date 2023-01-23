@@ -1,4 +1,3 @@
-/* global describe, before, after, it */
 const request = require('superagent');
 const lodash = require('lodash');
 const exec = require('child_process').exec;
@@ -37,6 +36,7 @@ describe('POST /records', function () {
       .send(payload);
     await bluebird.fromCallback((cb) => {
       dig('TXT', key + '.' + domain, function (error, result) {
+        assert.notExists(error);
         result = result.replace(/^"|"$/g, ''); // Strip boundary quote
         assert.strictEqual(result, val);
         cb();
@@ -47,11 +47,11 @@ describe('POST /records', function () {
 
 /** Helper for dns requests using dig.
  *
- * @param dns_class - A, NS, CNAME (optional)
+ * @param dnsClass - A, NS, CNAME (optional)
  * @param name - the domain to search
  * @param result - function (error, result)
  */
-function dig(dns_class, name, result, useIPv6) {
+function dig (dnsClass, name, result, useIPv6) {
   const type = useIPv6 ? ' -6 ' : ' -4 ';
   const host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip');
   const cmd =
@@ -62,11 +62,11 @@ function dig(dns_class, name, result, useIPv6) {
     ' -p ' +
     config.get('dns:port') +
     ' ' +
-    dns_class +
+    dnsClass +
     ' ' +
     name;
 
-  exec(cmd, function callback(error, stdout, stderr) {
+  exec(cmd, function callback (error, stdout, stderr) {
     stdout = lodash.trim(stdout, ' \n');
     if (stderr && stderr !== '') {
       throw new Error(stderr + ' | running ' + cmd);
@@ -74,7 +74,7 @@ function dig(dns_class, name, result, useIPv6) {
 
     if (!stdout || stdout === '') {
       throw new Error(
-        'no result for ' + dns_class + ' ' + name + ' (' + stderr + ')'
+        'no result for ' + dnsClass + ' ' + name + ' (' + stderr + ')'
       );
     }
     result(error, stdout);

@@ -7,8 +7,8 @@
 /**
  * Provides tools to construct messages for clients.
  */
-const logger = require('winston'),
-  mstrings = require('../public/messages-en');
+const logger = require('winston');
+const mstrings = require('../public/messages-en');
 // Add ids to all messages
 Object.keys(mstrings).forEach(function (key) {
   mstrings[key].id = key;
@@ -17,8 +17,8 @@ Object.keys(mstrings).forEach(function (key) {
  * Add also the id into the message
  * @returns {{ id: any; message: any; detail: any; errors: any[]; }}
  */
-function cloneMessage(id) {
-  var t = mstrings[id];
+function cloneMessage (id) {
+  const t = mstrings[id];
   if (t == null) {
     throw new Error('Missing message code :' + id);
   }
@@ -35,12 +35,12 @@ function cloneMessage(id) {
  * @param {any | null} addons  : optional key/value json object to be dumped with the message
  * @return {{ id: any; message: any; detail: any; errors: any[]; }} : the generated message
  */
-function say(id, addons) {
-  var content = cloneMessage(id);
+function say (id, addons) {
+  const content = cloneMessage(id);
   // merge addons
   if (addons != null) {
     for (const i in addons) {
-      if (addons.hasOwnProperty(i)) {
+      if (Object.prototype.hasOwnProperty.call(addons, i)) {
         content[i] = addons[i];
       }
     }
@@ -93,9 +93,9 @@ exports.e = function (httpCode, id, addons) {
  * @returns: the error to be thrown
  */
 exports.ex = function (httpCode, id, suberrors) {
-  var data = cloneMessage(id);
+  const data = cloneMessage(id);
   data.errors = [];
-  for (var i = 0; i < suberrors.length; i++) {
+  for (let i = 0; i < suberrors.length; i++) {
     data.errors[i] = say(suberrors[i]);
   }
   return new REGError(httpCode, data);
@@ -108,7 +108,7 @@ class REGError extends Error {
   httpCode = undefined;
   /** */
   data = undefined;
-  constructor(httpCode, data) {
+  constructor (httpCode, data) {
     super();
     this.httpCode = httpCode;
     this.data = data;
