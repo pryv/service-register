@@ -23,37 +23,36 @@ const ErrorIds = require('../utils/errors-ids');
 const helpers = require('../utils/helpers');
 
 const info = require('../business/service-info');
-const Pryv = require('pryv');
 
 type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed;
 type Callback = GenericCallback<mixed>;
 
 export type UserInformation = {
-  id?: string, 
+  id?: string,
 
   username: string,
   email: string,
-  language: string, 
+  language: string,
 
-  password: string, 
-  passwordHash: string, 
+  password: string,
+  passwordHash: string,
 
-  invitationToken: string, 
+  invitationToken: string,
   registeredTimestamp?: number,
 
-  server?: string, 
+  server?: string,
 }
 
 import type ServerConfig from '../config';
 
 type CreateResult = {
-  username: string, 
-  apiEndpoint: string, 
+  username: string,
+  apiEndpoint: string,
 };
 
 /**
  * Create (register) a new user
- * 
+ *
  * @param host the hosting for this user
  * @param user the user data, a json object containing: username, password hash, language and email
  * @param callback function(error,result), result being a json object containing new user data
@@ -63,10 +62,10 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
 
   // We store usernames and emails as lower case, allowing comparison with any
   // other lowercase string.
-  user.username = user.username.toLowerCase(); 
-  user.email = user.email.toLowerCase(); 
+  user.username = user.username.toLowerCase();
+  user.email = user.email.toLowerCase();
 
-  // Construct the request for core, including the password. 
+  // Construct the request for core, including the password.
   const request = {
     username: user.username,
     passwordHash: user.passwordHash,
@@ -75,14 +74,14 @@ exports.create = function create(host: ServerConfig, inUser: UserInformation, ca
   };
 
   // Remove to forget the password
-  delete user.passwordHash; 
+  delete user.passwordHash;
   delete user.password;
-  
+
   dataservers.postToAdmin(host, '/register/create-user', 201, request,
     function (error, result) {
       if (error != null) {
-        logger.error('dataservers.postToAdmin: ' + error.toString() + 
-          '\n host' + JSON.stringify(host) + 
+        logger.error('dataservers.postToAdmin: ' + error.toString() +
+          '\n host' + JSON.stringify(host) +
           '\n info:' + JSON.stringify(user));
 
         if (typeof error === 'string')
@@ -122,7 +121,7 @@ function createUserOnServiceRegister(
       return callback(null, {
         username: user.username,
         server: user.username + domain,
-        apiEndpoint: Pryv.Service.buildAPIEndpoint(info, user.username, null)
+        apiEndpoint: info.getAPIEndpoint(user.username, null)
       });
     });
   });
@@ -188,7 +187,7 @@ exports.createUserReservation = async (
 /**
  *
  * Validate all fields for the user
- * @param string username 
+ * @param string username
  * @param object fields {fieldname: fieldvalue}
  * @param array<string> uniqueFieldsNames [fieldname1, fieldname2]
  */
@@ -252,8 +251,8 @@ type DeleteFieldsSet = {
 /**
  *
  * Update all fields for the user
- * @param string username 
- * @param object fields 
+ * @param string username
+ * @param object fields
  * Example :
  * {
     email: [
@@ -297,10 +296,10 @@ type ServerUsageStats = {
   [name: string]: number
 };
 
-/// Get a list of servers currently in use on this registry. 
-/// 
+/// Get a list of servers currently in use on this registry.
+///
 /// @param callback: function(error, result) with result of the form: {serverName : usage count}
-/// 
+///
 exports.getServers = function (callback: GenericCallback<ServerUsageStats>) {
   const result: ServerUsageStats = {};
   db.doOnKeysValuesMatching('*:server', '*',
@@ -342,7 +341,7 @@ exports.renameServer = function (srcServerName: string, dstServerName: string, c
 
   const checkDone = function () {
     if ((! waitForDone) && actionThrown === receivedCount) {
-      if (errors.length > 0) 
+      if (errors.length > 0)
         return callback(new Error(errors.join(', ')));
 
       return callback(null, receivedCount);
@@ -421,11 +420,11 @@ function getUserInfos(username: string, callback: Callback) {
         } else if (user == null) {
           errors.push({user: username + ':users is empty'});
         } else {
-          // BUG We have no guarantee here about the structure of `user`. It 
-          //  could look like nothing... 
+          // BUG We have no guarantee here about the structure of `user`. It
+          //  could look like nothing...
 
           // FLOW See bug above.
-          result = user; 
+          result = user;
         }
         stepDone();
       });

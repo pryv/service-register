@@ -13,7 +13,6 @@ const invitationToken = require('../storage/invitations');
 
 
 const info = require('../business/service-info');
-const Pryv = require('pryv');
 
 /**
  * Routes handling applications access
@@ -105,7 +104,7 @@ module.exports = function (app: express$Application) {
 
 
           if (!apiEndpoint) {
-            apiEndpoint = Pryv.Service.buildAPIEndpoint(info, username, body.token)
+            apiEndpoint = info.getAPIEndpoint(username, body.token);
           }
 
           accessState = {

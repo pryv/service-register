@@ -5,7 +5,6 @@
  * Proprietary and confidential
  */
 const config = require('../config');
-const url = require('url');
 
 const STUB_VALUE_FOR_OPEN_SOURCE = '1.6.0';
 
@@ -26,3 +25,33 @@ if (reportingSettings == null) {
 });
 
 module.exports = info;
+
+const regexSchemaAndPath = /(.+):\/\/(.+)/gm;
+
+/**
+ * Copied over from the JS lib's `Service.buildAPIEndpoint()`
+ * TODO: refactor code shared across client & server components into internal lib
+ * @param {string} username
+ * @param {string} token
+ * @returns {string}
+ */
+module.exports.getAPIEndpoint = function (username, token) {
+  const tokenAndAPI = {
+    endpoint: info.api.replace('{username}', username),
+    token
+  };
+  if (!tokenAndAPI.token) {
+    let res = tokenAndAPI.endpoint + '';
+    if (!tokenAndAPI.endpoint.endsWith('/')) {
+      res += '/';
+    }
+    return res;
+  }
+  regexSchemaAndPath.lastIndex = 0;
+  const res = regexSchemaAndPath.exec(tokenAndAPI.endpoint);
+  // add a trailing '/' to end point if missing
+  if (!res[2].endsWith('/')) {
+    res[2] += '/';
+  }
+  return res[1] + '://' + tokenAndAPI.token + '@' + res[2];
+};
