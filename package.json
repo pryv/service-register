@@ -50,11 +50,11 @@
     "flow-bin": "^0.84",
     "flow-typed": "^2.1.5",
     "jsdoc-babel": "^0.3.0",
-    "mocha": "^3.2.0",
+    "mocha": "^10.2.0",
     "nock": "^11.7.2",
     "pre-commit": "^1.2.2",
     "rec-la": "^0.1.13",
-    "should": "3.3.1",
+    "should": "^13.2.3",
     "superagent": "^3.5.0",
     "supertest": "^3.3.0"
   },

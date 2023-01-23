@@ -350,7 +350,7 @@ describe('POST /access', function () {
       assert.isNotNull(err.response.body.detail);
       err.status.should.eql(400);
       err.response.body.id.should.eql('UNTRUSTED_AUTH_URL');
-      err.response.body.detail.should.include(test.data.authUrl);
+      err.response.body.detail.should.containEql(test.data.authUrl);
 
       done();
     });
@@ -375,7 +375,7 @@ describe('POST /access', function () {
       assert.isNotNull(err.response.body.detail);
       err.status.should.eql(400);
       err.response.body.id.should.eql('INVALID_AUTH_URL');
-      err.response.body.detail.should.include(test.data.authUrl);
+      err.response.body.detail.should.containEql(test.data.authUrl);
 
       done();
     });
