@@ -32,7 +32,7 @@ module.exports = function getRequireRolesFN(/* role1, role2, etc. */) {
 
     var tempA = auth.split('|');
     var access = req.context.access = {
-      username: (tempA.length > 0) ? res[0] : 'system',
+      username: (tempA.length > 0) ? tempA[0] : 'system',
       key: auth,
       roles: authorizedKeys[auth].roles
     };
