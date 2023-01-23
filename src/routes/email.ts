@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 // check if an EMAIL exists
 const checkAndConstraints = require('../utils/check-and-constraints');
 const db = require('../storage/database');

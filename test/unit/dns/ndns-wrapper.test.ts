@@ -1,5 +1,3 @@
-// @flow
-
 const { _rotate, _onDnsRequest } = require('../../../src/dns/ndns-wrapper.js');
 
 /* global describe, it */

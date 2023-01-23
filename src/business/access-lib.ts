@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const db = require('../storage/database');
 const messages = require('../utils/messages');
 const config = require('../config');
@@ -29,8 +27,8 @@ import type { AccessState } from '../storage/database';
  */
 accessLib.setAccessState = function (
   key: string, accessState: AccessState,
-  successHandler: (AccessState) => mixed,
-  errorCallback: (any) => mixed,
+  successHandler: (a: AccessState) => unknown,
+  errorCallback: (a: any) => unknown,
 ) {
   db.setAccessState(key, accessState, function (error) {
     if (error) {
@@ -41,20 +39,20 @@ accessLib.setAccessState = function (
 };
 
 type RequestAccessParameters = {
-  requestingAppId?: mixed,
-  requestedPermissions?: mixed,
-  languageCode?: mixed,
-  oauthState?: mixed,
-  localDevel?: mixed,
-  reclaDevel?: mixed,
-  returnURL?: mixed,
-  clientData?: mixed,
-  authUrl?: string,
-  serviceInfo?: mixed,
-  deviceName?: string,
-  expireAfter?: number,
-  referer?: string,
-}
+  requestingAppId?: unknown
+  requestedPermissions?: unknown
+  languageCode?: unknown
+  oauthState?: unknown
+  localDevel?: unknown
+  reclaDevel?: unknown
+  returnURL?: unknown
+  clientData?: unknown
+  authUrl?: string
+  serviceInfo?: unknown
+  deviceName?: string
+  expireAfter?: number
+  referer?: string
+};
 
 
 /**
@@ -67,8 +65,8 @@ type RequestAccessParameters = {
  */
 accessLib.requestAccess = function (
   parameters: RequestAccessParameters,
-  successHandler: (any) => mixed,
-  errorHandler: (any) => mixed,
+  successHandler: (a: any) => unknown,
+  errorHandler: (a: any) => unknown,
 ) {
   // Parameters
   const requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
@@ -219,7 +217,7 @@ function isAuthDomainTrusted(url: string) {
   return false;
 }
 
-function isServiceInfoValid(serviceInfo: mixed): boolean {
+function isServiceInfoValid(serviceInfo: unknown): boolean {
   return serviceInfo && serviceInfo.name ? true : false;
 }
 
@@ -227,8 +225,8 @@ function isServiceInfoValid(serviceInfo: mixed): boolean {
 ///
 accessLib.testKeyAndGetValue = function (
   key: string,
-  success: (res: AccessState) => mixed,
-  failed: (err: Error) => mixed,
+  success: (res: AccessState) => unknown,
+  failed: (err: Error) => unknown,
 ) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));

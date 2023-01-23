@@ -4,14 +4,12 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 // Starts the DNS server. 
 
 const config = require('./config');
 const dns = require('./dns/ndns-wrapper');
 
-const { serverForName, logger } = require('./dns/server_for_name.js');
+const { serverForName, logger } = require("./dns/server_for_name");
 
 var ready = require('readyness');
 ready.setLogger(logger.info);

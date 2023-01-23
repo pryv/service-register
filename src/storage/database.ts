@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const bluebird = require('bluebird');
 const async = require('async');
 const semver = require('semver');
@@ -16,26 +14,26 @@ const redis = require('redis').createClient(
   config.get('redis:port'),
   config.get('redis:host'), {});
 
-type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed; 
-type Callback = GenericCallback<mixed>;
+type GenericCallback<T> = (err?: Error | null, res?: T | null) => unknown;
+type Callback = GenericCallback<unknown>;
 
 import type { UserInformation } from './users';
 
 export type AccessState = {
-  status: 'NEED_SIGNIN' | 'REFUSED' | 'ERROR' | 'ACCEPTED',
+  status: "NEED_SIGNIN" | "REFUSED" | "ERROR" | "ACCEPTED"
   // HTTP Status Code to send when polling.
-  code: number, 
+  code: number
   // Poll Key
-  key?: string,
-  requestingAppId?: string,
-  requestedPermissions?: PermissionSet,
-  url?: string,
-  poll?: string,
-  returnURL?: ?string,
-  oauthState?: OAuthState,
-  poll_rate_ms?: number,
-}
-type OAuthState = string | null; 
+  key?: string
+  requestingAppId?: string
+  requestedPermissions?: PermissionSet
+  url?: string
+  poll?: string
+  returnURL?: string | null
+  oauthState?: OAuthState
+  poll_rate_ms?: number
+};
+type OAuthState = string | null;
 import type { PermissionSet } from '../utils/check-and-constraints';
 
 // Redis error management
@@ -170,7 +168,7 @@ exports.getSet = getSet;
 exports.getMatchingSets = function (
   keyMask: string, 
   done: Callback, 
-  cleanKey: ?((key: string, data: mixed) => mixed),
+  cleanKey: ((key: string, data: unknown) => unknown) | undefined | null,
 ) {
   redis.keys(keyMask, function (error, keys) {
     if (error) {
@@ -198,7 +196,9 @@ exports.getMatchingSets = function (
  * Simply map redis.hmset
  */
 exports.setSet = function (
-  key: string, keyMap: {[string]: string}, 
+  key: string, keyMap: {
+  [x: string]: string
+}, 
   callback: Callback,
 ) {
   redis.hmset(key, keyMap, callback);
@@ -253,7 +253,7 @@ function emailExists(email: string, callback: GenericCallback<boolean>) {
     callback(error, result === 1);
   });
 }
-exports.emailExists = emailExists; 
+exports.emailExists = emailExists;
 
 /**
  * Check if an user id exists in the database
@@ -303,7 +303,7 @@ exports.setServer = function (uid: string, serverName: string, callback: Callbac
   });
 };
 
-exports.getServerByEmail = async function (email: string): Promise<{}> {
+exports.getServerByEmail = async function(email: string): Promise<{}> {
   try {
     const username = await bluebird.fromCallback(cb => getUIDFromMail(email, cb));
     const server = await bluebird.fromCallback(cb => getServer(username, cb));
@@ -326,7 +326,7 @@ exports.getServerByEmail = async function (email: string): Promise<{}> {
  */
 function doOnKeysMatching(
   keyMask: string, 
-  action: (string) => mixed, 
+  action: (a: string) => unknown, 
   done: GenericCallback<number>
 ) {
 
@@ -357,8 +357,8 @@ exports.doOnKeysMatching = doOnKeysMatching;
  */
 function doOnKeysValuesMatching(
   keyMask: string, valueMask: string, 
-  action: (key: string, value: string) => mixed, 
-  done: ?GenericCallback<number>,
+  action: (key: string, value: string) => unknown, 
+  done?: GenericCallback<number> | null,
 ) {
   let receivedCount = 0;
   let waitFor = -1;
@@ -497,7 +497,7 @@ async function getUserData(username): object {
  * Get all inactive fields for the username
  * @param string username 
  */
-async function getAllInactiveData (username): object {
+async function getAllInactiveData(username): object {
   const keys = await bluebird.fromCallback(cb =>
     redis.keys(`${username}:${INACTIVE_FOLDER_NAME}:*`, cb));
   
@@ -566,7 +566,7 @@ exports.updateUserData = async (
  * 
  * @param {*} username 
  */
-async function deleteUser (username: string): Promise<mixed> {
+async function deleteUser(username: string): Promise<unknown> {
   const saneUsername = username.toLowerCase(); 
 
   // Get user data
@@ -645,7 +645,7 @@ async function verifyFieldForDeletion (
     logger.debug(`users#verifyFieldForDeletion: e: ${error}`, error);
     throw error;
   }
-};
+}
 exports.verifyFieldForDeletion = verifyFieldForDeletion;
 /**
  * Validate if field (that has to be unique) has a unique value
@@ -735,7 +735,7 @@ function updateField(
 
   
   return multi;
-};
+}
 exports.updateField = updateField;
 
 /**
@@ -753,7 +753,7 @@ function deleteUniqueField(
   // Remove unique value
   multi.del(`${fieldValue}:${fieldName}`);
   return multi;
-};
+}
 
 /**
  * Set unique field using given transaction
@@ -770,7 +770,7 @@ function setUniqueField (
 ) {
   multi.set(`${fieldValue}:${fieldName}`, username);
   return multi;
-};
+}
 
 function updateInactiveUniqueFieldsList (
   fieldName: string,
@@ -804,7 +804,7 @@ function updateInactiveUniqueFieldsList (
     addToInactiveList(fieldValue);
   }
   return multi;
-};
+}
 
 exports.isFieldUnique = async (
   fieldName: string,
@@ -976,7 +976,8 @@ exports.reservedWordExists = function (word: string, callback: GenericCallback<b
 /// Given a value (`a`) and a namespace kind (`b`): Assembles and returns the 
 /// redis namespace for accessing that value. 
 /// 
-type NamespaceKind = 'users' | 'server' | 'email';
+type NamespaceKind = "users" | "server" | "email";
+
 function ns(a: string, b: NamespaceKind): string {
   return `${a}:${b}`;
 }

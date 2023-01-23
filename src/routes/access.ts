@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const messages = require('../utils/messages');
 const checkAndConstraints = require('../utils/check-and-constraints');
 const accessCommon = require('../business/access-lib');
@@ -30,7 +28,9 @@ module.exports = function (app: express$Application) {
    */
   app.post('/access/invitationtoken/check', (req: express$Request, res) => {
     // FLOW We're assuming that body will be JSON encoded.
-    const body: { [key: string]: string } = req.body;
+    const body: {
+      [key: string]: string
+    } = req.body;
 
     invitationToken.checkIfValid(body.invitationtoken, function (isValid/*, error*/) {
       res.header('Content-Type', 'text/plain');
@@ -52,7 +52,9 @@ module.exports = function (app: express$Application) {
    */
   app.post('/access/:key', (req: express$Request, res, next) => {
     // FLOW We're assuming that body will be JSON encoded.
-    const body: { [key: string]: ?(string | number) } = req.body;
+    const body: {
+      [key: string]: string | number | undefined | null
+    } = req.body;
 
     const key = req.params.key;
     accessCommon.testKeyAndGetValue(key, function (previousValue) {
@@ -123,7 +125,9 @@ module.exports = function (app: express$Application) {
 
 function _requestAccess(req: express$Request, res, next) {
   // FLOW We're assuming that body will be JSON encoded.
-  const body: { [key: string]: ?string } = req.body;
+  const body: {
+    [key: string]: string | undefined | null
+  } = req.body;
 
   accessCommon.requestAccess(body, function (accessState) {
     accessState.serviceInfo = accessState.serviceInfo || info;

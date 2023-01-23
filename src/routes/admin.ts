@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const lodash = require('lodash');
 
 const checkAndConstraints = require('../utils/check-and-constraints');
@@ -42,7 +40,7 @@ module.exports = function (app: any) {
       // Convert timestamp tor readable data
       const outputList = list
         .map((user) => {
-          const output: Object = lodash.clone(user);
+          const output: any = lodash.clone(user);
           if (output.registeredTimestamp == null) {
             output.registeredTimestamp = 0;
             output.registeredDate = '';
@@ -191,7 +189,9 @@ module.exports = function (app: any) {
   // END - CLEAN FOR OPENSOURCE
 };
 
-function toHtmlTables(headers: {[string]: string}, infoArray) {
+function toHtmlTables(headers: {
+  [x: string]: string
+}, infoArray) {
   var result = '<table border="1">\n<tr>';
   Object.keys(headers).forEach(function (key) {
     result += '<th>' + headers[key] + '</th>';

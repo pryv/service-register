@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const util = require('util');
 
 const logger = require('winston');
@@ -75,9 +73,10 @@ logger.setLevels(logger.config.syslog.levels);
 // http://marcoceresa.com/net-dns/classes/Net/DNS/Header.html
 
 function serverForName(
-  reqName: string, 
-  callback: (req: DnsRequest, res: DnsResponse, rec: DnsRecord) => void, 
-  req: DnsRequest, res: DnsResponse
+  reqName: string,
+  callback: (req: DnsRequest, res: DnsResponse, rec: DnsRecord) => void,
+  req: DnsRequest,
+  res: DnsResponse
 ): void {
   //static entries; matches a fully qualified names
   const staticDataInDomain = config.get('dns:staticDataInDomain');

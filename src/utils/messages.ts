@@ -4,14 +4,11 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 /**
  * Provides tools to construct messages for clients.
  */
 
-const logger = require('winston'),
-      mstrings = require('../public/messages-en');
+const logger = require('winston'), mstrings = require('../public/messages-en');
 
 // Add ids to all messages
 Object.keys(mstrings).forEach(function (key) {
@@ -40,7 +37,7 @@ function cloneMessage(id) {
  * @param addons : optional key/value json object to be dumped with the message
  * @return {*}: the generated message
  */
-function say(id: string, addons: ?Object) {
+function say(id: string, addons?: any | null) {
   var content = cloneMessage(id);
   // merge addons
   if (addons != null) {
@@ -71,7 +68,7 @@ function error_data(id, extra) {
  * @param error: object representing the error
  * @returns: the error to be thrown
  */
-exports.ei = function (error: mixed) {
+exports.ei = function (error: unknown) {
   if (! error) {
     error = new Error();
   }
@@ -89,7 +86,7 @@ exports.ei = function (error: mixed) {
  * @param addons: optional key/value json object to be dumped with the message
  * @returns: the error to be thrown
  */
-exports.e = function (httpCode: number, id: string, addons: ?Object): Error {
+exports.e = function(httpCode: number, id: string, addons: any): Error {
   return new REGError(httpCode, say(id, addons));
 };
 
@@ -112,10 +109,10 @@ exports.ex = function (httpCode: number, id: string, suberrors: Array<string>) {
 /// Error class for all register errors. 
 /// 
 class REGError extends Error {
-  httpCode: *; 
-  data: *; 
+  httpCode: any; 
+  data: any; 
 
-  constructor(httpCode: number, data: Object) {
+  constructor(httpCode: number, data: any) {
     super(); 
     this.httpCode = httpCode;
     this.data = data;

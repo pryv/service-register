@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 //Dependencies
 
 const nconf = require('nconf');
@@ -117,43 +115,42 @@ translateConfiguration();
 validateConfiguration();
 
 type LocalizedNameList = {
-  [language: string]: string, 
+  [language: string]: string
 };
 
 type Hosting = {
-  url: string, 
-  name: string, 
-  description: string, 
+  url: string
+  name: string
+  description: string
   localizedDescription: {
-    [language: string]: string, 
-  }, 
-  
-  available: ?boolean, 
+    [language: string]: string
+  }
+  available: boolean | undefined | null
 };
 
 type HostingZone = {
-  name: string, 
-  localizedName: LocalizedNameList,
+  name: string
+  localizedName: LocalizedNameList
   hostings: {
-    [hostingName: string]: Hosting, 
-  }, 
+    [hostingName: string]: Hosting
+  }
 };
 
 type HostingZoneList = {
-  [key: string]: HostingZone, 
+  [key: string]: HostingZone
 };
 
 type HostingRegion = {
-  name: string, 
-  localizedName: LocalizedNameList,
-  zones: HostingZoneList, 
+  name: string
+  localizedName: LocalizedNameList
+  zones: HostingZoneList
 };
 
 export type HostingDefinition = {
   regions: {
-    [regionName: string]: HostingRegion,
-  }, 
-}; 
+    [regionName: string]: HostingRegion
+  }
+};
 
 // type ServerConfiguration = {
 //   [hostingName: string]: ServerList, 
@@ -164,18 +161,16 @@ export type ServerList = Array<ServerConfig>;
 export type ServerConfig = OldServerDefinition | ServerDefinition;
 
 export type OldServerDefinition = {
-  base_name: string, 
-  port: number, 
-  authorization: string, 
-  
-  name: string,
+  base_name: string
+  port: number
+  authorization: string
+  name: string
 };
 
 export type ServerDefinition = {
-  base_url: string, 
-  authorization: string, 
-
-  name: string,
+  base_url: string
+  authorization: string
+  name: string
 };
 
 function translateConfiguration() {

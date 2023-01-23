@@ -1,5 +1,3 @@
-// @flow
-
 const { serverForName } = require('../../../src/dns/server_for_name.js');
 const config = require('../../../src/config');
 

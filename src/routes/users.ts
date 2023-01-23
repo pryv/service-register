@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const bluebird = require('bluebird');
 const async = require('async');
 
@@ -34,9 +32,11 @@ module.exports = function (app: express$Application) {
   // POST /user: create a new user
   app.post('/user', (req: express$Request, res, next) => {
     // FLOW Assume body has this type.
-    const body: {[string]: ?(string | number | boolean)} = req.body;
+    const body: {
+      [x: string]: string | number | boolean | undefined | null
+    } = req.body;
 
-    const hosting: ?string = checkAndConstraints.hosting(body.hosting);
+    const hosting: string | undefined | null = checkAndConstraints.hosting(body.hosting);
     if (hosting == null) {
       return next(messages.e(400, 'INVALID_HOSTING'));
     }
@@ -231,7 +231,9 @@ module.exports = function (app: express$Application) {
    */
   app.post('/username/check', (req: express$Request, res, next) => {
     // FLOW Assume body has this type.
-    const body: { [string]: ?(string | number | boolean) } = req.body;
+    const body: {
+      [x: string]: string | number | boolean | undefined | null
+    } = req.body;
 
     req.params.username = body.username;
     _check(req, res, next, true);
@@ -248,7 +250,9 @@ module.exports = function (app: express$Application) {
   app.post('/users/validate',
     requireRoles('system'),
     async (req: express$Request, res, next) => {
-      const body: {[string]: ?(string | number | boolean)} = req.body;
+      const body: {
+        [x: string]: string | number | boolean | undefined | null
+      } = req.body;
       let error = null;
 
       try {
@@ -354,7 +358,7 @@ function _check(req: express$Request, res: express$Response, next: express$NextF
 /// would not work, it throws this reason in the form of an Error (rejects the
 /// promise).
 ///
-async function checkDeletion(username: string): Promise<mixed> {
+async function checkDeletion(username: string): Promise<unknown> {
   const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
   if (! exists)
     throw produceError('NO_SUCH_USER', `No such user ('${username}')`);
@@ -362,14 +366,16 @@ async function checkDeletion(username: string): Promise<mixed> {
 
 /// Deletes the user identified by `username` from the redis database.
 ///
-async function performDeletion(username: string): Promise<mixed> {
+async function performDeletion(username: string): Promise<unknown> {
   return db.deleteUser(username);
 }
 
-type ErrorId = 'NO_SUCH_USER' | 'NO_SUCH_FUNCTION';
+type ErrorId = "NO_SUCH_USER" | "NO_SUCH_FUNCTION";
 
 function produceError(errorId: ErrorId, msg: string): Error {
-  const idToStatusCodeMap: {[key: ErrorId]: number} = {
+  const idToStatusCodeMap: {
+    [key in ErrorId]: number;
+  } = {
     NO_SUCH_USER: 404,
     NO_SUCH_FUNCTION: 421,
   };

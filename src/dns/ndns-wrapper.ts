@@ -4,12 +4,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
-const ndns = require('./ndns'),
-      logger = require('winston'),
-      config = require('../config'),
-      defaultTTL = config.get('dns:defaultTTL');
+const ndns = require('./ndns'), logger = require('winston'), config = require('../config'), defaultTTL = config.get('dns:defaultTTL');
 
 var UpdateConfFile;
 
@@ -45,32 +40,34 @@ function format(date: Date, format: string): string {
   });
 }
 
-export type DnsRequest = ndns.Message; 
-export type DnsResponse = ndns.Message; 
+export type DnsRequest = ndns.Message;
+export type DnsResponse = ndns.Message;
 
 // This is what ndns consumes. We're not being as specific as we can be
 // eventually  here. 
 export type DnsRecord = {
-  REP: Array<DnsEntry>, 
-  NS: Array<DnsEntry>, 
-  ADD: Array<DnsEntry>, 
+  REP: Array<DnsEntry>
+  NS: Array<DnsEntry>
+  ADD: Array<DnsEntry>
 };
 type DnsEntry = Array<string | number>;
 
 export type DnsData = {
-  ip?: string | Array<string>, 
-  autority?: string,
-  nameserver?: Array<NameserverEntry>,
-}
+  ip?: string | Array<string>
+  autority?: string
+  nameserver?: Array<NameserverEntry>
+};
+
 type NameserverEntry = {
-  name?: string, 
-  ip?: string, 
-}
+  name?: string
+  ip?: string
+};
 
 type DnsDynamicHandler = (
-  name: string, 
-  (DnsRequest, DnsResponse, DnsRecord) => void, 
-  req: DnsRequest, res: DnsResponse
+  name: string,
+  a: (c: DnsRequest, b: DnsResponse, a: DnsRecord) => void,
+  req: DnsRequest,
+  res: DnsResponse
 ) => void;
 
 // Handles each individual DNS request - our main handler function. 
@@ -182,7 +179,7 @@ function start(
   BIND_TYPE: string,
   BIND_PORT: string, BIND_HOST: string, 
   dynamic_call: DnsDynamicHandler, 
-  done: (msg: ?string) => void
+  done: (msg?: string | null) => void
 ) {
   const server = ndns.createServer(BIND_TYPE),
   // Server launch

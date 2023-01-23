@@ -1,5 +1,3 @@
-// @flow
-
 const dataservers = require('../../src/business/dataservers.js');
 const db = require('../../src/storage/database');
 

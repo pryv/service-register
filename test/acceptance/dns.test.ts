@@ -1,5 +1,3 @@
-// @flow
-
 /* global describe, it, before */
 
 const lodash = require('lodash');

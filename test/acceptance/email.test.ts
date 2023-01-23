@@ -1,5 +1,3 @@
-// @flow
-
 /* global describe, it, before, beforeEach, after */
 
 require('../../src/server');

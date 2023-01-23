@@ -1,5 +1,3 @@
-// @flow
-
 const cac = require('../../../src/utils/check-and-constraints.js');
 
 const {USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH} = require('../../../src/utils/check-and-constraints');

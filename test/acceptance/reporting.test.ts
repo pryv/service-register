@@ -1,5 +1,3 @@
-// @flow
-
 /* global describe, before, after, it */
 
 const awaiting = require('awaiting');

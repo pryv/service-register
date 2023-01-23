@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 /**
  * Runs the server. Launch with `node server [options]`.
  */
@@ -36,9 +34,9 @@ ready.setLogger(logger.info);
 class ServerWithUrl {
   server: http.Server;
   url: string;
-  config: Object;
+  config: any;
 
-  constructor(customConfig: Object) {
+  constructor(customConfig: any) {
     this.config = customConfig || config;
     this.server = http.createServer(app);
   }
@@ -112,7 +110,7 @@ class ServerWithUrl {
     );
   }
 
-  async collectClientData(): Object {
+  async collectClientData(): any {
     const usersStorage = require('./storage/users');
 
     const users = await bluebird.fromCallback(cb => {

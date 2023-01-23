@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 /**
  * Extension of database.js dedicated to user management
  */
@@ -24,30 +22,26 @@ const helpers = require('../utils/helpers');
 
 const info = require('../business/service-info');
 
-type GenericCallback<T> = (err?: ?Error, res: ?T) => mixed;
-type Callback = GenericCallback<mixed>;
+type GenericCallback<T> = (err?: Error | null, res?: T | null) => unknown;
+type Callback = GenericCallback<unknown>;
 
 export type UserInformation = {
-  id?: string,
-
-  username: string,
-  email: string,
-  language: string,
-
-  password: string,
-  passwordHash: string,
-
-  invitationToken: string,
-  registeredTimestamp?: number,
-
-  server?: string,
-}
+  id?: string
+  username: string
+  email: string
+  language: string
+  password: string
+  passwordHash: string
+  invitationToken: string
+  registeredTimestamp?: number
+  server?: string
+};
 
 import type ServerConfig from '../config';
 
 type CreateResult = {
-  username: string,
-  apiEndpoint: string,
+  username: string
+  apiEndpoint: string
 };
 
 /**
@@ -148,10 +142,7 @@ function isReservationStillValid(reservationTime){
  * @param user the user data, a json object containing: username, password hash, language and email
  * @param callback function(error,result), result being a json object containing new user data
  */
-exports.createUserReservation = async (
-  uniqueFields: String,
-  core: String): string | boolean =>
-{
+exports.createUserReservation = async (uniqueFields: String, core: String): string | boolean => {
   try{
     // Get reservations for all uniqueFields
     const reservations = await db.getReservations(uniqueFields);
@@ -235,19 +226,20 @@ exports.validateUpdateFields = async (
     throw error;
   }
 };
+
 type UpdateFieldsSet = {
-  [name: string]: [
-    {
-      value: string,
-      isUnique: boolean,
-      isActive: boolean,
-      creation: boolean
-    }
-  ]
+  [name: string]: [{
+    value: string
+    isUnique: boolean
+    isActive: boolean
+    creation: boolean
+  }]
 };
+
 type DeleteFieldsSet = {
   [name: string]: string
 };
+
 /**
  *
  * Update all fields for the user

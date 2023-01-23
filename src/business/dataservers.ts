@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const url = require('url');
 const http = require('http');
 const https = require('https');
@@ -14,14 +12,14 @@ const users = require('../storage/users');
 
 import type { HostingDefinition, ServerList, ServerConfig, OldServerDefinition } from '../config';
 
-let memoizedHostings: ?HostingDefinition = null;
+let memoizedHostings: HostingDefinition | undefined | null = null;
 const memoizedServerNameForCore: {} = {};
 const memoizedCoreUrls: Array<{}> = [];
 
 // Returns the hostings list from the configuration file. This list is immutable 
 // and memoized, so you can call this function wherever you need the list. 
 //
-function getHostings(): ?HostingDefinition {
+function getHostings(): HostingDefinition | undefined | null {
   if (! memoizedHostings) {
     memoizedHostings = produceHostings();
   }
@@ -69,15 +67,13 @@ function getHostings(): ?HostingDefinition {
 
 }
 
-type HostForHostingCallback = (err: mixed, core: ?ServerConfig) => mixed; 
+type HostForHostingCallback = (err: unknown, core?: ServerConfig | null) => unknown;
 
 /**
  * Select host associated with provided hosting fairly.
  * Fairly = A new user must be created among the cores that have the least users.
  */
-function getCoreForHosting(
-  hosting: string, callback: HostForHostingCallback
-): void {
+function getCoreForHosting(hosting: string, callback: HostForHostingCallback): void {
   const servers = config.get('net:aaservers');
   // Get the available hosts (from config file)
   const availableCores = servers[hosting];
@@ -187,7 +183,7 @@ function getAdminClient(
 ) {
   if (host.base_name != null) {
     // HACK Is there a better way to make flow realize we're in the clear here?
-    const oldHost: OldServerDefinition = (host: any); 
+    const oldHost: OldServerDefinition = (host as any); 
     
     // We used to define the path to the core server using 'base_name', 'port'
     // and net:AAservers_domain. This function implements that as a fallback.
@@ -227,7 +223,7 @@ function getAdminClient(
   };
 }
 
-type PostToAdminCallback = (err: ?(Error | string), res: ?Object) => mixed; 
+type PostToAdminCallback = (err?: Error | string | null, res?: any | null) => unknown;
 
 /**
  * POSTs a request to the core server indicated by `host`. Calls the callback
@@ -339,7 +335,7 @@ function getCore(serverName) {
 
 exports.getAdminClient = getAdminClient;
 exports.postToAdmin = postToAdmin;
-exports.getHostings = getHostings; 
+exports.getHostings = getHostings;
 exports.getCoreForHosting = getCoreForHosting;
 exports.getCore = getCore;
 exports.getCoresUrls = getCoresUrls;

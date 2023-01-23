@@ -1,11 +1,9 @@
-// @flow
-
 const nock = require('nock');
 
 class Mock {
   scope: any;
 
-  constructor(endpoint: string, path: string, method: string, status: number, res: Object, cb: () => any) {
+  constructor(endpoint: string, path: string, method: string, status: number, res: any, cb: () => any) {
     this.scope = nock(endpoint)
       .persist()
       .intercept(path, method)

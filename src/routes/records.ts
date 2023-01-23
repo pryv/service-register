@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const config = require('../config');
 const _ = require('lodash');
 const requireRoles = require('../middleware/requireRoles');
@@ -48,7 +46,7 @@ module.exports = function (app) {
   });
 };
 
-function validateDns(dns: Object): boolean {
+function validateDns(dns: any): boolean {
   const dnsKeys = Object.keys(dns);
   if(dns == null || dnsKeys.length === 0) {
     return false;

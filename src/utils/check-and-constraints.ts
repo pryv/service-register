@@ -4,8 +4,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-// @flow
-
 const _ = require('lodash');
 const { URL } = require('url');
 
@@ -43,9 +41,7 @@ function endsWith(str: string, suffix: string) {
  * @param hostname: the hostname containing resources
  * @returns: a sliced string of resources
  */
-module.exports.extractResourceFromHostname = function (
-  hostname: string, domains: Array<string>
-): string {
+module.exports.extractResourceFromHostname = function(hostname: string, domains: Array<string>): string {
   for (let i = 0; i < domains.length; i++) {
     if ( endsWith(hostname, '.' + domains[i]) ) {
       const resource = hostname.slice(0, - domains[i].length - 1 );
@@ -67,7 +63,7 @@ module.exports.extractResourceFromHostname = function (
 
 // Alphanumeric between 5 and 60 chars, case-insensitive  -  authorized
 // Trim the uid
-exports.uid = function (str: string): ?string {
+exports.uid = function(str: string): string | undefined | null {
   if (! str) { return null; }
   str = _.trim(str).toLowerCase();
   return (checkUsername.test(str)) ? str : null;
@@ -76,7 +72,7 @@ exports.uid = function (str: string): ?string {
 
 // Alphanumeric between 4 and 70 chars, case-insensitive  - and . authorized
 // Trim the hosting
-exports.hosting = function (str: ?string): ?string {
+exports.hosting = function(str: string | undefined | null): string | undefined | null {
   if (! str) return null;
     
   str = str.trim();
@@ -109,7 +105,7 @@ exports.referer = function (str) {
 ///   b) Validating emails is hard _and_ useless: 
 ///     https://hackernoon.com/the-100-correct-way-to-validate-email-addresses-7c4818f24643
 /// 
-exports.email = function (str: mixed): ?string {
+exports.email = function(str: unknown): string | undefined | null {
   if (typeof str !== 'string') return null; 
 
   str = _.trim(str);
@@ -136,7 +132,7 @@ exports.hostname = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.lang = function (str: mixed): ?string {
+exports.lang = function(str: unknown): string | undefined | null {
   if (str == null || str === '') { return 'en'; }
   if (typeof str !== 'string') return null;
   if (str.length > 5) return null;
@@ -164,7 +160,7 @@ exports.appAuthorization = function (str) {
   return (filter.test(str)) ? str : null;
 };
 
-exports.appToken = function (str: string): ?string {
+exports.appToken = function(str: string): string | undefined | null {
   if (! str) { return null; }
   return (str.length < 256) ? str : null;
 };
@@ -184,9 +180,9 @@ exports.accesskey = function (str) {
 };
 
 export type PermissionSet = Array<PermissionEntry>;
-export type PermissionEntry = Object; 
+export type PermissionEntry = any; 
 
-exports.access = function (json: Object): ?PermissionSet {
+exports.access = function(json: any): PermissionSet | undefined | null {
   if (json == null) return null; 
   if (! Array.isArray(json)) return null; 
   

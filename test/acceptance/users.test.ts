@@ -1,5 +1,3 @@
-// @flow
-
 /*global describe, it, before, after, beforeEach */
 
 const bluebird = require('bluebird');
