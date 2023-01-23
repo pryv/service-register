@@ -68,7 +68,7 @@ module.exports = function (app: any) {
 
     invitations.getAll(function (error, invitations) {
       if (error) {
-        return next(messages.ei());
+        return next(messages.ei(error));
       }
 
       if (req.query.toHTML) {
@@ -132,7 +132,7 @@ module.exports = function (app: any) {
 
     invitations.generate(count, req.context.access.username, message, function (error, result) {
       if (error) {
-        return next(messages.ei());
+        return next(messages.ei(error));
       }
       res.json({data: result});
     });
@@ -144,7 +144,7 @@ module.exports = function (app: any) {
   app.get('/admin/servers', requireRoles('admin'), function (req, res, next) {
 
     users.getServers(function (error, list) {
-      if (error) { return next(messages.ei()); }
+      if (error) { return next(messages.ei(error)); }
       res.json({servers: list});
     });
 
@@ -183,7 +183,7 @@ module.exports = function (app: any) {
 
       users.renameServer(srcServerName, dstServerName, function (error, count) {
         if (error) {
-          return next(messages.ei());
+          return next(messages.ei(error));
         }
         res.json({count: count});
       });

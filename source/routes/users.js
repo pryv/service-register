@@ -34,7 +34,7 @@ module.exports = function (app: express$Application) {
   // POST /user: create a new user
   app.post('/user', (req: express$Request, res, next) => {
     // FLOW Assume body has this type.
-    const body: {[string]: ?(string | number | boolean)} = req.body; 
+    const body: {[string]: ?(string | number | boolean)} = req.body;
 
     const hosting: ?string = checkAndConstraints.hosting(body.hosting);
     if (hosting == null) {
@@ -94,9 +94,9 @@ module.exports = function (app: express$Application) {
     ], function (error) {
 
       if (existsList.length > 0) {
-        if (existsList.length === 1) 
+        if (existsList.length === 1)
           return next(messages.e(400, existsList[0]));
-        
+
         return next(messages.ex(400, 'INVALID_DATA', existsList));
       }
 
@@ -111,9 +111,9 @@ module.exports = function (app: express$Application) {
           if (host == null) return next(messages.e(400, 'UNAVAILABLE_HOSTING'));
 
           const userAttrs = {
-            username: username, email: email, language: language, 
-            password: password, passwordHash: passwordHash, 
-            invitationToken: givenInvitationToken, referer: referer, 
+            username: username, email: email, language: language,
+            password: password, passwordHash: passwordHash,
+            invitationToken: givenInvitationToken, referer: referer,
             appid: appID
           };
           users.create(host, userAttrs, function(creationError, result) {
@@ -189,36 +189,36 @@ module.exports = function (app: express$Application) {
 
   // START - CLEAN FOR OPENSOURCE
   /// DELETE /username/:username: Delete an existing user
-  /// 
-  /// If given 'onlyReg', the user is only deleted from the registry. 
+  ///
+  /// If given 'onlyReg', the user is only deleted from the registry.
   /// If given 'dryRun', the system will check if the user can be deleted - but
-  ///   will not delete it. 
-  /// 
-  app.delete('/users/:username', 
+  ///   will not delete it.
+  ///
+  app.delete('/users/:username',
     requireRoles('system'),
     async (req: express$Request, res, next) => {
       try {
-        let deleted = false; 
+        let deleted = false;
 
         const onlyReg = req.query.onlyReg === 'true';
         const dryRun = req.query.dryRun === 'true';
         const username = req.params.username;
 
-        // NOTE We might permit actual deletion via this route someday. This 
-        //  will allow staying compatible. 
-        if (! onlyReg) 
-          throw produceError('NO_SUCH_FUNCTION', 
+        // NOTE We might permit actual deletion via this route someday. This
+        //  will allow staying compatible.
+        if (! onlyReg)
+          throw produceError('NO_SUCH_FUNCTION',
             'This method needs onlyReg=true for now (query).');
 
         await checkDeletion(username);
         if (! dryRun) {
           await performDeletion(username);
-          deleted = true; 
+          deleted = true;
         }
 
         const result = {
           dryRun: !! dryRun,
-          deleted: deleted, 
+          deleted: deleted,
         };
         res.status(200).json({ result });
       }
@@ -231,7 +231,7 @@ module.exports = function (app: express$Application) {
    */
   app.post('/username/check', (req: express$Request, res, next) => {
     // FLOW Assume body has this type.
-    const body: { [string]: ?(string | number | boolean) } = req.body; 
+    const body: { [string]: ?(string | number | boolean) } = req.body;
 
     req.params.username = body.username;
     _check(req, res, next, true);
@@ -253,7 +253,7 @@ module.exports = function (app: express$Application) {
 
       try {
         // 1. Validate invitation toke
-        const invitationTokenValid = await bluebird.fromCallback(cb => 
+        const invitationTokenValid = await bluebird.fromCallback(cb =>
               invitationToken.checkIfTokenIsValid(body.invitationToken, cb));
         let uniqueFields = body.uniqueFields;
         if (!invitationTokenValid) {
@@ -304,11 +304,11 @@ module.exports = function (app: express$Application) {
 };
 // Checks if the username is valid. If `raw` is set to true, this will respond
 // to the request directly, sending a 'text/plain' boolean response ('true' or
-// 'false'). If `raw` is false, it will either call `next` with an error or 
-// answer using the Content-Type 'application/json'. 
-// 
-// NOTE Yes. In fact, these are two functions that got tied up one in the other. 
-// 
+// 'false'). If `raw` is false, it will either call `next` with an error or
+// answer using the Content-Type 'application/json'.
+//
+// NOTE Yes. In fact, these are two functions that got tied up one in the other.
+//
 function _check(req: express$Request, res: express$Response, next: express$NextFunction, raw: boolean) {
   const username = checkAndConstraints.uid(req.params.username);
 
@@ -336,7 +336,7 @@ function _check(req: express$Request, res: express$Response, next: express$NextF
 
     db.uidExists(username, function (error, exists) {
       if (error) {
-        return next(messages.ei());
+        return next(messages.ei(error));
       }
       if (raw) {
         res.header('Content-Type', 'text/plain');
@@ -351,17 +351,17 @@ function _check(req: express$Request, res: express$Response, next: express$NextF
 // START - CLEAN FOR OPENSOURCE
 /// Checks if the conditions are right to be able to delete a given user
 /// (identified by `username`). If this function finds any reason why the delete
-/// would not work, it throws this reason in the form of an Error (rejects the 
+/// would not work, it throws this reason in the form of an Error (rejects the
 /// promise).
-/// 
+///
 async function checkDeletion(username: string): Promise<mixed> {
-  const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb)); 
+  const exists = await bluebird.fromCallback(cb => db.uidExists(username, cb));
   if (! exists)
     throw produceError('NO_SUCH_USER', `No such user ('${username}')`);
 }
 
 /// Deletes the user identified by `username` from the redis database.
-/// 
+///
 async function performDeletion(username: string): Promise<mixed> {
   return db.deleteUser(username);
 }

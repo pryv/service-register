@@ -20,7 +20,7 @@ import type { AccessState } from '../storage/database';
 
 
 /** Update an app access state in the database.
- * 
+ *
  * @param key: the key referencing the access to be updated
  * @param accessState: the new state of this access, which is defined by parameters like:
  *  status (NEED_SIGNIN, ACCEPTED, REFUSED), requesting app id, requested permissions, etc.
@@ -28,27 +28,27 @@ import type { AccessState } from '../storage/database';
  * @param errorCallback: callback in case of error
  */
 accessLib.setAccessState = function (
-  key: string, accessState: AccessState, 
-  successHandler: (AccessState) => mixed, 
-  errorCallback: (any) => mixed, 
+  key: string, accessState: AccessState,
+  successHandler: (AccessState) => mixed,
+  errorCallback: (any) => mixed,
 ) {
   db.setAccessState(key, accessState, function (error) {
     if (error) {
-      return errorCallback(messages.ei());
+      return errorCallback(messages.ei(error));
     }
     return successHandler(accessState);
   });
 };
 
 type RequestAccessParameters = {
-  requestingAppId?: mixed, 
-  requestedPermissions?: mixed, 
-  languageCode?: mixed, 
-  oauthState?: mixed, 
-  localDevel?: mixed, 
-  reclaDevel?: mixed, 
-  returnURL?: mixed, 
-  clientData?: mixed, 
+  requestingAppId?: mixed,
+  requestedPermissions?: mixed,
+  languageCode?: mixed,
+  oauthState?: mixed,
+  localDevel?: mixed,
+  reclaDevel?: mixed,
+  returnURL?: mixed,
+  clientData?: mixed,
   authUrl?: string,
   serviceInfo?: mixed,
   deviceName?: string,
@@ -66,9 +66,9 @@ type RequestAccessParameters = {
  * @returns {*}
  */
 accessLib.requestAccess = function (
-  parameters: RequestAccessParameters, 
-  successHandler: (any) => mixed, 
-  errorHandler: (any) => mixed, 
+  parameters: RequestAccessParameters,
+  successHandler: (any) => mixed,
+  errorHandler: (any) => mixed,
 ) {
   // Parameters
   const requestingAppId = checkAndConstraints.appID(parameters.requestingAppId);
@@ -77,15 +77,15 @@ accessLib.requestAccess = function (
       {requestingAppId: parameters.requestingAppId}));
   }
 
-  // FLOW We don't currently verify the contents of the requested permissions. 
+  // FLOW We don't currently verify the contents of the requested permissions.
   const requestedPermissions = checkAndConstraints.access(parameters.requestedPermissions);
   if (requestedPermissions == null) {
     return errorHandler(messages.e(400, 'INVALID_DATA',
       {detail: 'Missing or invalid requestedPermissions field'}));
   }
-  
+
   const lang = checkAndConstraints.lang(parameters.languageCode);
-  if (lang == null) 
+  if (lang == null)
     return errorHandler(messages.e(400, 'INVALID_LANGUAGE'));
 
   const returnURL = parameters.returnURL;
@@ -93,21 +93,21 @@ accessLib.requestAccess = function (
   const clientData = parameters.clientData;
   const serviceInfo = parameters.serviceInfo;
 
-  let effectiveReturnURL; 
+  let effectiveReturnURL;
   if ((returnURL == null) || (typeof returnURL === 'string')) {
     effectiveReturnURL = returnURL;
   } else if ((typeof returnURL === 'boolean') && (returnURL === false)) {
     // deprecated
     logger.warn('Deprecated: received returnURL=false, this optional parameter must be a string.');
 
-    effectiveReturnURL = null; 
+    effectiveReturnURL = null;
   } else {
     return errorHandler(messages.e(400, 'INVALID_DATA', { detail: 'Invalid returnURL field.' }));
   }
 
   const key = randGenerator(16);
-  const pollURL = info.access + key; 
-  
+  const pollURL = info.access + key;
+
   if (serviceInfo != null) {
     if (! isServiceInfoValid(serviceInfo)) {
       return errorHandler(messages.e(400, 'INVALID_SERVICE_INFO_URL', { detail: serviceInfo }));
@@ -142,13 +142,13 @@ accessLib.requestAccess = function (
     return errorHandler(messages.e(400, 'INVALID_REFERER', { detail: 'referer : ' + referer }));
   }
 
-  const reclaDevel = parameters.reclaDevel; 
+  const reclaDevel = parameters.reclaDevel;
   if (typeof reclaDevel === 'string') {
     url = 'https://sw.rec.la' + reclaDevel;
   }
 
   let firstParamAppender = (url.indexOf('?') >= 0) ? '&' : '?';
-  
+
   let authUrl: string;
   authUrl = url + firstParamAppender;
 
@@ -157,21 +157,21 @@ accessLib.requestAccess = function (
     'lang=' + lang +
     '&key=' + key +
     '&requestingAppId=' + requestingAppId;
-  
+
   if (effectiveReturnURL != null)
     url += '&returnURL=' + encodeURIComponent(effectiveReturnURL);
 
   url +=
     '&domain=' + domain +
-    '&registerURL=' + encodeURIComponent(info.register); 
-  
-  url += '&poll=' + encodeURIComponent(pollURL);
-  
-  const cleanOauthState = (typeof oauthState) === 'string' ?
-    oauthState : 
-    null; 
+    '&registerURL=' + encodeURIComponent(info.register);
 
-  if (cleanOauthState != null) 
+  url += '&poll=' + encodeURIComponent(pollURL);
+
+  const cleanOauthState = (typeof oauthState) === 'string' ?
+    oauthState :
+    null;
+
+  if (cleanOauthState != null)
     url += '&oauthState=' + cleanOauthState;
 
     /**
@@ -210,7 +210,7 @@ const trustedAuthUrls = config.get('access:trustedAuthUrls');
 trustedAuthUrls.push(config.get('access:defaultAuthUrl'));
 
 function isAuthDomainTrusted(url: string) {
-  
+
   for(let i = 0; i < trustedAuthUrls.length; i++) {
     if(url.startsWith(trustedAuthUrls[i])) {
       return true;
@@ -224,11 +224,11 @@ function isServiceInfoValid(serviceInfo: mixed): boolean {
 }
 
 /// Check the validity of the access by checking its associated key.
-/// 
+///
 accessLib.testKeyAndGetValue = function (
-  key: string, 
-  success: (res: AccessState) => mixed, 
-  failed: (err: Error) => mixed, 
+  key: string,
+  success: (res: AccessState) => mixed,
+  failed: (err: Error) => mixed,
 ) {
   if (!checkAndConstraints.accesskey(key)) {
     return failed(messages.e(400, 'INVALID_KEY'));

@@ -11,7 +11,7 @@ var checkAndConstraints = require('../utils/check-and-constraints'),
     messages = require('../utils/messages'),
     config = require('../config');
 
-var logger = require('winston'); 
+var logger = require('winston');
 
 // patch compatibility issue with winston
 // there is a difference between v2.3 and 2.4: .warn() vs .warning()
@@ -19,7 +19,7 @@ var logger = require('winston');
 // we suspect yarn to load the wrong version
 if (logger.warn == null) {
   logger.warn = function(...args) {
-    logger.warning(...args);  
+    logger.warning(...args);
   };
 }
 
@@ -40,7 +40,7 @@ function discoverServerAssignations(app) {
 
     db.getServer(uid, function (error, result) {
       if (error) {
-        return next(messages.ei());
+        return next(messages.ei(error));
       }
 
       if (!result) {
@@ -62,7 +62,7 @@ function discoverServerAssignations(app) {
 
     db.getServer(uid, function (error, result) {
       if (error) {
-        return next(messages.ei());
+        return next(messages.ei(error));
       }
       if(!result) {
         return next(messages.e(404, 'UNKNOWN_USER_NAME'));
@@ -72,5 +72,5 @@ function discoverServerAssignations(app) {
     });
   });
 }
- 
+
 module.exports = discoverServerAssignations;

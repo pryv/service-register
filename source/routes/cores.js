@@ -32,7 +32,7 @@ function registerCoresRoutes(app) {
   /** GET /:uid/server - find the server hosting the provided username (uid).
    */
   app.get('/cores', async (req, res, next) => {
-    
+
     const params = req.query;
 
     if (params.username == null && params.email == null) return next(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide "username" or "email" as query parameters.'}));
@@ -62,9 +62,9 @@ function registerCoresRoutes(app) {
           });
         }
 
-      } catch (error) { 
+      } catch (error) {
         logger.error(error);
-        return next(messages.ei()); 
+        return next(messages.ei(error));
       }
     }
 
@@ -73,7 +73,7 @@ function registerCoresRoutes(app) {
       serverName = await bluebird.fromCallback(cb => db.getServer(username, cb));
     } catch (error) {
       logger.error(error);
-      return next(messages.ei());
+      return next(messages.ei(error));
     }
 
     if (serverName == null) {
