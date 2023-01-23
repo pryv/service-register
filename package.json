@@ -31,7 +31,7 @@
     "nock": "^11.7.2",
     "rand-token": "^0.4.0",
     "readyness": "0.1.x",
-    "redis": "0.12.x",
+    "redis": "^3.1.2",
     "semver": "1.1.4",
     "serve-favicon": "^2.5.0",
     "winston": "^2.3.0"
