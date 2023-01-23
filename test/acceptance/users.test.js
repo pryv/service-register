@@ -7,13 +7,13 @@ const lodash = require('lodash');
 
 const dataValidation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
-const config = require('../../source/config');
-const ErrorIds = require('../../source/utils/errors-ids');
+const config = require('../../src/config');
+const ErrorIds = require('../../src/utils/errors-ids');
 const faker = require('faker');
 const _ = require('lodash');
 const request = require('superagent');
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 
 const async = require('async');
 
@@ -27,12 +27,12 @@ function retrieveAdminKey(authKeys) {
 }
 
 // Load and start our web server
-const Server = require('../../source/server.js');
+const Server = require('../../src/server.js');
 
 // Mocks out a core server.
 require('../support/mock-core-server');
 
-const db = require('../../source/storage/database');
+const db = require('../../src/storage/database');
 
 function randomuser () { return 'testpfx' + Math.floor(Math.random() * (100000)); }
 
@@ -59,7 +59,7 @@ function defaults (newRegsitration: Boolean) {
       referer: 'pryv'
     };
   }
-  
+
 }
 
 function defaultsForSystemRegistration () {
@@ -153,7 +153,7 @@ describe('User Management', () => {
               });
               stepDone();
             });
-        
+
         }
       ], done);
 
@@ -632,10 +632,10 @@ describe('User Management', () => {
   });
 
   describe('DELETE /users/:username', () => {
-    let defaultQuery; 
+    let defaultQuery;
     beforeEach(() => {
       defaultQuery = {
-        dryRun: true, 
+        dryRun: true,
         onlyReg: true,
       };
     });
@@ -644,8 +644,8 @@ describe('User Management', () => {
 
     beforeEach((done) => {
       const userInfos = {
-        username: 'jsmith', 
-        password: 'foobar', 
+        username: 'jsmith',
+        password: 'foobar',
         email: 'jsmith@test.com',
       };
 
@@ -657,32 +657,32 @@ describe('User Management', () => {
       try {
         await request.delete(resourcePath('jsmith'))
           .query(defaultQuery)
-          .set('Authorization', 'SomethingElse'); 
+          .set('Authorization', 'SomethingElse');
       }
       catch (err) {
         assert.strictEqual(err.status, 401);
 
-        return; 
+        return;
       }
 
       assert.fail('Request should fail.');
     });
     it('requires `onlyReg=true` for now', async () => {
       // NOTE The other methods in the registries API manage the user completely,
-      //  ie: also on the respective core. This method does not currently. To 
-      //  remind us of this fact and to allow for evolution we introduce this 
+      //  ie: also on the respective core. This method does not currently. To
+      //  remind us of this fact and to allow for evolution we introduce this
       //  parameter. If it is missing, we're supposed to delete the user every
-      //  where - right now we cannot, hence we error out. 
+      //  where - right now we cannot, hence we error out.
 
       const query = lodash.omit(defaultQuery, ['onlyReg']);
-      
+
       try {
         await request.delete(resourcePath('jsmith'))
           .query(query)
           .set('Authorization', systemRoleKey);
       }
       catch (err) {
-        return; 
+        return;
       }
 
       assert.fail('If onlyReg=true is missing, the method should error out.');
@@ -709,7 +709,7 @@ describe('User Management', () => {
       assert.isTrue(res.ok);
       assert.strictEqual(res.status, 200);
 
-      const body = res.body; 
+      const body = res.body;
       assert.isTrue(body.result.dryRun);
       assert.isFalse(body.result.deleted);
     });
@@ -731,7 +731,7 @@ describe('User Management', () => {
       assert.isFalse(exists);
     });
   });
-  
+
   function resourcePath(username: string): string {
     return `${server.url}/users/${username}`;
   }
@@ -875,7 +875,7 @@ describe('User Management', () => {
             assert.include(e.response.body.error.data, { username: testData.username, email: testData.uniqueFields.email });
           }
         });
- 
+
         it('Should not check email and username if invitation token validation fails', async () => {
           const testData = {
             username: 'wactiv',
@@ -917,7 +917,7 @@ describe('User Management', () => {
               .send(userRegistrationData);
             // make sure registration was successful
             assert.equal(userRegistrationRes.status, 201);
-            
+
             // call validation api and check that RandomField is already existing
             await request.post(server.url + path).send(testData).set('Authorization', defaultAuth);
             (false).equal(true);
@@ -1196,7 +1196,7 @@ describe('User Management', () => {
         }
         const res = await request.post(server.url + path)
           .send(userRegistrationData)
-          .set('Authorization', defaultAuth);        
+          .set('Authorization', defaultAuth);
         assert.equal(res.status, 201);
         assert.equal(res.body.username, userRegistrationData.user.username);
         assert.equal(res.body.server, userRegistrationData.user.username + '.rec.la');
@@ -1310,8 +1310,8 @@ describe('User Management', () => {
                   ]
                 },
                 fieldsToDelete: {},
-              }; 
-              
+              };
+
               // seed initial user
               await request.post(server.url + path)
                 .send(userRegistrationData1)
@@ -1438,7 +1438,7 @@ describe('User Management', () => {
                   ]
                 },
                 fieldsToDelete: {},
-              }; 
+              };
               response = await request.put(server.url + path)
                 .set('Authorization', defaultAuth)
                 .send(userDataUpdate1);
@@ -1461,7 +1461,7 @@ describe('User Management', () => {
                   ]
                 },
                 fieldsToDelete: {},
-              }; 
+              };
               response = await request.put(server.url + path)
                 .set('Authorization', defaultAuth)
                 .send(userDataUpdate2);
@@ -1503,7 +1503,7 @@ describe('User Management', () => {
               await request.post(server.url + path)
                 .send(userRegistrationData1)
                 .set('Authorization', defaultAuth);
-              
+
               response = await request.put(server.url + path)
                 .set('Authorization', defaultAuth)
                 .send(userDataUpdate);

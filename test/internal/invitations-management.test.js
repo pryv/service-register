@@ -4,12 +4,12 @@
  * test for generic behaviour of the app
  */
 
-require('../../source/server');
+require('../../src/server');
 var should = require('should');
-const config = require('../../source/config');
+const config = require('../../src/config');
 require('readyness/wait/mocha');
 
-var invitations = require('../../source/storage/invitations');
+var invitations = require('../../src/storage/invitations');
 
 describe('INTERNAL invitations managements', function () {
 
@@ -107,7 +107,7 @@ describe('INTERNAL invitations managements', function () {
         should.exist(result);
         result.should.be.instanceOf(Array);
         for (var i = 0; i < result.length; i++) {
-          
+
           result[0].should.have.property('id');
         }
 
@@ -118,4 +118,3 @@ describe('INTERNAL invitations managements', function () {
   });
 
 });
-

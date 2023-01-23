@@ -20,7 +20,7 @@ PYTHON=$(which python2.7) run yarn install
 
 # Perform a release build of the source code. (-> lib)
 run yarn release
-rm -r source && mv lib source
+rm -r src && mv lib src
 
 # Copy the config file
 run mkdir -p $conf_dir && \

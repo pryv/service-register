@@ -1,8 +1,8 @@
 // @flow
 
-const cac = require('../../../source/utils/check-and-constraints.js');
+const cac = require('../../../src/utils/check-and-constraints.js');
 
-const {USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH} = require('../../../source/utils/check-and-constraints');
+const {USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH} = require('../../../src/utils/check-and-constraints');
 
 const assert = require('chai').assert;
 
@@ -13,13 +13,13 @@ describe('Checks And Constraints', function () {
     it('should extract resource name from fqdn with respect to domains array', function () {
       const result = cac.extractResourceFromHostname(
         'foo.sd.pryv.tech', ['sd.pryv.tech']);
-      
+
       assert.equal(result, 'foo');
     });
     it('should allow letsencrypt dns challenge hostnames to pass', function () {
       const result = cac.extractResourceFromHostname(
         '_acme-challenge.www.sd.pryv.tech', ['sd.pryv.tech']);
-      
+
       assert.equal(result, '_acme-challenge.www');
     });
     it('should disallow other fqdns not in one of our domains', function () {
@@ -30,7 +30,7 @@ describe('Checks And Constraints', function () {
       assert.throws(check, /I know the following domains: sd.pryv.tech/);
     });
   });
-  
+
   describe('#isValidUsername', function () {
     ok('foobar');
     ok('a'.repeat(USERNAME_MIN_LENGTH));
@@ -39,13 +39,13 @@ describe('Checks And Constraints', function () {
     not_ok('a'.repeat(USERNAME_MIN_LENGTH - 1));
     not_ok('a'.repeat(USERNAME_MAX_LENGTH + 1));
     not_ok('_acme-challenge');
-    
+
     function ok(name) {
       it(`should accept ${name} as username`, function () {
         assert.isOk(cac.isValidUsername(name));
       });
     }
-    
+
 
     function not_ok(name) {
       it(`should NOT accept ${name} as username`, function () {
@@ -87,4 +87,3 @@ describe('Checks And Constraints', function () {
     });
   });
 });
-

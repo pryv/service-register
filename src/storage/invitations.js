@@ -9,7 +9,7 @@
  */
 
 const messages = require('../utils/messages');
-const db = require('../storage/database');
+const db = require('./database');
 const _ = require('lodash');
 const async = require('async');
 const config = require('../config');

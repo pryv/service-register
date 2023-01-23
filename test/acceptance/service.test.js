@@ -4,9 +4,9 @@ const should = require('should');
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const request = require('superagent');
-const Server = require('../../source/server.js');
+const Server = require('../../src/server.js');
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 
 require('readyness/wait/mocha');
 
@@ -55,7 +55,7 @@ describe('/service', function () {
           status: 200,
           schema: schemas.appsList
         });
-      
+
         should.exists(res.body);
         should.exists(res.body.apps);
 
@@ -74,7 +74,7 @@ describe('/service', function () {
         validation.check(res, {
           status: 200,
           schema: schemas.appsSingle
-        }); 
+        });
 
         res.body.should.have.property('app');
         checkApp(res.body.app);

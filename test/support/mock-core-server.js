@@ -2,7 +2,7 @@ const url = require('url');
 const express = require('express');
 const app = express();
 
-const config = require('../../source/config');
+const config = require('../../src/config');
 const port = config.get('net:hostings:local-api-server:localhost:port');
 
 app.post('/register/create-user', (req, res) => {

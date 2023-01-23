@@ -1,11 +1,11 @@
 'use strict';
 
 /* global describe, it, before, beforeEach, after */
-const Server = require('../../source/server.js');
+const Server = require('../../src/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 const request = require('superagent');
-const config = require('../../source/config');
+const config = require('../../src/config');
 const assert = require('chai').assert;
 const faker = require('faker');
 faker.locale = 'en';
@@ -85,7 +85,7 @@ describe('POST /access/:key', function () {
   after(async function () {
     await server.stop();
   });
-  
+
   describe('when updating status to Accepted', function () {
     describe('with username and token', function () {
       it('should return apiEndpoint, username & token', async function () {
@@ -111,7 +111,7 @@ describe('POST /access/:key', function () {
           token: 'token'
         };
         const res = await request.post(accessState.poll).send(data);
-    
+
         'https://token@tototp.pryv.me/'.should.equal(res.body.apiEndpoint);
         'tototp'.should.equal(res.body.username);
         'token'.should.equal(res.body.token);
@@ -119,7 +119,7 @@ describe('POST /access/:key', function () {
     });
   });
 
-  
+
 
 });
 
@@ -152,7 +152,7 @@ describe('POST /access', function () {
     request.post(server.url + path).send(test.data).end(function (err, res) {
       const generatedUrl = res.body.poll;
 
-      // Verify that the string has something like this: 
+      // Verify that the string has something like this:
       //    /access/DiM1efAaZmTi0WbH
       const ending = /\/access\/\w+$/;
       generatedUrl.should.match(ending);

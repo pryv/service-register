@@ -2,11 +2,11 @@
 /* global describe, before, beforeEach, after, it */
 const request = require('superagent');
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
-const db = require('../../source/storage/database');
+const db = require('../../src/storage/database');
 
 require('readyness/wait/mocha');
 
@@ -164,9 +164,9 @@ describe('/admin/invitations', function () {
         res.body.invitations.should.be.instanceOf(Array);
         res.body.invitations.forEach(function (tokenData) {
           tokenData.should.have.property('id');
-          
+
         });
-        done(); 
+        done();
       });
     });
     it('should send a list of current tokens as html tables', function (done) {
@@ -180,7 +180,7 @@ describe('/admin/invitations', function () {
         res.text.should.containEql('<th>ConsumedBy</th>');
         res.text.should.containEql('<th>Token</th>');
         res.text.should.containEql('</table>');
-        done(); 
+        done();
       });
     });
   });
@@ -190,7 +190,7 @@ describe('/admin/invitations', function () {
           '?auth=' + authAdminKey +
           '&count=2&message=testx'
         ).end((err, res) => {
-          dataValidation.check(res, {status: 200}); 
+          dataValidation.check(res, {status: 200});
 
           res.body.should.have.property('data');
           res.body.data.should.be.instanceOf(Array);
@@ -211,7 +211,7 @@ describe('/admin/users', function () {
   after(async function () {
     await server.stop();
   });
-  
+
   describe('GET ', function () {
     it('should get a users list', function (done) {
       request.get(server.url + '/admin/users' + '?auth=' + authAdminKey)
@@ -225,7 +225,7 @@ describe('/admin/users', function () {
           user.should.have.property('server');
           user.should.have.property('registeredDate');
         });
-        done(); 
+        done();
       });
     });
     it('should get a users list as html tables', function (done) {
@@ -242,7 +242,7 @@ describe('/admin/users', function () {
         res.text.should.containEql('<th>Token</th>');
         res.text.should.containEql('<th>Errors</th>');
         res.text.should.containEql('</table>');
-        done(); 
+        done();
       });
     });
   });
@@ -259,8 +259,8 @@ describe('/admin/users/:username', function () {
 
   beforeEach((done) => {
     const userInfos = {
-      username: 'jsmith', 
-      password: 'foobar', 
+      username: 'jsmith',
+      password: 'foobar',
       email: 'jsmith@test.com',
     };
 
@@ -270,7 +270,7 @@ describe('/admin/users/:username', function () {
   after(async function () {
     await server.stop();
   });
-  
+
   describe('GET', function () {
     it('should get a user', function (done) {
       request.get(server.url + '/admin/users/' + username +'?auth=' + authSystemKey)

@@ -6,10 +6,10 @@ const request = require('superagent');
 const should = require('should');
 
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
 const dataValidation = require('../support/data-validation');
 const schema = require('../support/schema.responses');
 
@@ -37,16 +37,16 @@ describe('POST /:uid/server', function () {
 
       assert.strictEqual(res.statusType, 4);
       assert.strictEqual(res.body.id, 'INVALID_USER_NAME');
-      done(); 
+      done();
     });
   });
   it('unknown', function (done) {
     request.post(server.url + '/abcdefghijkl/server').send({}).end((err, res) => {
       should.exist(err);
-      
+
       assert.strictEqual(res.statusType, 4);
       assert.strictEqual(res.body.id, 'UNKNOWN_USER_NAME');
-      done(); 
+      done();
     });
   });
   it('known', function (done) {
@@ -77,7 +77,7 @@ describe('GET /:uid/server', function () {
       .redirects(0)
       .end((err, res) => {
         assert.equal(res.statusCode, 400, 'Should have status code 400');
-        done(); 
+        done();
       });
   });
   it('unknown', function (done) {
@@ -85,7 +85,7 @@ describe('GET /:uid/server', function () {
       .redirects(0)
       .end((err, res) => {
         assert.equal(res.statusCode, 404, 'Should have status code 404');
-        done(); 
+        done();
       });
   });
   it('known', function (done) {
@@ -94,7 +94,7 @@ describe('GET /:uid/server', function () {
       .end((err, res) => {
         assert.equal(res.statusCode, 302, 'Should have status code 302');
         res.header.location.should.match('https://rec.la/?username=wactiv');
-        done(); 
+        done();
       });
   });
 });

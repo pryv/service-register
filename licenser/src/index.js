@@ -53,7 +53,7 @@ async function start() {
   // WHen building docker it is needed to add license directly to the build
   await loop('../lib');
   // Add to the sour e code directly
-  await loop('../source');
+  await loop('../src');
 }
 
 
@@ -92,7 +92,7 @@ function checkInit() {
 
 /**
  * Helper to find the corresponding specs for a file
- * @param {String} fullPath 
+ * @param {String} fullPath
  */
 function getFileSpec(fullPath) {
   for (const specKey of specKeys) {
@@ -130,7 +130,7 @@ async function handleMatchingFile(fullPath, spec) {
  * Loop recursively in the directory
  * - ignore files or dir matching one of the ignore items
  * - call handleMatchingFile each time a file matching a fileSpec is found
- * @param {String} dir 
+ * @param {String} dir
  */
 async function loop(dir) {
   //console.log('>' + dir);
@@ -153,7 +153,7 @@ async function loop(dir) {
 
 
 
-// --- ru 
+// --- ru
 
 let count = 0;
 (async () => {

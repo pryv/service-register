@@ -4,15 +4,15 @@
 
 const awaiting = require('awaiting');
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 const _ = require('lodash');
 const Promise = require('bluebird');
 const supertest = require('supertest');
 const EventEmitter = require('events');
 const hostname = require('os').hostname;
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
 
 const DEFAULT_USERNAME = 'wactiv';
 const Mock = require('../support/Mock');
@@ -30,7 +30,7 @@ async function assertServerStarted() {
 }
 
 describe('service-reporting ON', function () {
-  
+
 
   const reportingSettings = {
     optOut: false,

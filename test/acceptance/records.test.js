@@ -6,8 +6,8 @@ const exec = require('child_process').exec;
 const bluebird = require('bluebird');
 const assert = require('chai').assert;
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
 
 require('readyness/wait/mocha');
 
@@ -43,15 +43,15 @@ describe('POST /records', function () {
         cb();
       });
     });
-    
+
   });
 });
 
 /** Helper for dns requests using dig.
- * 
+ *
  * @param dns_class - A, NS, CNAME (optional)
  * @param name - the domain to search
- * @param result - function (error, result) 
+ * @param result - function (error, result)
  */
 function dig(dns_class, name, result, useIPv6) {
   const type = useIPv6 ? ' -6 ' : ' -4 ';

@@ -1,6 +1,6 @@
 'use strict';
 
-const Server = require('../../source/server.js');
+const Server = require('../../src/server.js');
 const request = require('superagent');
 const assert = require('chai').assert;
 
@@ -35,4 +35,3 @@ describe('Errors handling tests', function () {
     });
   });
 });
- 

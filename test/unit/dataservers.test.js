@@ -1,7 +1,7 @@
 // @flow
 
-const dataservers = require('../../source/business/dataservers.js');
-const db = require('../../source/storage/database');
+const dataservers = require('../../src/business/dataservers.js');
+const db = require('../../src/storage/database');
 
 const http = require('http');
 const https = require('https');
@@ -9,7 +9,7 @@ const assert = require('assert');
 const should = require('should');
 const async = require('async');
 
-import type { ServerDefinition } from '../../source/config';
+import type { ServerDefinition } from '../../src/config';
 
 /* global describe, it, before */
 describe('business/dataservers', function () {
@@ -23,7 +23,7 @@ describe('business/dataservers', function () {
     };
 
     it('should set .name as a side effect on the host structure', function() {
-      // FLOW Missing 'name' - mock. 
+      // FLOW Missing 'name' - mock.
       const host: ServerDefinition = {
         base_url: 'http://foo.com:9000',
         authorization: 'foooo',
@@ -39,14 +39,14 @@ describe('business/dataservers', function () {
       }
     });
     it('should return port 80 for http urls', function() {
-      // FLOW For test purposes: 
+      // FLOW For test purposes:
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
 
       should(given.options.port).be.equal(80);
       should(given.client).be.equal(http);
     });
     it('should return port 443 for https urls', function() {
-      // FLOW For test purposes: 
+      // FLOW For test purposes:
       var given = getAdminClient(url('https://foo.com/'), '/path', 'foobar');
 
       should(given.options.port).be.equal(443);
@@ -54,24 +54,24 @@ describe('business/dataservers', function () {
     });
     it('should return port 9000 for an url with custom port', function() {
       var given = getAdminClient(
-        // FLOW For test purposes: 
+        // FLOW For test purposes:
         url('http://foo.com:9000/'), '/path', 'foobar');
 
       should(given.options.port).be.equal(9000);
       should(given.client).be.equal(http);
     });
     it('should return the hostname from the base_url', function() {
-      // FLOW For test purposes: 
+      // FLOW For test purposes:
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
 
       should(given.options.host).be.equal('foo.com');
     });
     it('should include authorization header', function() {
-      // FLOW For test purposes: 
+      // FLOW For test purposes:
       var given = getAdminClient(url('http://foo.com/'), '/path', 'foobar');
 
       const headers = given.options.headers;
-          
+
       should(headers['Content-Type']).equal('application/json');
       should.exist(headers['authorization']);
       should(headers['Content-Length']).be.above(0);
@@ -85,7 +85,7 @@ describe('business/dataservers', function () {
       };
 
       it('still uses old fields if base_url is absent', function() {
-        // FLOW For test purposes: 
+        // FLOW For test purposes:
         var given = getAdminClient(oldHost, '/path', 'foobar');
 
         // 'pryv.net' is read from net:AAservers_domain. This is the current
@@ -121,12 +121,12 @@ describe('business/dataservers', function () {
     it('should fairly select host (among emptiest) for provided hosting', function(done) {
       dataservers.getCoreForHosting(hosting, (err, host) => {
         should.not.exist(err);
-        
+
         if (host == null)
           throw new Error('AF: Should have selected a host.');
-          
-        const url = host.base_url; 
-        
+
+        const url = host.base_url;
+
         // Localhost was setup as containing the less users (only one)
         should(url).be.equal('https://localhost.rec.la/');
         done();
@@ -134,4 +134,3 @@ describe('business/dataservers', function () {
     });
   });
 });
-

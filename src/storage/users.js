@@ -10,7 +10,7 @@
  * Extension of database.js dedicated to user management
  */
 const bluebird = require('bluebird');
-const db = require('../storage/database');
+const db = require('./database');
 const async = require('async');
 const lodash = require('lodash');
 const logger = require('winston');

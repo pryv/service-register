@@ -5,11 +5,11 @@ const faker = require('faker');
 const bluebird = require('bluebird');
 const assert = require('chai').assert;
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
-const userStorage = require('../../source/storage/users');
-const dataservers = require('../../source/business/dataservers');
-const db = require('../../source/storage/database');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
+const userStorage = require('../../src/storage/users');
+const dataservers = require('../../src/business/dataservers');
+const db = require('../../src/storage/database');
 
 require('readyness/wait/mocha');
 
@@ -45,7 +45,7 @@ describe('cores', () => {
       // core forwards the "Host" header of the request
       await bluebird.fromCallback(cb => userStorage.createUserOnServiceRegister({ name: hostname }, { username, email, }, ['username', 'email'], cb));
     });
-    
+
     describe('by username', () => {
       it('must return the right core when the account exists', async () => {
         const res = await request.get(path).query({ username });

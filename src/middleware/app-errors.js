@@ -7,7 +7,7 @@
 //@flow
 
 var logger = require('winston');
-var messages = require('./../utils/messages');
+var messages = require('../utils/messages');
 
 /**
  * Error middleware, may be used for user management
@@ -15,7 +15,7 @@ var messages = require('./../utils/messages');
 function app_errors(app: express$Application) {
 
   app.use(function (error, req: express$Request, res, next) { // eslint-disable-line no-unused-vars
-   
+
     if (error instanceof messages.REGError) {
       //logger.debug('app_errors : '+ JSON.stringify(error.data));
       return res.status(error.httpCode).json(error.data);
@@ -59,4 +59,3 @@ function app_errors(app: express$Application) {
 }
 
 module.exports = app_errors;
-

@@ -1,7 +1,7 @@
 // @flow
 
-const { serverForName } = require('../../../source/dns/server_for_name.js');
-const config = require('../../../source/config');
+const { serverForName } = require('../../../src/dns/server_for_name.js');
+const config = require('../../../src/config');
 
 /* global describe, it */
 
@@ -14,11 +14,11 @@ describe('serverForName', () => {
     const res = 'res';
     const callback = (req, res, resolvedRecord) => {
       assert.deepEqual(resolvedRecord.REP, [ [ 'foo.bar.pryv.me', 3600, 'IN', 'A', '1.2.3.4' ] ]);
-      
-      done(); 
+
+      done();
     };
-    
-    serverForName('foo.bar.pryv.me', callback, req, res); 
+
+    serverForName('foo.bar.pryv.me', callback, req, res);
   });
 
   it('handles TXT records at root domain', () => {
@@ -29,7 +29,7 @@ describe('serverForName', () => {
     const req = {
       q: {
         '0': {
-          typeName: 'TXT', 
+          typeName: 'TXT',
         }
       }
     };
@@ -43,4 +43,3 @@ describe('serverForName', () => {
     serverForName(domain, callback, req, res);
   });
 });
-

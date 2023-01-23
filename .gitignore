@@ -2,7 +2,7 @@
 Icon*
 *.project
 *.settings
-*source/local-config.json
+*src/local-config.json
 node_modules
 db/appendonly.aof
 db/redis_dump.rdb

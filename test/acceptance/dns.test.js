@@ -9,14 +9,14 @@ const exec = require('child_process').exec;
 const should = require('should');
 
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 
-const config = require('../../source/config');
-var db = require('../../source/storage/database');
-const ndns = require('../../source/dns/ndns');
+const config = require('../../src/config');
+var db = require('../../src/storage/database');
+const ndns = require('../../src/dns/ndns');
 const Client = ndns.Client;
 
-require('../../source/app-dns');
+require('../../src/app-dns');
 
 require('readyness/wait/mocha');
 
@@ -54,7 +54,7 @@ describe('DNS', function () {
 
         const key = '_acme-challenge';
         const values = staticDataInDomain[key].description;
-        
+
         dig('TXT', key + '.' + domain, (err, res) => {
           if (err) {
             return done(err);
@@ -145,7 +145,7 @@ describe('DNS', function () {
         root_TXT_records.description.forEach((txtRecord) => {
           let found = false;
           responseArray.forEach((response) => {
-            
+
             if ('"' + txtRecord + '"' === response) {
               found = true;
             }
@@ -156,16 +156,16 @@ describe('DNS', function () {
       });
     });
   });
-  
+
   describe('Vulnerability 2018022102:', () => {
-    
+
     // Simulate the case where our DNS receives
     // a query that is in fact a (replayed) DNS response.
     // We want to ensure that our DNS do not answer to DNS responses,
     // since it would make it vulnerable to DOS attacks.
-    
+
     it('should not answer to DNS responses', (done) => {
-                
+
       const port = config.get('dns:port');
       const ip = config.get('dns:ip');
       const type = 'udp4';
@@ -180,16 +180,16 @@ describe('DNS', function () {
         }],
         header: {}
       };
-      
+
       const legitClient = new Client(type, legitResponseListener);
       const attackClient = new Client(type, attackResponseListener);
-      
+
       // This first query should not be answered by our DNS.
       // The QR header is set to 1, which indicates that the query
       // is actually a DNS response (potentially replayed by an attacker).
       req.header.qr = 1;
       attackClient.request(port, ip).send(req);
-      
+
       // This second query should be answered by our DNS.
       // The QR header is set to 0, which indicates that the query
       // is a legit DNS query.
@@ -199,36 +199,36 @@ describe('DNS', function () {
         req.header.qr = 0;
         legitClient.request(port, ip).send(req);
       }, 1000);
-      
+
       function legitResponseListener () {
         done();
       }
-      
+
       function attackResponseListener () {
         throw new Error('DNS just answered to a DNS response, '+
           'which makes it vulnerable to DOS attacks!');
       }
-      
+
     });
   });
 });
 
 /** Helper for dns requests using dig.
- * 
+ *
  * @param dns_class - A, NS, CNAME (optional)
  * @param name - the domain to search
- * @param result - function (error, result) 
+ * @param result - function (error, result)
  */
 function dig(dns_class, name, result, useIPv6) {
   const type = useIPv6 ? ' -6 ' : ' -4 ';
   const host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip');
   const cmd = 'dig +short @' + host + ' ' + type + ' -p ' + config.get('dns:port') +
     ' ' + dns_class + ' ' + name;
-  
+
   exec(cmd, function callback(error, stdout, stderr) {
     stdout = lodash.trim(stdout, ' \n');
     if (stderr && stderr !== '') { throw new Error(stderr + ' | running ' + cmd); }
-  
+
     if ((! stdout) || (stdout === ''))  {
       throw new Error('no result for ' + dns_class + ' ' + name + ' (' + stderr + ')');
     }

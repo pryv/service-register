@@ -9,7 +9,7 @@
  */
 
 var logger = require('winston'),
-  db = require('../storage/database'),
+  db = require('./database'),
   config = require('../config');
 
 // Reserved words

@@ -2,23 +2,23 @@
 
 /* global describe, it, before, beforeEach, after */
 
-require('../../source/server');
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
+require('../../src/server');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
 
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 
-const db = require('../../source/storage/database');
+const db = require('../../src/storage/database');
 
 const supertest = require('supertest');
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 
 describe('Email', function () {
 
-  // Obtains the server url and specialise supertest to call it. 
-  let request, server; 
+  // Obtains the server url and specialise supertest to call it.
+  let request, server;
   before(async function () {
     server = new Server();
     await server.start();
@@ -65,10 +65,10 @@ describe('Email', function () {
         .post('/email/check/')
         .send({ email: email })
         .expect(200);
-      
-      if (res.text === 'true') return true; 
-      if (res.text === 'false') return false; 
-      
+
+      if (res.text === 'true') return true;
+      if (res.text === 'false') return false;
+
       throw new Error('Unexpected response from /email/check.');
     }
   });

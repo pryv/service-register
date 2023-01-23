@@ -1,4 +1,4 @@
-const Server = require('../source/server');
+const Server = require('../src/server');
 const logger = require('winston');
 
 (async () => {

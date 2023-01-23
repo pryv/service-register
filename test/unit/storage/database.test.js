@@ -3,7 +3,7 @@
 /* global describe, it, beforeEach */
 
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 const bluebird = require('bluebird');
 const lodash = require('lodash');
 const faker = require('faker');
@@ -11,15 +11,15 @@ const faker = require('faker');
 const logger = require('winston');
 logger.setLevels(logger.config.syslog.levels);
 
-const db = require('../../../source/storage/database');
-const usersStorage = require('../../../source/storage/users');
+const db = require('../../../src/storage/database');
+const usersStorage = require('../../../src/storage/users');
 
-const config = require('../../../source/config');  
+const config = require('../../../src/config');
 const redis = require('redis').createClient(
   config.get('redis:port'),
   config.get('redis:host'), {});
 
-import type { UserInformation } from '../../../source/storage/users';
+import type { UserInformation } from '../../../src/storage/users';
 
 function userFixture(attrs): UserInformation {
   const baseAttributes = {
@@ -47,7 +47,7 @@ describe('Redis Database', () => {
         await bluebird.fromCallback(cb =>
           db.setServerAndInfos(username,
             'someServer', info, ['email', 'randomField'], cb));
-        
+
         // create some inactive events
         await usersStorage.updateFields(username, {
           email: [
@@ -59,7 +59,7 @@ describe('Redis Database', () => {
             }
           ]
         }, {});
-        
+
         // verify that unique and inactive fields exists before
         assert.isTrue(await redisExists(`${info.randomField}:randomField`), `before the tests, ${info.randomField}:randomfield exists`);
         assert.isTrue(await redisExists(`${info.email}:email`), `before the tests, ${info.email}:email exists`);
@@ -96,7 +96,7 @@ describe('Redis Database', () => {
       // Call setServerAndInfos for 'foobar' - setup a user
       beforeEach((done) => {
         db.setServerAndInfos('foobar', 'server_XYZ', info, ['email'], done);
-      });      
+      });
 
       it('stores user information', async () => {
         assert.isTrue(
@@ -121,8 +121,8 @@ describe('Redis Database', () => {
         assert.strictEqual(serverName, 'server_XYZ');
       });
       it('is hygienic with respect to parameters', () => {
-        // After the call to setServerAndInfos, the input attributes should 
-        // not have changed. 
+        // After the call to setServerAndInfos, the input attributes should
+        // not have changed.
         assert.strictEqual(info.email, 'A@B.CH');
       });
     });
@@ -130,9 +130,9 @@ describe('Redis Database', () => {
       const info = userFixture({
         email: 'A@B.CH',
       });
-      await bluebird.fromCallback(cb => 
+      await bluebird.fromCallback(cb =>
         db.setServerAndInfos('foobar', 'server', info, ['email'], cb));
-      
+
       assert.isTrue(
         await redisExists('a@b.ch:email')
       );
@@ -158,7 +158,7 @@ describe('Redis Database', () => {
     // Call setServerAndInfos for 'foobar' - setup a user
     beforeEach((done) => {
       db.setServerAndInfos('foobar', 'server_XYZ', info, ['email'], done);
-    });      
+    });
 
     it('is case insensitive for email', async () => {
       assert.isTrue(
@@ -184,7 +184,7 @@ describe('Redis Database', () => {
       assert.strictEqual(uid, 'foobar');
     });
   });
-  
+
   describe('Reservations', () => {
     const info = userFixture({
       key: 'User@pryv.com',
