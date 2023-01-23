@@ -23,7 +23,6 @@ describe('/service', function () {
   });
 
   describe('GET /info', function () {
-
     it('info', function (done) {
       request.get(server.url + '/service/info').end(function (err, res) {
         validation.check(res, {
@@ -48,7 +47,6 @@ describe('/service', function () {
   });
 
   describe('GET /apps', function () {
-
     it('appList', function (done) {
       request.get(server.url + '/apps').end(function (err, res) {
         validation.check(res, {
@@ -68,7 +66,6 @@ describe('/service', function () {
   });
 
   describe('GET /apps/:appid', function () {
-
     it('valid appId', function (done) {
       request.get(server.url + '/apps/test-a').end(function (err, res) {
         validation.check(res, {
@@ -81,13 +78,11 @@ describe('/service', function () {
         done();
       });
     });
-
   });
 
   describe('GET /hostings', function () {
-
     it('valid', function (done) {
-      const test =  {
+      const test = {
         regions: {
           region1: {
             name: 'Region 1',
@@ -134,13 +129,12 @@ describe('/service', function () {
       };
       const path = '/hostings';
 
-      request.get(server.url + path).end(function(err,res) {
+      request.get(server.url + path).end(function (err, res) {
         assert.deepEqual(res.status, 200);
         assert.deepEqual(res.body, test);
         done();
       });
     });
-
   });
 
   function checkApp(appData) {
@@ -149,5 +143,4 @@ describe('/service', function () {
     appData.should.have.property('iconURL');
     appData.should.have.property('appURL');
   }
-
 });

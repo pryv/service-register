@@ -2,7 +2,7 @@
 exports.success = {
   type: 'object',
   properties: {
-    success : {
+    success: {
       type: 'boolean',
       required: true
     }
@@ -13,8 +13,8 @@ exports.success = {
 exports.serviceInfo = {
   type: 'object',
   properties: {
-    serial : {
-      type: 'string',
+    serial: {
+      type: 'string'
     },
     register: {
       type: 'string',
@@ -50,7 +50,7 @@ exports.serviceInfo = {
 exports.checkExists = {
   type: 'object',
   properties: {
-    exists : {
+    exists: {
       type: 'boolean',
       required: true
     }
@@ -61,7 +61,7 @@ exports.checkExists = {
 exports.checkUID = {
   type: 'object',
   properties: {
-    reserved : {
+    reserved: {
       type: 'boolean',
       required: true
     }
@@ -72,7 +72,7 @@ exports.checkUID = {
 exports.userList = {
   type: 'object',
   properties: {
-    users : {
+    users: {
       type: 'array',
       required: true
     }
@@ -83,7 +83,7 @@ exports.userList = {
 exports.serverList = {
   type: 'object',
   properties: {
-    servers : {
+    servers: {
       type: 'object',
       required: true
     }
@@ -94,7 +94,7 @@ exports.serverList = {
 exports.count = {
   type: 'object',
   properties: {
-    count : {
+    count: {
       type: 'integer',
       required: true
     }
@@ -124,11 +124,11 @@ exports.userCreated = {
 exports.server = {
   type: 'object',
   properties: {
-    server : {
+    server: {
       type: 'string',
       required: true
     },
-    alias : {
+    alias: {
       type: 'string',
       required: true
     }
@@ -139,11 +139,11 @@ exports.server = {
 exports.alreadyConfirmed = {
   type: 'object',
   properties: {
-    server : {
+    server: {
       type: 'string',
       required: true
     },
-    alias : {
+    alias: {
       type: 'string',
       required: true
     },
@@ -225,10 +225,10 @@ exports.multipleErrors = {
       type: 'string',
       required: true
     },
-    errors : {
-      type : 'object',
-      items : {
-        properties : {
+    errors: {
+      type: 'object',
+      items: {
+        properties: {
           id: {
             type: 'string',
             required: true
@@ -246,7 +246,6 @@ exports.multipleErrors = {
     }
   }
 };
-
 
 const serviceInfo = {
   type: 'object',
@@ -266,14 +265,14 @@ const serviceInfo = {
 exports.accessPOST = {
   type: 'object',
   properties: {
-    authUrl : {
+    authUrl: {
       type: 'string', // url?
       required: true
     },
-    poll : {
+    poll: {
       type: 'string', // url?
       required: true
     },
-    serviceInfo: serviceInfo,
+    serviceInfo: serviceInfo
   }
 };

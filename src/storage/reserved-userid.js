@@ -33,7 +33,9 @@ function load(callback) {
     }
     var words = require('../public/reserved-words.json');
     if (currentVersion === words.version) {
-      logger.info('Reserved word list version: ' + words.version + ' is up to date');
+      logger.info(
+        'Reserved word list version: ' + words.version + ' is up to date'
+      );
       words = null;
       return callback();
     }
@@ -42,8 +44,13 @@ function load(callback) {
       if (error) {
         return callback(error);
       }
-      logger.info('Reserved word list updated to version ' + words.version +
-        ' with ' + words.list.length + ' words');
+      logger.info(
+        'Reserved word list updated to version ' +
+          words.version +
+          ' with ' +
+          words.list.length +
+          ' words'
+      );
       words = null;
       callback();
     });
@@ -58,7 +65,7 @@ function load(callback) {
  * uid must have already been checked and cleaned by check-and-constraints.uid
  */
 exports.useridIsReserved = function (userid, callback) {
-  if (! userid) {
+  if (!userid) {
     return null;
   }
   userid = userid.toLowerCase();

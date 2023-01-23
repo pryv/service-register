@@ -14,7 +14,6 @@ const db = require('../../src/storage/database');
 require('readyness/wait/mocha');
 
 describe('cores', () => {
-
   let server, request;
 
   before(async function () {
@@ -30,7 +29,6 @@ describe('cores', () => {
   const path = '/cores';
 
   describe('GET /', () => {
-
     let username, email, coreUrl;
     before(async () => {
       username = faker.random.alphaNumeric(10);
@@ -43,7 +41,14 @@ describe('cores', () => {
       const hostname = coreUrl.split('//')[1];
 
       // core forwards the "Host" header of the request
-      await bluebird.fromCallback(cb => userStorage.createUserOnServiceRegister({ name: hostname }, { username, email, }, ['username', 'email'], cb));
+      await bluebird.fromCallback((cb) =>
+        userStorage.createUserOnServiceRegister(
+          { name: hostname },
+          { username, email },
+          ['username', 'email'],
+          cb
+        )
+      );
     });
 
     describe('by username', () => {
@@ -55,7 +60,7 @@ describe('cores', () => {
         assert.equal(core.url, coreUrl);
       });
       it('must return 404 core when the account does not exists', async () => {
-        const res = await request.get(path).query({ username: 'doesnt-exist'});
+        const res = await request.get(path).query({ username: 'doesnt-exist' });
         assert.equal(res.status, 404);
       });
     });
@@ -69,7 +74,9 @@ describe('cores', () => {
         assert.equal(core.url, coreUrl);
       });
       it('must return the first core when the account does not exist', async () => {
-        const res = await request.get(path).query({ email: 'whatever@mail.com' });
+        const res = await request
+          .get(path)
+          .query({ email: 'whatever@mail.com' });
         assert.equal(res.status, 200);
         const core = res.body.core;
         assert.exists(core);
@@ -85,7 +92,9 @@ describe('cores', () => {
       assert.equal(error.id, 'INVALID_PARAMETERS');
     });
     it('must return an error when both are provided', async () => {
-      const res = await request.get(path).query({ email: 'whatever@mail.com', username: 'hellothere' });
+      const res = await request
+        .get(path)
+        .query({ email: 'whatever@mail.com', username: 'hellothere' });
       assert.equal(res.status, 400);
       const error = res.body;
       assert.exists(error);

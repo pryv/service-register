@@ -24,8 +24,10 @@ describe('Errors handling tests', function () {
       try {
         // Important to set the header, otherwise error will happen later in the
         // process and not in json body parser
-        const res = await request.post(server.url + path).set('Content-Type', 'application/json')
-                .send('{"test": "malformed json"');
+        const res = await request
+          .post(server.url + path)
+          .set('Content-Type', 'application/json')
+          .send('{"test": "malformed json"');
         // just to make sure that test fails if the error was not thrown by the system
         assert.equal(res.status, 400);
       } catch (e) {

@@ -7,7 +7,7 @@ let licenseContent;
 
 /**
  * Eventually prepare fileSpecs (can be called multiple times)
- * @param {Object} actionItem 
+ * @param {Object} actionItem
  * @param {String} license - content of the license
  * @return {Function} the action to apply;
  */
@@ -19,8 +19,7 @@ async function prepare(actionItem, license) {
   };
 }
 
-
 module.exports = {
   prepare: prepare,
   key: 'addSibling'
-}
+};

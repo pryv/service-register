@@ -25,10 +25,9 @@ const assert = chai.assert;
  *  JSchema: json-schema // (optional) schema to validate (doesn not seems to work)
  *  JValues: json object // (optional)  with values, should match result
  *  nextStep: function(test,data) // (optional)  for chained tests, will be called at the end of
-  *                                              this one with data received
+ *                                              this one with data received
  *
  */
-
 
 /**
  * do a a test.
@@ -42,7 +41,6 @@ const assert = chai.assert;
  */
 exports.pathStatusSchema = function pathStatusSchema(test) {
   it(test.it, function (done) {
-
     var url = config.get('server:url') + test.url;
     var post_data = '';
     var req;
@@ -58,7 +56,8 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
         post_data = test.data;
         req.set('Content-Type', 'application/json');
         req.set('Content-Length', post_data.length);
-      } else { // JSON to STRING
+      } else {
+        // JSON to STRING
         post_data = querystring.stringify(test.data);
         req.set('Content-Type', 'application/x-www-form-urlencoded');
         req.set('Content-Length', post_data.length);
@@ -70,14 +69,13 @@ exports.pathStatusSchema = function pathStatusSchema(test) {
       req = request.get(url);
     }
     // Validate response
-    req.end(function(err, res) {
+    req.end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
       assert.equal(res.status, test.status, 'Status code must be correct');
 
       jsonResponse(res, test, done);
     });
-
   });
 };
 
@@ -105,11 +103,12 @@ function jsonResponse(err, res, test, callback_done) {
 
     // test constants
     if (test.value) {
-      var body = (test.restype === 'text/plain; charset=utf-8') ? res.text : res.body;
+      var body =
+        test.restype === 'text/plain; charset=utf-8' ? res.text : res.body;
       body.should.equal(test.value);
     }
-
-  } else {// default JSON
+  } else {
+    // default JSON
     /*jshint -W030 */
     res.should.be.json;
 
@@ -122,7 +121,6 @@ function jsonResponse(err, res, test, callback_done) {
     if (test.JValues) {
       validateJsonValues(test.JValues, res.body);
     }
-
   }
 
   // if everything works.. then callback for result
@@ -134,12 +132,13 @@ function jsonResponse(err, res, test, callback_done) {
   callback_done();
 }
 
-
 function validateJSONSchema(responseData, jsonSchema) {
   var validationResult = validate(responseData, jsonSchema);
-  validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
+  validationResult.valid.should.equal(
+    true,
+    JSON.stringify(validationResult.errors)
+  );
 }
-
 
 /**
  * helper that test the content of a JSON structure
@@ -172,12 +171,8 @@ function validateHeadersValues(tests, headers) {
   }
 }
 
-
-
 // From here on: methods designed to support the recommended test structure
 //               (eventually all tests should use that)
-
-
 
 /**
  * Checks the given response matches basic expectations.
@@ -202,7 +197,9 @@ exports.check = function (response, expected, done) {
     response.text.should.eql(expected.text);
   }
 
-  if (done) { done(); }
+  if (done) {
+    done();
+  }
 };
 
 /**
@@ -219,7 +216,9 @@ exports.checkError = function (response, expected, done) {
   checkJSON(response, schemas.error);
   var error = response.body; //response.body.error
   error.id.should.eql(expected.id);
-  if (done) { done(); }
+  if (done) {
+    done();
+  }
 };
 
 function checkJSON(response, schema) {
@@ -236,5 +235,8 @@ function checkJSON(response, schema) {
  */
 function checkSchema(data, schema) {
   var validationResult = validate(data, schema);
-  validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
+  validationResult.valid.should.equal(
+    true,
+    JSON.stringify(validationResult.errors)
+  );
 }

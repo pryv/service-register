@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const ignores = ['node_modules', '.git', 'dest/dist/'];
@@ -7,8 +6,8 @@ const ignores = ['node_modules', '.git', 'dest/dist/'];
 const version = require('../../package.json').version;
 
 const fileSpecs = {
-  '.js' : [
-   {
+  '.js': [
+    {
       action: 'addHeader',
       startBlock: '/**\n * @license',
       lineBlock: ' * ',
@@ -27,13 +26,13 @@ const fileSpecs = {
     {
       action: 'json',
       force: {
-        author: "Pryv S.A. <support@pryv.com> (http://pryv.com)",
-        license: "BSD-3-Clause",
-        private: false,
+        author: 'Pryv S.A. <support@pryv.com> (http://pryv.com)',
+        license: 'BSD-3-Clause',
+        private: false
       },
       defaults: {
-        homepage: "http://pryv.com",
-        description: "This package is part of Open Pryv.io",
+        homepage: 'http://pryv.com',
+        description: 'This package is part of Open Pryv.io',
         version: version
       },
       sortPackage: true
@@ -42,7 +41,7 @@ const fileSpecs = {
       action: 'addSibling'
     }
   ]
-}
+};
 
 async function start() {
   await loadAction(require('./actions/addHeader'));
@@ -56,11 +55,11 @@ async function start() {
   await loop('../src');
 }
 
-
 // ----------------- helpers
 
 // load license file (add an extra starting)
-const license = '\n' + fs.readFileSync(path.resolve(__dirname, 'LICENSE'), 'utf-8');
+const license =
+  '\n' + fs.readFileSync(path.resolve(__dirname, 'LICENSE'), 'utf-8');
 
 const specKeys = Object.keys(fileSpecs);
 // -- load actions
@@ -73,7 +72,7 @@ async function loadAction(action) {
         await action.prepare(actionItem, license);
       }
     }
-  };
+  }
 }
 
 // throw an error if some handlers have not been initalizes
@@ -81,14 +80,18 @@ function checkInit() {
   for (const specKey of specKeys) {
     for (const actionItem of fileSpecs[specKey]) {
       if (!actionItem.actionMethod) {
-        console.error('Handler "' + actionItem.action + '" for "' + specKey + '" has not been initialized');
+        console.error(
+          'Handler "' +
+            actionItem.action +
+            '" for "' +
+            specKey +
+            '" has not been initialized'
+        );
         process.exit(0);
       }
     }
-  };
+  }
 }
-
-
 
 /**
  * Helper to find the corresponding specs for a file
@@ -151,13 +154,17 @@ async function loop(dir) {
   }
 }
 
-
-
 // --- ru
 
 let count = 0;
 (async () => {
   const startTime = Date.now();
   await start();
-  console.log('Added license to ' + count + ' files in ' + Math.round((Date.now() - startTime) / 10) / 100 + ' s');
+  console.log(
+    'Added license to ' +
+      count +
+      ' files in ' +
+      Math.round((Date.now() - startTime) / 10) / 100 +
+      ' s'
+  );
 })();

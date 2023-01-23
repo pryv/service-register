@@ -2,7 +2,6 @@ const fs = require('fs');
 const _ = require('lodash');
 const sortPackageJson = require('sort-package-json');
 
-
 async function action(fullPath, spec) {
   // load .json file
   let package = require(fullPath);
@@ -23,7 +22,7 @@ async function action(fullPath, spec) {
 
 /**
  * Eventually prepare fileSpecs (can be called multiple times)
- * @param {Object} actionItem 
+ * @param {Object} actionItem
  * @param {String} license - content of the license
  * @return {Function} the action to apply;
  */
@@ -34,8 +33,7 @@ async function prepare(actionItem, license) {
   };
 }
 
-
 module.exports = {
   prepare: prepare,
   key: 'json'
-}
+};

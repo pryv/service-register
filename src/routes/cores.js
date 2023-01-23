@@ -28,15 +28,24 @@ if (logger.warn == null) {
 /** Routes to discover server assignations.
  */
 function registerCoresRoutes(app) {
-
   /** GET /:uid/server - find the server hosting the provided username (uid).
    */
   app.get('/cores', async (req, res, next) => {
-
     const params = req.query;
 
-    if (params.username == null && params.email == null) return next(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide "username" or "email" as query parameters.'}));
-    if (params.username != null && params.email != null) return next(messages.e(400, 'INVALID_PARAMETERS', { message: 'provide only "username" or "email" as query parameter, not both.'}));
+    if (params.username == null && params.email == null)
+      return next(
+        messages.e(400, 'INVALID_PARAMETERS', {
+          message: 'provide "username" or "email" as query parameters.'
+        })
+      );
+    if (params.username != null && params.email != null)
+      return next(
+        messages.e(400, 'INVALID_PARAMETERS', {
+          message:
+            'provide only "username" or "email" as query parameter, not both.'
+        })
+      );
     if (params.username != null) {
       const username = checkAndConstraints.uid(params.username);
       if (!username) return next(messages.e(400, 'INVALID_USER_NAME'));
@@ -52,16 +61,17 @@ function registerCoresRoutes(app) {
     } else {
       // retrieve username from email
       try {
-        username = await bluebird.fromCallback(cb => db.getUIDFromMail(params.email, cb));
+        username = await bluebird.fromCallback((cb) =>
+          db.getUIDFromMail(params.email, cb)
+        );
 
         if (username == null) {
           return res.status(200).json({
             core: {
-              url: getFirstCore(),
-            },
+              url: getFirstCore()
+            }
           });
         }
-
       } catch (error) {
         logger.error(error);
         return next(messages.ei(error));
@@ -70,7 +80,9 @@ function registerCoresRoutes(app) {
 
     let serverName;
     try {
-      serverName = await bluebird.fromCallback(cb => db.getServer(username, cb));
+      serverName = await bluebird.fromCallback((cb) =>
+        db.getServer(username, cb)
+      );
     } catch (error) {
       logger.error(error);
       return next(messages.ei(error));
@@ -84,7 +96,7 @@ function registerCoresRoutes(app) {
       return next(messages.e(404, 'UNKNOWN_USER_NAME'));
     }
 
-    res.status(200).json({core: { url: coreUrl }});
+    res.status(200).json({ core: { url: coreUrl } });
   });
 }
 module.exports = registerCoresRoutes;

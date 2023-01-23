@@ -29,11 +29,15 @@ function dbKey(token) {
 exports.getAll = function (callback) {
   var cutI = ':invitation'.length;
 
-  db.getMatchingSets('*:invitation', function (error, data) {
-    callback(error, data);
-  }, function (keyToClean, data) {
-    data.id = keyToClean.substring(0, keyToClean.length - cutI);
-  });
+  db.getMatchingSets(
+    '*:invitation',
+    function (error, data) {
+      callback(error, data);
+    },
+    function (keyToClean, data) {
+      data.id = keyToClean.substring(0, keyToClean.length - cutI);
+    }
+  );
 };
 
 /**
@@ -46,18 +50,26 @@ exports.getAll = function (callback) {
 exports.generate = function (number, adminId, description, callback) {
   var createdAt = new Date().getTime();
 
-  async.times(number, function (n, next) {
-    // Generate a 5 characters token:
-    var token = randtoken.generate(5);
+  async.times(
+    number,
+    function (n, next) {
+      // Generate a 5 characters token:
+      var token = randtoken.generate(5);
 
-    var data = {createdAt: createdAt, createdBy: adminId, description: description};
-    db.setSet(dbKey(token), data, function (error) {
-      _.extend(data, {id : token});
-      next(error, data);
-    });
-  }, function (error, tokens) {
-    callback(error, tokens);
-  });
+      var data = {
+        createdAt: createdAt,
+        createdBy: adminId,
+        description: description
+      };
+      db.setSet(dbKey(token), data, function (error) {
+        _.extend(data, { id: token });
+        next(error, data);
+      });
+    },
+    function (error, tokens) {
+      callback(error, tokens);
+    }
+  );
 };
 
 /**
@@ -75,14 +87,14 @@ exports.checkIfValid = function checkIfValid(token, callback) {
   if (invitationTokens.length === 0) return callback(false);
 
   // Tokens are a list, accept valid ones
-  for(let i=0; i<invitationTokens.length; i++) {
+  for (let i = 0; i < invitationTokens.length; i++) {
     if (token === invitationTokens[i]) {
       return callback(true);
     }
   }
 
   db.getSet(dbKey(token), function (error, result) {
-    if (error || ! result || result.consumedAt) {
+    if (error || !result || result.consumedAt) {
       return callback(false);
     }
     return callback(true);
@@ -101,19 +113,24 @@ exports.consumeToken = function (token, username, callback) {
   }
 
   this.checkIfValid(token, function (isValid) {
-    if (! isValid) {
+    if (!isValid) {
       return callback(messages.e(404, 'INVALID_INVITATION'));
     }
 
-    db.setSetValue(dbKey(token), 'consumedAt', new Date().getTime(), function (error) {
-      if (error) {
-        return callback(error);
-      }
+    db.setSetValue(
+      dbKey(token),
+      'consumedAt',
+      new Date().getTime(),
+      function (error) {
+        if (error) {
+          return callback(error);
+        }
 
-      db.setSetValue(dbKey(token), 'consumedBy', username, function (error) {
-        callback(error);
-      });
-    });
+        db.setSetValue(dbKey(token), 'consumedBy', username, function (error) {
+          callback(error);
+        });
+      }
+    );
   });
 };
 

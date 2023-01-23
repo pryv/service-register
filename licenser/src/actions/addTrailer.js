@@ -1,15 +1,15 @@
 /**
  * Add license at the END of the file
- * 
- * WARNING Does not have a "endBlock" search so everything after the license "startBlock" will be removed! 
+ *
+ * WARNING Does not have a "endBlock" search so everything after the license "startBlock" will be removed!
  */
 
 const fs = require('fs');
 
 /**
  * Check if file already has this as a trailer
- * @param {string} fullPath 
- * @param {Object} spec 
+ * @param {string} fullPath
+ * @param {Object} spec
  */
 async function checkFileAndClean(fullPath, spec) {
   let fileContent = fs.readFileSync(fullPath, 'utf8');
@@ -24,16 +24,19 @@ async function checkFileAndClean(fullPath, spec) {
   return true;
 }
 
-
 /**
  * Eventually prepare fileSpecs (can be called multiple times)
  * Add actionMethod function to be called on each matched file
- * 
- * @param {Object} fileSpecs 
+ *
+ * @param {Object} fileSpecs
  * @param {String} license - content of the license
  */
 async function prepare(spec, license) {
-  spec.license = '\n' + spec.startBlock + license.split('\n').join('\n' + spec.lineBlock) + spec.endBlock; // prepare license block
+  spec.license =
+    '\n' +
+    spec.startBlock +
+    license.split('\n').join('\n' + spec.lineBlock) +
+    spec.endBlock; // prepare license block
   spec.actionMethod = async function (fullPath) {
     await checkFileAndClean(fullPath, spec);
   };
@@ -42,4 +45,4 @@ async function prepare(spec, license) {
 module.exports = {
   prepare: prepare,
   key: 'addTrailer'
-}
+};

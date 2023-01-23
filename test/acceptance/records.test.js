@@ -1,4 +1,3 @@
-
 /* global describe, before, after, it */
 const request = require('superagent');
 const lodash = require('lodash');
@@ -27,23 +26,22 @@ describe('POST /records', function () {
     await server.stop();
   });
 
-
   it('A dig should retrieve DNS updates', async function () {
     const key = 'acme';
     const val = 'abc';
     const payload = {};
-    payload[key] = {description: val};
-    await request.post(server.url + '/records')
+    payload[key] = { description: val };
+    await request
+      .post(server.url + '/records')
       .set('Authorization', authAdminKey)
       .send(payload);
-    await bluebird.fromCallback(cb => {
+    await bluebird.fromCallback((cb) => {
       dig('TXT', key + '.' + domain, function (error, result) {
         result = result.replace(/^"|"$/g, ''); // Strip boundary quote
         assert.strictEqual(result, val);
         cb();
       });
     });
-
   });
 });
 
@@ -56,15 +54,28 @@ describe('POST /records', function () {
 function dig(dns_class, name, result, useIPv6) {
   const type = useIPv6 ? ' -6 ' : ' -4 ';
   const host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip');
-  const cmd = 'dig +short @' + host + ' ' + type + ' -p ' + config.get('dns:port') +
-    ' ' + dns_class + ' ' + name;
+  const cmd =
+    'dig +short @' +
+    host +
+    ' ' +
+    type +
+    ' -p ' +
+    config.get('dns:port') +
+    ' ' +
+    dns_class +
+    ' ' +
+    name;
 
   exec(cmd, function callback(error, stdout, stderr) {
     stdout = lodash.trim(stdout, ' \n');
-    if (stderr && stderr !== '') { throw new Error(stderr + ' | running ' + cmd); }
+    if (stderr && stderr !== '') {
+      throw new Error(stderr + ' | running ' + cmd);
+    }
 
-    if ((!stdout) || (stdout === '')) {
-      throw new Error('no result for ' + dns_class + ' ' + name + ' (' + stderr + ')');
+    if (!stdout || stdout === '') {
+      throw new Error(
+        'no result for ' + dns_class + ' ' + name + ' (' + stderr + ')'
+      );
     }
     result(error, stdout);
   });

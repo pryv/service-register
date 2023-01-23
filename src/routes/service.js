@@ -16,7 +16,6 @@ const info = require('../business/service-info');
  * @param app
  */
 module.exports = function (app) {
-
   /**
    * GET /service/info: retrieve service information
    * (version, name, terms, register/access/api url, etc...)
@@ -36,8 +35,8 @@ module.exports = function (app) {
    */
   app.get('/apps', function (req, res) {
     var data = [];
-    Object.keys(appsList).forEach(function(appid) {
-      var appData = {id : appid};
+    Object.keys(appsList).forEach(function (appid) {
+      var appData = { id: appid };
       _.extend(appData, appsList[appid]);
       data.push(appData);
     });
@@ -50,14 +49,18 @@ module.exports = function (app) {
    */
   app.get('/apps/:appid', function (req, res, next) {
     var appid = req.params.appid;
-    if (! appid) {
-      return next(messages.e(400, 'INVALID_DATA', {'message': 'missing appid'}));
+    if (!appid) {
+      return next(
+        messages.e(400, 'INVALID_DATA', { message: 'missing appid' })
+      );
     }
 
-    var appData = {id : appid};
+    var appData = { id: appid };
     _.extend(appData, appsList[appid]);
-    if (! appData) {
-      return next(messages.e(400, 'INVALID_DATA', {'message': 'unknown appid : ' + appid}));
+    if (!appData) {
+      return next(
+        messages.e(400, 'INVALID_DATA', { message: 'unknown appid : ' + appid })
+      );
     }
 
     res.json({ app: appData });

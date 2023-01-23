@@ -7,9 +7,9 @@
 'use strict';
 
 var checkAndConstraints = require('../utils/check-and-constraints'),
-    db = require('../storage/database'),
-    messages = require('../utils/messages'),
-    config = require('../config');
+  db = require('../storage/database'),
+  messages = require('../utils/messages'),
+  config = require('../config');
 
 var logger = require('winston');
 
@@ -18,7 +18,7 @@ var logger = require('winston');
 // forcing the version number in package.json does not seem to fix the issue
 // we suspect yarn to load the wrong version
 if (logger.warn == null) {
-  logger.warn = function(...args) {
+  logger.warn = function (...args) {
     logger.warning(...args);
   };
 }
@@ -34,7 +34,7 @@ function discoverServerAssignations(app) {
   app.get('/:uid/server', function (req, res, next) {
     var uid = checkAndConstraints.uid(req.params.uid);
 
-    if (! uid) {
+    if (!uid) {
       return next(messages.e(400, 'INVALID_USER_NAME'));
     }
 
@@ -47,7 +47,9 @@ function discoverServerAssignations(app) {
         return next(messages.e(404, 'UNKNOWN_USER_NAME'));
       }
 
-      return res.redirect(aaservers_mode + '://' + result + '/?username=' + uid);
+      return res.redirect(
+        aaservers_mode + '://' + result + '/?username=' + uid
+      );
     });
   });
 
@@ -56,7 +58,7 @@ function discoverServerAssignations(app) {
   app.post('/:uid/server', function (req, res, next) {
     var uid = checkAndConstraints.uid(req.params.uid);
 
-    if (! uid) {
+    if (!uid) {
       return next(messages.e(400, 'INVALID_USER_NAME'));
     }
 
@@ -64,11 +66,11 @@ function discoverServerAssignations(app) {
       if (error) {
         return next(messages.ei(error));
       }
-      if(!result) {
+      if (!result) {
         return next(messages.e(404, 'UNKNOWN_USER_NAME'));
       }
 
-      return res.status(200).json({server: result, alias: uid + domain });
+      return res.status(200).json({ server: result, alias: uid + domain });
     });
   });
 }

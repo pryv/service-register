@@ -14,4 +14,3 @@ exports.ensureTrailingSlash = (url) => {
   if (url.charAt(url.length - 1) === '/') return url;
   return url + '/';
 };
-

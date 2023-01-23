@@ -4,8 +4,8 @@ const prepend = require('prepend-file');
 /**
  * Check the firts "n" bytes of a file to see if it matches the startBlock
  * If yes clean the file up to the end
- * @param {string} fullPath 
- * @param {Object} spec 
+ * @param {string} fullPath
+ * @param {Object} spec
  */
 async function checkFileHeaderAndClean(fullPath, spec) {
   const fd = fs.openSync(fullPath, 'r');
@@ -18,7 +18,12 @@ async function checkFileHeaderAndClean(fullPath, spec) {
   const fileContent = fs.readFileSync(fullPath, 'utf8');
   const endBlockPos = fileContent.indexOf(spec.endBlock);
   //onsole.log('Updated >> ' + fullPath);
-  fs.writeFileSync(fullPath, fileContent.substr(fileContent.indexOf(spec.endBlock) + spec.endBlock.length));
+  fs.writeFileSync(
+    fullPath,
+    fileContent.substr(
+      fileContent.indexOf(spec.endBlock) + spec.endBlock.length
+    )
+  );
   return true;
 }
 
@@ -33,8 +38,8 @@ async function action(fullPath, spec) {
 /**
  * Eventually prepare fileSpecs (can be called multiple times)
  * Add actionMethod function to be called on each matched file
- * 
- * @param {Object} fileSpecs 
+ *
+ * @param {Object} fileSpecs
  * @param {String} license - content of the license
  */
 async function prepare(spec, license) {
@@ -42,7 +47,7 @@ async function prepare(spec, license) {
   spec.startBlockLength = spec.startBlockBuffer.length;
   let myLicense = '' + license;
   if (spec.lineBlock !== '') {
-    myLicense = myLicense.split('\n').join('\n' + spec.lineBlock)
+    myLicense = myLicense.split('\n').join('\n' + spec.lineBlock);
   }
   spec.license = spec.startBlock + myLicense + spec.endBlock; // prepare license block
   spec.actionMethod = async function (fullPath) {
@@ -53,4 +58,4 @@ async function prepare(spec, license) {
 module.exports = {
   prepare: prepare,
   key: 'addHeader'
-}
+};
