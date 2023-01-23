@@ -1,6 +1,6 @@
-name: Pryv.io register tests
+name: Service-register CI
 
-on: 
+on:
   pull_request:
     branches:
       - master
@@ -11,35 +11,38 @@ jobs:
   run-tests:
 
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
-        node-version: [12.13]
+        node-version: [16.4.1]
 
     steps:
+    - name: Install `just`
+      uses: extractions/setup-just@v1
+
     - name: Download master branch
       uses: actions/checkout@v2
-    
+
     - name: Install Node.js with version ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-        
-    # there is one private package (lib-release) used as npm package, so we need 
+
+    # there is one private package (lib-release) used as npm package, so we need
     # to authenticate
     - name: Login to github
       uses: webfactory/ssh-agent@v0.4.1
       with:
         ssh-private-key: ${{ secrets.TECH_PRYV_SSH_KEY }}
 
-    - name: Download dependencies
-      run: yarn
+    - name: Install Redis
+      run: just setup-dev-env
 
-    - name: Download Redis
-      run: yarn setup
-      
-    - name: Start database
-      run: yarn database
-    
+    - name: Install dependencies
+      run: just install-stable
+
+    - name: Start Redis
+      run: just start-db
+
     - name: Run tests
-      run: yarn test
+      run: just test

@@ -11,15 +11,15 @@ header "Install application from release.tar"
 run mkdir -p $target_dir
 run chown app $target_dir
 
-# Unpack the application and run yarn install.
+# Unpack the application
 cd $target_dir
-run run tar -x --owner app -f \
-  /pd_build/release.tar .
+run run tar --owner app -xf /pd_build/release.tar .
 
-PYTHON=$(which python2.7) run yarn install
+# Skip install: already done in the GitHub workflow
+# npm install
 
 # Perform a release build of the source code. (-> lib)
-run yarn release
+run just compile-release
 rm -r src && mv lib src
 
 # Copy the config file

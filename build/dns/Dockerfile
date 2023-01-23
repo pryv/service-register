@@ -1,4 +1,4 @@
-FROM pryvio/base:1.3.40
+FROM eu.gcr.io/pryvio/base:1.7.0
 MAINTAINER "Tech@Pryv" <tech@pryv.com>
 
 ADD . /pd_build
@@ -11,4 +11,3 @@ VOLUME /data
 #   5353/udp    dns interface for service-register
 #
 EXPOSE 5353/udp
-
