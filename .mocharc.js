@@ -7,5 +7,5 @@ module.exports = {
   reporter: 'dot',
   spec: 'test/**/*.test.js',
   'watch-files': ['test/**/*.js'],
-  require: ['babel-register', 'should']
+  require: ['should']
 };

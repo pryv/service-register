@@ -45,9 +45,6 @@ jobs:
     - name: Run tests
       run: just test
 
-    - name: Transpile flowtype
-      run: just compile-release
-
     - name: Login to the docker containers registry
       uses: azure/docker-login@v1
       with:

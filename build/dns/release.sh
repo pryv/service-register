@@ -18,10 +18,6 @@ run run tar --owner app -xf /pd_build/release.tar .
 # Skip install: already done in the GitHub workflow
 # npm install
 
-# Perform a release build of the source code. (-> lib)
-run just compile-release
-rm -r src && mv lib src
-
 # Copy the config file
 run mkdir -p $conf_dir && \
   cp /pd_build/config/dns.json $conf_dir/dns.json

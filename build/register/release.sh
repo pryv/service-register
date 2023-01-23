@@ -15,10 +15,6 @@ run chown app $target_dir
 cd $target_dir
 run run tar --owner app -xf /pd_build/release.tar .
 
-# Perform a release build of the source code. (-> lib)
-run just compile-release
-rm -r src && mv lib src
-
 # Copy the config file
 run mkdir -p $conf_dir && \
   cp /pd_build/config/register.json $conf_dir/register.json

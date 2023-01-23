@@ -46,20 +46,13 @@ clean:
 install-stable:
     npm ci
 
-# To be removed
-compile-release:
-    node_modules/.bin/babel src --out-dir lib --copy-files && npm run license
-# To be removed
-compile-watch:
-    babel --watch src --out-dir lib --copy-files
-
 # –––––––––––––----------------------------------------------------------------
 # Run
 # –––––––––––––----------------------------------------------------------------
 
 # Start the server
 start:
-    NODE_ENV=development ./node_modules/.bin/babel-node bin/server
+    NODE_ENV=development node bin/server
 
 # Start Redis (daemon)
 start-db:
