@@ -1,10 +1,10 @@
-# Synopsis
+# service-register
 
-Pryv Register and DNS servers.
+Register and DNS servers for Pryv.io.
 
-## Usage 
+## Usage
 
-### Configuration 
+### Configuration
 
 To enable UDP6 add `ip6` value to the configuration, e.g. :
 
@@ -17,29 +17,28 @@ To enable UDP6 add `ip6` value to the configuration, e.g. :
   }
 ```
 
-### Install
 
-*Prerequisites*: Yarn v1+, Node v12+
+## Contributing
 
-Download dependencies: `yarn install`
 
-Install Redis: `yarn setup`
+### Installation
 
-### How to?
+Prerequisites: [Node.js](https://nodejs.org/en/download/) 16, [just](https://github.com/casey/just#installation)
 
-Start database: `yarn database`
+Then:
+1. `just setup-dev-env`
+2. `just install` to install node modules
 
-Create distribution: `yarn release`
+Running `just` with no argument displays the available commands (defined in `justfile`).
 
-Transpile during development: `yarn watch`
 
-Run tests: `yarn test`
+## Testing
 
-Run Register and DNS servers: `yarn start`
-
-## Other
-
-Connect to the local database: `./scripts/connect-database-client.sh`
+```
+just test [...params]
+```
+- Extra parameters at the end are passed on to [Mocha](https://mochajs.org/) (default settings are defined in `.mocharc.js`)
+- Replace `test` with `test-detailed`, `test-debug`, `test-cover` for common presets
 
 
 ## License
