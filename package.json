@@ -5,14 +5,7 @@
   "private": true,
   "author": "Pryv SA",
   "scripts": {
-    "setup": "./scripts/setup-dev-environment.bash",
-    "database": "./scripts/start-database.sh",
-    "release": "node_modules/.bin/babel src --out-dir lib --copy-files && npm run license",
-    "watch": "babel --watch src --out-dir lib --copy-files",
-    "test": "node_modules/.bin/mocha --recursive test/",
-    "start": "./node_modules/.bin/babel-node bin/server",
-    "local": "nodemon ./node_modules/.bin/babel-node bin/server",
-    "license": "cd licenser ; yarn install; yarn apply"
+    "test": "echo 'This project doesn’t use npm scripts – enter `just` for the available development commands\n' && exit 1"
   },
   "dependencies": {
     "airbrake": "^2.1.1",

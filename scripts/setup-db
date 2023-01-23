@@ -68,7 +68,7 @@ else
 fi
 
 echo ""
-echo "Database setup complete."
+echo "✓ Database setup complete."
 echo ""
 echo "To run Redis:"
 echo "    $REDIS_BASE_FOLDER/$REDIS_NAME/src/redis-server [<configuration file>]"
