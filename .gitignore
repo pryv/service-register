@@ -14,7 +14,6 @@ newrelic_agent.log
 build/service-register/release.tar
 .idea
 lib
-yarn-error.log
 
 # code tree structure visualization
 mindMap.mmd
