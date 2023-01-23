@@ -88,5 +88,4 @@ test-cover component *params:
 
 # Run source licensing tool (see 'licensing' folder for details)
 license:
-    cd licenser ; yarn install; yarn apply
-    # source-licenser --config-file .licenser.yml ./
+    source-licenser --config-file .licenser.yml ./

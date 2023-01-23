@@ -1,9 +1,11 @@
 {
   "name": "pryv-registration-server",
-  "description": "Pryv Register and DNS servers",
   "version": "0.1.9",
   "private": true,
-  "author": "Pryv SA",
+  "description": "Pryv Register and DNS servers",
+  "homepage": "https://pryv.com",
+  "license": "UNLICENSED",
+  "author": "Pryv S.A. <info@pryv.com> (https://pryv.com)",
   "scripts": {
     "test": "echo 'This project doesn’t use npm scripts – enter `just` for the available development commands\n' && exit 1"
   },
@@ -37,17 +39,13 @@
     "faker": "~4.1.0",
     "mocha": "^10.2.0",
     "nock": "^11.7.2",
-    "pre-commit": "^1.2.2",
     "rec-la": "^0.1.13",
     "should": "^13.2.3",
+    "source-licenser": "^2.0.5",
     "superagent": "^3.5.0",
     "supertest": "^3.3.0"
   },
   "engines": {
     "node": "16.x"
-  },
-  "pre-commit": [
-    "license"
-  ],
-  "license": "UNLICENSED"
+  }
 }

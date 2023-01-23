@@ -40,3 +40,8 @@ Run Register and DNS servers: `yarn start`
 ## Other
 
 Connect to the local database: `./scripts/connect-database-client.sh`
+
+
+## License
+
+[UNLICENSED](LICENSE)
