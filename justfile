@@ -58,6 +58,10 @@ start:
 start-db:
     ./redis-6.0.17/src/redis-server ./db/dev.conf
 
+# Start Redis client
+start-db-client:
+    ./redis-6.0.17/src/redis-cli
+
 # –––––––––––––----------------------------------------------------------------
 # Test & related
 # –––––––––––––----------------------------------------------------------------
