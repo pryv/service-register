@@ -1,4 +1,4 @@
-FROM pryvio/base:1.3.40
+FROM eu.gcr.io/pryvio/base:1.8.1
 MAINTAINER "Tech@Pryv" <tech@pryv.com>
 
 ADD . /pd_build
@@ -11,4 +11,3 @@ VOLUME /data
 #   9000        register api server
 #
 EXPOSE 9000
-

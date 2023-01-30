@@ -1,4 +1,4 @@
-FROM eu.gcr.io/pryvio/base:1.7.0
+FROM eu.gcr.io/pryvio/base:1.8.1
 MAINTAINER "Tech@Pryv" <tech@pryv.com>
 
 ADD . /pd_build
