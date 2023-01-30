@@ -1,20 +1,22 @@
-/* global describe, before, beforeEach, after, it */
-
+/**
+ * @license
+ * Copyright (C) 2012–2023 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 const supertest = require('supertest');
 const faker = require('faker');
 const bluebird = require('bluebird');
 const assert = require('chai').assert;
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
-const userStorage = require('../../source/storage/users');
-const dataservers = require('../../source/business/dataservers');
-const db = require('../../source/storage/database');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
+const userStorage = require('../../src/storage/users');
+const dataservers = require('../../src/business/dataservers');
 
 require('readyness/wait/mocha');
 
 describe('cores', () => {
-
   let server, request;
 
   before(async function () {
@@ -30,7 +32,6 @@ describe('cores', () => {
   const path = '/cores';
 
   describe('GET /', () => {
-
     let username, email, coreUrl;
     before(async () => {
       username = faker.random.alphaNumeric(10);
@@ -43,9 +44,16 @@ describe('cores', () => {
       const hostname = coreUrl.split('//')[1];
 
       // core forwards the "Host" header of the request
-      await bluebird.fromCallback(cb => userStorage.createUserOnServiceRegister({ name: hostname }, { username, email, }, ['username', 'email'], cb));
+      await bluebird.fromCallback((cb) =>
+        userStorage.createUserOnServiceRegister(
+          { name: hostname },
+          { username, email },
+          ['username', 'email'],
+          cb
+        )
+      );
     });
-    
+
     describe('by username', () => {
       it('must return the right core when the account exists', async () => {
         const res = await request.get(path).query({ username });
@@ -55,7 +63,7 @@ describe('cores', () => {
         assert.equal(core.url, coreUrl);
       });
       it('must return 404 core when the account does not exists', async () => {
-        const res = await request.get(path).query({ username: 'doesnt-exist'});
+        const res = await request.get(path).query({ username: 'doesnt-exist' });
         assert.equal(res.status, 404);
       });
     });
@@ -69,7 +77,9 @@ describe('cores', () => {
         assert.equal(core.url, coreUrl);
       });
       it('must return the first core when the account does not exist', async () => {
-        const res = await request.get(path).query({ email: 'whatever@mail.com' });
+        const res = await request
+          .get(path)
+          .query({ email: 'whatever@mail.com' });
         assert.equal(res.status, 200);
         const core = res.body.core;
         assert.exists(core);
@@ -85,7 +95,9 @@ describe('cores', () => {
       assert.equal(error.id, 'INVALID_PARAMETERS');
     });
     it('must return an error when both are provided', async () => {
-      const res = await request.get(path).query({ email: 'whatever@mail.com', username: 'hellothere' });
+      const res = await request
+        .get(path)
+        .query({ email: 'whatever@mail.com', username: 'hellothere' });
       assert.equal(res.status, 400);
       const error = res.body;
       assert.exists(error);

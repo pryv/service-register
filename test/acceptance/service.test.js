@@ -1,12 +1,17 @@
-/*global describe, before, after, it*/
+/**
+ * @license
+ * Copyright (C) 2012–2023 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 const should = require('should');
 
 const validation = require('../support/data-validation');
 const schemas = require('../support/schema.responses');
 const request = require('superagent');
-const Server = require('../../source/server.js');
+const Server = require('../../src/server.js');
 const chai = require('chai');
-const assert = chai.assert; 
+const assert = chai.assert;
 
 require('readyness/wait/mocha');
 
@@ -23,9 +28,10 @@ describe('/service', function () {
   });
 
   describe('GET /info', function () {
-
     it('info', function (done) {
       request.get(server.url + '/service/info').end(function (err, res) {
+        assert.notExists(err);
+
         validation.check(res, {
           status: 200,
           schema: schemas.serviceInfo
@@ -48,14 +54,15 @@ describe('/service', function () {
   });
 
   describe('GET /apps', function () {
-
     it('appList', function (done) {
       request.get(server.url + '/apps').end(function (err, res) {
+        assert.notExists(err);
+
         validation.check(res, {
           status: 200,
           schema: schemas.appsList
         });
-      
+
         should.exists(res.body);
         should.exists(res.body.apps);
 
@@ -68,26 +75,25 @@ describe('/service', function () {
   });
 
   describe('GET /apps/:appid', function () {
-
     it('valid appId', function (done) {
       request.get(server.url + '/apps/test-a').end(function (err, res) {
+        assert.notExists(err);
+
         validation.check(res, {
           status: 200,
           schema: schemas.appsSingle
-        }); 
+        });
 
         res.body.should.have.property('app');
         checkApp(res.body.app);
         done();
       });
     });
-
   });
 
   describe('GET /hostings', function () {
-
     it('valid', function (done) {
-      const test =  {
+      const test = {
         regions: {
           region1: {
             name: 'Region 1',
@@ -134,20 +140,19 @@ describe('/service', function () {
       };
       const path = '/hostings';
 
-      request.get(server.url + path).end(function(err,res) {
+      request.get(server.url + path).end(function (err, res) {
+        assert.notExists(err);
         assert.deepEqual(res.status, 200);
         assert.deepEqual(res.body, test);
         done();
       });
     });
-
   });
 
-  function checkApp(appData) {
+  function checkApp (appData) {
     appData.should.have.property('id');
     appData.should.have.property('description');
     appData.should.have.property('iconURL');
     appData.should.have.property('appURL');
   }
-
 });

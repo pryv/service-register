@@ -1,20 +1,26 @@
-//success : changeEmail
+/**
+ * @license
+ * Copyright (C) 2012–2023 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
+// success : changeEmail
 exports.success = {
   type: 'object',
   properties: {
-    success : {
+    success: {
       type: 'boolean',
       required: true
     }
   }
 };
 
-//route : service/info
+// route : service/info
 exports.serviceInfo = {
   type: 'object',
   properties: {
-    serial : {
-      type: 'string',
+    serial: {
+      type: 'string'
     },
     register: {
       type: 'string',
@@ -46,62 +52,62 @@ exports.serviceInfo = {
   }
 };
 
-//route : check
+// route : check
 exports.checkExists = {
   type: 'object',
   properties: {
-    exists : {
+    exists: {
       type: 'boolean',
       required: true
     }
   }
 };
 
-//route : check
+// route : check
 exports.checkUID = {
   type: 'object',
   properties: {
-    reserved : {
+    reserved: {
       type: 'boolean',
       required: true
     }
   }
 };
 
-//route : admin-users
+// route : admin-users
 exports.userList = {
   type: 'object',
   properties: {
-    users : {
+    users: {
       type: 'array',
       required: true
     }
   }
 };
 
-//route : admin-users
+// route : admin-users
 exports.serverList = {
   type: 'object',
   properties: {
-    servers : {
+    servers: {
       type: 'object',
       required: true
     }
   }
 };
 
-//route : admin-users
+// route : admin-users
 exports.count = {
   type: 'object',
   properties: {
-    count : {
+    count: {
       type: 'integer',
       required: true
     }
   }
 };
 
-//route : init
+// route : init
 exports.userCreated = {
   type: 'object',
   properties: {
@@ -120,30 +126,30 @@ exports.userCreated = {
   }
 };
 
-//confirm : server & server : server
+// confirm : server & server : server
 exports.server = {
   type: 'object',
   properties: {
-    server : {
+    server: {
       type: 'string',
       required: true
     },
-    alias : {
+    alias: {
       type: 'string',
       required: true
     }
   }
 };
 
-//confirm : server (already confirmed)
+// confirm : server (already confirmed)
 exports.alreadyConfirmed = {
   type: 'object',
   properties: {
-    server : {
+    server: {
       type: 'string',
       required: true
     },
-    alias : {
+    alias: {
       type: 'string',
       required: true
     },
@@ -162,7 +168,7 @@ exports.alreadyConfirmed = {
   }
 };
 
-//apps
+// apps
 exports.appsList = {
   type: 'object',
   properties: {
@@ -181,7 +187,7 @@ exports.appsSingle = {
   }
 };
 
-//hostings
+// hostings
 exports.hostings = {
   type: 'object',
   properties: {
@@ -191,7 +197,7 @@ exports.hostings = {
   }
 };
 
-//errors
+// errors
 exports.error = {
   type: 'object',
   properties: {
@@ -209,7 +215,7 @@ exports.error = {
   }
 };
 
-//errors multiple
+// errors multiple
 exports.multipleErrors = {
   type: 'object',
   properties: {
@@ -225,10 +231,10 @@ exports.multipleErrors = {
       type: 'string',
       required: true
     },
-    errors : {
-      type : 'object',
-      items : {
-        properties : {
+    errors: {
+      type: 'object',
+      items: {
+        properties: {
           id: {
             type: 'string',
             required: true
@@ -246,7 +252,6 @@ exports.multipleErrors = {
     }
   }
 };
-
 
 const serviceInfo = {
   type: 'object',
@@ -266,14 +271,14 @@ const serviceInfo = {
 exports.accessPOST = {
   type: 'object',
   properties: {
-    authUrl : {
+    authUrl: {
       type: 'string', // url?
       required: true
     },
-    poll : {
+    poll: {
       type: 'string', // url?
       required: true
     },
-    serviceInfo: serviceInfo,
+    serviceInfo
   }
 };

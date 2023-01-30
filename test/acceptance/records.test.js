@@ -1,13 +1,17 @@
-
-/* global describe, before, after, it */
+/**
+ * @license
+ * Copyright (C) 2012–2023 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 const request = require('superagent');
 const lodash = require('lodash');
 const exec = require('child_process').exec;
 const bluebird = require('bluebird');
 const assert = require('chai').assert;
 
-const config = require('../../source/config');
-const Server = require('../../source/server.js');
+const config = require('../../src/config');
+const Server = require('../../src/server.js');
 
 require('readyness/wait/mocha');
 
@@ -27,44 +31,57 @@ describe('POST /records', function () {
     await server.stop();
   });
 
-
   it('A dig should retrieve DNS updates', async function () {
     const key = 'acme';
     const val = 'abc';
     const payload = {};
-    payload[key] = {description: val};
-    await request.post(server.url + '/records')
+    payload[key] = { description: val };
+    await request
+      .post(server.url + '/records')
       .set('Authorization', authAdminKey)
       .send(payload);
-    await bluebird.fromCallback(cb => {
+    await bluebird.fromCallback((cb) => {
       dig('TXT', key + '.' + domain, function (error, result) {
+        assert.notExists(error);
         result = result.replace(/^"|"$/g, ''); // Strip boundary quote
         assert.strictEqual(result, val);
         cb();
       });
     });
-    
   });
 });
 
 /** Helper for dns requests using dig.
- * 
- * @param dns_class - A, NS, CNAME (optional)
+ *
+ * @param dnsClass - A, NS, CNAME (optional)
  * @param name - the domain to search
- * @param result - function (error, result) 
+ * @param result - function (error, result)
  */
-function dig(dns_class, name, result, useIPv6) {
+function dig (dnsClass, name, result, useIPv6) {
   const type = useIPv6 ? ' -6 ' : ' -4 ';
   const host = useIPv6 ? config.get('dns:ip6') : config.get('dns:ip');
-  const cmd = 'dig +short @' + host + ' ' + type + ' -p ' + config.get('dns:port') +
-    ' ' + dns_class + ' ' + name;
+  const cmd =
+    'dig +short @' +
+    host +
+    ' ' +
+    type +
+    ' -p ' +
+    config.get('dns:port') +
+    ' ' +
+    dnsClass +
+    ' ' +
+    name;
 
-  exec(cmd, function callback(error, stdout, stderr) {
+  exec(cmd, function callback (error, stdout, stderr) {
     stdout = lodash.trim(stdout, ' \n');
-    if (stderr && stderr !== '') { throw new Error(stderr + ' | running ' + cmd); }
+    if (stderr && stderr !== '') {
+      throw new Error(stderr + ' | running ' + cmd);
+    }
 
-    if ((!stdout) || (stdout === '')) {
-      throw new Error('no result for ' + dns_class + ' ' + name + ' (' + stderr + ')');
+    if (!stdout || stdout === '') {
+      throw new Error(
+        'no result for ' + dnsClass + ' ' + name + ' (' + stderr + ')'
+      );
     }
     result(error, stdout);
   });

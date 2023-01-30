@@ -11,14 +11,9 @@ header "Install application from release.tar"
 run mkdir -p $target_dir
 run chown app $target_dir
 
-# Unpack the application and run yarn install.
+# Unpack the application
 cd $target_dir
-run run tar -x --owner app -f \
-  /pd_build/release.tar .
-
-# Perform a release build of the source code. (-> lib)
-run yarn release
-rm -r source && mv lib source
+run run tar --owner app -xf /pd_build/release.tar .
 
 # Copy the config file
 run mkdir -p $conf_dir && \

@@ -2,7 +2,7 @@
 Icon*
 *.project
 *.settings
-*source/local-config.json
+*src/local-config.json
 node_modules
 db/appendonly.aof
 db/redis_dump.rdb
@@ -13,8 +13,6 @@ service-register.iml
 newrelic_agent.log
 build/service-register/release.tar
 .idea
-lib
-yarn-error.log
 
 # code tree structure visualization
 mindMap.mmd

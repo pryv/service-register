@@ -1,10 +1,15 @@
-/*global it*/
-var config = require('../../source/config');
-var validate = require('json-schema').validate;
-var querystring = require('querystring');
-var schemas = require('./schema.responses');
-var request = require('superagent');
-var should = require('should');
+/**
+ * @license
+ * Copyright (C) 2012–2023 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
+const config = require('../../src/config');
+const validate = require('json-schema').validate;
+const querystring = require('querystring');
+const schemas = require('./schema.responses');
+const request = require('superagent');
+const should = require('should');
 
 const chai = require('chai');
 const assert = chai.assert;
@@ -25,10 +30,9 @@ const assert = chai.assert;
  *  JSchema: json-schema // (optional) schema to validate (doesn not seems to work)
  *  JValues: json object // (optional)  with values, should match result
  *  nextStep: function(test,data) // (optional)  for chained tests, will be called at the end of
-  *                                              this one with data received
+ *                                              this one with data received
  *
  */
-
 
 /**
  * do a a test.
@@ -40,44 +44,42 @@ const assert = chai.assert;
  * JSchema: jscon-schema for validation
  * JValues: expected key-value pair for content validation
  */
-exports.pathStatusSchema = function pathStatusSchema(test) {
+exports.pathStatusSchema = function pathStatusSchema (test) {
   it(test.it, function (done) {
+    const url = config.get('server:url') + test.url;
+    let postData = '';
+    let req;
 
-    var url = config.get('server:url') + test.url;
-    var post_data = '';
-    var req;
-
-    // POST request
     if (test.method === 'POST') {
+      // POST request
       req = request.post(url);
       if (test.contenttype === 'JSON') {
-        post_data = JSON.stringify(test.data);
+        postData = JSON.stringify(test.data);
         req.set('Content-Type', 'application/json');
-        req.set('Content-Length', post_data.length);
+        req.set('Content-Length', postData.length);
       } else if (test.contenttype === 'JSONSTRING') {
-        post_data = test.data;
+        postData = test.data;
         req.set('Content-Type', 'application/json');
-        req.set('Content-Length', post_data.length);
-      } else { // JSON to STRING
-        post_data = querystring.stringify(test.data);
+        req.set('Content-Length', postData.length);
+      } else {
+        // JSON to STRING
+        postData = querystring.stringify(test.data);
         req.set('Content-Type', 'application/x-www-form-urlencoded');
-        req.set('Content-Length', post_data.length);
+        req.set('Content-Length', postData.length);
       }
-      req.send(post_data);
-    }
-    // GET request
-    else {
+      req.send(postData);
+    } else {
+      // GET request
       req = request.get(url);
     }
     // Validate response
-    req.end(function(err, res) {
+    req.end(function (err, res) {
       should.not.exists(err);
       should.exists(res);
       assert.equal(res.status, test.status, 'Status code must be correct');
 
       jsonResponse(res, test, done);
     });
-
   });
 };
 
@@ -87,9 +89,9 @@ exports.jsonResponse = jsonResponse;
  * JSchema: jscon-schema for validation
  * JValues: expected key-value pair for content validation
  */
-function jsonResponse(err, res, test, callback_done) {
-  // NOTE We used to check err and res here, but really we don't want to depend
-  // on superagents definition of an error.
+/* eslint-disable-next-line n/handle-callback-err */
+function jsonResponse (err, res, test, done) {
+  // not checking error because superagent & co have a different definition of what an error is
   should.exist(res);
 
   assert.equal(res.status, test.status, 'Status code must be correct');
@@ -105,13 +107,13 @@ function jsonResponse(err, res, test, callback_done) {
 
     // test constants
     if (test.value) {
-      var body = (test.restype === 'text/plain; charset=utf-8') ? res.text : res.body;
+      const body =
+        test.restype === 'text/plain; charset=utf-8' ? res.text : res.body;
       body.should.equal(test.value);
     }
-
-  } else {// default JSON
-    /*jshint -W030 */
-    res.should.be.json;
+  } else {
+    // default JSON
+    res.headers['content-type'].should.containEql('application/json');
 
     // test schema
     if (test.JSchema) {
@@ -120,9 +122,8 @@ function jsonResponse(err, res, test, callback_done) {
 
     // test constants
     if (test.JValues) {
-      validateJsonValues(test.JValues, res.body);
+      validateJSONValues(test.JValues, res.body);
     }
-
   }
 
   // if everything works.. then callback for result
@@ -131,28 +132,29 @@ function jsonResponse(err, res, test, callback_done) {
     test.nextStep(test, res.body);
   }
 
-  callback_done();
+  done();
 }
 
-
-function validateJSONSchema(responseData, jsonSchema) {
-  var validationResult = validate(responseData, jsonSchema);
-  validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
+function validateJSONSchema (responseData, jsonSchema) {
+  const validationResult = validate(responseData, jsonSchema);
+  validationResult.valid.should.equal(
+    true,
+    JSON.stringify(validationResult.errors)
+  );
 }
-
 
 /**
  * helper that test the content of a JSON structure
  **/
-function validateJsonValues(tests, data_json) {
-  for (var key in tests) {
-    if (tests.hasOwnProperty(key)) {
-      var test = tests[key]; //?? I must do this if I don't want to loose refs in the Array loop??
-      var data = data_json[key];
+function validateJSONValues (tests, dataJSON) {
+  for (const key in tests) {
+    if (Object.prototype.hasOwnProperty.call(tests, key)) {
+      const test = tests[key]; // ?? I must do this if I don't want to loose refs in the Array loop??
+      const data = dataJSON[key];
       if (test instanceof Array) {
         // check values as of an ordered array
-        for (var i = 0; i < test.length; i++) {
-          validateJsonValues(test[i], data[i]);
+        for (let i = 0; i < test.length; i++) {
+          validateJSONValues(test[i], data[i]);
         }
       } else {
         data.should.equal(test);
@@ -164,20 +166,16 @@ function validateJsonValues(tests, data_json) {
 /**
  * helper that test the content of headers
  **/
-function validateHeadersValues(tests, headers) {
-  for (var key in tests) {
-    if (tests.hasOwnProperty(key)) {
+function validateHeadersValues (tests, headers) {
+  for (const key in tests) {
+    if (Object.prototype.hasOwnProperty.call(tests.hasOwnProperty, key)) {
       tests[key].should.equal(headers[key]);
     }
   }
 }
 
-
-
 // From here on: methods designed to support the recommended test structure
 //               (eventually all tests should use that)
-
-
 
 /**
  * Checks the given response matches basic expectations.
@@ -202,7 +200,9 @@ exports.check = function (response, expected, done) {
     response.text.should.eql(expected.text);
   }
 
-  if (done) { done(); }
+  if (done) {
+    done();
+  }
 };
 
 /**
@@ -217,14 +217,15 @@ exports.check = function (response, expected, done) {
 exports.checkError = function (response, expected, done) {
   response.statusCode.should.eql(expected.status);
   checkJSON(response, schemas.error);
-  var error = response.body; //response.body.error
+  const error = response.body; // response.body.error
   error.id.should.eql(expected.id);
-  if (done) { done(); }
+  if (done) {
+    done();
+  }
 };
 
-function checkJSON(response, schema) {
-  /*jshint -W030 */
-  response.should.be.json;
+function checkJSON (response, schema) {
+  response.headers['content-type'].should.containEql('application/json');
   checkSchema(response.body, schema);
 }
 
@@ -234,7 +235,10 @@ function checkJSON(response, schema) {
  * @param data
  * @param {Object} schema
  */
-function checkSchema(data, schema) {
-  var validationResult = validate(data, schema);
-  validationResult.valid.should.equal(true, JSON.stringify(validationResult.errors));
+function checkSchema (data, schema) {
+  const validationResult = validate(data, schema);
+  validationResult.valid.should.equal(
+    true,
+    JSON.stringify(validationResult.errors)
+  );
 }

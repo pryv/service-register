@@ -1,5 +1,0 @@
---compilers js:babel-register 
---ignore-leaks
---growl
---require should
---slow 20

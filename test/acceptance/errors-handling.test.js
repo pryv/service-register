@@ -1,6 +1,12 @@
+/**
+ * @license
+ * Copyright (C) 2012–2023 Pryv S.A. https://pryv.com - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ */
 'use strict';
 
-const Server = require('../../source/server.js');
+const Server = require('../../src/server.js');
 const request = require('superagent');
 const assert = require('chai').assert;
 
@@ -24,8 +30,10 @@ describe('Errors handling tests', function () {
       try {
         // Important to set the header, otherwise error will happen later in the
         // process and not in json body parser
-        const res = await request.post(server.url + path).set('Content-Type', 'application/json')
-                .send('{"test": "malformed json"');
+        const res = await request
+          .post(server.url + path)
+          .set('Content-Type', 'application/json')
+          .send('{"test": "malformed json"');
         // just to make sure that test fails if the error was not thrown by the system
         assert.equal(res.status, 400);
       } catch (e) {
@@ -35,4 +43,3 @@ describe('Errors handling tests', function () {
     });
   });
 });
- 

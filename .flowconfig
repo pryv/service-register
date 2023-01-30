@@ -1,9 +1,0 @@
-[ignore]
-
-[include]
-
-[libs]
-
-[options]
-module.use_strict=true
-suppress_comment= \\(.\\|\n\\)*FLOW
