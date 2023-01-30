@@ -1,6 +1,6 @@
 {
   "name": "pryv-registration-server",
-  "version": "0.1.9",
+  "version": "1.6.5",
   "private": true,
   "description": "Pryv Register and DNS servers",
   "homepage": "https://pryv.com",
