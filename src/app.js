@@ -8,7 +8,6 @@
 const path = require('path');
 const logger = require('winston');
 const express = require('express');
-const config = require('./config');
 
 const errorhandler = require('errorhandler');
 const favicon = require('serve-favicon');
@@ -54,28 +53,4 @@ require('./routes/records')(app);
 require('./routes/cores')(app);
 
 // error management (evolution)
-activateAirbrake(app);
 require('./middleware/app-errors')(app);
-
-function activateAirbrake (app) {
-  /*
-  Quick guide on how to test Airbrake notifications (under logs entry):
-  1. Update configuration file with Airbrake information:
-      "airbrake": {
-       "active": true,
-       "key": "get it from pryv.airbrake.io settings",
-       "projectId": "get it from pryv.airbrake.io settings"
-     }
-  2. Throw a fake error in the code (/routes/index.js is easy to trigger):
-      throw new Error('This is a test of Airbrake notifications');
-  3. Trigger the error by running the faulty code (run a local core)
- */
-  if (config.get('airbrake:disable') !== true) {
-    const projectId = config.get('airbrake:projectId');
-    const key = config.get('airbrake:key');
-    if (projectId != null && key != null) {
-      const airbrake = require('airbrake').createClient(projectId, key);
-      app.use(airbrake.expressHandler());
-    }
-  }
-}

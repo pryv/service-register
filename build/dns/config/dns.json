@@ -32,9 +32,6 @@
     "host": "redis",
     "port": 6379
   },
-  "airbrake": {
-    "disable": true
-  },
   "server": {
     "ssl": false,
     "port": 9000
@@ -67,16 +64,16 @@
       "regions": {
         "pilot": {
           "name": "Pilot",
-          "localizedName": { "fr": "Pilot" }, 
+          "localizedName": { "fr": "Pilot" },
           "zones": {
             "pilot": {
-              "name": "Pilot Core", "localizedName": { "fr": "Pilot Core" }, 
+              "name": "Pilot Core", "localizedName": { "fr": "Pilot Core" },
               "hostings": {
                 "pilot": {
-                  "url": "http://rec.la", 
-                  "name": "Self-Contained Pilot Core", 
-                  "description": "Local core inside the pilot deploy", 
-                  "localizedDescription": { } 
+                  "url": "http://rec.la",
+                  "name": "Self-Contained Pilot Core",
+                  "description": "Local core inside the pilot deploy",
+                  "localizedDescription": { }
                 }
               }
             }

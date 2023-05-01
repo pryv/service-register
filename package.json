@@ -10,7 +10,6 @@
     "test": "echo 'This project doesn’t use npm scripts – enter `just` for the available development commands\n' && exit 1"
   },
   "dependencies": {
-    "airbrake": "^2.1.3",
     "async": "^1.5.2",
     "bcrypt": "^5.1.0",
     "bluebird": "^3.7.2",

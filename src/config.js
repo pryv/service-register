@@ -89,9 +89,6 @@ nconf.defaults({
     aaservers_ssl: true, // set if admin / activity servers have ssl
     aaservers: {}
   },
-  airbrake: {
-    key: 'xxxxxxxx' // registration server key
-  },
   appList: {
     // apps defined in specific configs (dev/staging/production)
   },

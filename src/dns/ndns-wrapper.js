@@ -156,25 +156,6 @@ function onDnsRequest (dynamicCall, req, res) {
 }
 
 /**
- * @returns {void}
- */
-function onDnsRequestCatchError (...args) {
-  try {
-    onDnsRequest(...args);
-  } catch (dnsError) {
-    if (config.get('airbrake:disable') !== true) {
-      const projectId = config.get('airbrake:projectId');
-      const key = config.get('airbrake:key');
-      if (projectId != null && key != null) {
-        const airbrake = require('airbrake').createClient(projectId, key);
-        airbrake.notify(dnsError);
-      }
-    }
-    throw dnsError;
-  }
-}
-
-/**
  * @param {string} BIND_TYPE
  * @param {string} BIND_PORT
  * @param {string} BIND_HOST
@@ -185,7 +166,7 @@ function onDnsRequestCatchError (...args) {
 function start (BIND_TYPE, BIND_PORT, BIND_HOST, dynamicCall, done) {
   const server = ndns.createServer(BIND_TYPE);
   // Server launch
-  server.on('request', (req, res) => onDnsRequestCatchError(dynamicCall, req, res));
+  server.on('request', (req, res) => onDnsRequest(dynamicCall, req, res));
 
   server.bind(BIND_PORT, BIND_HOST);
   return done('DNS Started on IP=' + BIND_HOST + ' PORT=' + BIND_PORT + ' ' + BIND_TYPE);
