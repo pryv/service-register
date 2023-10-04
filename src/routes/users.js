@@ -149,6 +149,7 @@ module.exports = function (app) {
     }
   });
 
+  // START - CLEAN FOR OPENSOURCE
   /**
    * PUT /users: update the user only in service-register (system call)
    * no validation is applied because it is system call
@@ -182,7 +183,7 @@ module.exports = function (app) {
     }
   });
 
-  // START - CLEAN FOR OPENSOURCE
+  
   /// DELETE /username/:username: Delete an existing user
   ///
   /// If given 'onlyReg', the user is only deleted from the registry.
@@ -343,6 +344,7 @@ function _check (req, res, next, raw) {
     }
     db.uidExists(username, function (error, exists) {
       if (error) {
+        console.log(error);
         return next(messages.ei(error));
       }
       if (raw) {
