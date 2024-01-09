@@ -1,6 +1,6 @@
 {
   "name": "pryv-registration-server",
-  "version": "1.7.0",
+  "version": "1.9.0",
   "private": true,
   "description": "Pryv Register and DNS servers",
   "homepage": "https://pryv.com",
@@ -13,7 +13,7 @@
     "async": "^1.5.2",
     "bcrypt": "^5.1.0",
     "bluebird": "^3.7.2",
-    "body-parser": "^1.20.1",
+    "body-parser": "^1.20.2",
     "errorhandler": "^1.5.0",
     "express": "^4.18.2",
     "freelist": "^1.0.3",
@@ -25,24 +25,24 @@
     "rand-token": "^1.0.1",
     "readyness": "0.1.x",
     "redis": "^3.1.2",
-    "semver": "^7.3.8",
+    "semver": "^7.5.4",
     "serve-favicon": "^2.5.0",
     "winston": "^2.4.7"
   },
   "devDependencies": {
     "awaiting": "^3.0",
     "chai": "^4.3.7",
-    "eslint": "^8.32.0",
+    "eslint": "^8.44.0",
     "eslint-config-semistandard": "^17.0.0",
     "faker": "^5.5.3",
     "mocha": "^10.2.0",
-    "nock": "^13.3.0",
+    "nock": "^13.3.1",
     "should": "^13.2.3",
     "source-licenser": "^2.0.5",
-    "superagent": "^8.0.8",
+    "superagent": "^8.0.9",
     "supertest": "^6.3.3"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18.x"
   }
 }
