@@ -52,7 +52,7 @@ nconf.defaults({
   service: {
     serial: '2019061301',
     name: 'My Pryv Lab',
-    support: 'https://pryv.com/helpdesk',
+    support: 'https://github.com/orgs/pryv/discussions',
     terms: 'https://pryv.com/pryv-lab-terms-of-use/',
     access: 'https://access.rec.la:8080/access',
     register: 'https://reg.pryv.io:443/',

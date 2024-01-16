@@ -9,7 +9,7 @@
   },
   "service": {
     "name": "My Pryv Lab Dev",
-    "support": "https://pryv.com/helpdesk",
+    "support": "https://github.com/orgs/pryv/discussions",
     "terms": "https://pryv.com/pryv-lab-terms-of-use/",
     "access": "http://access.rec.la:8080/access/",
     "api": "https://{username}.pryv.me/",
