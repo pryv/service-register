@@ -57,7 +57,7 @@ nconf.defaults({
     access: 'https://access.rec.la:8080/access',
     register: 'https://reg.pryv.io:443/',
     home: 'https://sw.pryv.me/access/register.html',
-    eventTypes: 'https://api.pryv.com/event-types/flat.json',
+    eventTypes: 'https://pryv.github.io/event-types/flat.json',
     assets: {
       definitions: 'https://pryv.github.io/assets-pryv.me/index.json'
     }

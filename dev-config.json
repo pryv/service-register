@@ -14,7 +14,7 @@
     "access": "http://access.rec.la:8080/access/",
     "api": "https://{username}.pryv.me/",
     "home": "https://l.rec.la:4443",
-    "eventTypes": "https://api.pryv.com/event-types/flat.json",
+    "eventTypes": "https://pryv.github.io/event-types/flat.json",
     "assets": {
       "definitions": "https://pryv.github.io/assets-pryv.me/index.json"
     },
@@ -145,14 +145,14 @@
       "description": "Test app A description",
       "iconURL": "http://placehold.it/150&text=A",
       "appURL": "https://pryv.com",
-      "settingsPageURL": "https://api.pryv.com"
+      "settingsPageURL": "https://pryv.github.io"
     },
     "test-b": {
       "displayName": "Test app B",
       "description": "Test app B description",
       "iconURL": "http://placehold.it/150&text=B",
       "appURL": "https://pryv.com",
-      "settingsPageURL": "https://api.pryv.com"
+      "settingsPageURL": "https://pryv.github.io"
     }
   },
   "invitationTokens": null,
