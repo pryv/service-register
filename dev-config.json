@@ -11,9 +11,9 @@
     "name": "My Pryv Lab Dev",
     "support": "https://github.com/orgs/pryv/discussions",
     "terms": "https://pryv.com/pryv-lab-terms-of-use/",
-    "access": "http://access.rec.la:8080/access/",
+    "access": "http://access.backloop.dev:8080/access/",
     "api": "https://{username}.pryv.me/",
-    "home": "https://l.rec.la:4443",
+    "home": "https://l.backloop.dev:4443",
     "eventTypes": "https://pryv.github.io/event-types/flat.json",
     "assets": {
       "definitions": "https://pryv.github.io/assets-pryv.me/index.json"
@@ -27,8 +27,8 @@
   },
   "dns": {
     "name": "local.pryv.net",
-    "domain": "rec.la",
-    "domains": ["rec.la", "pryv.me", "pryv.li"],
+    "domain": "backloop.dev",
+    "domains": ["backloop.dev", "rec.la", "pryv.me", "pryv.li"],
     "certificateAuthorityAuthorization": {
       "issuer": "letsencrypt.org"
     },
@@ -45,21 +45,21 @@
       "www": {
         "alias": [
           {
-            "name": "www.rec.la"
+            "name": "www.backloop.dev"
           }
         ]
       },
       "sw": {
         "alias": [
           {
-            "name": "sw.rec.la"
+            "name": "sw.backloop.dev"
           }
         ]
       },
       "reg": {
         "alias": [
           {
-            "name": "reglocal.rec.la"
+            "name": "reglocal.backloop.dev"
           }
         ]
       },
@@ -78,8 +78,8 @@
     }
   },
   "access": {
-    "defaultAuthUrl": "https://local.rec.la:4443/access/access.html",
-    "trustedAuthUrls": ["https://local.rec.la:2443/access/v0/access.html"]
+    "defaultAuthUrl": "https://local.backloop.dev:4443/access/access.html",
+    "trustedAuthUrls": ["https://local.backloop.dev:2443/access/v0/access.html"]
   },
   "server": {
     "port": 8080

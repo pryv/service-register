@@ -112,7 +112,7 @@ describe('business/dataservers', function () {
         if (host == null) throw new Error('AF: Should have selected a host.');
         const url = host.base_url;
         // Localhost was setup as containing the less users (only one)
-        should(url).be.equal('https://localhost.rec.la/');
+        should(url).be.equal('https://localhost.backloop.dev/');
         done();
       });
     });

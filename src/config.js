@@ -54,7 +54,7 @@ nconf.defaults({
     name: 'My Pryv Lab',
     support: 'https://github.com/orgs/pryv/discussions',
     terms: 'https://pryv.com/pryv-lab-terms-of-use/',
-    access: 'https://access.rec.la:8080/access',
+    access: 'https://access.backloop.dev:8080/access',
     register: 'https://reg.pryv.io:443/',
     home: 'https://sw.pryv.me/access/register.html',
     eventTypes: 'https://pryv.github.io/event-types/flat.json',

@@ -443,7 +443,7 @@ function getUIDFromMail (mail, callback) {
 function setServerAndInfos (username, server, infos, uniqueFields, callback) {
   const attrs = lodash.clone(infos);
   // This user will never be created for real
-  if (username === 'recla') return callback();
+  if (username === 'backloop') return callback();
   if (callback == null) throw new Error('AF: Callback was null'); // assert(callback != null);
   attrs.registeredTimestamp = Date.now();
   // Sanitises the user information

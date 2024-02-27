@@ -11,11 +11,11 @@
   },
   "http": {
     "static": {
-      "url": "https://sw.rec.la",
-      "access": "https://local.rec.la:2443/access/SDK-VERSION-NUM/access.html"
+      "url": "https://sw.backloop.dev",
+      "access": "https://local.backloop.dev:2443/access/SDK-VERSION-NUM/access.html"
     },
     "register": {
-      "url": "https://reg.rec.la"
+      "url": "https://reg.backloop.dev"
     }
   },
   "server": {
@@ -44,7 +44,7 @@
               "name": "Pilot Core", "localizedName": { "fr": "Pilot Core" },
               "hostings": {
                 "pilot": {
-                  "url": "http://rec.la",
+                  "url": "http://backloop.dev",
                   "name": "Self-Contained Pilot Core",
                   "description": "Local core inside the pilot deploy",
                   "localizedDescription": { }

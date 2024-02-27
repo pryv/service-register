@@ -108,7 +108,7 @@ describe('/service', function () {
                     name: 'Exoscale',
                     description: 'Swiss quality',
                     available: true,
-                    availableCore: 'https://co2.rec.la/'
+                    availableCore: 'https://co2.backloop.dev/'
                   },
                   'local-api-server': {
                     url: 'http://localhost',

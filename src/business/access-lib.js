@@ -43,7 +43,7 @@ accessLib.setAccessState = function (
  *   languageCode?: unknown
  *   oauthState?: unknown
  *   localDevel?: unknown
- *   reclaDevel?: unknown
+ *   backloopDevel?: unknown
  *   returnURL?: unknown
  *   clientData?: unknown
  *   authUrl?: string
@@ -137,9 +137,9 @@ accessLib.requestAccess = function (parameters, successHandler, errorHandler) {
     return errorHandler(messages.e(400, 'INVALID_REFERER', { detail: 'referer : ' + referer }));
   }
 
-  const reclaDevel = parameters.reclaDevel;
-  if (typeof reclaDevel === 'string') {
-    url = 'https://sw.rec.la' + reclaDevel;
+  const backloopDevel = parameters.backloopDevel;
+  if (typeof backloopDevel === 'string') {
+    url = 'https://sw.backloop.dev' + backloopDevel;
   }
 
   const firstParamAppender = url.indexOf('?') >= 0 ? '&' : '?';

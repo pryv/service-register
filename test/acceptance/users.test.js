@@ -608,7 +608,7 @@ describe('User Management', () => {
     });
     it('always available', function (done) {
       const test = {
-        username: 'recla',
+        username: 'backloop',
         status: 200,
         desc: 'always available ',
         JSchema: schemas.checkUID
@@ -1179,7 +1179,7 @@ describe('User Management', () => {
         );
         assert.equal(
           userRegistrationRes.body.server,
-          userRegistrationData.user.username + '.rec.la'
+          userRegistrationData.user.username + '.backloop.dev'
         );
         assert.equal(
           userRegistrationRes.body.apiEndpoint,
@@ -1235,7 +1235,7 @@ describe('User Management', () => {
         assert.equal(res.body.username, userRegistrationData.user.username);
         assert.equal(
           res.body.server,
-          userRegistrationData.user.username + '.rec.la'
+          userRegistrationData.user.username + '.backloop.dev'
         );
         assert.equal(
           res.body.apiEndpoint,
@@ -1271,7 +1271,7 @@ describe('User Management', () => {
         assert.equal(res.body.username, userRegistrationData.user.username);
         assert.equal(
           res.body.server,
-          userRegistrationData.user.username + '.rec.la'
+          userRegistrationData.user.username + '.backloop.dev'
         );
         assert.equal(
           res.body.apiEndpoint,
