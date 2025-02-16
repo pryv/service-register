@@ -4,7 +4,7 @@
   "private": true,
   "description": "Pryv Register and DNS servers",
   "homepage": "https://pryv.com",
-  "license": "UNLICENSED",
+  "license": "BSD-3-Clause",
   "author": "Pryv <info@pryv.com> (https://pryv.com)",
   "scripts": {
     "test": "echo 'This project doesn’t use npm scripts – enter `just` for the available development commands\n' && exit 1"

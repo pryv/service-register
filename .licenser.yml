@@ -79,4 +79,4 @@ substitutions:
   AUTHOR_WEB: https://pryv.com
   DESCRIPTION: "This package is part of Pryv.io software"
   HOMEPAGE: https://pryv.com
-  SPDX: UNLICENSED
+  SPDX: BSD-3-Clause
